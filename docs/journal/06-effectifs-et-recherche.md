@@ -4524,3 +4524,63 @@ ne changent pas : seule la recherche lit cette règle.
 quelques heures, les solutions proposées restent celles d'une pause
 entière (changement de pause, D, poste pour poste) ; la recherche
 « Heures » propose, elle, l'arrivée plus tôt de la pause suivante.
+
+### Tous les cas : la recherche vérifiée heure par heure (03/11/2026, `nfdm-v1334`)
+
+Le client, après la v1333 : « il faut vérifier cela pour tous les cas
+possibles ». Un outil neuf, `tools/verifier-recherche.js` (journal 08),
+rejoue dans la page, pour chaque personne de chaque pause de chaque jour
+de 2026 et 2027, le congé à l'heure (1 à 7 h, départ tôt et arrivée tard),
+le congé d'un jour et l'absence — 381 052 + 27 218 + 27 218 essais — et
+confronte chaque réponse à son propre compte du poste, demi-heure par
+demi-heure. Ce qu'il a trouvé, et ce qui a été corrigé :
+
+1. **L'absence comptait sans les heures** (785 trous non signalés). Le
+   06/01, sans LCI, le rééquilibrage envoie AAI de la distillation au
+   poste de LCI et laisse GDT, qui part à 12 h, seul en distillation :
+   « rien à remplacer ». L'absence compte maintenant chacun à ses heures
+   (`tenuAuxHeures`), et un poste déjà incomplet sur la pause n'échappe
+   plus au trou d'une heure que l'absence ouvre (le gluten le 20/05, où
+   VBN relayait de 6 h à 9 h).
+2. **Deux heures mal lues pour compter** (le lecteur indépendant de
+   l'outil, 88 désaccords relus un par un — 80 étaient sa propre
+   naïveté) : une heure de nuit écrite « 02h-06h » restait à 2-6 au lieu
+   de 26-30, et la personne ne comptait pour rien ; une journée payée tout
+   en flex time ou en heures sup (« 02h-06h · 4h +FT », « 14h-18h · 4h
+   +FT ») n'a pas d'heures pour l'agenda et comptait la pause entière.
+   `heuresAuPoste` les lit (la plage écrite, sauf quand l'annotation écrit
+   une pause : c'est alors le prévu). Les 8 désaccords restants viennent
+   des renvois du classeur, que l'outil ne lit pas exprès.
+3. **Les relais d'une heure ou trois n'existaient pas pour le compte.** Le
+   moteur ne prend un relais d'une autre pause que s'il couvre la pause
+   entière d'un poste vide (`relaisDouze`). `relaisAuxHeures` lit les
+   autres : « remplace FPA de 22h à 01h00' » (ATR, le 12/12), « remplace
+   à l'arrière de 18h à 22h » (PLZ, le 19/03), « départ à 13h remplacé
+   par PAM » écrit chez le remplacé (NPE, le 16/12), et la journée longue
+   qui déborde (GKT « 18h-6h », au terrain arrière de 18 h à 22 h).
+4. **Ses relais ailleurs** : le congé ou l'absence de celle qui relaie
+   laisse le poste de l'autre vide. `trousDeSesRelais` le signale — le
+   12/12, ATR en congé : « Pas possible, Chaudières (N) : ATR y tenait le
+   relais de 22 h à 1 h ; FPA arrive à 1 h ».
+5. **Le congé à l'heure part de SES heures**, et non des bornes de la
+   pause : sa présence au poste prolongée de ses relais qui la touchent.
+   ATR, qui arrive à 10 h le 08/11, arriverait à 11 h, non à 7 h ; LAA,
+   de nuit en « 18h-6h », arriverait à 19 h, non à 23 h. La pause voisine
+   (« PM arrive à 13 h ») n'est proposée que si les heures touchent le
+   bord de la pause.
+
+Mesures : 0 faute dans les cinq familles (erreur, congé à l'heure, congé
+d'un jour, absence, relais ailleurs), 247 relais ailleurs rejoués ; trois
+sabotages (le compte sans les heures, les relais ailleurs retirés, l'heure
+perdue comptée depuis la pause) donnent 7 553, 1 489 et 1 744 fautes.
+Effectifs, « rappels évitables » : 63 → 61 (AFA le 31/01 tenait le poste de
+contremaître de 16 h à 19 h ; sans PAM le 21/06, JKS, qui part à 18 h,
+laissait la fermentation vide) — le 19/03, BBZ, un instant retiré à tort,
+y est revenu une fois les relais lus. Le Planning, les manques et le
+placement ne changent pas.
+
+**Ce qui reste, une question au client** : 92 postes du Planning réel,
+tous passés, sont « complets » à la pause et vides à une heure — quelqu'un
+est parti tôt ou arrivé tard sans remplaçant écrit (LHS le 12/01, « 7h
+RTT, départ à 07h00' », fermentation vide de 7 h à 14 h). Aucun à venir.
+Le Planning ne les marque pas ; voir `docs/questions-client.md`.

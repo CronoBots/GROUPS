@@ -3332,3 +3332,24 @@ chacune dans son contexte, sur le même navigateur ; les résultats
 s'écrivent dans l'ordre d'avant. Mesuré : **176 s au lieu de ~360**, les
 mêmes 183 essais, 0 faute ; sur une copie sabotée (le cadre de l'usine
 forcé à 1 900 px), 30 fautes et le code 1 — le contrôle mord toujours.
+
+### La recherche, vérifiée heure par heure (03/11/2026, `verifier-recherche.js`)
+
+`node tools/verifier-recherche.js [--detail]`, 3 min 22 pour 730 jours.
+Pour chaque personne en pause, chaque jour : le congé à l'heure (1 à 7 h,
+départ tôt, arrivée tard ; demandé à 7 jours ou moins), le congé d'un jour
+et l'absence, rejoués par les fonctions de la page, confrontés au compte
+de l'OUTIL — demi-heure par demi-heure, les présents à leurs heures
+(`heuresAuPoste`, la lecture de l'application), les relais
+(`relaisAuxHeures`), sans celui qu'on retire. Fautes (code 1) : H, J, A,
+R (relais ailleurs), E (erreur). Pour information : L, les heures de
+chacun relues par un lecteur À LUI (la cellule prévue, l'annotation
+presté, l'arrivée et le départ écrits ; pas les renvois), et P, le
+Planning du jour réel « complet » à la pause mais vide à une heure.
+
+Il mord : le compte sans les heures donne 7 553 fautes, les relais
+ailleurs retirés 1 489, l'heure perdue comptée depuis la pause et non
+depuis la personne 1 744. Première mesure, avant toute correction : 785
+fautes A ; puis, les relais à heures lus, 207 fautes R, venues de ma
+première version de `trousDeSesRelais`, qui ne rejouait une pause que si
+un commentaire l'y annonçait et oubliait la journée longue.

@@ -239,3 +239,14 @@ Une demande peut désormais porter deux types de congé le même jour
 en annotation ; le second va dans le commentaire. **Comment le classeur
 écrit-il un jour à deux codes ?** Une seule annotation, deux, une
 écriture combinée ? On aligne la base dès que c'est connu.
+
+## Le Planning et le trou d'une heure sans remplaçant écrit (03/11/2026)
+
+La vérification de la recherche (journal 06, « Tous les cas ») relève 92
+postes du Planning réel, tous passés, « complets » à la pause mais vides
+à une heure : quelqu'un part tôt ou arrive tard, et aucun remplaçant n'est
+écrit (LHS le 12/01, « 7h RTT, départ à 07h00' » : la fermentation vide de
+7 h à 14 h). Aucun à venir aujourd'hui. Faut-il que le Planning les marque
+en manque (rouge, à ces heures), ou les laisser comme le classeur les
+écrit ?
+

@@ -109,6 +109,7 @@ contourner, c'est rouvrir le trou qu'elle ferme.
 | `index.html` | `node --check` sur les scripts extraits ; `V` +1 dans `sw.js` ; `node tools/parcours.js` → 0 (chaque onglet, rôle et écran — portrait, iPhone simulé, couché, PC —, le contraste de chaque texte, les accolades et les règles CSS retenues, puis hors ligne ; 2 min, trois à la fois ; `--vite` pour le seul portrait) |
 | lecture de l'horaire, placement, `index.html` | `node tools/verifier-calendrier.js` (neuf règles à 0), `--manques 0926`, `--polyvalence`, `--compteurs` : **sorties comparées à l'octet avec celles d'avant** ; `python3 tools/comparer-fiches.py VBN` |
 | placement, Planning, « À prévenir » | `node tools/coherence-planning.js` → 0 : chaque jour des horaires, la page même au navigateur — placé deux fois, case et compte, orange et proposé, « À prévenir » = Planning ; 3 min |
+| recherche (congé, absence), heures de chacun, relais | `node tools/verifier-recherche.js` → 0 : chaque personne de chaque jour, congé à l'heure (1 à 7 h, départ tôt, arrivée tard), d'un jour, absence, ses relais ailleurs, comptés demi-heure par demi-heure ; 3 min |
 | placement, `data/` | `node tools/verifier-calendrier.js --manques-commentes` → 0 : aucune place vide, d'aujourd'hui au 31/12, dont un commentaire du jour nomme le titulaire absent (les commentaires d'abord) |
 | outils de `tools/` touchant `data/` | `mettre-a-jour.py` à blanc doit reproduire `data/` à l'octet, ou ne changer QUE ce qui est voulu |
 | `data/` | `python3 tools/verifier-integralite.py` → 0 ; `verifier-anonymat.py` → 0 |
@@ -197,15 +198,10 @@ Quand il répond, on applique, on mesure, et on retire la question de la
 liste.
 
 **Le dossier Notion** (le client, le 18/10/2026 : « optimise au maximum ce
-git avec le connecteur Notion, du travail de professionnel »). Une page
-privée de son espace Notion, « BIOWANZE · Dossier projet », en donne la
-vue d'ensemble : état du projet, règles, guide de l'application,
-procédures, architecture, synthèse des règles de lecture et de paie, et
-trois bases — « Suivi — questions et écarts » (questions client et RH,
-écarts connus, chantiers, avec statut), « Journal des versions » (du
-22/09 à aujourd'hui) et « Décisions du client » (la décision, sa date,
-son domaine et son effet dans l'application) — et une liste « Démarrer
-une session de travail ». Le dépôt reste la source de vérité : une
+git avec le connecteur Notion, du travail de professionnel ») : une page
+privée, « BIOWANZE · Dossier projet », et trois bases — « Suivi »,
+« Journal des versions », « Décisions du client » (le détail : journal 07,
+« Le dossier Notion »). Le dépôt reste la source de vérité : une
 décision s'écrit d'abord dans le dépôt (le journal, et ce fichier si c'est une règle), puis se reporte dans Notion (base
 Décisions, statut du suivi, ligne du journal) par le connecteur. Notion suit la même règle que le dépôt : ni nom, ni montant
 de salaire, ni identifiant de connexion.
@@ -297,6 +293,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/verifier-conges-scolaires.js` | confronte le calcul des congés scolaires (décret du 31/03/2022) aux arrêtés publiés |
 | `tools/conges-auto.js` | relit enseignement.be du 1er au 3 du mois, par l'horaire automatique (5 h UTC) ; une année nouvelle n'entre que recoupée avec le décret |
 | `tools/verifier-calendrier.js` | vérifie le calendrier, les compteurs et les manques d'effectif |
+| `tools/verifier-recherche.js` | confronte la recherche (congé, absence) au compte du poste demi-heure par demi-heure, chacun à ses heures ; code 1 à la moindre faute |
 | `tools/coherence-planning.js` | confronte jour par jour le moteur, le Planning et « À prévenir » ; code 1 à la moindre faute |
 | `tools/parcours.js` | le parcours de l'application au navigateur, rôles et écrans, hors ligne compris ; code 1 à la moindre faute |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |

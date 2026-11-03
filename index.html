@@ -26990,7 +26990,7 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
    sinon leur poste). Ils ne valent ensemble que s'ils couvrent toute la
    pause : AAI 6h-18h couvre 14 h-18 h, GKT 18h-6h 18 h-22 h. Rend la liste
    (vide si la pause n'est pas couverte), avec l'horaire de chacun. */
-function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
+function relaisDouze(db,gk,mmdd,k,parId,jourCalc,partiel){
   var W0=PF_DEB[gk], W1=PF_FIN[gk], an=Number(db.year);
   var d0=new Date(an,Number(mmdd.slice(0,2))-1,Number(mmdd.slice(2)));
   var cand=[];
@@ -27141,6 +27141,9 @@ function relaisDouze(db,gk,mmdd,k,parId,jourCalc){
   function hh(v){ v=((v%24)+24)%24; var h=Math.floor(v), m=Math.round((v-h)*60);
     return pad2(h)+(m?"h"+pad2(m):""); }
   pris.forEach(function(c){ c.hor=hh(c.de)+"-"+hh(c.b); });
+  /* partiel : chacun, à ses heures, même sans couvrir la pause (la
+     recherche, relaisAuxHeures) */
+  if(partiel) return cand;
   return fin>=W1-0.01 ? pris : [];
 }
 /* L'HORAIRE PAR DÉFAUT D'UNE PERSONNE EN D. Le client, le 14/10/2026 :
@@ -32403,7 +32406,7 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
       if(monO){
         var P=monO.P; res.poste=P;
         var restants=monO.gens.filter(function(x){ return !x.depuisD && x.p.id!==id; });
-        var TH=tenuAuxHeures(db,monO,restants,g,annee,m,j,PF_DEB[g],PF_FIN[g]), tenuSans=TH.n;
+        var TH=tenuAuxHeures(db,monO,restants,g,annee,m,j,PF_DEB[g],PF_FIN[g],[id]), tenuSans=TH.n;
         if(tenuSans>=monO.attendu){
           res.couverture={P:P, pause:g, tenu:tenuSans, attendu:monO.attendu,
             gens:restants.map(function(x){ return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,P,jour)}; })
@@ -32435,16 +32438,50 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
         res.moves.push({id:q, de:kA[q], a:kB[q], pause:g});
     });
     vB.postes.forEach(function(o){
-      var a=tA[o.P.k];
-      if(!o.manque || (a && a.manque && a.tenu<=o.tenu)) return;
+      var a=tA[o.P.k], TH=null;
+      if(!o.manque || (a && a.manque && a.tenu<=o.tenu)){
+        /* LE TROU À UNE HEURE QUE L'ABSENCE OUVRE (vérification du
+           03/11/2026, le client : « il faut vérifier cela pour tous les cas
+           possibles ») : le poste reste « au complet » sur la pause, mais
+           chacun compté à ses heures (tenuAuxHeures), une demi-heure passe
+           sous l'effectif qui ne l'était pas avec la personne — le 06/01,
+           sans LCI, AAI quitte la distillation et GDT, qui part à 12 h, y
+           reste seul. */
+        if(!o.attendu) return;
+        TH=tenuAuxHeures(db,o,o.gens,g,annee,m,j,PF_DEB[g],PF_FIN[g],[id]);
+        var THa=a?tenuAuxHeures(db,a,a.gens,g,annee,m,j,PF_DEB[g],PF_FIN[g]):null;
+        if(!TH.cpt.some(function(v,i){ return v<o.attendu && !(THa && THa.cpt[i]<=v); })) return;
+      }
       var t=caCandidats(par,vB,g,o.P,jour,pausesDe,id,mode!=="recherche",autres);
-      t.pause=g; t.P=o.P; t.tenu=o.tenu; t.attendu=o.attendu;
-      t.enPoste=o.gens.filter(function(x){ return !x.depuisD; }).map(function(x){
-        return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,o.P,jour)}; });
+      t.pause=g; t.P=o.P; t.tenu=TH?TH.n:o.tenu; t.attendu=o.attendu;
+      t.enPoste=(TH?TH.gens:o.gens).filter(function(x){ return !x.depuisD; }).map(function(x){
+        return {id:x.p.id, form:enFormation(x.p,jour) && !compteAuPoste(x,o.P,jour)}; })
+        .concat(TH?TH.relais.map(function(r){ return {id:r.p.id, form:false, h:r.h}; }):[]);
+      if(TH) t.heures=TH.note;
       res.trous.push(t);
     });
   });
+  /* SES RELAIS AILLEURS (trousDeSesRelais) : le poste qu'elle tient
+     quelques heures dans une autre pause — ou, en congé, à un autre poste
+     de la sienne — reste vide sans elle. L'absence a déjà rejoué sa pause. */
+  trousDeSesRelais(db,id,annee,m,j,null,null,mode==="conge"?null:pause).forEach(function(x){
+    if(res.trous.some(function(t){ return t.P && t.P.k===x.P.k && t.pause===x.g; })) return;
+    if(res.poste && x.g===pause && x.P.k===res.poste.k) return;
+    var t=caCandidats(par,x.vue,x.g,x.P,jour,pausesDe,id,mode!=="recherche",autres);
+    t.pause=x.g; t.P=x.P; t.tenu=x.TH.n; t.attendu=x.o.attendu;
+    t.enPoste=x.TH.gens.filter(function(y){ return !y.depuisD; }).map(function(y){
+      return {id:y.p.id, form:enFormation(y.p,jour) && !compteAuPoste(y,x.P,jour)}; })
+      .concat(x.TH.relais.map(function(r){ return {id:r.p.id, form:false, h:r.h}; }));
+    t.heures=caNoteRelais(id,x);
+    res.trous.push(t);
+  });
   return res;
+}
+/* « ATR y tenait le relais de 22 h à 1 h. » et la note du compte */
+function caNoteRelais(id,x){
+  function hh(v){ v=((v%24)+24)%24; var e=Math.floor(v+1e-6), mn=Math.round((v-e)*60); return e+(mn?" h "+pad2(mn):" h"); }
+  return idLisible(id)+" y tenait le relais "+x.siens.map(function(r){ return "de "+hh(r.a)+" à "+hh(r.b); }).join(" et ")+"."
+    +(x.TH.note?" "+x.TH.note:"");
 }
 /* LE CONGÉ DE MOINS DE 8 HEURES EN PAUSE. Note de service du 24/02/2022
    (prise de congé par heure, service Production), remise le 09/10/2026 ;
@@ -32464,6 +32501,112 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
    heures : en fin de pause, celle qui suit (la nuit : le matin du
    lendemain) arrive plus tôt ; en début, celle qui précède (le matin : la
    nuit de la veille) reste plus tard. */
+/* LES HEURES D'UNE PERSONNE À SON POSTE PENDANT UNE PAUSE (vérification du
+   03/11/2026, verifier-recherche.js) : [début, fin] en heures depuis 0 h
+   du jour de l'usine, bornées à la pause. Une copie venue du D compte pour
+   la pause ; la part d'une autre pause, à ses heures (horPart) ; sinon
+   l'arrivée et le départ que lit l'agenda (lectureAgenda : écrits, ou dans
+   les renvois du classeur). Deux manques relevés par la vérification :
+   - une heure de nuit se ramène dans la nuit (« 02h-06h » : 26-30, et non
+     2-6, qui ne recoupait rien et comptait la personne absente) ;
+   - une journée payée tout en flex time ou en heures sup (« 02h-06h ·
+     4h +FT », « 14h-18h · 4h +FT ») n'a pas d'heures pour l'agenda : sa
+     plage écrite, dans la cellule ou l'annotation, dit sa présence, comme
+     celle d'une journée à code (« 6h-10h · SD26 ») ; pas quand
+     l'annotation écrit une pause, la plage n'est alors que le prévu
+     (« 7h-15h · N »). */
+function heuresAuPoste(db,x,g,an,m,j){
+  var t0=PF_DEB[g], t1=PF_FIN[g];
+  function deb(v){ while(v<t0-12) v+=24; while(v>=t0+12) v-=24; return v; }
+  function fin(v,s){ v=s+((((v-s)%24)+24)%24); return v<=s+0.01?v+24:v; }
+  function borne(s,e){ return [Math.max(s,t0),Math.min(e,t1)]; }
+  if(x.depuisD) return [t0,t1];
+  if(x.horPart){ var a=deb(x.horPart[0]); return borne(a,fin(x.horPart[1],a)); }
+  var s=null, e=null, raw=(x.p.d||{})[pad2(m)+pad2(j)]||[];
+  try{ var L=lectureAgenda(db,x.p,an,m,j); if(L && L.pv===g){ s=L.hd; e=L.hf; } }catch(er){}
+  if(s==null && e==null){
+    var a0=String(raw[1]||"").trim(), c0=String(raw[0]||"").trim();
+    var mc=/^(AM|PM|N|D)$/i.test(a0)?null:(plageMention(a0)||plageMention(c0));
+    if(mc && mc[1]-mc[0]>=0.5 && mc[1]-mc[0]<=12.5){ s=mc[0]; e=mc[1]; }
+  }
+  s=(s==null)?t0:deb(s);
+  e=(e==null)?Math.max(t1,s+0.5):fin(e,s);
+  return borne(s,e);
+}
+/* LES RELAIS À HEURES D'UN POSTE (vérification du 03/11/2026) : ceux qui
+   ne sont pas au poste et le tiennent une partie de la pause. Le moteur ne
+   prend un relais d'une autre pause que s'il couvre la pause entière d'un
+   poste vide (relaisDouze) ; la recherche, qui compte chacun à ses heures,
+   doit aussi voir celui qui tient une heure ou trois. Le 12/12, ATR (après-
+   midi, « 3h +FT ») « remplace FPA de 22h à 01h00' » aux chaudières de nuit,
+   où FPA « arrivée à 01h00' remplacé par ATR » ; le 16/12, NPE « départ à 13h
+   remplacé par PAM », et PAM, l'après-midi, « 1h +FT », « remplace NPE » ; le
+   31/12, LAA, de nuit, « remplace APN de 20h à 22h00' ». Deux façons de le
+   lire, toutes deux dans le classeur :
+   - écrit chez le remplaçant : « remplace X de 22h à 01h00' » (X au poste),
+     ou « remplace en fermentation de 13h à 14h » (le poste écrit) — la veille
+     et le lendemain compris, pour les heures qui débordent sur la pause ;
+   - écrit chez le remplacé : il part tôt ou arrive tard (heuresAuPoste) et
+     écrit « remplacé par Y » : Y tient le reste de la pause.
+   Rend [{p, a, b}] en heures de la pause. */
+function relaisEcritsDuJour(db,g,an,m,j){
+  var cle=an+"-"+m+"-"+j+"-"+g, memo=db.__relEcrits||(db.__relEcrits={});
+  if(memo[cle]) return memo[cle];
+  var t0=PF_DEB[g], l=[];
+  var rx=/remplac?e\s+(?:([A-Z]{3})\b|(?:en|au|aux|à|a)\s+(?:l['’]\s*|la\s+|le\s+)?([a-zéè.\-]+))[^.;\n]*?\bde\s+(\d{1,2})\s*h\s*(\d{2})?\s*['’]?\s*(?:a|à)\s*(\d{1,2})\s*h?\s*(\d{2})?/gi;
+  [-1,0,1].forEach(function(dec){
+    var d=new Date(an,m-1,j+dec), dbd=(d.getFullYear()===an)?db:horaireDe(d.getFullYear()); if(!dbd) return;
+    var md=pad2(d.getMonth()+1)+pad2(d.getDate());
+    dbd.people.forEach(function(q){
+      var raw=q.d[md]; if(!raw || /abs|mal/i.test(String(raw[1]||""))) return;
+      var c=String(raw[2]||""), mm; if(!/remplac?e/i.test(c)) return; rx.lastIndex=0;
+      while((mm=rx.exec(c))){
+        var a=Number(mm[3])+Number(mm[4]||0)/60+24*dec, b=Number(mm[5])+Number(mm[6]||0)/60+24*dec;
+        while(a<t0-12) a+=24; while(a>=t0+12) a-=24; while(b<=a) b+=24;
+        l.push({q:q, tri:mm[1]?mm[1].toUpperCase():null, k:mm[2]?(/^arri/i.test(mm[2])?"terr":posteDepuisNom(mm[2])):null, a:a, b:b});
+      }
+    });
+  });
+  return (memo[cle]=l);
+}
+function relaisAuxHeures(db,o,g,an,m,j){
+  var t0=PF_DEB[g], t1=PF_FIN[g], out=[], vu={};
+  /* ici : ceux du poste, que le relais ne recompte pas (leurs copies
+     comprises) ; triIci : ceux qu'on peut « remplacer » */
+  var ici={}, triIci={}, dejaLa={};
+  (o.gens||[]).forEach(function(x){ dejaLa[x.p.id]=1; if(!x.partage && !x.depuisD){ ici[x.p.id]=x; triIci[idLisible(x.p.id)]=x; } });
+  function tri3(t){ t=String(t).toUpperCase(); return (typeof ALIAS_TRI_AFFICHAGE!=="undefined"&&ALIAS_TRI_AFFICHAGE[t])||t; }
+  /* une personne une fois : ses heures qui se touchent se fondent */
+  function ajoute(q,a,b){
+    var x0=Math.max(a,t0), x1=Math.min(b,t1); if(x1-x0<0.5 || dejaLa[q.id]) return;
+    var l=vu[q.id]||(vu[q.id]=[]), r={p:q, a:x0, b:x1};
+    for(var i=l.length-1;i>=0;i--){ var z=l[i]; if(z.a<=r.b+0.01 && r.a<=z.b+0.01){ r.a=Math.min(r.a,z.a); r.b=Math.max(r.b,z.b); l.splice(i,1); out.splice(out.indexOf(z),1); } }
+    l.push(r); out.push(r);
+  }
+  relaisEcritsDuJour(db,g,an,m,j).forEach(function(r){
+    if(!(r.tri && triIci[tri3(r.tri)]) && r.k!==o.P.k) return;
+    ajoute(r.q,r.a,r.b);
+  });
+  /* la journée longue d'une autre pause qui déborde sur celle-ci, au poste
+     qu'elle tient (GKT de nuit, « 18h-6h », au terrain arrière de 18 h à
+     22 h) : relaisDouze, à ses heures même sans couvrir la pause */
+  try{
+    var parId=db.__parId||(db.__parId=(function(){ var z={}; db.people.forEach(function(q){ z[q.id]=q; }); return z; })());
+    relaisDouze(db,g,pad2(m)+pad2(j),o.P.k,parId,an*10000+m*100+j,true).forEach(function(c){ ajoute(c.p,c.a,c.b); });
+  }catch(eD){}
+  /* écrit chez le remplacé : « départ à 13h remplacé par PAM » */
+  Object.keys(ici).forEach(function(id){
+    var x=ici[id], c=String(((x.p.d||{})[pad2(m)+pad2(j)]||[])[2]||"");
+    var mp=/remplac[ée]e?\s+par\s+([A-Z]{3})\b/.exec(c); if(!mp) return;
+    var y=null; db.people.forEach(function(q){ if(idLisible(q.id)===tri3(mp[1]) && q!==x.p) y=q; });
+    if(!y || ici[y.id] || out.some(function(r){ return r.p===y; })) return;
+    var ry=(y.d||{})[pad2(m)+pad2(j)]; if(!ry || /abs|mal/i.test(String(ry[1]||""))) return;
+    var hx=heuresAuPoste(db,x,g,an,m,j);
+    if(hx[1]<t1-0.01) ajoute(y,hx[1],t1);
+    if(hx[0]>t0+0.01) ajoute(y,t0,hx[0]);
+  });
+  return out;
+}
 /* QUI RESTE, À SES HEURES (le client, le 03/11/2026, deux captures : ATR,
    une heure de départ tôt le dimanche 08/11 ; la recherche répondait
    « possible, en poste 1/1 : GDT », alors que GDT part à 13 h — « 1h RTT »,
@@ -32476,22 +32619,21 @@ function caSimuler(db,id,annee,m,j,mode,pausesDe){
    là à ce moment-là, et la note dit qui n'y est pas tout le temps
    (« GDT part à 13 h »). Les recherches « Jour » et « Heures » le lisent
    toutes deux : une seule règle. */
-function tenuAuxHeures(db,o,restants,g,an,m,j,a,b){
+function tenuAuxHeures(db,o,restants,g,an,m,j,a,b,sans){
   var jour=an*10000+m*100+j, t0=PF_DEB[g], t1=PF_FIN[g], H={};
-  function n24(x){ x=((x%24)+24)%24; while(x<t0-0.01) x+=24; return x; }
-  restants.forEach(function(x){
-    var s=t0, e=t1;
-    if(x.horPart){ s=n24(x.horPart[0]); e=n24(x.horPart[1]); if(e<=s+0.01) e+=24; }
-    else { try{ var L=lectureAgenda(db,x.p,an,m,j); if(L && L.pv===g){ if(L.hd!=null) s=L.hd; if(L.hf!=null) e=L.hf; } }catch(er){} }
-    H[x.p.id]=[Math.max(s,t0),Math.min(e,t1)];
-  });
-  var rel=(o.relais||[]).filter(function(r){ return r.a!=null && r.b!=null; });
-  var bas=null, qui=restants, quiRel=[], u, trous=[];
+  restants.forEach(function(x){ H[x.p.id]=heuresAuPoste(db,x,g,an,m,j); });
+  /* les relais : celui d'une pause entière (o.relais), et ceux d'une heure
+     ou trois (relaisAuxHeures) ; pas celui qu'on retire (sans) */
+  var horsRel={}; (sans||[]).forEach(function(id){ horsRel[id]=1; });
+  var rel=(o.relais||[]).filter(function(r){ return r.a!=null && r.b!=null; }).concat(relaisAuxHeures(db,o,g,an,m,j))
+    .filter(function(r){ return !horsRel[r.p.id]; });
+  var bas=null, qui=restants, quiRel=[], u, trous=[], cpt=[];
   for(u=a; u<b-0.01; u+=0.5){
     var la=restants.filter(function(x){ var r=H[x.p.id]; return r[0]<=u+0.01 && r[1]>=u+0.49; });
-    var n=effectif(la,o.P,jour), rU=null;
-    if(o.attendu && n<o.attendu){ rU=rel.filter(function(r){ return r.a<=u+0.01 && r.b>=u+0.49; })[0]||null; if(rU) n++; }
-    if(bas===null || n<bas){ bas=n; qui=la; quiRel=rU?[rU]:[]; }
+    var n=effectif(la,o.P,jour), rU=[];
+    if(o.attendu && n<o.attendu){ rU=rel.filter(function(r){ return r.a<=u+0.01 && r.b>=u+0.49; }).slice(0,o.attendu-n); n+=rU.length; }
+    cpt.push(n);
+    if(bas===null || n<bas){ bas=n; qui=la; quiRel=rU; }
     /* les heures du trou, demi-heure après demi-heure, en plages */
     if(o.attendu && n<o.attendu){ var z=trous[trous.length-1]; if(z && Math.abs(z[1]-u)<0.01) z[1]=u+0.5; else trous.push([u,u+0.5]); }
   }
@@ -32506,8 +32648,67 @@ function tenuAuxHeures(db,o,restants,g,an,m,j,a,b){
     : "À ces heures-là, "+notes.join(", ")+"."):"";
   /* le relais compté, avec ses heures (« 14-22 »), comme les pastilles du congé à l'heure */
   function lab(v){ v=((v%24)+24)%24; var e=Math.floor(v+1e-6), mn=Math.round((v-e)*60); return e+(mn?"h"+pad2(mn):""); }
-  return {n:bas===null?effectif(restants,o.P,jour):bas, gens:qui, note:note, trous:trous,
+  return {n:bas===null?effectif(restants,o.P,jour):bas, gens:qui, note:note, trous:trous, cpt:cpt,
     relais:quiRel.map(function(r){ return {p:r.p, h:lab(r.a)+"-"+lab(r.b)}; })};
+}
+/* SES RELAIS AILLEURS (vérification du 03/11/2026) : la personne qui tient
+   aussi, quelques heures, le poste d'un autre — ATR le 12/12, l'après-midi,
+   et les chaudières de nuit de 22 h à 1 h — laisse ce poste-là vide si elle
+   n'est pas là. Pour chaque pause du jour où elle relaie, le poste compté
+   avec et sans elle (tenuAuxHeures) ; rend les trous qu'elle ouvre, dans
+   les heures [de, a] seulement si on les donne (le congé à l'heure : ce
+   qui suit un départ tôt, ce qui précède une arrivée tard). */
+/* SES RELAIS, pause par pause : le poste, la vue de la pause et ses heures
+   de relais. On ne rejoue une pause que si quelque chose l'y annonce : un
+   commentaire qui la nomme ou qu'elle écrit (« remplace X de … »,
+   « remplacé par … »), ou une plage de plus de 8 h, la veille, le jour ou le
+   lendemain (la journée longue qui déborde, GKT « 18h-6h »). */
+function sesRelais(db,id,an,m,j){
+  var cle=an+"-"+m+"-"+j+"-"+id, memo=db.__sesRelais||(db.__sesRelais={});
+  if(memo[cle]) return memo[cle];
+  var out=[], tri=idLisible(id), mmdd=pad2(m)+pad2(j), par=null, pers=null;
+  db.people.forEach(function(q){ if(q.id===id) pers=q; });
+  var longue=!!pers && [-1,0,1].some(function(dec){
+    var d=new Date(an,m-1,j+dec), dbd=(d.getFullYear()===an)?db:horaireDe(d.getFullYear()); if(!dbd) return false;
+    var q=null; dbd.people.forEach(function(z){ if(z.id===id) q=z; }); if(!q) return false;
+    var raw=q.d[pad2(d.getMonth()+1)+pad2(d.getDate())]; if(!raw) return false;
+    var pl=plageMention(String(raw[0]||""))||plageMention(String(raw[1]||""));
+    return !!pl && pl[1]-pl[0]>8.01;
+  });
+  var rxp=new RegExp("remplac[ée]e?\\s+par\\s+"+tri+"\\b");
+  var nomme=db.people.some(function(q){ var r=q.d[mmdd]; return !!r && rxp.test(String(r[2]||"")); });
+  ["AM","PM","N"].forEach(function(g){
+    if(!longue && !nomme && !relaisEcritsDuJour(db,g,an,m,j).some(function(r){ return r.q.id===id; })) return;
+    par=par||equipeDuJour(db,an,m,j);
+    if(!(par[g]||[]).length) return;
+    var vue=postesDePause(db,caCopie(par[g],null),g,mmdd,g==="AM"?caCopie(par.D,null):null);
+    vue.postes.forEach(function(o){
+      if(!o.attendu) return;
+      var siens=relaisAuxHeures(db,o,g,an,m,j).filter(function(r){ return r.p.id===id; });
+      if(siens.length) out.push({g:g, o:o, P:o.P, vue:vue, siens:siens});
+    });
+  });
+  return (memo[cle]=out);
+}
+/* SES RELAIS AILLEURS (vérification du 03/11/2026) : la personne qui tient
+   aussi, quelques heures, le poste d'un autre — ATR le 12/12, l'après-midi,
+   et les chaudières de nuit de 22 h à 1 h — laisse ce poste-là vide si elle
+   n'est pas là. Le poste compté avec et sans elle (tenuAuxHeures) ; rend
+   les trous qu'elle ouvre, dans les heures [de, a] si on les donne (le
+   congé à l'heure : les heures qu'elle ne fera pas). */
+function trousDeSesRelais(db,id,an,m,j,de,a,sauf){
+  var out=[];
+  sesRelais(db,id,an,m,j).forEach(function(x){
+    if(x.g===sauf) return;
+    var g=x.g, o=x.o, t0=PF_DEB[g], t1=PF_FIN[g], x0=de==null?t0:Math.max(t0,de), x1=a==null?t1:Math.min(t1,a);
+    if(x1-x0<0.5) return;
+    if(!x.siens.some(function(r){ return r.a<x1-0.01 && r.b>x0+0.01; })) return;
+    var gens=o.gens.filter(function(y){ return y.p.id!==id; });
+    var avec=tenuAuxHeures(db,o,gens,g,an,m,j,x0,x1,[]), sansLui=tenuAuxHeures(db,o,gens,g,an,m,j,x0,x1,[id]);
+    if(!sansLui.cpt.some(function(v,i){ return v<o.attendu && avec.cpt[i]>v; })) return;
+    out.push({g:g, o:o, P:o.P, vue:x.vue, TH:sansLui, siens:x.siens});
+  });
+  return out;
 }
 function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
   var mmdd=pad2(m)+pad2(j), jour=an*10000+Number(mmdd);
@@ -32517,14 +32718,34 @@ function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
   if(!g) return {v:"hors", t:"Déjà "+(dans(par.abs)?"malade":dans(par.cong)?"en congé":"en repos"), html:""};
   if(g==="D") return {v:"ok", t:"Possible", html:'<span class="mql"><span class="caok">'
     +"Période de D : un congé de moins de 8 h se demande sans remplaçant à indiquer.</span></span>"};
-  var pl=SHIFT_PLAGE[g], a=moment==="debut"?pl[0]:pl[1]-n, b=moment==="debut"?pl[0]+n:pl[1];
+  var pl=SHIFT_PLAGE[g];
   function hh(x){ x=((x%24)+24)%24; return pad2(Math.floor(x))+(x%1?"h"+pad2(Math.round(x%1*60)):""); }
   var vue=postesDePause(db,caCopie(par[g],null),g,mmdd,g==="AM"?caCopie(par.D,null):null), o=null;
   vue.postes.forEach(function(x){ x.gens.forEach(function(y){ if(y.p.id===id && !y.depuisD) o=x; }); });
   var P=o?o.P:null;
   if(!P) return {v:"non", t:"Poste introuvable", html:""};
+  /* SES HEURES DU JOUR (vérification du 03/11/2026) : sa présence au poste
+     (heuresAuPoste : l'arrivée et le départ écrits), prolongée de ses relais
+     qui la touchent (la journée « 18h-6h » de nuit commence à 18 h). Le
+     départ tôt retire les n dernières, l'arrivée tard les n premières : ATR,
+     qui arrive à 10 h le 08/11, arriverait à 11 h, et non à 7 h. */
+  var hP=heuresAuPoste(db,moi,g,an,m,j), S=hP[0], E=hP[1], rels=[];
+  sesRelais(db,id,an,m,j).forEach(function(x){ x.siens.forEach(function(r){ rels.push([r.a,r.b]); }); });
+  rels.sort(function(u,w){ return u[0]-w[0]; });
+  var bouge=true; while(bouge){ bouge=false; rels.forEach(function(r){
+    if(r[0]<S-0.01 && r[1]>=S-0.01){ S=r[0]; bouge=true; }
+    if(r[1]>E+0.01 && r[0]<=E+0.01){ E=r[1]; bouge=true; } }); }
+  n=Math.min(n,Math.max(0.5,E-S));
+  var a=moment==="debut"?S:E-n, b=moment==="debut"?S+n:E;
+  var oa=Math.max(a,hP[0]), ob=Math.min(b,hP[1]), touche=ob-oa>=0.5;
   var restants=o.gens.filter(function(x){ return !x.depuisD && x.p.id!==id; });
-  var TH=tenuAuxHeures(db,o,restants,g,an,m,j,a,b), tenuSans=TH.n, complet=tenuSans>=o.attendu;
+  var TH=touche?tenuAuxHeures(db,o,restants,g,an,m,j,oa,ob,[id])
+    :{n:o.attendu, gens:o.gens.filter(function(x){ return !x.depuisD; }), note:"", relais:[], cpt:[]};
+  var tenuSans=TH.n, complet=tenuSans>=o.attendu;
+  /* ses relais ailleurs, perdus avec ces heures-là (trousDeSesRelais) */
+  var perdus=trousDeSesRelais(db,id,an,m,j,a,b,null)
+    .filter(function(x){ return !(x.g===g && x.P.k===P.k); });
+  if(perdus.length) complet=false;
   /* MÊME FONCTION : pour un poste d'opérateur, pas un cadre (adjoint ou
      contremaître) ; pour le poste de contremaître, un cadre, comme
      ailleurs dans ce module (caSait). */
@@ -32548,7 +32769,8 @@ function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
     ? {AM:["PM",pausesDe(0)._par,[14-n,22],0], PM:["N",pausesDe(0)._par,[22-n,30],0], N:["AM",pausesDe(1)._par,[30-n,38],1]}[g]
     : {AM:["N",pausesDe(-1)._par,[-2,6+n],-1], PM:["AM",pausesDe(0)._par,[6,14+n],0], N:["PM",pausesDe(0)._par,[14,22+n],0]}[g];
   vTitre=(V[3]===1?"AM demain":V[3]===-1?"N veille":V[0])+(moment==="fin"?" arrive à "+hh(V[2][0])+" h":" reste jusqu'à "+hh(V[2][1])+" h");
-  if(V[1] && 8+n<=12) (V[1][V[0]]||[]).forEach(function(x){
+  var auBord=moment==="fin"?Math.abs(b-pl[1])<0.01:Math.abs(a-pl[0])<0.01;
+  if(V[1] && 8+n<=12 && auBord) (V[1][V[0]]||[]).forEach(function(x){
     if(!caPlein(x) || !ok(x)) return;
     if(reposOk(x.p.id,V[2][0]+24*0,V[2][1],V[3])) voisins.push({p:x.p}); else ecartes++;
   });
@@ -32571,6 +32793,7 @@ function caCongeHeures(db,id,an,m,j,n,moment,pausesDe,delai){
       +TH.relais.map(function(r){ return caChip(r.p.id,r.h,false); }).join("")
       +new Array(Math.max(0,o.attendu-tenuSans)+1).join('<span class="mqc manque" title="Place vide"><b>?</b></span>'),tenuSans,o.attendu)
     +(TH.note?'<span class="caregle">'+esc(TH.note)+"</span>":"")
+    +perdus.map(function(x){ return '<span class="caregle">'+esc("Aussi, "+x.P.t+" ("+x.g+") : "+caNoteRelais(id,x))+"</span>"; }).join("")
     /* la personne choisie, et non « vous » : le contremaître qui cherche
        pour un autre lisait « sans vous » (audit du 23/10/2026) */
     +'<span class="caregle">'+(loin

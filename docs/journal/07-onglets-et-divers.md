@@ -576,3 +576,20 @@ qu'à qui l'a en polyvalence validée. Mesuré : les deux opérateurs que le
 client nommait ont « STEP » en plus de leur atelier, à l'identique de leur
 héros ; adjoint, opérateur et contremaître inchangés. Question retirée de
 `docs/questions-client.md`.
+
+
+### Le dossier Notion (déplacé de CLAUDE.md le 03/11/2026)
+
+Le passage qui décrivait le dossier, mot pour mot, quand `CLAUDE.md`
+dépassait 25 Ko (la règle — le dépôt d'abord, Notion ensuite, ni nom ni
+montant — y reste) :
+
+> Une page
+> privée de son espace Notion, « BIOWANZE · Dossier projet », en donne la
+> vue d'ensemble : état du projet, règles, guide de l'application,
+> procédures, architecture, synthèse des règles de lecture et de paie, et
+> trois bases — « Suivi — questions et écarts » (questions client et RH,
+> écarts connus, chantiers, avec statut), « Journal des versions » (du
+> 22/09 à aujourd'hui) et « Décisions du client » (la décision, sa date,
+> son domaine et son effet dans l'application) — et une liste « Démarrer
+> une session de travail ».
