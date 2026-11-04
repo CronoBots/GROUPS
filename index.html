@@ -6985,7 +6985,7 @@ html .pvt td.pvzero{color:var(--faint)}
    sections de l'application, la Gestion (l'espace RH s'ouvre à DROITE du
    menu, qui reste utilisable ; son propre menu se cache), et les Réglages
    en bas. Le contenu prend le reste de la largeur. */
-.side-gestion,.side-pied{display:none}
+.side-gestion,.side-pied,.side-logo{display:none}
 @media (min-width:1100px){
   /* 288 px, la largeur du menu de Claude (le client, le 04/11/2026 : « sur
      PC, j'aimerais que la barre de menu soit de même largeur que celle de
@@ -6994,13 +6994,16 @@ html .pvt td.pvzero{color:var(--faint)}
   :root{--side:288px}
   body{padding-left:var(--side)}
   html .top{position:fixed; left:0; top:0; bottom:0; width:var(--side); z-index:60; display:flex; flex-direction:column; align-items:stretch;
-    padding:18px 12px 14px; border-bottom:0; border-right:1px solid var(--bd-blanc-08); overflow-y:auto; transform:none;
+    padding:14px 12px 12px; border-bottom:0; border-right:1px solid var(--bd-blanc-08); overflow-y:auto; transform:none;
     box-shadow:inset -1px 0 0 var(--bd-blanc-02)}
   html .top>.top-in{flex:0 0 auto; max-width:none; margin:0; padding:0 4px 14px; border-bottom:1px solid var(--bd-blanc-08)}
   html .top .brand{flex-wrap:wrap; row-gap:8px; width:100%}
   html .top .ident{flex-basis:100%; padding-left:0; margin-left:0; border-left:0; text-align:left; align-items:flex-start}
-  html .top>.tabs{flex:0 0 auto; flex-direction:column; align-items:stretch; max-width:none; margin:12px 0 0; padding:0; gap:2px}
-  html .top>.tabs button{display:flex; align-items:center; justify-content:flex-start; gap:12px; padding:10px 12px; border-radius:10px;
+  html .top>.tabs{flex:0 0 auto; flex-direction:column; align-items:stretch; max-width:none; margin:10px 0 0; padding:0; gap:2px}
+  /* LES RANGÉES À LA HAUTEUR QUI RESTE (le client, le 04/11/2026 : « refais
+     professionnellement le menu sur PC afin d'éviter d'avoir du scroll ») :
+     --rang, posée par menuAjuster(), de 40 px au plus à 26 au moins */
+  html .top>.tabs button{display:flex; align-items:center; justify-content:flex-start; gap:12px; min-height:var(--rang,40px); padding:0 12px; border-radius:10px;
     font-size:14px; font-weight:550; text-align:left; color:var(--muted)}
   html .top>.tabs button svg{display:block; flex:0 0 auto; width:20px; height:20px}
   html .top>.tabs button:hover{background:var(--fd-blanc-05); color:var(--ink)}
@@ -7017,11 +7020,12 @@ html .pvt td.pvzero{color:var(--faint)}
   /* l'espace RH ouvert : c'est lui qui est sélectionné, pas l'onglet d'en dessous */
   body.ws-ouvert .top>.tabs button[aria-selected="true"]{background:none; color:var(--muted); font-weight:550}
   body.ws-ouvert .top>.tabs button[aria-selected="true"] svg{color:inherit}
-  .side-gestion{display:flex; flex-direction:column; gap:2px; margin-top:14px; padding-top:12px; border-top:1px solid var(--bd-blanc-08)}
+  .side-gestion{display:flex; flex-direction:column; gap:2px; margin-top:10px; padding-top:10px; border-top:1px solid var(--bd-blanc-08)}
   .side-gestion[hidden]{display:none}
   .side-titre{margin:0 12px 6px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
   .side-gestion button,.side-lien{display:flex; align-items:center; gap:12px; width:100%; padding:10px 12px; border:0; border-radius:10px;
     background:none; color:var(--muted); font:inherit; font-size:14px; font-weight:550; text-align:left; cursor:pointer}
+  .side-gestion button{min-height:var(--rang,40px); padding-top:0; padding-bottom:0}
   .side-gestion button:hover,.side-lien:hover{background:var(--fd-blanc-05); color:var(--ink)}
   .side-gestion button[aria-current="page"]{background:var(--in-soft); color:var(--ink); font-weight:650}
   .side-gestion button[aria-current="page"] svg{color:var(--in)}
@@ -7031,13 +7035,48 @@ html .pvt td.pvzero{color:var(--faint)}
   /* Réglages reste en vue au bas du menu même quand celui-ci défile : il
      sortait de l'écran jusqu'à 1366×768, et à 1280×900 pour la RH. Le -14px
      reprend le padding du bas de .top (audit du 23/10/2026). */
-  .side-pied{display:flex; flex-direction:column; margin-top:auto; padding-top:12px; border-top:1px solid var(--bd-blanc-08);
-    position:sticky; bottom:-14px; padding-bottom:14px; background:var(--fd-marque); z-index:1}
+  .side-pied{display:flex; flex-direction:row; align-items:center; gap:6px; margin-top:auto; padding-top:10px; border-top:1px solid var(--bd-blanc-08);
+    position:sticky; bottom:-12px; padding-bottom:12px; background:var(--fd-marque); z-index:1}
+  /* LE PIED EN UNE LIGNE (04/11/2026) : la carte « moi » — le trigramme
+     dans son cercle, le poste du jour, la date, la roue — ouvre les
+     Réglages ; « Infos et aide », à côté, en tuile seule (son nom pour
+     l'infobulle et le lecteur d'écran) */
+  html body #sidePied .side-lien.side-moi{flex:1 1 auto; min-width:0; min-height:50px; gap:10px; padding:6px 8px; border-radius:12px}
+  html body #sidePied .side-moi .sm-av{flex:none; display:grid; place-items:center; width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(180deg,#2B4A7E,#16294D); box-shadow:0 0 0 2px var(--in); color:var(--tx-blanc); font:700 11.5px/1 "IBM Plex Mono",monospace; letter-spacing:.02em}
+  html body #sidePied .side-moi .sm-av:empty{display:none}
+  html body #sidePied .side-moi .sm-txt{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:1px; line-height:1.25}
+  html body #sidePied .side-moi .sm-txt>b{font-size:13.5px; font-weight:650; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  html body #sidePied .side-moi .sm-txt>span{font-size:12px; font-weight:500; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  html body #sidePied .side-lien.side-moi svg{width:20px; height:20px; padding:0; border-radius:0; background:none; box-shadow:none; color:var(--muted); stroke-width:1.8}
+  html body #sidePied .side-lien.side-aide{position:relative; flex:none; width:50px; min-height:50px; padding:0; justify-content:center; border-radius:12px}
+  html body #sidePied .side-aide>span:not(.side-nb){position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  html body #sidePied .side-aide>.side-nb{position:absolute; top:4px; right:4px; margin:0; min-width:18px; height:18px; padding:0 5px; font-size:11px}
   /* l'entrée qui prend le focus au clavier s'arrête au-dessus de ce pied :
      « Absences et congés » et « Historique » passaient dessous à 1280×900,
      l'anneau semblant entourer Réglages (audit du 23/10/2026) */
   html .top{scroll-padding-bottom:76px}
   body[data-view="reglages"] .side-lien[data-go="reglages"],body[data-view="aide"] .side-lien[data-go="aide"]{background:var(--in-soft); color:var(--ink)}
+  /* le logo, en tête : centré (le client, le 22/10/2026), plus petit qu'avant
+     (96 px), il mène à l'Accueil ; la marque du téléphone se retire */
+  html .top>.top-in{display:none}
+  html .top>.side-logo{order:0; display:flex; align-items:center; justify-content:center; flex:0 0 auto; width:100%; height:calc(var(--m-logo,48px) + 12px);
+    margin:0; padding:0 0 12px; border:0; border-bottom:1px solid var(--bd-blanc-08); border-radius:0; background:none; cursor:pointer}
+  html .top>.side-logo img{display:block; height:var(--m-logo,48px); width:auto; max-width:100%; object-fit:contain}
+  html .top>.side-logo:focus-visible{outline:2px solid var(--in); outline-offset:2px; border-radius:8px}
+  /* LE MENU SERRÉ (rangées sous 32 px) : le logo, les intertitres, les
+     tuiles et le texte se resserrent avec elles */
+  html .top.menu-serre{--m-logo:34px}
+  html .top.menu-serre>.tabs{margin-top:6px}
+  html .top.menu-serre>.tabs .side-cat{margin:8px 12px 3px}
+  html .top.menu-serre>.tabs .side-cat[data-cat="moi"]{margin-top:2px}
+  html .top.menu-serre .side-gestion{margin-top:6px; padding-top:6px}
+  html .top.menu-serre .side-titre{margin-bottom:3px}
+  html .top.menu-serre>.tabs button,html .top.menu-serre .side-gestion button{gap:10px; font-size:13.5px}
+  html .top.menu-serre .side-pied{padding-top:8px}
+  html body #sidePied .side-lien.side-moi,html body #sidePied .side-lien.side-aide{transition:background-color .12s ease}
+  html body .top.menu-serre #sidePied .side-lien.side-moi,html body .top.menu-serre #sidePied .side-lien.side-aide{min-height:42px}
+  html body .top.menu-serre #sidePied .side-moi .sm-av{width:30px; height:30px; font-size:11px}
   /* l'espace RH à droite du menu, sans son propre menu */
   html .grille.ws{left:var(--side)}
   html .grille.ws .ws-nav{display:none}
@@ -7046,22 +7085,14 @@ html .pvt td.pvzero{color:var(--faint)}
   html .ws-grille{display:block; columns:3 300px; column-gap:14px}
   html .ws-grille>.ws-carte{break-inside:avoid; margin:0 0 14px; display:block}
 }
-/* un écran bas : seuls les intertitres se resserrent. Les entrées gardent
-   leurs 41 px : les ramener à 35 px était une régression (contrôle de
-   non-régression du 23/10/2026) ; Réglages reste en vue par le pied collant */
-@media (min-width:1100px) and (max-height:900px){
-  html .top>.tabs .side-cat{margin:10px 12px 4px}
-}
-/* UN ÉCRAN BAS, SUITE (audit du 23/10/2026, « utilise les nouveaux skills
-   pour tout optimiser ») : à 1366 × 768, six entrées de la RH, dont « À
-   valider » et sa pastille, étaient sous le pied, sans barre ni indice.
-   Les entrées gardent leurs 41 px ; c'est la marque qui se resserre (le
-   logo de 96 à 56 px, toujours centré), et un fondu au-dessus du pied dit
-   qu'il reste des entrées dessous tant que le menu n'est pas en bas
-   (menuSuite()). */
-@media (min-width:1100px) and (max-height:860px){
-  html body .top .brand .blogo{height:56px; margin:0 0 4px}
-}
+/* UN ÉCRAN BAS. Jusqu'au 04/11/2026, les entrées gardaient 41 px (les
+   ramener à 35 px, sans le vouloir, avait été une régression le
+   23/10/2026), seuls les intertitres et le logo se resserraient, et le
+   menu défilait : à 1920 × 1000 déjà pour la hiérarchie (1 122 px de
+   contenu). Le client, le 04/11/2026, demande un menu sans défilement :
+   les rangées prennent la hauteur qui reste (menuAjuster()). Le fondu au-
+   dessus du pied reste, pour le dernier recours (moins de 580 px de haut
+   pour la RH) : il dit qu'il reste des entrées dessous (menuSuite()). */
 @media (min-width:1100px){
   html .top.menu-suite .side-pied::before{content:""; position:absolute; left:-12px; right:-12px; bottom:100%; height:34px;
     background:linear-gradient(var(--fd-marque-0),var(--fd-marque)); pointer-events:none}
@@ -9771,6 +9802,11 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     box-sizing:border-box; flex:none; width:28px; height:28px; padding:5px; border-radius:7px; stroke-width:2; box-shadow:var(--ip-relief-petit); transform:none}
   html .top .tabs #tab-plus svg{padding:3px; background:var(--bd-blanc-14)}
 }
+/* le menu du PC serré (menuAjuster) : des tuiles de 24 px, comme la
+   colonne des Réglages d'un Mac */
+@media (min-width:1100px){
+  html body .top.menu-serre .tabs button svg,html body .top.menu-serre #sideGestion button svg{width:24px; height:24px; padding:4px; border-radius:6px}
+}
 </style>
 </head>
 <body>
@@ -9789,6 +9825,14 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 
 
 <header class="top">
+  <!-- LE LOGO DU MENU DU PC (le client, le 04/11/2026 : « refais
+       professionnellement le menu sur PC afin d'éviter d'avoir du scroll et
+       réorganise le menu et contenu ») : centré (le client, le 22/10/2026),
+       il ramène à l'Accueil, comme la marque de toute application.
+       L'identité (trigramme, poste du jour, date) descend au pied du menu,
+       dans la carte « moi » (#sideMoi). Caché sous 1100 px, où la marque
+       (.brand) garde son rôle. -->
+  <button type="button" class="side-logo" data-go="horaire" aria-label="Accueil" title="Accueil"><img src="logo.svg" alt="" width="47" height="36" decoding="async"></button>
   <div class="top-in">
     <!-- Le nom du bouton contient ce qu'il montre (trigramme, date, poste),
          précédé de ce qu'il fait ; le titre de la page n'est plus DANS un
@@ -9870,9 +9914,12 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
        en bas, les Réglages. Cachés en dessous. -->
   <nav class="side-gestion" id="sideGestion" aria-label="Gestion" hidden></nav>
   <div class="side-pied" id="sidePied">
-    <!-- la même roue que celle du héros : deux dessins différents se voyaient ensemble au PC (audit du 23/10/2026) -->
-    <button type="button" class="side-lien" data-go="aide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Infos et aide</span><span class="side-nb" id="sideAideNb" hidden></span></button>
-    <button type="button" class="side-lien" data-go="reglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Réglages</span></button>
+    <!-- LE PIED DU MENU, UNE LIGNE (04/11/2026) : la carte « moi » (le
+         trigramme, le poste du jour, la date) ouvre les Réglages — la roue
+         le dit ; l'aide, à côté, en tuile seule. La roue reste la même que
+         celle du héros (audit du 23/10/2026) ; la feuille Plus la reprend. -->
+    <button type="button" class="side-lien side-moi" id="sideMoi" data-go="reglages" title="Mes réglages"><span class="sm-av" id="sideMoiTri" aria-hidden="true"></span><span class="sm-txt"><b id="sideMoiL1">Réglages</b><span id="sideMoiL2"></span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <button type="button" class="side-lien side-aide" data-go="aide" title="Infos et aide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Infos et aide</span><span class="side-nb" id="sideAideNb" hidden></span></button>
   </div>
 </header>
 <div class="navwrap" id="navwrap" hidden></div>
@@ -14184,13 +14231,28 @@ function majBrandsub(){
   /* Le trigramme vit sur la ligne de la marque, pas ici : il ne change pas
      dans la journée, alors que ce qui suit change avec elle. */
   if(tri) tri.textContent=id?idLisible(id):"";
+  /* LA CARTE « MOI » DU PIED DU MENU DU PC (04/11/2026) : la même chose
+     que la marque — le trigramme dans son cercle, le poste du jour, la
+     date ; « jusqu'à 6 h » (la nuit en cours) passe sous la date */
+  function moi(l1,l2){
+    var b=document.getElementById("sideMoi"), a=document.getElementById("sideMoiTri"), u=document.getElementById("sideMoiL1"), d=document.getElementById("sideMoiL2");
+    if(!b) return;
+    var suite=" \u00b7 jusqu'à 6 h";
+    if(l1&&l1.slice(-suite.length)===suite){ l1=l1.slice(0,-suite.length); l2=l2+suite; }
+    if(a) a.textContent=id?idLisible(id):"";
+    if(u) u.textContent=l1; if(d) d.textContent=l2;
+    b.setAttribute("aria-label","Mes réglages \u00b7 "+[id?idLisible(id):"",l1,l2].filter(Boolean).join(" \u00b7 "));
+    b.title=[l1,l2].filter(Boolean).join(" \u00b7 ")+" \u00b7 Mes réglages";
+  }
   if(!id){
     el.innerHTML='<span class="idate">Choisissez qui vous êtes</span><em>dans Réglages</em>';
+    moi("Choisissez qui vous êtes","dans Réglages");
     return;
   }
   function ecrire(droite,jour){
     el.innerHTML='<span class="idate">'+esc(dateDuJourLisible(jour))+"</span>"
       +"<em>"+esc(droite)+"</em>";
+    moi(droite,dateDuJourLisible(jour));
   }
   ecrire(fonctionCourte(cat));
   /* Le poste du jour demande l'horaire d'équipe : on l'écrit dès qu'il
@@ -36961,6 +37023,34 @@ function menuSuite(){
   var t=document.querySelector("header.top"); if(!t) return;
   t.classList.toggle("menu-suite",mqSide.matches&&t.scrollHeight>t.clientHeight+1&&t.scrollTop+t.clientHeight<t.scrollHeight-2);
 }
+/* LE MENU DU PC TIENT DANS LA HAUTEUR DE L'ÉCRAN (le client, le 04/11/2026 :
+   « refais professionnellement le menu sur PC afin d'éviter d'avoir du
+   scroll »). Les rangées prennent la hauteur qui reste, de 40 px au plus à
+   26 au moins (--rang) ; sous 32, le logo, les intertitres, les tuiles et
+   le texte se resserrent (.menu-serre). Ce qui dépasse se répartit sur les
+   rangées : une passe, et une seconde pour le resserrement. En dessous de
+   26 px par rangée (moins de 580 px de haut pour la RH), le menu défile,
+   en dernier recours. */
+function menuAjuster(){
+  var t=document.querySelector("header.top"); if(!t) return;
+  if(!mqSide.matches){ t.style.removeProperty("--rang"); t.classList.remove("menu-serre"); return; }
+  var rs=[].filter.call(t.querySelectorAll(".tabs>button,.side-gestion>button"),function(b){ return b.getClientRects().length; }), n=rs.length;
+  function essai(r,s){ t.style.setProperty("--rang",r+"px"); t.classList.toggle("menu-serre",s); return t.scrollHeight-t.clientHeight; }
+  /* la plus grande rangée qui tient entre min et max : on descend en
+     répartissant ce qui dépasse, puis on remonte d'un pixel tant que tout
+     tient (sans la remontée, 70 px restaient vides au-dessus du pied à
+     1366 × 650) */
+  function cherche(min,max,s){
+    var r=max, trop=essai(r,s);
+    while(trop>0&&r>min){ r=Math.max(min,r-Math.max(1,Math.floor(trop/n))); trop=essai(r,s); }
+    if(trop<=0) while(r<max){ if(essai(r+1,s)>0){ essai(r,s); break; } r++; }
+    return trop<=0;
+  }
+  if(!n){ essai(40,false); return; }
+  /* le menu normal (logo de 48 px, tuiles de 28), de 40 à 32 px par
+     rangée ; sinon le menu serré, qui libère le haut, de 34 à 26 px */
+  if(!cherche(32,40,false)) cherche(26,34,true);
+}
 function sideMaj(){
   var g=document.getElementById("sideGestion"); if(!g) return;
   var l=compteBase()?wsMenuSections():[];
@@ -37014,7 +37104,7 @@ function sideMaj(){
   if(ra){ if(!ouvert&&st.view==="aide") ra.setAttribute("aria-current","page"); else ra.removeAttribute("aria-current"); }
   var tl=document.querySelector(".tabs");
   if(tl){ if(mqSide.matches) tl.setAttribute("aria-orientation","vertical"); else tl.removeAttribute("aria-orientation"); }
-  menuSuite();
+  menuAjuster(); menuSuite();
   /* l'entrée active reste visible quand le menu dépasse l'écran : celle de
      l'Historique tombait sous le bas à 900 px. Le seul conteneur du menu
      défile, pas la page (audit du 23/10/2026) */
@@ -37046,7 +37136,12 @@ function sideMaj(){
   setTimeout(function(){ try{ sideMaj(); }catch(e){} },0);
   if(g&&window.MutationObserver) new MutationObserver(nommerSide).observe(g,{childList:true,characterData:true,subtree:true});
   var top=document.querySelector("header.top");
-  if(top){ top.addEventListener("scroll",menuSuite,{passive:true}); window.addEventListener("resize",menuSuite); }
+  if(top){ top.addEventListener("scroll",menuSuite,{passive:true});
+    var ajT=0; window.addEventListener("resize",function(){ if(ajT) return; ajT=requestAnimationFrame(function(){ ajT=0; menuAjuster(); menuSuite(); }); }); }
+  /* le logo du PC mène à l'Accueil : l'espace RH ouvert à droite se referme,
+     comme pour les onglets */
+  var lg=document.querySelector("header.top>.side-logo");
+  if(lg) lg.addEventListener("click",function(){ if(!document.getElementById("grille").hidden) fermerGrille(); },true);
   function relire(){ try{ sideMaj(); }catch(e){} }
   if(mqSide.addEventListener) mqSide.addEventListener("change",relire); else if(mqSide.addListener) mqSide.addListener(relire);
 })();

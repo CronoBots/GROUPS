@@ -13207,3 +13207,83 @@ chaque jour, 7 en bas, 4 d'écart : la pastille gardait 3,7 px).
   le clavier, les icônes à 10 largeurs, la grille, le repos (0
   mutation), la fiche de l'usine : 0 faute.
 - **Le parcours** : 112 essais, 0 faute ; statique : 0.
+
+### Le menu du PC sans défilement : le logo en tête, les rangées à la hauteur de l'écran, la carte « moi » au pied (04/11/2026, `nfdm-v1388`)
+
+Le client : « Ensuite, refais professionnellement le menu sur PC afin
+d'éviter d'avoir du scroll, et réorganise le menu et le contenu à
+100 %. »
+
+**Mesuré avant** (`menu-mes.js`, carnet de la session : 3 rôles × 6
+tailles de fenêtre, de 1920 × 1000 à 1280 × 620) : le menu défilait dans
+15 cas sur 18.
+- La hiérarchie (le client) : 1 122 px de contenu. Il défilait même à
+  1920 × 1000.
+- La RH : 1 172 px. Un employé : 776 px, il défilait sous 776 px de haut.
+- À 1366 × 650, le pied (« Infos et aide », « Réglages ») recouvrait la
+  fin de « L'usine », et toute la Gestion était hors de vue.
+- Une rangée prenait 50 px ; l'en-tête (logo, trigramme, date, poste),
+  de 129 à 175 px.
+
+**Ce que le client avait fixé, et qui reste** : la largeur de 288 px,
+celle du menu de Claude (v1362) ; les trois groupes, Mon espace, L'usine
+et Gestion (25/10) ; les Réglages en pied ; le logo centré, « plus petit »
+permis (22/10).
+
+**Le nouveau menu.**
+- **En tête, le logo seul**, centré : 48 px de haut au lieu de 96 (34 en
+  menu serré). Un clic ramène à l'Accueil et referme l'espace RH ouvert
+  à droite, comme la marque de toute application. La marque du téléphone
+  (trigramme, date), qui menait aux Réglages, se retire au PC.
+- **Les rangées à la hauteur qui reste** (`menuAjuster()`) : la plus
+  grande qui laisse tout tenir, de 40 à 32 px. Si 32 ne suffit pas, le
+  menu se serre (logo de 34 px, intertitres resserrés, tuiles de 24 px
+  au lieu de 28, texte de 13,5 px), avec des rangées de 34 à 26 px. Le
+  calcul descend en répartissant ce qui dépasse, puis remonte d'un pixel
+  tant que tout tient : sans la remontée, 70 px restaient vides au-dessus
+  du pied à 1366 × 650. Il se refait au redimensionnement et à chaque
+  mise à jour du menu (rôle, Gestion).
+- **Au pied, une seule ligne.** La carte « moi » montre le trigramme dans
+  son cercle, le poste du jour, la date et la roue. Elle ouvre les
+  Réglages et s'allume quand ils sont ouverts. Son nom pour le lecteur
+  d'écran : « Mes réglages · VBN · Contremaître · N · Mercredi 4
+  novembre ». La nuit, « jusqu'à 6 h » passe sous la date. « Infos et
+  aide » est à côté, en tuile seule, avec sa pastille ; son nom reste lu.
+- Les groupes et leur ordre ne changent pas.
+
+| Fenêtre | Hiérarchie (rangées) | RH | Employé |
+|---|---|---|---|
+| 1920 × 1000 | défilait → 40 px | défilait → 40 | 40 |
+| 1440 × 800 | défilait → 38 | défilait → 35 | 40 |
+| 1536 × 750 | défilait → 34 | défilait → 34, serré | défilait → 40 |
+| 1366 × 650 | défilait → 30, serré | défilait → 28, serré | défilait → 40 |
+| 1280 × 620 | défilait → 28, serré | défilait → 26, serré | défilait → 40 |
+
+Sans défilement dès 620 px de haut pour la RH, 595 pour la hiérarchie, 540
+pour un employé. Plus bas, le menu défile, en dernier recours, et le
+fondu au-dessus du pied dit qu'il reste des entrées.
+
+**Une règle remplacée.** Le 23/10/2026, ramener les entrées de 41 à 35 px
+avait été jugé une régression. C'était un changement involontaire, venu
+d'un correctif d'audit, et le contrôle de non-régression l'avait relevé.
+Cette fois, resserrer les rangées est ce que le client demande ; le
+commentaire du code le dit.
+
+**Éprouvé au navigateur** (`menu-actions.js`, 13 épreuves, 0 faute) :
+- au PC, le logo seul en tête ;
+- la carte « moi » (trigramme, poste, date) et son nom pour le lecteur
+  d'écran ;
+- elle ouvre les Réglages et s'allume ;
+- le logo ramène à l'Accueil ; le Tableau de bord ouvre l'espace RH, que
+  le logo referme ;
+- la fenêtre agrandie (rangées de 40 px), puis réduite (28 px, serrées),
+  sans défilement ; à la tablette, la marque revient et le calcul
+  s'efface ;
+- au clavier, le logo vient juste après « Aller au contenu » ;
+- aucune erreur de page.
+
+Une première version de l'épreuve du clavier échouait à tort : elle
+repartait du dernier élément cliqué, et non du début de la page.
+
+**Mesuré.** Le menu, 18 cas (3 rôles × 6 fenêtres) : aucun défilement.
+Parcours : 112 essais, 0 faute ; statique : 0.
