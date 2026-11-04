@@ -12733,9 +12733,16 @@ carrée. »
 recyclages du 04/11/2026, 17 h 24) : cette version-ci est la v1384, au
 dessus de la sienne.
 
-**La capture montre encore la v1381** : la météo y prend toute sa case.
-Le widget posé sur les icônes est arrivé en v1382, que le téléphone
-n'avait pas encore prise. Mais même posée sur les icônes, la météo de
+**La capture montre la v1381** : la météo y prend toute sa case (172 ×
+207 pt, mesurés sur la capture). Elle est de 20 h 14, heure belge : la
+v1381 était alors la dernière en ligne ; la v1382, qui pose le widget sur
+les icônes, est partie à 20 h 43, et cette v1384 à 21 h 53. **Correction
+(le même soir)** : j'avais d'abord écrit ici, et répondu au client, que
+le téléphone « n'avait pas encore pris » la v1382. C'était faux : il
+était à jour, la capture précède l'envoi. Mesuré sur l'heure de la
+capture et celles des commits. La page neuve arrive seule : au retour au
+premier plan, l'application cherche une version neuve et se recharge si
+sa page a plus de 15 secondes. Mais même posée sur les icônes, la météo de
 2 × 2 n'était pas carrée : 153,5 px de large pour 172 de haut à 390 px
 d'écran. Une rangée d'icônes avait 96 px de haut, une colonne 77,5 de
 large.
