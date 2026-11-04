@@ -4941,3 +4941,32 @@ la nuit du 24/04.
   fonction déclarait, elle aussi, `rx=/\bremp` : il découpe la page par
   déclaration, et deux déclarations identiques l'auraient trompé. La
   variable est renommée `rxNomme`.
+
+### « À l'arrière » tranché ; la copie d'une journée à cheval va au poste écrit (04/11/2026, `nfdm-v1350`)
+
+Le client, en QCM, sur « à l'arrière » : « ça dépend » — le poste du
+titulaire qui le nomme. Sur l'année, « arrière » n'est écrit seul que trois
+fois, les 19 et 20/03. Le 19/03, le titulaire SKS tient le terrain arrière,
+et c'est déjà la lecture des relais. La règle est écrite dans
+`docs/conversion-horaire.md`.
+
+**Corrigé.** Une journée qui déborde d'au moins 3 h sur la pause voisine y
+est copiée « au même poste » (règle du 24/10). Désormais, quand une clause
+« remplace en <poste> de A à B » couvre au moins la moitié de la copie,
+celle-ci va à ce poste et n'est proposée nulle part ailleurs (`ecrit`).
+Effet sur l'année : **une pause**, PLZ l'après-midi du 24/04, désormais en
+fermentation comme l'écrit son commentaire. Avant la v1349, sa copie était au
+gluten ; de la v1349 à la v1350, au terrain arrière.
+
+**Contrôles.**
+- Calendrier, manques, compteurs : identiques à l'octet. Polyvalence et
+  places vides commentées : seule la date du jour avance (minuit passé :
+  ALZ et LAX gagnent le 03/11).
+- Cohérence du Planning : 0 faute (R5 compris). Recherche : 0 faute.
+  Parcours : 112 essais, 0 faute. Agendas : aucune note ne change.
+
+**Reste ouvert, le 19/03** (question 4 de `docs/questions-client.md`).
+L'après-midi de PLZ y est son entrée principale, et non une copie. Sa nuit
+porte « à l'arrière de 22h à 2h » sans « remplace », alors que le terrain
+arrière de la nuit compte déjà trois personnes. Le moteur n'a pas été touché
+pour ce jour passé tant qu'on ne sait pas où PLZ a presté.

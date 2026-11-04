@@ -247,7 +247,9 @@ dans un remplacement. La plupart suivent la règle C, validée par le client
 (« oui, le proposer », SPS le 09/01, SLT le 18/10). Trois questions restent
 ouvertes, à poser une par une :
 
-1. **« À l'arrière », « à l'arrière-usine » : est-ce le terrain arrière ?**
+1. **RÉPONDUE le 04/11/2026 (« ça dépend » : le poste du titulaire qui le
+   nomme ; voir `docs/conversion-horaire.md`). Reste le 19/03, ci-dessous.**
+   **« À l'arrière », « à l'arrière-usine » : est-ce le terrain arrière ?**
    Le 19/03 de l'après-midi, SKS est « remplacé par GPO et PLZ » ; GPO écrit
    « de 14h à 18h à l'arrière-usine », PLZ « remplace à l'arrière de 18h à
    22h ». L'application ne reconnaît pas « arrière » seul (le motif du
@@ -259,8 +261,16 @@ ouvertes, à poser une par une :
      « arrivée à 08h00' » est proposé en distillation ;
    - LCI, le 11/07 l'après-midi, « remplacé par CHD et CDE », alors que CDE
      est proposé au terrain arrière de 18 h à 22 h.
-3. **La copie d'une journée à cheval sur deux pauses.** PLZ, le 24/04, est
+3. **RÉSOLUE le 04/11/2026 (v1350) pour le 24/04 : la copie va au poste
+   écrit pour ses heures.** **La copie d'une journée à cheval sur deux pauses.** PLZ, le 24/04, est
    « 18h-6h », « remplace SKS remplace en fermentation de 18h à 22h ».
    L'après-midi, sa copie s'affiche au poste de sa nuit (le terrain arrière
    depuis la v1349, le gluten avant), et non en fermentation. La fermentation
    est bien couverte de 18 h à 22 h : seule la case d'affichage est en cause.
+4. **Le 19/03, que reste-t-il à lire ?** Ce jour-là, l'après-midi de PLZ
+   (« 22h-02h », « remplace à l'arrière de 18h à 22h ») n'est pas une copie
+   mais son entrée principale. L'application le place au gluten, son poste
+   habituel, puis le propose en meunerie de 18 h à 22 h. Sa nuit porte « à
+   l'arrière de 22h à 2h », sans « remplace », alors que le terrain arrière
+   de la nuit compte déjà ALZ, GKT et SKS. Avant de toucher au moteur, il
+   faut savoir où PLZ a réellement presté, l'après-midi puis la nuit.

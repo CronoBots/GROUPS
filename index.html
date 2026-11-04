@@ -31489,9 +31489,30 @@ function planningDuJour(db,annee,mois,jour,par){
         if(f-PF_FIN[gk]>=3-0.01 && ig<2 && d>=PF_DEB[gk]-0.01){ vers=ORD[ig+1]; part=[PF_FIN[gk],f]; x.horPart=[d,PF_FIN[gk]]; }
         else if(PF_DEB[gk]-d>=3-0.01 && ig>0 && f<=PF_FIN[gk]+0.01){ vers=ORD[ig-1]; part=[d,PF_DEB[gk]]; x.horPart=[PF_DEB[gk],f]; }
         if(!vers || !vp[vers]) { delete x.horPart; return; }
-        var oV=null; vp[vers].vue.postes.forEach(function(q){ if(q.P.k===o.P.k) oV=q; });
-        if(!oV){ oV={P:o.P, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp[vers].vue.postes.push(oV); }
-        oV.gens.push({p:x.p, r:x.r, horPart:part, partage:true});
+        /* … SAUF QUAND SON COMMENTAIRE ÉCRIT UN AUTRE POSTE POUR CES HEURES
+           (le client, le 04/11/2026, sur « remplace à l'arrière » : « ça
+           dépend », le poste du titulaire qui le nomme). PLZ, le 19/03,
+           « 22h-02h », « remplace à l'arrière de 18h à 22h », SKS « remplacé
+           par GPO et PLZ » : sa copie de l'après-midi allait au gluten, son
+           poste de nuit, et l'application la proposait en meunerie aux
+           heures mêmes où il est au terrain arrière. Le 24/04, « remplace en
+           fermentation de 18h à 22h » : en fermentation. Une clause « en
+           <poste> de A à B » qui couvre au moins la moitié de la copie
+           décide ; la copie ainsi écrite (ecrit) n'est proposée nulle part
+           ailleurs. « À l'arrière » se lit le terrain arrière, comme
+           partageJournee et relaisEcritsDuJour. */
+        var kC=o.P.k, PC=o.P, ecrit=false;
+        (function(){ var c=String(((x.p.d||{})[pad2(mois)+pad2(jour)]||[])[2]||""), rxC=rxRelaisEcrit(), mC;
+          while((mC=rxC.exec(c))){
+            if(!mC[2]) continue;
+            var kn=/^arri/i.test(mC[2])?"terr":posteDepuisNom(mC[2]); if(!kn) continue;
+            var u=Number(mC[3])+Number(mC[4]||0)/60, w=Number(mC[5])+Number(mC[6]||0)/60; if(w<=u) w+=24; if(u<part[0]-12){ u+=24; w+=24; }
+            if(Math.min(w,part[1])-Math.max(u,part[0])>=(part[1]-part[0])/2-0.01){ kC=kn; ecrit=true; return; } } })();
+        if(kC!==o.P.k) POSTES_TRAVAIL.forEach(function(Q){ if(Q.k===kC) PC=Q; });
+        if(PC.k!==kC){ kC=o.P.k; PC=o.P; ecrit=false; }
+        var oV=null; vp[vers].vue.postes.forEach(function(q){ if(q.P.k===kC) oV=q; });
+        if(!oV){ oV={P:PC, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; vp[vers].vue.postes.push(oV); }
+        oV.gens.push(ecrit?{p:x.p, r:x.r, horPart:part, partage:true, ecrit:true}:{p:x.p, r:x.r, horPart:part, partage:true});
       });
     });
   });
@@ -31778,7 +31799,7 @@ function relaisPartielsPause(v,gk,mmdd,jc){
       /* sans ses copies, le poste tient : la copie y est EN PLUS */
       if(q.attendu && tenuDuPoste({P:q.P, attendu:q.attendu, relais:q.relais, gens:siens},jc)<q.attendu) return;
       q.gens.forEach(function(y){
-        if(!y.partage || !y.horPart || y.relaisCourt || !compteAuPoste(y,q.P,jc)) return;
+        if(!y.partage || !y.horPart || y.relaisCourt || y.ecrit || !compteAuPoste(y,q.P,jc)) return;
         var r=plage(y.horPart); if(r[1]-r[0]<0.5) return;
         var c=siens.filter(function(z){ return !z.deD && !z.depuisD && !z.horPart && !z.propose && !z.relaisCourt
           && peutTenir(z.p,o.P,jc) && compteAuPoste(z,o.P,jc); }).sort(function(u,w){ return u.p.id<w.p.id?-1:1; });

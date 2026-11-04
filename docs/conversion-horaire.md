@@ -1184,6 +1184,28 @@ poste par rapport à ce que dit sa case : AAI le 23/10, PAM le 26/10. Les
 quatre sorties de `verifier-calendrier.js` et les agendas sont
 identiques à l'octet.
 
+### « À l'arrière », et la copie d'une journée à cheval sur deux pauses (04/11/2026)
+
+> **Le client, le 04/11/2026**, en QCM, sur « à l'arrière » et « à
+> l'arrière-usine » : « ça dépend » — c'est le poste du titulaire qui nomme
+> la personne dans son « remplacé par ».
+
+Sur l'année, « arrière » n'est écrit seul que trois fois :
+- le 19/03 deux fois : GPO et PLZ, que SKS nomme dans son « remplacé par » ;
+- le 20/03 une fois : PLZ, « renfort SD », que personne ne nomme.
+
+Le 19/03, le poste de SKS est le terrain arrière, et c'est ce que lisaient
+déjà `partageJournee` et `relaisEcritsDuJour` (« arri… » → terrain arrière).
+
+**La copie va au poste que son commentaire écrit pour ses heures.** Une
+journée qui déborde de 3 h ou plus sur la pause voisine y est copiée « au
+même poste » (le client, le 24/10/2026, SPS 14-22 puis 22-02). C'est la
+règle tant que rien d'autre n'est écrit. Quand une clause « remplace en
+<poste> de A à B » couvre au moins la moitié de la copie, la copie va à ce
+poste, et on ne la propose nulle part ailleurs (`ecrit`). Le 24/04, PLZ,
+« 18h-6h », « remplace en fermentation de 18h à 22h », est en fermentation
+l'après-midi, et non au poste de sa nuit.
+
 ### Un remplacement écrit des deux côtés, pour une partie de la pause : placé, à ses heures (03/11/2026)
 
 > **Le client, le 03/11/2026**, en QCM : « placé, à ses heures ».
