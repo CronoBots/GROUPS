@@ -255,7 +255,8 @@ ouvertes, à poser une par une :
    22h ». L'application ne reconnaît pas « arrière » seul (le motif du
    terrain arrière exige « terr. » ou « poly. ») : PLZ, pour elle, est libre,
    et elle le propose en meunerie de 18 h à 22 h.
-2. **« Remplacé par X et Y » : que fait le second ?** Seul le premier nommé
+2. **RÉPONDUE le 04/11/2026 (« ils se partagent la place », v1351 ; voir
+   `docs/conversion-horaire.md`).** **« Remplacé par X et Y » : que fait le second ?** Seul le premier nommé
    prend la place (`nommesParAbsents`) :
    - SMA, le 29/06 au matin, « Remplacé par PAM et PLZ », alors que PLZ
      « arrivée à 08h00' » est proposé en distillation ;
@@ -267,7 +268,9 @@ ouvertes, à poser une par une :
    L'après-midi, sa copie s'affiche au poste de sa nuit (le terrain arrière
    depuis la v1349, le gluten avant), et non en fermentation. La fermentation
    est bien couverte de 18 h à 22 h : seule la case d'affichage est en cause.
-4. **Le 19/03, que reste-t-il à lire ?** Ce jour-là, l'après-midi de PLZ
+4. **En partie résolue par la v1351** : PLZ est au terrain arrière l'après-midi
+   et la nuit (sa place partagée avec GPO, nommés par SKS) ; la meunerie,
+   vide de 14 h à 22 h, est proposée à LDY. **Le 19/03, que reste-t-il à lire ?** Ce jour-là, l'après-midi de PLZ
    (« 22h-02h », « remplace à l'arrière de 18h à 22h ») n'est pas une copie
    mais son entrée principale. L'application le place au gluten, son poste
    habituel, puis le propose en meunerie de 18 h à 22 h. Sa nuit porte « à

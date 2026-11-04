@@ -4970,3 +4970,45 @@ L'après-midi de PLZ y est son entrée principale, et non une copie. Sa nuit
 porte « à l'arrière de 22h à 2h » sans « remplace », alors que le terrain
 arrière de la nuit compte déjà trois personnes. Le moteur n'a pas été touché
 pour ce jour passé tant qu'on ne sait pas où PLZ a presté.
+
+### « Remplacé par X et Y » : les nommés se partagent la place (04/11/2026, `nfdm-v1351`)
+
+Le client, en QCM : « ils se partagent la place ». Avant, seul le premier
+nommé prenait la place de l'absent. Le second restait libre, et
+l'application le proposait ailleurs : PLZ le 29/06, « arrivée à 08h00' »,
+était proposé en distillation alors que SMA est « Remplacé par PAM et PLZ ».
+La règle est écrite dans `docs/conversion-horaire.md`.
+
+**Mesuré.** 101 absents de l'année sont « remplacés par » deux personnes ou
+plus ; le plus souvent, ce sont deux relais d'autres pauses, déjà lus.
+
+Le premier essai changeait 6 pauses. Il plaçait bien JBI (17/01) et PLZ
+(19/03), mais le rééquilibrage les proposait aussitôt ailleurs aux mêmes
+heures. Une place partagée est donc rendue fixe (`partagePlace`). Avec ce
+correctif, 7 pauses changent, toutes conformes à leurs commentaires :
+- JBI le 17/01 (« Remplace JKS », JKS étant en repos : une faute de frappe
+  pour SKS, qui le nomme) ;
+- PLZ le 19/03, l'après-midi et la nuit ;
+- SMA le 21/04 ;
+- SMA le 02/05 ;
+- PLZ le 29/06 ;
+- AAI le 10/07.
+
+**Polyvalence : erreur commise puis corrigée.** Le garde des huit heures
+pleines de la v1349 ne couvrait que `ecritPartiel`. Trois journées
+partielles se comptaient donc pleines :
+- AAI en fermentation le 10/07 ;
+- GDT en fermentation le 19/09 ;
+- JKS en meunerie le 17/05.
+
+Le garde couvre maintenant `partagePlace` : polyvalence identique à la
+référence du jour.
+
+**Contrôles.** Référence recalculée le 04/11 sur la v1350 (pour écarter
+l'effet de la date).
+- Calendrier, manques, polyvalence, compteurs, places vides commentées :
+  identiques à l'octet.
+- Cohérence du Planning : 0 faute (R5 compris). Recherche : 0. Parcours :
+  112 essais, 0 faute.
+- Une note d'agenda change : GDT le 21/04, « remplace SMA de 10h à 14h »,
+  en fermentation, la place de SMA ce jour-là (SMA « remplace LCI »).

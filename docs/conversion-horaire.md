@@ -1184,6 +1184,39 @@ poste par rapport à ce que dit sa case : AAI le 23/10, PAM le 26/10. Les
 quatre sorties de `verifier-calendrier.js` et les agendas sont
 identiques à l'octet.
 
+### « Remplacé par X et Y » : les nommés se partagent la place (04/11/2026)
+
+> **Le client, le 04/11/2026**, en QCM : « ils se partagent la place ».
+
+`nommesParAbsents` ne retenait que le premier trigramme après « remplacé
+par ». Il retient maintenant les suivants : ceux que séparent « et », « & »,
+« , » ou « + », jusqu'au prochain « remplac… ». Ainsi, dans « remplacé par
+NPE et JBI remplacé par LAA », LAA remplace JBI (la règle des chaînes).
+
+Chacun prend la place de l'absent, à ses heures, s'il est de la même pause
+et que l'un d'eux au moins n'y est pas toute la pause. Le premier nommé qui
+part tôt ou arrive tard est placé aussi : la même règle vaut avec un seul
+nom, LCI « remplacé par SMA », SMA « départ à 18h00' ». Une place ainsi
+partagée ne se cède pas (fixe) : le rééquilibrage ne propose pas ailleurs
+celui que le classeur y nomme.
+
+Si tous les nommés sont là toute la pause, le second est en plus : il reste
+où le classeur le met, et peut être proposé ailleurs. Dans le décompte de la
+polyvalence, une place partagée ne compte que si elle couvre la pause
+entière (huit heures pleines).
+
+Sur l'année, 101 absents sont « remplacés par » deux personnes ou plus. Le
+plus souvent, ce sont deux relais d'autres pauses, déjà lus : « remplace X
+de 14h à 18h » depuis le matin, « de 18h à 22h » depuis la nuit. La règle ne
+change que 7 pauses de 2026 :
+- JBI le 17/01, nommé par SKS : son « Remplace JKS » est une faute de
+  frappe, JKS étant en repos ;
+- PLZ le 19/03, l'après-midi au terrain arrière, et sa copie de la nuit ;
+- SMA le 21/04 ;
+- SMA le 02/05 ;
+- PLZ le 29/06, de 8 h à 14 h ;
+- AAI le 10/07.
+
 ### « À l'arrière », et la copie d'une journée à cheval sur deux pauses (04/11/2026)
 
 > **Le client, le 04/11/2026**, en QCM, sur « à l'arrière » et « à

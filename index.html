@@ -27239,7 +27239,19 @@ function nommesParAbsents(db,presents,gk,mmdd,jour){
     if(/^\s*(\?|ou\b)/i.test(c.slice(m.index+m[0].length))) return;
     var x=m[1].toUpperCase(); if(x==="PAR"||r[x]) return;
     var k=null; try{ k=posteAttitreLe(q,jour); }catch(er){}
-    if(k && k!=="adj") r[x]={y:q, k:k};
+    if(!k || k==="adj") return;
+    r[x]={y:q, k:k, rang:0};
+    /* « REMPLACÉ PAR X ET Y » : LES NOMMÉS SE PARTAGENT LA PLACE (le client,
+       le 04/11/2026, en QCM : « ils se partagent la place »). Les suivants
+       du même « remplacé par » — « et », « & », « , » —, jusqu'au prochain
+       « remplac… » (« remplacé par NPE et JBI remplacé par LAA » : LAA
+       remplace JBI, la règle des chaînes) ; rang 1, 2… Le Planning les
+       place à la place de l'absent quand ils ne la tiennent pas tous toute
+       la pause (postesDePause). */
+    var suite=c.slice(m.index+m[0].length), fin=suite.search(/rempla/i); if(fin>=0) suite=suite.slice(0,fin);
+    var rx2=/^\s*(?:et|&|,|\+)\s*([A-Za-z]{3})\b/i, m2, n=1;
+    while((m2=rx2.exec(suite))){ var x2=m2[1].toUpperCase(); if(x2!=="PAR" && !r[x2]) r[x2]={y:q, k:k, rang:n++, premier:x};
+      suite=suite.slice(m2[0].length); }
   });
   return r;
 }
@@ -27303,10 +27315,24 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        conditions que la lecture active ci-dessus. */
     if(!k && !posteEcrit(x.p.d[mmdd]) && adjointFaitCM(db,x.p,gk,mmdd,presents))
       { k="cm"; x.parRempl=true; }
-    if(!k && nommes[x.p.id] && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
+    if(!k && nommes[x.p.id] && !nommes[x.p.id].rang && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
        && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd]) && !remplPartiel(x.p.d[mmdd])
        && peutPrendreRemplace(x.p,nommes[x.p.id].k,jourCalc))
       { k=nommes[x.p.id].k; x.nomme=true; x.parRempl=true; }
+    /* … ET LES NOMMÉS QUI SE PARTAGENT LA PLACE (« remplacé par X et Y »,
+       QCM du 04/11/2026), chacun à ses heures : le suivant d'une liste, ou le
+       premier qui n'est là qu'une partie de la pause, quand l'un d'eux au
+       moins n'y est pas toute la pause. Tous là toute la pause : le second
+       est en plus, il reste où le classeur le met (et peut être proposé). */
+    if(!k && nommes[x.p.id] && !estContremaitre(x.p) && !posteEcrit(x.p.d[mmdd])
+       && !posteImpose(x.p.id,jourCalc,x.p.d[mmdd]) && !rempSeulementHoraire(x.p.d[mmdd])
+       && peutPrendreRemplace(x.p,nommes[x.p.id].k,jourCalc)
+       && (nommes[x.p.id].rang || remplPartiel(x.p.d[mmdd]))){
+      var nm=nommes[x.p.id], dureeP=PF_FIN[gk]-PF_DEB[gk], an0=Number(db.year), mo0=Number(String(mmdd).slice(0,2)), jo0=Number(String(mmdd).slice(2));
+      var partiel=function(z){ try{ var h=heuresAuPoste(db,z,gk,an0,mo0,jo0); return h[1]-h[0]<dureeP-0.01; }catch(e){ return false; } };
+      var autres=liste.filter(function(z){ return z!==x && nommes[z.p.id] && nommes[z.p.id].y===nm.y; });
+      if(partiel(x) || autres.some(partiel)){ k=nm.k; x.nomme=true; x.parRempl=true; x.partagePlace=true; }
+    }
     /* UN REMPLACEMENT ÉCRIT DES DEUX CÔTÉS POUR UNE PARTIE DE LA PAUSE (le
        client, le 03/11/2026, en QCM : « placé, à ses heures »). PLZ, le
        10/04 de nuit, « 22h-02h », « remplace QDE », et QDE « Abs »,
@@ -27331,6 +27357,10 @@ function postesDePause(db,liste,gk,mmdd,listeD,sansReequil){
        (POSTE_DU_JOUR) : inamovible. GPO le 26/10, mis au gluten par le
        client, partait sinon au terrain arrière en renfort. */
     x.fixe=!!posteEcrit(x.p.d[mmdd]) || !!posteImpose(x.p.id,jourCalc,x.p.d[mmdd]);
+    /* une place partagée par écrit (« remplacé par X et Y ») ne se cède
+       pas : JBI, le 17/01, nommé par SKS pour 18 h – 22 h, était sinon
+       proposé aux chaudières aux mêmes heures */
+    if(x.partagePlace) x.fixe=true;
     x.renfort=EST_RENFORT.test(String((x.p.d[mmdd]||[])[1]||"").trim());
     if(k){ (parPoste[k]=parPoste[k]||[]).push(x); } else inconnus.push(x);
   });
@@ -28908,7 +28938,9 @@ function calculerPolyvalence(db){
              la journée ne compte que s'il y a tenu la pause entière. JKS le
              17/05, « départ à 20h00' », n'a fait que six heures en meunerie ;
              CDE le 13/08, « 6h-18h », tient les chaudières tout le matin. */
-          if(y.ecritPartiel){ var hp=heuresAuPoste(db,y,g.k,annee,m,j); if(hp[1]-hp[0]<PF_FIN[g.k]-PF_DEB[g.k]-0.01) return; }
+          /* … de même pour une place partagée (« remplacé par X et Y », le
+             04/11/2026) : AAI le 10/07, « départ à 18h00' », ne compte pas */
+          if(y.ecritPartiel || y.partagePlace){ var hp=heuresAuPoste(db,y,g.k,annee,m,j); if(hp[1]-hp[0]<PF_FIN[g.k]-PF_DEB[g.k]-0.01) return; }
           if(P.k===posteAttitreLe(y.p,annee*10000+Number(mmdd))) return;
           /* UN RECYCLAGE SE CONFIRME DANS LE CLASSEUR (le client, le
              22/10/2026 : « attribuer des recyclages sans confirmation qu'il
