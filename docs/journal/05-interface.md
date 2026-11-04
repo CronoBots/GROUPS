@@ -11346,6 +11346,14 @@ Parcours : 112 essais, 0 faute. Cohérence du Planning : 0.
 
 ### Mes congés : « 80h / 10 j » sur une ligne, centré (04/11/2026, `nfdm-v1354`)
 
+> **CORRIGÉ le 04/11/2026 (v1356) : cette lecture était fausse.** Le client :
+> « je parlais de l'onglet horaire et pas les compteurs de l'accueil ».
+> « Mes congés » de l'Accueil est revenu exactement à la v1353 ; le format
+> « 80h / 10 j » centré va au pied de l'onglet Horaire (section suivante).
+> L'erreur : avoir choisi seul entre deux lieux possibles, alors que l'onglet
+> que le client appelle « Horaire » est celui du dock (« Horaire
+> production »), et non l'Accueil (`v-horaire` dans le code).
+
 Le client, le 04/11/2026 : « dans les compteurs de l'onglet horaire, les
 heures et jours affichés comme ceci "80h / 8 j", et centré ».
 - **Avant.** Chaque case de « Mes congés » (VA, RTT, DTT, RJF, FT) disait
@@ -11363,3 +11371,24 @@ valeur ne se coupe. Parcours : 112 essais, 0 faute (contraste compris).
 Les compteurs du mois sous le calendrier (« Prestées », « Jours ») restent
 deux cases distinctes : ce sont deux quantités différentes, et non une même
 quantité en deux unités.
+
+### Le pied de l'onglet Horaire : « 80h / 10 j », centré (04/11/2026, `nfdm-v1356`)
+
+Le client, le 04/11/2026 : « dans les compteurs de l'onglet horaire, les
+heures et jours affichés comme ceci "80h / 8 j", et centré ». Puis, devant
+la v1354 : « je parlais de l'onglet horaire et pas les compteurs de
+l'accueil ».
+
+Il s'agit des compteurs du pied de l'onglet Horaire (soldes, prévisions,
+soldes compte tenu des prévisions). Depuis le 02/11/2026, ils donnaient les
+heures à gauche et les jours à droite, dans la même case (« 144 h … 18 j »).
+Ils disent maintenant « 144h / 18 j », centrés. Les jours restent à la
+demi-journée, et le survol donne toujours les valeurs exactes.
+
+Une case trop étroite resserre ses lettres (`hp-serre`). Si elle déborde
+encore, elle passe d'un cran de police (`hp-serre2`, mesuré par
+`grSerrePied`).
+
+**Mesuré.** Une personne : 15 cases ; une équipe entière : 253 cases. À
+1280, 390 et 320 px, aucune ne déborde, et aucune n'a eu besoin d'être
+resserrée. Parcours : 112 essais, 0 faute.

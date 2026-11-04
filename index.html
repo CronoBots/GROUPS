@@ -6066,7 +6066,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-cg-t{border-top:1px solid var(--bd-blanc-07); margin-top:2px}
 .pf-cg-t .pf-pr-l b{color:var(--tx-blanc); font-weight:700}
 .pf-cgs{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:6px; margin:4px 0 14px}
-.pf-cgc{display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; min-width:0; padding:8px 10px 9px; border-radius:11px;
+.pf-cgc{display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; padding:8px 10px 9px; border-radius:11px;
   border:1px solid var(--bd-blanc-08); background:var(--fd-blanc-04); color:var(--tx-blanc); font:inherit; text-align:left}
 .pf-cgc>span{font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--tx-menthe)}
 .pf-cgc>b{font-size:18px; font-weight:700; line-height:1.1; white-space:nowrap; font-variant-numeric:tabular-nums}
@@ -7503,11 +7503,13 @@ html .hp-t tfoot td.hp-plab{position:sticky; left:0; z-index:2; background:#eef2
    tableau sont pris dedans (border-box) */
 html .hp-t tfoot tr.hp-pied td{height:23px}
 /* les heures à gauche, les jours à droite, dans la même case (v1283) */
-html .hp-t tfoot td.hp-pv .hp-pvi{display:flex; justify-content:space-between; align-items:baseline; gap:2px}
+html .hp-t tfoot td.hp-pv .hp-pvi{display:flex; justify-content:center; align-items:baseline; gap:.3em; white-space:nowrap}
 /* au plus serré (« 564 h » et « 70,5 j », 66,7 px dans 68), et au-delà
    un repli : la case qui déborderait encore (« −118 h » et « −14,5 j » en
    gras, 71 px) resserre ses lettres, mesurée par grSerrePied */
-html .hp-t tfoot td.hp-pv .hp-pvi.hp-serre{letter-spacing:-.4px; gap:1px}
+html .hp-t tfoot td.hp-pv .hp-pvi.hp-serre{letter-spacing:-.4px; gap:.15em}
+/* plus serré encore : la police d'un cran (« −118h / −14,5 j ») */
+html .hp-t tfoot td.hp-pv .hp-pvi.hp-serre2{letter-spacing:-.5px; gap:.1em; font-size:10.5px}
 html .hp-t tfoot td.hp-pt{background:#c7ccd4; font-weight:400}
 html .hp-t tfoot td.hp-pv{background:#f8fafc; font-weight:400}
 html .hp-t tfoot td.hp-pv{border-right:2px solid #64748b}
@@ -8511,12 +8513,6 @@ html body .pf-hero .pf-ps,html body .pf-hero .pf-fl{color:var(--tx-blanc-62)}
 html body #v-horaire .card>header{border-bottom-color:transparent}
 html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; height:24px; padding:4px; border-radius:6px; stroke-width:2.1; box-shadow:var(--ip-relief-petit)}
 
-/* — MES CONGÉS : « 80h / 10 j » SUR UNE LIGNE ET CENTRÉ (le client, le
-   04/11/2026). Cinq cases sur un rang en faisaient 62 px à 390 px : le flex
-   time (« +2h / +0,3 j ») était coupé. Trois par rangée, la dernière
-   rangée s'étire, à toute largeur. — */
-html body .pf-cgs,html body #v-horaire .pf-cgs{display:flex; flex-wrap:wrap; gap:6px}
-html body .pf-cgs>.pf-cgc,html body #v-horaire .pf-cgs>.pf-cgc{flex:1 1 calc(33.333% - 6px); grid-column:auto; min-width:0; padding-left:6px; padding-right:6px}
 
 /* — LE FIL DE L'USINE : des bulles comme une messagerie, les miennes à
    droite à la couleur de la marque, celles des autres à gauche avec leur
@@ -20871,7 +20867,11 @@ function renderGrille(){
       cols.forEach(function(c,ci){ var v=val(c.p,t), nb=function(x,d){ var k=Math.pow(10,d), r=(x<0?-1:1)*Math.round(Math.abs(x)*k)/k; return String(r===0?0:r).replace(".",","); },
         demi=function(x){ var a=Math.abs(x)*2, f=Math.floor(a), r=(a-f>0.5?f+1:f)/2; return r===0?0:(x<0?-r:r); };
         h.push('<td class="hp-pt" data-ci="'+ci+'">'+t+'</td><td class="hp-pv'+(typeof v==="number"&&v<0?' hp-neg':'')+'" data-ci="'+ci+'"'+(typeof v==="number"?' title="'+nb(v,3)+' h = '+nb(v/8,3)+' j (8 h par jour)"':'')+'>'
-          +(typeof v==="number"?'<div class="hp-pvi"><span class="hp-ph">'+nb(v,3)+'\u202fh</span><span class="hp-pj">'+nb(demi(v/8),1)+'\u202fj</span></div>':'')+'</td>'); });
+          /* « 80h / 10 j », centré (le client, le 04/11/2026 : « dans les
+             compteurs de l'onglet horaire, les heures et jours affichés comme
+             ceci "80h / 8 j", et centré ») : les heures, puis les jours
+             (toujours à la demi-journée), sur une ligne */
+          +(typeof v==="number"?'<div class="hp-pvi"><span class="hp-ph">'+nb(v,3)+'h</span><span class="hp-ps">/</span><span class="hp-pj">'+nb(demi(v/8),1)+'\u00a0j</span></div>':'')+'</td>'); });
       h.push((avecCom?'<td class="hp-cv"></td>':'')+'</tr>'); }); h.push('<tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>'); };
     h.push('<tfoot><tr class="hp-sep"><td colspan="'+(2+2*cols.length+(avecCom?1:0))+'"></td></tr>');
     /* PLUS DE « EN HEURES » DANS LES TITRES, ET FT− SANS SIGNE (le client,
@@ -20985,7 +20985,7 @@ function grEtireColonnes(z,t){
    jours resserre ses lettres (voir .hp-serre) ; après l'étirement des
    colonnes, qui peut lui rendre la place */
 function grSerrePied(t){
-  Array.prototype.forEach.call(t.querySelectorAll("tfoot .hp-pvi"),function(d){ d.classList.remove("hp-serre"); if(d.scrollWidth>d.clientWidth) d.classList.add("hp-serre"); });
+  Array.prototype.forEach.call(t.querySelectorAll("tfoot .hp-pvi"),function(d){ d.classList.remove("hp-serre","hp-serre2"); if(d.scrollWidth>d.clientWidth) d.classList.add("hp-serre"); if(d.scrollWidth>d.clientWidth) d.classList.add("hp-serre2"); });
 }
 function grCaleTete(){
   grFabs();
@@ -24484,13 +24484,9 @@ function mesCongesHTML(db,person){
        role="group" : l'aria-label d'un div sans rôle n'est pas lu (audit
        du 23/10/2026) ; de même pour le flex time */
     return '<div class="pf-cgc'+(rs>0?'':' vide')+'" role="group" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(R(rs/hj,1)>=2?'s':'')+' sur '+num(o.tot)+' h')+'">'
-      /* « 80h / 10 j », sur une ligne et centré (le client, le 04/11/2026 :
-         « les heures et jours affichés comme ceci "80h / 8 j" et centré ») :
-         les heures du classeur et leur équivalent en jours, à la journée de
-         l'onglet Barèmes ; « tout placé » seulement quand il ne reste rien */
-      +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small>h</small> / '+jr(rs)+'<small>\u00a0j</small></b>'
+      +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small> h</small></b>'
       +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
-      +(rs>0?'':'<em>tout placé</em>')+'</div>';
+      +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></div>';
   });
   /* Le solde du flex time, sans les bornes (le client, le 22/10/2026) : la
      case « Total » du pied du classeur, comme « Mes compteurs », sans la
@@ -24500,11 +24496,11 @@ function mesCongesHTML(db,person){
     var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
     /* à zéro, la case pâlit comme un congé tout placé (audit du 23/10/2026) */
     cases.push('<div class="pf-cgc ft'+(ft<0?' neg':ft?'':' vide')+'" role="group" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour'+(Math.abs(R(ft/hj,1))>=2?'s':''))+'">'
-      +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small>h</small> / '+sg+jr(Math.abs(ft))+'<small>\u00a0j</small></b>'
+      +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
       /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
          plafond de 104 h de la note de service, sans écrire les bornes */
       +'<i class="pf-cgc-b" aria-hidden="true"><i style="width:'+R(Math.max(0,Math.min(100,ft/104*100)),1)+'%"></i></i>'
-      +(ft?'':'<em>à zéro</em>')+'</div>');
+      +'<em>'+(ft?'≈ '+sg+jr(Math.abs(ft))+' j':'à zéro')+'</em></div>');
   }
   return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot,2))+' h</b> à placer · ≈ '+jr(tot)+' j</span></div>'
     +'<div class="pf-cgs">'+cases.join("")+'</div>';
