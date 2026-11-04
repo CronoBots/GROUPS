@@ -8693,6 +8693,60 @@ html body #v-horaire.acc-perso .pf-mt{container:hmt / inline-size; flex-wrap:wra
 #v-horaire.acc-edit [data-w].acc-vide::after{content:attr(data-acc-vide); position:absolute; left:16px; right:16px; bottom:14px; font-size:12.5px; color:var(--muted)}
 @media (prefers-reduced-motion:reduce){ .acc-fantome{transition:none} }
 
+/* — Mon cycle et le Calendrier à la manière du widget Calendrier de l'iPhone (le
+   client, le 04/11/2026 : « les backgrounds doivent aussi être modifiés
+   dans les cadres comme mon cycle et les autres backgrounds qui sont gris
+   plus clairs ; j'aimerais bien que le cadre mon cycle soit adapté au style
+   que nous venons de mettre en place avec Apple »). Plus de boîte par
+   jour, ni grise ni teintée : le numéro, et dessous la pastille de la
+   pause, qui garde ses couleurs. Aujourd'hui, le numéro dans un rond plein ;
+   le férié, un cercle autour du numéro ; la prime de jour, un trait sous la
+   pastille ; le congé, une pastille cerclée (et non plus pleine de gris
+   clair) ; la maladie, cerclée de rouge ; le commentaire, un point rouge
+   près du numéro. Le titre « Mon cycle » prend la couleur de la marque,
+   comme le mois du widget Calendrier. Les cases du Calendrier sont les
+   mêmes (mêmes classes) : il suit. — */
+html body #v-horaire :is(.mc-hero,#calCard) .mc-grille,html body #v-horaire .mc-hero{--g:2px}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-sem{margin-bottom:2px}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j{background:none; border:1px solid transparent; box-shadow:none; outline:0; border-radius:12px;
+  min-height:52px; padding:5px 1px 7px; gap:4px; justify-content:flex-start}
+@media (hover:hover){ html body #v-horaire :is(.mc-hero,#calCard) .mc-j:hover{background:var(--fd-blanc-05); border-color:transparent} }
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j:focus-visible{outline:2px solid var(--in); outline-offset:-2px}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-n{display:inline-flex; align-items:baseline; justify-content:center; line-height:24px; white-space:nowrap; min-width:24px; height:24px; padding:0 5px; box-sizing:border-box;
+  border-radius:999px; font-family:inherit; font-size:13px; font-weight:550; color:var(--ink); font-variant-numeric:tabular-nums}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.repos .mc-n{color:var(--muted); font-weight:400}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.auj{outline:0}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.auj .mc-n{background:var(--in); color:var(--sur-in); font-weight:700}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.fer .mc-n{box-shadow:inset 0 0 0 1.5px var(--out2)}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.jour::after{content:""; position:absolute; left:34%; right:34%; bottom:2px; height:3px; border-radius:2px; background:var(--pr,var(--d))}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.abs .mc-n{color:var(--ink2)}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.abs:not(.mal):not(.prevu) .mc-t{background:none; border:1px solid rgba(214,222,236,.5); color:var(--ink); padding:0 6px}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-j.abs.mal .mc-t{background:none; border:1px solid #E5574D; color:#F07A70; padding:0 6px; border-radius:99px}
+html body #v-horaire :is(.mc-hero,#calCard) .mc-com{top:4px; right:calc(50% - 19px); bottom:auto; width:6px; height:6px; border:0; border-radius:50%; background:#E5574D}
+/* la légende dit le même repère : un point rouge */
+html body #v-horaire #calCard .mc-leg .lg-com{width:6px; height:6px; border:0; border-radius:50%; background:#E5574D}
+html body #v-horaire #ryAn .mc-tt .ry-chart-t{color:var(--marque-vif); font-weight:800; letter-spacing:.06em}
+html body #v-horaire #ryAn .mc-avec{color:var(--ink)}
+/* les autres fonds gris plus clairs des cadres de l'Accueil : la bande des
+   chiffres du Calendrier, les tuiles de « Mon année », les pastilles
+   grises pleines (le statut, « dans 11 h 20 », les pauses) ; leurs
+   filets restent. Les boutons (la roue, la cloche, l'envoi d'un message)
+   gardent leur rond gris, comme les boutons de l'iPhone ; les étiquettes
+   du Planning, de l'usine et de « Mon rythme » leur couleur, qui dit
+   quelque chose. */
+html body #v-horaire #calCard .calstats{background:none; border-bottom:1px solid var(--line2); gap:0}
+html body #v-horaire #calCard .cstat{background:none}
+html body #v-horaire #calCard .cstat+.cstat{box-shadow:inset 1px 0 0 var(--line2)}
+html body #v-horaire .pf-cgc{background:none; border-color:var(--line2)}
+html body #v-horaire .pf-statut,html body #v-horaire .pf-reste em.pf-rel,html body #v-horaire .pf-proch-tete em,html body #v-horaire .pf-pr-d .pf-pr-q{background:none}
+/* l'appui prolongé ouvre « Personnaliser » (accInit) : au doigt, ni loupe
+   ni menu du système sur un widget ; le texte qu'on écrit reste
+   sélectionnable */
+@media (pointer:coarse){
+  #v-horaire.acc-perso [data-w]{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
+  #v-horaire.acc-perso [data-w] :is(input,textarea){-webkit-user-select:text; user-select:text}
+}
+
 /* — LES SÉLECTEURS À SEGMENTS DE L'IPHONE (le client, le
    03/11/2026 : « applique le même style iPhone aux autres onglets ») : une
    piste creusée, un pouce gris clair qui se soulève, le texte choisi en
@@ -36582,6 +36636,33 @@ function accInit(){
     accAnnoncer("« "+accDef(k).nom+" » : position "+(j+1)+" sur "+vis.length+".");
   });
   window.addEventListener("resize",function(){ if(ACC.edit) accBas(); });
+  /* L'APPUI PROLONGÉ (le client, le 04/11/2026 : « sur mobile, un appui
+     prolongé peut permettre de modifier l'accueil, comme c'est le cas pour
+     l'accueil de l'iPhone ») : un doigt posé une demi-seconde sur un widget,
+     sans bouger, ouvre « Personnaliser » (une vibration là où le téléphone
+     le permet). Un glissement ou le défilement l'annulent ; un champ de
+     saisie n'en déclenche pas. Le clic du relâcher est arrêté : sinon il
+     toucherait l'outil apparu sous le doigt (« − » masquerait le widget). */
+  var lp=null, lpFait=false;
+  function lpStop(){ if(lp){ clearTimeout(lp.t); lp=null; } }
+  v.addEventListener("touchstart",function(e){
+    lpFait=false;
+    if(ACC.edit||ACC.drag||e.touches.length!==1) { lpStop(); return; }
+    var t=e.target; if(!t.closest||!t.closest("[data-w]")||t.closest("input,textarea,select,[contenteditable]")) return;
+    var x=e.touches[0].clientX, y=e.touches[0].clientY;
+    lpStop();
+    lp={x:x, y:y, t:setTimeout(function(){
+      lp=null; lpFait=true;
+      try{ if(navigator.vibrate) navigator.vibrate(12); }catch(er){}
+      try{ var sel=window.getSelection&&getSelection(); if(sel&&sel.removeAllRanges) sel.removeAllRanges(); }catch(er){}
+      accBloqueClic=accMaint(); accEditer(true);
+    },550)};
+  },{passive:true});
+  v.addEventListener("touchmove",function(e){ if(!lp) return; var q=e.touches[0]; if(Math.abs(q.clientX-lp.x)+Math.abs(q.clientY-lp.y)>10) lpStop(); },{passive:true});
+  v.addEventListener("touchend",function(){ lpStop(); if(lpFait){ accBloqueClic=accMaint(); lpFait=false; } },{passive:true});
+  v.addEventListener("touchcancel",function(){ lpStop(); lpFait=false; },{passive:true});
+  window.addEventListener("scroll",lpStop,{passive:true});
+  v.addEventListener("contextmenu",function(e){ if(lp||lpFait||ACC.edit) e.preventDefault(); });
   var mq11=window.matchMedia&&matchMedia("(min-width:1100px)");
   if(mq11){ var suivre=function(){ accPlanningPlacer(); }; if(mq11.addEventListener) mq11.addEventListener("change",suivre); else if(mq11.addListener) mq11.addListener(suivre); }
   accPlanningPlacer();

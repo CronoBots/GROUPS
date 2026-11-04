@@ -11786,3 +11786,65 @@ d'heure du poste de nuit, là où le décompte paraissait) :
 - aucune erreur.
 
 Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0.
+
+### Mon cycle et le Calendrier à la manière de l'iPhone ; plus de gris plus clair ; l'appui prolongé (04/11/2026, `nfdm-v1368`)
+
+Le client : « sur mobile, un appui prolongé peut permettre de modifier
+l'accueil, comme c'est le cas pour l'accueil de l'iPhone. Les backgrounds
+doivent aussi être modifiés dans les cadres comme Mon cycle, et les autres
+backgrounds qui sont gris plus clairs. J'aimerais bien que le cadre Mon
+cycle soit adapté au style que nous venons de mettre en place avec
+Apple. »
+
+**Mesuré d'abord** : chaque élément d'un widget dont le fond, posé sur le
+cadre, est plus clair que lui et presque gris. Trois sortes :
+- **des fonds de structure**, ceux que vise le client : les cases du cycle
+  et du Calendrier (`.mc-j`, gris à 9 % ou teintées de la pause), la
+  bande des chiffres du Calendrier (`.calstats`), les tuiles de « Mon
+  année » (`.pf-cgc`) et des pastilles grises pleines (le statut, « dans
+  11 h 20 », les pauses, les congés RJF, CP et VA) ;
+- **des étiquettes qui ont un sens**, gardées : les trigrammes du Planning,
+  les étiquettes de l'usine, les jours de repos de « Mon rythme » ;
+- **des boutons**, gardés en rond gris comme ceux de l'iPhone : la roue, la
+  cloche, l'envoi d'un message, le segment choisi.
+
+**Mon cycle (et le Calendrier, mêmes cases), comme le widget Calendrier
+de l'iPhone :**
+- plus de boîte par jour : le numéro, puis la pastille de la pause, qui
+  garde ses couleurs ;
+- aujourd'hui : le numéro dans un rond plein, à la couleur de la marque ;
+- le férié : un cercle autour du numéro, et le mois sur la même ligne
+  (« 1 nov ») — il passait d'abord sous la pastille, corrigé avant le
+  commit ;
+- la prime de jour : un trait sous la pastille ;
+- le congé : une pastille cerclée, et la maladie cerclée de rouge ;
+- le commentaire : un point rouge près du numéro, au lieu du triangle
+  d'angle ; la légende du Calendrier dit le même point ;
+- le titre « Mon cycle » à la couleur de la marque, comme le mois du widget
+  Calendrier, et « avec Équipe 1 » en blanc.
+
+Ensuite : la bande des chiffres du Calendrier sans fond, avec des filets ;
+les tuiles de « Mon année » sans fond, avec leur filet ; les pastilles
+grises cerclées. Relevé après : plus aucun fond gris plus clair dans les
+cadres, hors barres de progression, petits repères et boutons.
+
+**L'appui prolongé** (au doigt) : 0,55 s sur un widget, sans bouger, ouvre
+« Personnaliser », avec une vibration là où le téléphone le permet.
+- Un glissement (plus de 10 px), le défilement, ou un champ de saisie
+  l'annulent.
+- Le clic du relâcher est arrêté : sinon il toucherait l'outil apparu sous
+  le doigt.
+- Sur un widget, au doigt, ni loupe ni menu du système ; les champs de
+  saisie restent sélectionnables.
+
+**Éprouvé au vrai doigt** (événements tactiles, 390 px), 5 cas sur 5 :
+- un appui bref n'ouvre rien ;
+- 0,7 s ouvre « Personnaliser » ;
+- un glissement de 40 px annule ;
+- un appui dans le champ des messages n'ouvre rien ;
+- un appui pile sous le futur « − » ouvre le mode, sans masquer le widget.
+
+Parcours : 112 essais, 0 faute (contraste des numéros, posés désormais sur
+le fond du cadre, compris). Garde-fou du dépôt : 0, après une
+reformulation (deux mots en capitales séparés d'une virgule, dans un
+commentaire).
