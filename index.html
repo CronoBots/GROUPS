@@ -8694,9 +8694,13 @@ html body #v-horaire.acc-perso .pf-mt{container:hmt / inline-size; flex-wrap:wra
 .acc-masquer{display:grid; place-items:center; width:32px; height:32px; border:1px solid var(--line); border-radius:50%; background:var(--surface3);
   color:var(--ink); cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35)}
 .acc-masquer:hover{color:var(--tx-rouge-vif2)}
-.acc-etirer{position:absolute; z-index:6; top:50%; right:4px; width:12px; height:52px; margin-top:-26px; border-radius:6px; background:var(--in);
+/* la languette dans le coin bas-droit : au milieu du bord, elle mordait
+   sur la barre d'outils d'un widget bas (l'heure, 84 px) */
+.acc-etirer{position:absolute; z-index:6; bottom:8px; right:4px; width:12px; height:36px; border-radius:6px; background:var(--in);
   box-shadow:0 0 0 3px var(--surface),0 4px 12px rgba(0,0,0,.4); cursor:ew-resize; touch-action:none; pointer-events:auto}
-.acc-etirer::before{content:""; position:absolute; inset:14px 4px; border-left:1.5px solid var(--sur-in); border-right:1.5px solid var(--sur-in); opacity:.7}
+.acc-etirer::before{content:""; position:absolute; inset:10px 4px; border-left:1.5px solid var(--sur-in); border-right:1.5px solid var(--sur-in); opacity:.7}
+/* au doigt, une prise plus large que la languette visible */
+@media (pointer:coarse){ .acc-etirer{width:14px; height:34px; bottom:6px} .acc-etirer::after{content:""; position:absolute; inset:-6px -10px -6px -14px} }
 /* le widget qu'on déplace : sa place devient le CADRE FANTÔME, en
    pointillé, et suit la grille en direct ; une vignette suit le doigt */
 #v-horaire.acc-edit [data-w].acc-tire{outline:2px dashed var(--in); outline-offset:0; background:color-mix(in srgb,var(--in) 10%,transparent)!important;
@@ -30117,17 +30121,25 @@ function renderOrganisation(){
        s'en sert pas, et il faut savoir pourquoi : GST suit celle de l'équipe
        4 à 74 % alors que le classeur le donne à l'équipe 3, et SKS celle de
        l'équipe 5 à 97 % alors qu'il n'a pas d'équipe du tout. Suivre une
-       rotation n'est pas appartenir à une équipe. */
-    var EQUIPE_TRANCHEE={CDT:"2"};
+       rotation n'est pas appartenir à une équipe.
+
+       Le 01/11/2026, une question à la fois, le client a tranché les trois
+       pour l'onglet Horaire : CDT avec l'équipe 2, NPI et SKS avec l'équipe
+       5 (GR_FORMATION_EQUIPE) — « SKS n'a pas d'équipe » ci-dessus est donc
+       dépassé. Cet onglet gardait sa propre copie, {CDT:"2"}, et NPI et SKS
+       y restaient « sans équipe » (le client, le 04/11/2026 : « les
+       opérateurs en formation n'ont pas leur équipe que l'on avait retrouvée
+       dans l'onglet horaire ») : il lit désormais la même décision. Le
+       libellé « éq. N » du classeur garde la priorité, comme dans l'Horaire. */
     function _orgEquipe(p){
       var c=String(p.cat||"");
       if(/^shift\s*\d/i.test(c)) return c.replace(/\D+/g,"");
-      if(EQUIPE_TRANCHEE[p.id]) return EQUIPE_TRANCHEE[p.id];
       /* PAS DE \b DEVANT « éq » : en JavaScript sans /u, « é » n'est pas un
          caractère de mot, et l'espace qui le précède non plus — la limite
          n'existe donc jamais et le motif ne trouvait rien. */
       var m=/éq\.?\s*(\d)/i.exec(_orgPoste(p));
-      return m?m[1]:"";
+      if(m) return m[1];
+      return enFormation(p)?(GR_FORMATION_EQUIPE[p.id]||""):"";
     }
     var grille={}, eqs=[], orphelins=[], sansEquipe=[];
     db.people.forEach(function(p){
@@ -35140,7 +35152,11 @@ function equipeShift(p){
   if(m) return "Équipe "+m[1];
   var e=p&&p.e; if(Array.isArray(e)) e=e.join(" ");
   var m2=String(e||"").match(/éq\.?\s*(\d+)/i);
-  return m2 ? "Équipe "+m2[1] : "—";
+  if(m2) return "Équipe "+m2[1];
+  /* en formation, sans « éq. N » écrit : la décision du client, la même que
+     l'onglet Horaire et l'onglet Équipes (GR_FORMATION_EQUIPE, 01/11/2026) */
+  var f=/formation/i.test(String((p&&p.cat)||""))&&GR_FORMATION_EQUIPE[p.id];
+  return f ? "Équipe "+f : "—";
 }
 /* Titre lisible d'un poste depuis sa clé. */
 function titrePoste(k){
@@ -36340,8 +36356,8 @@ function confirmerPro(o, surOui){
 var ACC_W=[
   {k:"heure",        nom:"Heure et météo",      l:6,  lmin:3, tmin:1},
   {k:"profil",       nom:"Mon profil",          l:6,  lmin:3, tmin:2},
-  {k:"pointeuse",    nom:"Pointeuse",           l:6,  lmin:3, tmin:2},
-  {k:"poste",        nom:"Prochain poste",      l:6,  lmin:4, tmin:2},
+  {k:"pointeuse",    nom:"Pointeuse",           l:6,  lmin:3, tmin:1},
+  {k:"poste",        nom:"Prochain poste",      l:6,  lmin:4, tmin:1},
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
   {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:4, tmin:2},
   {k:"polyvalences", nom:"Polyvalences",        l:6,  lmin:3, tmin:1},
@@ -36353,7 +36369,7 @@ var ACC_W=[
   {k:"calendrier",   nom:"Calendrier",          l:8,  lmin:6, tmin:2},
   {k:"site",         nom:"Sur site",            l:4,  lmin:4, tmin:2},
   {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2},
-  {k:"conges",       nom:"Mon année",           l:4,  lmin:3, tmin:2},
+  {k:"conges",       nom:"Mon année",           l:4,  lmin:3, tmin:1},
   {k:"rythme",       nom:"Mon rythme",          l:8,  lmin:6, tmin:2}
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
@@ -36449,7 +36465,9 @@ function accOutils(tout){
     for(i=0;i<el.children.length;i++){ if(el.children[i].classList.contains("acc-outils")) o=el.children[i]; if(el.children[i].classList.contains("acc-etirer")) g=el.children[i]; }
     if(!o){ o=document.createElement("div"); o.className="acc-outils"; el.appendChild(o); }
     if(tout||o.__sig!==sig){ o.innerHTML=accOutilsHTML(k); o.__sig=sig; }
-    if(ACC.mode==="large"&&accPermises(k).length>1){ if(!g){ g=document.createElement("span"); g.className="acc-etirer"; g.setAttribute("data-acc-etirer",k); g.title="Glisser pour choisir la largeur"; el.appendChild(g); } }
+    /* la languette aussi au téléphone (le client, le 04/11/2026 : « sur
+       mobile les widgets de l'accueil peuvent être modifiés aussi ») */
+    if(accPermises(k).length>1){ if(!g){ g=document.createElement("span"); g.className="acc-etirer"; g.setAttribute("data-acc-etirer",k); g.title="Glisser pour choisir la largeur"; el.appendChild(g); } }
     else if(g) el.removeChild(g);
     el.classList.toggle("acc-tire",!!(ACC.drag&&ACC.drag.k===k));
   });

@@ -11696,3 +11696,31 @@ disposition que le client a pu régler depuis la v1363 garde tout le reste.
 Parcours : 112 essais, 0 faute. `coherence-planning.js` : 0. Garde-fou du
 dépôt : 0, après une reformulation (deux mots en capitales séparés d'une
 virgule, dans un commentaire, avaient la forme « NOM, PRÉNOM »).
+
+### Les widgets aussi au téléphone : la demi-largeur, la languette (04/11/2026, `nfdm-v1365`)
+
+Le client : « sur mobile, les widgets de l'accueil peuvent être modifiés
+aussi ».
+
+**Lu ainsi, et choisi seul.** Au téléphone, le mode « Personnaliser »
+existait déjà (déplacer, masquer), mais quatre widgets seulement avaient
+la demi-largeur, et aucun la languette. Il est rapproché du PC :
+- la demi-largeur (½, 171 px à 390) pour sept widgets : l'heure, la
+  pointeuse, le prochain poste, les accès, « À faire », les polyvalences,
+  « Mon année ». Les autres restent en pleine largeur, trop serrés à
+  171 px : le profil, le cycle, le calendrier, l'usine, « Mon rythme »,
+  « Sur site », les messages, les demandes ;
+- la languette aussi au téléphone : le même cadre fantôme, aimanté à ½ ou
+  à 1. Au doigt, sa prise est plus large qu'elle (`pointer:coarse`).
+
+**La languette passe dans le coin bas-droit.** Au milieu du bord, elle
+mordait sur la barre d'outils d'un widget bas : l'heure fait 84 px, et la
+mesure montrait un chevauchement de 4 px au téléphone. En bas, elle fait
+36 px au PC et 34 px au doigt, et ne chevauche plus rien.
+
+**Éprouvé au vrai doigt** (événements tactiles, 390 px) : la languette du
+prochain poste glissée vers la gauche fait paraître le cadre fantôme
+« ½ » (171 px), et le widget prend 171 px au lâcher. La languette ne
+chevauche plus aucune barre d'outils.
+
+Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0.

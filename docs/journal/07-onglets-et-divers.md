@@ -303,6 +303,13 @@ et c'est lui qui le dit également — sa ligne écrit « Distillation » tout
 court là où LCI porte « Distillation éq. 5 ». `EQUIPE_TRANCHEE` porte cette
 décision, comme `POSTE_TRANCHE` porte celle de QBY.
 
+**Dépassé, corrigé le 04/11/2026.** Le 01/11/2026, une question à la fois
+(onglet Horaire, journal 05, v1277), le client a donné une équipe aux trois :
+CDT 2, NPI 5, SKS 5 (2026), dans `GR_FORMATION_EQUIPE`. `EQUIPE_TRANCHEE`
+({CDT:"2"}) est restée en arrière, et NPI et SKS y étaient encore « sans
+équipe ». Elle est retirée : l'onglet Équipes lit la décision du 01/11
+(entrée « Les gens en formation dans leur équipe, partout », plus bas).
+
 **Sa rotation colle à 90 % à celle de l'équipe 2 — et on ne s'en sert
 pas.** Il faut savoir pourquoi : GST suit celle de l'équipe 4 à 74 % alors
 que le classeur le donne à l'équipe 3, et SKS celle de l'équipe 5 à 97 %
@@ -870,3 +877,41 @@ journal. Le voici MOT POUR MOT :
 > (vérifié ligne par ligne, aucune perdue) dans `docs/journal/` ; ne restent
 > ici que les règles, les commandes et la structure. **Ne jamais le laisser
 > regrossir** : au-delà de 25 Ko, déplacer dans le journal.
+
+### Les gens en formation dans leur équipe, partout (04/11/2026, `nfdm-v1365`)
+
+Le client : « les opérateurs en formation n'ont pas leur équipe que l'on
+avait retrouvée dans l'onglet horaire ».
+
+**La cause : une règle en trois copies.** L'équipe d'une personne en
+formation venait de trois endroits :
+- l'onglet Horaire : `grEquipeFormation`, le libellé « éq. N », sinon
+  `GR_FORMATION_EQUIPE` (CDT 2, NPI 5, SKS 5), la décision du 01/11 ;
+- l'onglet Équipes : `_orgEquipe`, le libellé, sinon `EQUIPE_TRANCHEE`
+  ({CDT:"2"}, la décision du 22/09) ;
+- le profil, la fiche d'une personne, la Direction : `equipeShift`, la
+  catégorie « Shift N », sinon l'affectation « éq. N », sinon rien.
+
+La seconde était restée en arrière, et la troisième n'avait aucune des
+trois décisions. C'est la règle de CLAUDE.md : « deux copies d'une même
+règle divergent, et c'est la seconde qui reste en arrière ».
+
+**Une seule décision, désormais.** Le libellé « éq. N » du classeur fait
+toujours foi (GST, LHR), puis vient `GR_FORMATION_EQUIPE`, et seulement pour
+une personne en formation.
+- `EQUIPE_TRANCHEE` est retirée ; `_orgEquipe` et `equipeShift` lisent
+  `GR_FORMATION_EQUIPE`.
+- SKS 2027, adjoint dans la feuille Contremaître, n'est pas touché : il
+  n'est pas en formation.
+
+**Mesuré avant et après** (navigateur, version d'avant tirée du commit) :
+- onglet Équipes, carte « Opérateurs en formation » : SKS et NPI passent
+  de « sans équipe » à « Équipe 5 », et rejoignent la grille de l'équipe 5 ;
+- profils : CDT « Équipe 2 · YPE · VGG », NPI et SKS « Équipe 5 · AFA ·
+  YBT », là où il n'y avait rien ;
+- inchangés : SLI, sans équipe (« toujours en D », le client, le 01/11), et
+  les six au libellé « éq. N ».
+
+`verifier-calendrier.js` (défaut, `--manques 0926`, `--polyvalence`,
+`--compteurs`) : les sorties sont identiques à l'octet avant et après.
+Aucun de ces outils ne lit l'équipe d'une personne.
