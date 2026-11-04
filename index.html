@@ -37566,28 +37566,51 @@ function accEmpanTous(els){
    haut des icônes de sa première rangée, ses bords tombent sur ceux des
    icônes de ses colonnes, et il finit au bas des icônes de sa dernière
    rangée ; dessous reste la place d'une étiquette, comme sous une icône.
-   Ses marges dans sa case se tirent de la taille réelle d'une icône
-   (--ip-taille : 60 px, 54 px sous 360 px d'écran) et de sa place dans la
-   sienne ; elles se refont à chaque largeur. */
+   Ses marges dans sa case se tirent de la taille réelle d'une icône et de
+   sa place dans la sienne ; elles se refont à chaque largeur. Au
+   téléphone, depuis la v1385, ses côtés débordent de 4 points ceux des
+   icônes, comme sur l'iPhone du client (sa grille, plus bas). */
 function accAligner(v,mode){
-  var cs=getComputedStyle(v), pl=parseFloat(cs.paddingLeft)||0, pr=parseFloat(cs.paddingRight)||0, g=parseFloat(cs.columnGap)||16,
-      cols=mode==="large"?24:4, span=mode==="large"?3:1, cw=(v.clientWidth-pl-pr-(cols-1)*g)/cols, cell=span*cw+(span-1)*g,
-      rac=document.getElementById("pfRac"), s=rac?parseFloat(getComputedStyle(rac).getPropertyValue("--ip-taille")):NaN,
-      app=v.querySelector('[data-w^="app:"]'), t=app?parseFloat(getComputedStyle(app).paddingTop):NaN;
-  if(!(s>0)) s=cell>=66?60:54;
+  var cs=getComputedStyle(v), g=parseFloat(cs.columnGap)||16, rg=parseFloat(cs.rowGap)||g,
+      rac=document.getElementById("pfRac"), app=v.querySelector('[data-w^="app:"]'), t=app?parseFloat(getComputedStyle(app).paddingTop):NaN,
+      avant=[ACC.p,v.style.paddingLeft,rac?rac.style.getPropertyValue("--ip-taille"):""].join("|"), P, ix, s;
   if(!(t>=0)||t>12) t=2;
-  /* LES CASES CARRÉES (le client, le 04/11/2026 : « la météo équivaut 2×2
-     icônes, donc elle doit être carrée ») : une rangée est aussi haute
-     qu'une case d'icône est large ; un widget posé sur 2×2 icônes est
-     alors carré, comme le petit widget de l'iPhone, et le grand (4×4)
-     aussi. Les icônes se rapprochent d'une rangée à l'autre : 93,5 px au
-     lieu de 112 à 390 px d'écran (l'iPhone : 98). Rend vrai si la rangée
-     a changé. */
-  var P=Math.round(cell*100)/100, neuf=P>0&&P!==ACC.p;
-  if(neuf){ ACC.p=P; v.style.setProperty("--acc-p",P+"px"); }
-  var ix=Math.max(0,(cell-s)/2), ib=Math.max(0,ACC.p-t-s);
+  if(mode==="tel"){
+    /* LA GRILLE DE L'IPHONE DU CLIENT (le 04/11/2026 : « regarde les écarts
+       verticaux d'Apple et de mon app entre les icônes et widget », avec la
+       capture de son écran d'accueil, 393 points de large, mesurée au
+       pixel) : des icônes de 64 points, une colonne tous les 90,7 points,
+       une rangée tous les 98,7 — l'écart vertical entre deux icônes (34,7)
+       n'est pas l'horizontal (26,7) ; la première icône à 28,4 points du
+       bord. Le petit widget est carré (162,7 points) : son haut et son bas
+       sur ceux des icônes, ses côtés 4 points au-delà des leurs, comme le
+       widget Calendrier de la capture ; le grand fait 344 × 360. Les cases
+       carrées de la v1384 (93,5 points en tous sens) serraient les rangées
+       et écartaient les colonnes. À une autre largeur d'écran, les mêmes
+       proportions, l'icône plafonnée à 64 points. */
+    var W=document.documentElement.clientWidth||v.clientWidth+32, k=W/393, vw=v.clientWidth,
+        C=90.7*k, R=98.7*k, pad=(vw-4*C+g)/2;
+    s=Math.min(64,64*k);
+    if(pad<0){ pad=0; C=(vw-3*g)/4+g; R=C*98.7/90.7; }
+    var o=(R-C)/2;
+    v.style.paddingLeft=v.style.paddingRight=pad.toFixed(2)+"px";
+    if(rac) rac.style.setProperty("--ip-taille",s.toFixed(2)+"px");
+    P=Math.round((R-rg)*100)/100; ix=(C-g-s)/2-o;
+  } else {
+    /* au PC, les cases carrées (v1384) : une rangée aussi haute qu'une case
+       d'icône est large, le widget sur les bords des icônes */
+    if(v.style.paddingLeft){ v.style.paddingLeft=""; v.style.paddingRight=""; }
+    if(rac&&rac.style.getPropertyValue("--ip-taille")) rac.style.removeProperty("--ip-taille");
+    var c2=getComputedStyle(v), pl=parseFloat(c2.paddingLeft)||0, pr=parseFloat(c2.paddingRight)||0,
+        cw=(v.clientWidth-pl-pr-23*g)/24, cell=3*cw+2*g;
+    s=rac?parseFloat(getComputedStyle(rac).getPropertyValue("--ip-taille")):NaN; if(!(s>0)) s=cell>=66?60:54;
+    P=Math.round(cell*100)/100; ix=Math.max(0,(cell-s)/2);
+  }
+  if(P>0&&P!==ACC.p){ ACC.p=P; v.style.setProperty("--acc-p",P+"px"); }
+  var ib=Math.max(0,ACC.p-t-s);
   v.style.setProperty("--acc-ix",ix.toFixed(2)+"px"); v.style.setProperty("--acc-it",t.toFixed(2)+"px"); v.style.setProperty("--acc-ib",ib.toFixed(2)+"px");
-  return neuf;
+  /* rend vrai si la grille a changé (la rangée, les marges, l'icône) */
+  return [ACC.p,v.style.paddingLeft,rac?rac.style.getPropertyValue("--ip-taille"):""].join("|")!==avant;
 }
 function accForme(){
   var v=document.getElementById("v-horaire"); if(!v) return;

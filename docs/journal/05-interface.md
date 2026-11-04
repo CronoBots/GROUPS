@@ -12912,3 +12912,78 @@ d'autres à 23 h 10, en poste, et à 7 h 40) :
   les gestes (47), le repos (0 mutation), la fiche de l'usine par-dessus
   (ouverte dans le widget, fermée par la croix), le parcours (112 essais)
   et statique.
+
+### La grille de l'iPhone du client, mesurée sur sa capture (04/11/2026, `nfdm-v1385`)
+
+Le client, avec trois captures de 20 h 54 : deux de l'application (la
+v1382, en ligne à cette heure-là) et une de l'écran d'accueil de son
+iPhone. « Regarde les écarts verticaux d'Apple et de mon app entre les
+icônes et widget. »
+
+**Mesuré sur sa capture** (1179 × 2556 px, 3 px par point, 393 points de
+large), au pixel, par la couleur de chaque icône et du widget :
+
+| | iPhone du client | v1382 (ses captures) | v1384 | v1385 |
+|---|---|---|---|---|
+| icône | 64 | 60 | 60 | 64 |
+| pas des colonnes | 90,7 | 94,25 | 94,25 | 90,7 |
+| pas des rangées | 98,7 | 112 | 94,25 | 98,7 |
+| écart vertical entre deux icônes | 34,7 | 52 | 34,25 | 34,7 |
+| première icône depuis le bord | 28,4 | 25,1 | 25,1 | 28,4 |
+| widget 2 × 2 | 162 × 160, de 24,3 à 186,7 | 154 × 172 | 154,3 × 154,3 | 162,7 × 162,7, de 24,4 à 187,2 |
+
+- Le widget de l'iPhone (Calendrier) a son haut sur celui des icônes de
+  sa rangée et son bas sur celui des icônes de la rangée suivante.
+  Horizontalement, il déborde de 4 points les icônes de chaque côté.
+- Les cases de l'iPhone ne sont pas carrées : une colonne tous les
+  90,7 points, une rangée tous les 98,7. C'est le petit widget qui est
+  carré (pas d'une rangée + une icône, en tous sens).
+- La v1384 (cases carrées de 94,25) donnait déjà le bon écart vertical
+  entre deux icônes (34,25 contre 34,7). Mais ses icônes étaient plus
+  petites (60), ses colonnes plus écartées et ses rangées plus serrées.
+  Côte à côte, à la même échelle, la grille ne tombait pas sur celle de
+  l'iPhone.
+
+**Désormais, au téléphone**, `accAligner()` pose la grille de l'iPhone
+du client :
+- des icônes de 64 points (`--ip-taille`) ;
+- une colonne tous les 90,7 points, par la marge de la grille ;
+- une rangée tous les 98,7 points ;
+- le widget débordant les icônes de (rangée − colonne) / 2 = 4 points de
+  chaque côté.
+- Le petit widget est carré (162,7 points à 393). Le moyen fait
+  344 × 162,7. Le grand fait 344 × 360, comme chez Apple : il n'est pas
+  carré (en v1384, il l'était).
+- À une autre largeur, les mêmes proportions, l'icône plafonnée à
+  64 points : à 320 points d'écran, un petit widget de 132,5 ; à 430, de
+  172.
+- Au PC, rien ne change : les cases carrées de la v1384.
+
+**Une épreuve contre l'iPhone** (nouvelle) : à 393 points, avec la
+disposition du client, l'icône, les deux pas, le bord de la première
+icône et la boîte du widget, comparés à ses mesures.
+- La v1384 s'en écarte en 6 points (icône 60, pas 94,3 et 94,3,
+  widget 154,3).
+- La v1385 tient les 9 à moins d'un point.
+- Le contrôle d'alignement attend maintenant le débord de chaque côté
+  (calculé sur la grille de la page) et la taille de chaque format.
+
+**Ce que l'iPhone a, et l'application non** : sous chaque widget, son nom
+(« Calendrier »), comme sous une icône. Les widgets de l'application
+n'ont plus de titre depuis la demande du client (v1381) ; ce nom-là
+n'est pas ajouté.
+
+**Mesuré.**
+- **La matrice** : chaque widget à chaque format, à 7 largeurs (320,
+  360, 390, 393 — l'iPhone du client —, 414, 760 et 1280) et 5 états
+  (15 h 21 ; 23 h 10, en poste ; 7 h 40 ; 5 h 50 ; sans données).
+  4 × 282 mesures avec données et 275 sans, 0 faute.
+- **L'épreuve de l'iPhone** : 0 écart sur 9 (6 en v1384).
+- **L'alignement** : 97 widgets à 6 largeurs, 0 hors de la grille ou de
+  leur taille, débord compris. La météo en petit est carrée à toutes les
+  largeurs de téléphone : 132,5 points à 320, 149 à 360, 161,5 à 390,
+  162,7 à 393, 168 à 414, 172 à 430.
+- **Les icônes**, à 8 largeurs : l'icône et son nom tiennent dans le pas
+  des rangées (86 points pour 98,7 à 393), sans toucher un widget.
+- La grille, les gestes (47), le repos (0 mutation), la fiche de
+  l'usine, le parcours (112 essais) et statique : 0 faute.
