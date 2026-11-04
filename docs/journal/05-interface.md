@@ -12129,3 +12129,69 @@ Mesuré sur tous les arcs, téléphone 4, tablette 12, PC 13 : chacun a le
 centre de l'arrondi de son cadre à moins de 0,6 px, et son bord intérieur
 à 0,5 px dans le cadre. Gestes (45 contrôles), parcours (112 essais) :
 0 faute.
+
+### La taille en vraie forme pendant le geste ; « Congés restants », un widget à part (04/11/2026, `nfdm-v1374`)
+
+Le client, deux captures de son téléphone : le widget « Heure et poste »
+mis en ½ (haut, la date sur deux lignes), et le même pendant le geste,
+où le cadre pointillé « ½ » gardait la hauteur d'avant. « Le
+rétrécissement doit montrer la forme réelle qu'il aura après. Les
+compteurs de congés restants doivent être un widget à part. »
+
+**La taille, en vraie forme.** Le cadre fantôme de la v1363 ne montrait
+que la largeur visée, à la hauteur d'avant. Un rétrécissement qui
+allonge le widget (la date qui passe à la ligne, un tableau réduit) ne se
+voyait donc qu'au lâcher. Désormais :
+- l'arc applique la taille en direct, aimantée à la taille permise la
+  plus proche du doigt, mesurée depuis le bord gauche de départ ;
+- le widget prend sous le doigt sa vraie forme, et les autres se
+  replacent autour, comme sur l'iPhone ;
+- la case du widget est entourée de pointillés, avec la fraction au
+  milieu ;
+- lâcher garde la taille ; Échap rend celle de départ.
+
+Pendant le geste, la case n'est pas refaite (sa bulle, l'arc tenu).
+L'horloge, qui change chaque seconde, ne relance plus le relevé des
+éléments.
+
+Éprouvé :
+- au doigt, la météo passe de 359×234 à 172×203 px pendant le geste,
+  et garde cette taille au lâcher ;
+- à la souris, de 950 à 307 px ;
+- Échap pendant le geste : 307 → 709 → 307 px.
+
+**« Congés restants », un widget à part.** Les tuiles VA, RTT, DTT, RJF et
+FT, avec le total « à placer », sortent de « Mon année » dans leur propre
+carte (`#cgCard`, `data-w="soldes"`). Son titre intérieur « Mes congés »,
+qui redisait celui du widget, s'efface. Elle a ses tailles (¼ à 1 au PC,
+½ ou 1 au téléphone) et ses mises en page réduites. Dans une disposition
+déjà réglée, elle se pose juste avant « Mon année », où que celle-ci ait
+été placée.
+
+**Deux défauts trouvés en mesurant, et corrigés :**
+- **L'en-tête du billet** (sur la capture du client) : en ½ au téléphone,
+  la pastille « dans 6 h 11 » couvrait « Prochain poste · aujourd'hui »,
+  le libellé n'ayant plus que 46 px ; à ⅓ au PC, il était coupé de points
+  de suspension. La pastille passe désormais sous le libellé quand les
+  deux ne tiennent pas sur une ligne ;
+- **« Mon année » à ⅓** (sa taille par défaut au PC, 279 à 307 px) : les
+  dates passaient sous les chiffres, et « Prochaine » touchait « Faites ».
+  La réduction ne commençait qu'à 260 px, alors que les quatre colonnes
+  en demandent 360. Le tableau perd « Total » sous 360 px, et ne garde que
+  « Reste » sous 240 px.
+
+**Pourquoi la matrice ne les voyait pas, et ce qui change.** Elle
+cherchait ce qui sort du widget, pas un texte qui sort de sa propre boîte
+pour passer sous son voisin. Elle tournait aussi à 21 h 30, en poste, où
+l'en-tête n'a pas de pastille. Elle mesure désormais l'étendue réelle de
+chaque texte (un `Range`, et non `scrollWidth`, qu'une prise agrandie par
+`::after` gonfle de 6 à 7 px sur les flèches du Calendrier). Elle tourne
+à deux heures, 15 h 18 et 21 h 30.
+
+**Preuve que la mesure mord** : sur la v1373, elle relève le chevauchement
+de la capture (37 px au téléphone, 6 px à la tablette) et les dates de
+« Mon année » (jusqu'à 59 px). Sur la v1374 : 0, hors un écart voulu. Les
+repères « 10, 15, 20… » de « Mon rythme » en ½ débordent de 2 px de leur
+case étroite, sur des cases voisines sans repère.
+
+Gestes (47 contrôles), parcours (112 essais), statique : 0 faute.

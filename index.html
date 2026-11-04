@@ -2809,7 +2809,7 @@ html #grille .ws-site{margin-bottom:14px}
 .ry-an-t.pf-ms-t .mc-stat:empty{display:none}
 /* « Mon année » commençait 30 px sous son en-tête, les autres cartes 16 à
    18 (audit du 30/10/2026) */
-#anCard .an-corps>.ry-an:first-child>.ry-an-t:first-child{padding-top:0}
+:is(#anCard,#cgCard) .an-corps>.ry-an:first-child>.ry-an-t:first-child{padding-top:0}
 .site-st .pl-pa{flex:none; min-width:38px; text-align:center}
 .site-st .site-etat{align-self:center; padding:1px 7px; border-radius:999px; font-size:11px; font-weight:650; line-height:16px;
   color:var(--in); background:color-mix(in srgb,var(--in) 14%,transparent)}
@@ -8158,11 +8158,13 @@ html body #v-horaire #calStats .cstat-d{white-space:normal; text-align:center}
    le 03/11/2026 par celle des widgets ; les polyvalences y vont sous les
    accès, à gauche, là où la colonne est la plus courte) */
 /* « Mon année » : le contenu du héros, dans une carte ordinaire */
-html body #anCard .pf-an{padding:0; margin:0}
-html body #anCard #ryCg .pf-cg-t{border-top:0; margin-top:0}
-html body #anCard #ryCg .ry-h2{padding-top:0}
-html body #anCard #ryCg:not(:empty)+#ryPr{border-top:1px solid var(--line2)}
-html body #anCard .pf-cgs{margin-bottom:12px}
+html body :is(#anCard,#cgCard) .pf-an{padding:0; margin:0}
+html body #cgCard #ryCg .pf-cg-t{border-top:0; margin-top:0}
+html body #cgCard #ryCg .ry-h2{padding-top:0}
+/* le titre « Mes congés » redisait celui du widget : reste le total à placer */
+html body #cgCard #ryCg .pf-cg-t .ry-h2{display:none}
+html body #cgCard #ryCg .pf-cg-t .pf-pr-l{margin-left:0; text-align:left}
+html body #cgCard .pf-cgs{margin-bottom:2px}
 html body #anCard .pf-pr{margin-bottom:0}
 /* UNE PAUSE, UNE PASTILLE sur l'Accueil (audit du 23/10/2026) : « Sur
    site » et « Demandes de congé » montraient PM en chasse fixe sur la
@@ -8361,7 +8363,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 [data-ip="certif"]{--ic:var(--ip-certif)}
 /* les widgets de l'Accueil : en tête, la petite icône de l'app dont ils
    parlent, comme sur l'iPhone */
-#ctlCard>header{--ic:var(--ip-valider)} #anCard>header{--ic:var(--ip-demandes)} #siteCard>header{--ic:var(--ip-equipes)}
+#ctlCard>header{--ic:var(--ip-valider)} #anCard>header{--ic:var(--ip-demandes)} #cgCard>header{--ic:var(--ip-absences)} #siteCard>header{--ic:var(--ip-equipes)}
 #usineCard>header{--ic:var(--ip-accueil)} #filCard>header{--ic:var(--ip-cm)} #calCard>header{--ic:var(--ip-planning)} #rythmeCard>header{--ic:var(--ip-horaire)}
 
 /* — LA MATIÈRE D'UNE ICÔNE D'APP, partout la même ; la taille et l'arrondi
@@ -8618,24 +8620,37 @@ html body .pf-hero .pf-hor .pf-mt-hh i{width:6px; height:18px; margin:0 3px; bac
   html body .pf-hero .pf-bloc>.pf-hor{grid-column:1; grid-row:1 / span 9; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px;
     padding:16px 20px; border-bottom:0; border-right:1px solid var(--line2)}
 }
-/* — « MON ANNÉE » RÉDUITE (le client, le 04/11/2026, « oui » à la version
-   réduite proposée) : un quart au PC, une moitié au téléphone. Sous 260 px
-   de cadre, les cinq tuiles des congés passent en trois puis deux, la
-   ligne d'avancement va à la ligne, et le tableau des pauses perd sa
-   colonne « Total » (la somme des deux autres) ; sous 200 px, deux tuiles
-   par rangée, et le tableau ne garde que « Reste » à côté de la date. Le
-   détail entier reste dans l'étiquette lue à voix haute de chaque ligne. — */
-html body #v-horaire.acc-perso #anCard{container:anc / inline-size}
+/* — « MON ANNÉE » ET « CONGÉS RESTANTS » RÉDUITS (le client, le 04/11/2026,
+   « oui » à la version réduite proposée). Chacun d'après la largeur de son
+   cadre (requête de conteneur « anc ») :
+   - les tuiles des congés : sous 260 px, trois puis deux ; sous 200 px,
+     deux par rangée ;
+   - le tableau des pauses (« Mon année ») : ses quatre colonnes demandent
+     360 px de cadre (la pause, la date entière, « Faites », « Reste »,
+     « Total ») ; dessous, il perd « Total » (la somme des deux autres) ;
+     sous 240 px, il ne garde que « Reste » à côté de la date.
+   Mesuré le 04/11/2026 : à un tiers (279 à 307 px), la taille par défaut au
+   PC, les dates passaient sous les chiffres et « Prochaine » touchait
+   « Faites » ; la réduction ne commençait qu'à 260 px. Le détail entier
+   reste dans l'étiquette lue à voix haute de chaque ligne. — */
+html body #v-horaire.acc-perso :is(#anCard,#cgCard){container:anc / inline-size}
 @container anc (max-width:259px){
-  html body #v-horaire #anCard .an-corps{padding-left:12px; padding-right:12px}
-  html body #v-horaire #anCard .pf-cgs{grid-template-columns:repeat(6,minmax(0,1fr)); gap:4px}
-  html body #v-horaire #anCard .pf-cgc{grid-column:span 2; padding:7px 5px 8px}
-  html body #v-horaire #anCard .pf-cgs>.pf-cgc:nth-child(n+4):nth-last-child(-n+2){grid-column:span 3}
-  html body #v-horaire #anCard .pf-cgc>b{font-size:14.5px}
-  html body #v-horaire #anCard .pf-cgc>em{letter-spacing:-.01em}
-  html body #v-horaire #anCard .ry-an-cpt{white-space:normal}
-  html body #v-horaire #anCard .ry-an-cpt>span{white-space:nowrap}
-  html body #v-horaire #anCard .ry-an-t{flex-wrap:wrap; row-gap:2px}
+  html body #v-horaire :is(#anCard,#cgCard) .an-corps{padding-left:12px; padding-right:12px}
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgs{grid-template-columns:repeat(6,minmax(0,1fr)); gap:4px}
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgc{grid-column:span 2; padding:7px 5px 8px}
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgs>.pf-cgc:nth-child(n+4):nth-last-child(-n+2){grid-column:span 3}
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgc>b{font-size:14.5px}
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgc>em{letter-spacing:-.01em}
+  html body #v-horaire :is(#anCard,#cgCard) .ry-an-cpt{white-space:normal}
+  html body #v-horaire :is(#anCard,#cgCard) .ry-an-cpt>span{white-space:nowrap}
+  html body #v-horaire :is(#anCard,#cgCard) .ry-an-t{flex-wrap:wrap; row-gap:2px}
+}
+@container anc (max-width:199px){
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgc,html body #v-horaire :is(#anCard,#cgCard) .pf-cgs>.pf-cgc:nth-child(n+4):nth-last-child(-n+2){grid-column:auto}
+  html body #v-horaire :is(#anCard,#cgCard) .pf-cgs>.pf-cgc:last-child:nth-child(odd){grid-column:span 2}
+}
+@container anc (max-width:359px){
   html body #v-horaire #anCard :is(.pf-pr-tab,.pf-pr-h){grid-template-columns:30px minmax(0,1fr) 30px 30px; column-gap:8px; padding-left:0; padding-right:0}
   html body #v-horaire #anCard .pf-pr-t,html body #v-horaire #anCard .pf-pr-h>span:nth-child(5),html body #v-horaire #anCard .pf-pr-hm{display:none}
   html body #v-horaire #anCard .pf-pr-c .pf-pause{width:30px}
@@ -8648,13 +8663,17 @@ html body #v-horaire.acc-perso #anCard{container:anc / inline-size}
   html body #v-horaire #anCard .pf-pr-h span:is(:nth-child(3),:nth-child(4)){display:flex; justify-content:flex-end; white-space:nowrap}
   html body #v-horaire #anCard .pf-pr-h span:nth-child(2)::first-letter{text-transform:uppercase}
 }
-@container anc (max-width:199px){
-  html body #v-horaire #anCard .pf-cgs{grid-template-columns:repeat(2,minmax(0,1fr))}
-  html body #v-horaire #anCard .pf-cgc,html body #v-horaire #anCard .pf-cgs>.pf-cgc:nth-child(n+4):nth-last-child(-n+2){grid-column:auto}
-  html body #v-horaire #anCard .pf-cgs>.pf-cgc:last-child:nth-child(odd){grid-column:span 2}
-  html body #v-horaire #anCard :is(.pf-pr-tab,.pf-pr-h){grid-template-columns:30px minmax(0,1fr) 30px}
+@container anc (max-width:239px){
+  html body #v-horaire #anCard :is(.pf-pr-tab,.pf-pr-h){grid-template-columns:28px minmax(0,1fr) 31px; column-gap:6px}
+  html body #v-horaire #anCard .pf-pr-c .pf-pause{width:28px}
   html body #v-horaire #anCard .pf-pr-f,html body #v-horaire #anCard .pf-pr-h>span:nth-child(3){display:none}
+  html body #v-horaire #anCard .pf-pr-d b{font-size:13px}
 }
+/* L'EN-TÊTE DU BILLET : la pastille du délai passe sous « Prochain poste ·
+   aujourd'hui » quand les deux ne tiennent pas sur une ligne (capture du
+   client, 04/11/2026 : en demi-largeur au téléphone, elle couvrait le
+   libellé ; à un tiers, il était coupé de points de suspension) */
+html body .pf-hero .pf-proch-tete{flex-wrap:wrap; row-gap:6px}
 /* le pourcentage, au bout de la ligne « Encore … » */
 html body .pf-hero .pf-reste{width:100%}
 html body .pf-hero .pf-reste .pf-pct{margin-left:auto; font-size:13.5px; font-weight:700; line-height:1; color:var(--marque-vif); font-variant-numeric:tabular-nums; white-space:nowrap}
@@ -8751,17 +8770,17 @@ html body .pf-hero .pf-meteo{container:meteo / inline-size; display:flex; flex-d
 #v-horaire.acc-edit [data-w].acc-tire>*{visibility:hidden}
 .acc-vol{position:fixed!important; z-index:400!important; left:0!important; top:0!important; right:auto!important; bottom:auto!important; margin:0!important;
   pointer-events:none!important; transform-origin:0 0; box-shadow:0 24px 50px var(--om-noir-50)!important; opacity:.97; will-change:transform; animation:none!important; transition:none!important}
-/* la taille qu'on tire : un cadre fantôme aimanté aux colonnes */
-.acc-fantome{position:absolute; z-index:21; box-sizing:border-box; display:grid; place-items:center; border:2px dashed var(--in); border-radius:var(--rj);
-  background:color-mix(in srgb,var(--in) 12%,transparent); pointer-events:none; transition:width .12s ease}
-.acc-fantome b{padding:6px 12px; border-radius:999px; background:var(--in); color:var(--sur-in); font-size:14px}
+/* la taille qu'on tire : l'élément change en direct ; sa case, en
+   pointillé, porte la fraction au milieu */
+.acc-b.acc-etire{outline:2px dashed var(--in); outline-offset:3px}
+.acc-bulle{position:absolute; left:50%; top:50%; z-index:3; transform:translate(-50%,-50%); padding:6px 12px; border-radius:999px; background:var(--in);
+  color:var(--sur-in); font-size:14px; font-weight:700; line-height:1.2; pointer-events:none; box-shadow:0 4px 12px var(--om-noir-40)}
 /* un widget qui n'a rien à montrer en ce moment : un cadre fantôme à son
    nom, pour pouvoir le placer quand même */
 #v-horaire.acc-edit [data-w].acc-vide{display:block!important; min-height:96px; background:transparent!important; border:1.5px dashed var(--line)!important;
   border-radius:var(--rj); box-shadow:none!important}
 #v-horaire.acc-edit [data-w].acc-vide>*{display:none!important}
 #v-horaire.acc-edit [data-w].acc-vide::after{content:attr(data-acc-vide); position:absolute; left:16px; right:16px; bottom:14px; font-size:12.5px; color:var(--muted)}
-@media (prefers-reduced-motion:reduce){ .acc-fantome{transition:none} }
 /* « + » : « Ajouter à l'Accueil », la galerie de ce qui a été retiré
    (accGalerie) ; une feuille du bas au téléphone, une fenêtre au milieu
    sur un grand écran */
@@ -9175,9 +9194,16 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     <!-- MON ANNÉE (le client, le 23/10/2026, « go ») : les congés à placer,
          l'avancement de l'année et mes pauses, sortis du héros pour que le
          premier écran du téléphone aille jusqu'aux actions -->
+    <!-- LES CONGÉS RESTANTS, UN WIDGET À PART (le client, le 04/11/2026 :
+         « les compteurs de congés restants doivent être un widget à part ») :
+         les tuiles VA, RTT, DTT, RJF, FT, sorties de « Mon année » -->
+    <div class="card" id="cgCard" data-w="soldes" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/></svg>Congés restants</h2></header>
+      <div class="pad an-corps"><div class="ry-an pf-an" id="ryCg"></div></div>
+    </div>
     <div class="card" id="anCard" data-w="conges" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Mon année</h2><span class="sub" id="anSub"></span></header>
-      <div class="pad an-corps"><div class="ry-an pf-an" id="ryCg"></div><div class="ry-an pf-an pf-prz" id="ryPr"></div></div>
+      <div class="pad an-corps"><div class="ry-an pf-an pf-prz" id="ryPr"></div></div>
     </div>
     <!-- SUR SITE EN CE MOMENT (le client, le 23/10/2026) : la carte du
          tableau de bord de l'espace RH, pour tout le monde -->
@@ -24879,7 +24905,7 @@ function renderRythme(){
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
   var vide=document.getElementById("resumeVide");
   var ag=document.getElementById("agendaCard");
-  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
+  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; var cgc=document.getElementById("cgCard"); if(cgc) cgc.hidden=true; renderNotif(null,null); return; }
   card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} meteoDemarrer(); }
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
@@ -24922,10 +24948,12 @@ function renderRythme(){
        colonnes au lieu d'allonger la gauche (audit du 23/10/2026) */
     var cg=document.getElementById("ryCg"); if(cg){ try{ cg.innerHTML=mesCongesHTML(db,person); }catch(e){ cg.innerHTML=""; } }
     var pz=document.getElementById("ryPr"); if(pz) pz.innerHTML=ryAnneeHTML(person,y,db)+ryProchainesHTML(person,y);
-    /* « Mon année » (23/10/2026) : visible dès qu'elle a quelque chose à dire */
-    var an=document.getElementById("anCard"), ans=document.getElementById("anSub");
+    /* « Mon année » (23/10/2026) et « Congés restants » (04/11/2026) :
+       visibles dès qu'ils ont quelque chose à dire */
+    var an=document.getElementById("anCard"), ans=document.getElementById("anSub"), cc=document.getElementById("cgCard");
     if(ans) ans.textContent=String(y);
-    if(an) an.hidden=!((cg&&cg.innerHTML)||(pz&&pz.innerHTML));
+    if(an) an.hidden=!(pz&&pz.innerHTML);
+    if(cc) cc.hidden=!(cg&&cg.innerHTML);
     try{ recyclageHeros(db,person); }catch(e){}
     /* le héros a sa hauteur finale : la ligne « à faire » se remesure */
     try{ pfAfaireVoir(); }catch(e){}
@@ -36486,12 +36514,13 @@ var ACC_W=[
   {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2},
   /* un quart au PC, une moitié au téléphone : la mise en page réduite
      (requête de conteneur « anc », 04/11/2026) */
+  {k:"soldes",       nom:"Congés restants",     l:4,  lmin:3, tmin:1},
   {k:"conges",       nom:"Mon année",           l:4,  lmin:3, tmin:1},
   {k:"rythme",       nom:"Mon rythme",          l:8,  lmin:6, tmin:2}
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
    les demandes et le calendrier */
-var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","planning","afaire","conges","site","messages","usine","demandes","calendrier","rythme"];
+var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","planning","afaire","soldes","conges","site","messages","usine","demandes","calendrier","rythme"];
 var ACC_TAILLES={large:[3,4,6,8,9,12], tel:[1,2]};
 var ACC_FRAC={large:{3:"¼",4:"⅓",6:"½",8:"⅔",9:"¾",12:"1"}, tel:{1:"½",2:"1"}};
 var ACC={mode:"", cols:4, o:[], t:{}, m:{}, edit:false, gap:16, style:null, ro:null, items:[], scanT:0, drag:null, etire:false,
@@ -36537,7 +36566,11 @@ function accCharger(mode){
   /* un widget nouveau (le Planning, le 04/11/2026) se pose à sa place
      d'origine, après son voisin dans l'ordre d'origine, et non à la fin
      d'une disposition déjà réglée */
-  base.forEach(function(k,i){ if(o.indexOf(k)>=0) return; var av=-1; for(var j=i-1;j>=0;j--){ av=o.indexOf(base[j]); if(av>=0) break; } o.splice(av+1,0,k); });
+  var neufs=[];
+  base.forEach(function(k,i){ if(o.indexOf(k)>=0) return; neufs.push(k); var av=-1; for(var j=i-1;j>=0;j--){ av=o.indexOf(base[j]); if(av>=0) break; } o.splice(av+1,0,k); });
+  /* « Congés restants », sorti de « Mon année » (04/11/2026) : juste avant
+     elle, où qu'elle ait été placée */
+  if(neufs.indexOf("soldes")>=0&&o.indexOf("conges")>=0){ o.splice(o.indexOf("soldes"),1); o.splice(o.indexOf("conges"),0,"soldes"); }
   ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{};
 }
 function accSauver(){ lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m}); }
@@ -36666,7 +36699,7 @@ function accOutils(tout){
     if(c.children[i]!==b) c.insertBefore(b,c.children[i]||null);
     i++;
     var sig=ACC.mode+"|"+accTaille(k)+"|"+d.nom;
-    if(tout||b.__sig!==sig){
+    if((tout||b.__sig!==sig)&&ACC.etire!==k){
       var fc=actif&&b.contains(actif)?String(actif.className).split(" ")[0]:"";
       b.innerHTML=accBoiteHTML(k); b.__sig=sig;
       if(fc){ var nf=b.querySelector("."+fc); if(nf) actif=nf; }
@@ -36933,45 +36966,46 @@ function accTirer(ev,k,el,attendre){
 var accBloqueClic=-1e9;
 /* le temps qui passe, et non l'heure du jour (qu'un réglage peut figer) */
 function accMaint(){ return window.performance&&performance.now?performance.now():Date.now(); }
-/* la taille : l'arc du coin tire un cadre fantôme, depuis le bord gauche
-   de l'élément, aimanté à la taille permise la plus proche ; lâcher
-   l'applique */
+/* LA TAILLE, EN VRAIE FORME (le client, le 04/11/2026, deux captures :
+   « le rétrécissement doit montrer la forme réelle qu'il aura après ») :
+   l'arc du coin applique la taille EN DIRECT, aimantée à la taille permise
+   la plus proche du doigt, mesurée depuis le bord gauche de départ ;
+   l'élément prend sous le doigt sa vraie hauteur (une date qui passe à la
+   ligne, un tableau réduit), les autres se replacent autour, comme sur
+   l'iPhone. Le cadre en pointillé l'entoure, sa fraction au milieu. Lâcher
+   la garde ; Échap rend la taille de départ. L'ancien cadre fantôme
+   gardait la hauteur d'avant : un rétrécissement qui allongeait le
+   widget ne se voyait pas. */
 function accEtirer(ev,k,el,g){
   var v=document.getElementById("v-horaire"), cs=getComputedStyle(v), pl=parseFloat(cs.paddingLeft)||0,
       gw=v.clientWidth-pl-(parseFloat(cs.paddingRight)||0), cw=(gw-(ACC.cols-1)*ACC.gap)/ACC.cols, q=accPos(el);
-  var col=Math.max(0,Math.round((q.x-pl)/(cw+ACC.gap))), p=accPermises(k).filter(function(s){ return accN(s)<=ACC.cols; });
-  var f=document.createElement("div"); f.className="acc-fantome"; f.setAttribute("aria-hidden","true");
-  f.style.left=q.x+"px"; f.style.top=q.y+"px"; f.style.height=el.offsetHeight+"px";
-  v.appendChild(f);
-  var t=accTaille(k), id=ev.pointerId;
-  ACC.etire=true;
+  var p=accPermises(k).filter(function(s){ return accN(s)<=ACC.cols; }), t0=accTaille(k), t=t0, id=ev.pointerId,
+      avant=Object.prototype.hasOwnProperty.call(ACC.t,k)?ACC.t[k]:undefined, x0=v.getBoundingClientRect().left+v.clientLeft+q.x;
+  ACC.etire=k;
+  var bx=ACC.calque&&ACC.calque.querySelector('.acc-b[data-acc-pour="'+k+'"]'), bu=document.createElement("b");
+  bu.className="acc-bulle"; bu.setAttribute("aria-hidden","true"); bu.textContent=ACC_FRAC[ACC.mode][t];
+  if(bx){ bx.classList.add("acc-etire"); bx.appendChild(bu); }
   function largeur(s){ var n=accN(s); return n*cw+(n-1)*ACC.gap; }
-  function montrer(){
-    /* au-delà du bord droit, l'élément passera à la rangée suivante : le
-       cadre fantôme le montre alors depuis la gauche */
-    var depasse=col+accN(t)>ACC.cols;
-    f.style.left=(depasse?pl:q.x)+"px";
-    f.style.width=largeur(t)+"px";
-    f.innerHTML='<b>'+ACC_FRAC[ACC.mode][t]+'</b>';
-  }
   function bouger(e){
     if(e.pointerId!==id) return; e.preventDefault();
-    var vr=v.getBoundingClientRect(), voulu=e.clientX-(vr.left+v.clientLeft+q.x), mieux=t, ec=1e9;
+    var voulu=e.clientX-x0, mieux=t, ec=1e9;
     p.forEach(function(s){ var dd=Math.abs(largeur(s)-voulu); if(dd<ec){ ec=dd; mieux=s; } });
-    if(mieux!==t){ t=mieux; montrer(); }
+    if(mieux!==t){ t=mieux; ACC.t[k]=t; accStyle(); bu.textContent=ACC_FRAC[ACC.mode][t]; accTrembler(); }
   }
-  function fin(e){
-    if(e&&e.pointerId!==id) return;
-    document.removeEventListener("pointermove",bouger,true); document.removeEventListener("pointerup",fin,true); document.removeEventListener("pointercancel",fin,true);
-    if(f.parentNode) f.parentNode.removeChild(f);
+  function fin(e,annule){
+    if(e&&e.pointerId!==undefined&&e.pointerId!==id) return;
+    document.removeEventListener("pointermove",bouger,true); document.removeEventListener("pointerup",fin,true);
+    document.removeEventListener("pointercancel",fin,true); document.removeEventListener("keydown",esc_,true);
     ACC.etire=false;
-    if(t!==accTaille(k)){ ACC.t[k]=t; accStyle(); accSauver(); accOutils(false);
-      accAnnoncer("« "+accDef(k).nom+" » : taille "+ACC_FRAC[ACC.mode][t]+"."); }
-    accBloqueClic=accMaint();
+    if(bu.parentNode) bu.parentNode.removeChild(bu); if(bx) bx.classList.remove("acc-etire");
+    if(annule){ if(avant===undefined) delete ACC.t[k]; else ACC.t[k]=avant; accStyle(); }
+    else if(t!==t0){ accSauver(); accAnnoncer("« "+accDef(k).nom+" » : taille "+ACC_FRAC[ACC.mode][t]+"."); }
+    accOutils(false); accTrembler(); accBloqueClic=accMaint();
   }
-  montrer();
+  function esc_(e){ if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); fin(null,true); } }
   try{ (g||ev.target).setPointerCapture(id); }catch(er){}
-  document.addEventListener("pointermove",bouger,{capture:true, passive:false}); document.addEventListener("pointerup",fin,true); document.addEventListener("pointercancel",fin,true);
+  document.addEventListener("pointermove",bouger,{capture:true, passive:false}); document.addEventListener("pointerup",fin,true);
+  document.addEventListener("pointercancel",fin,true); document.addEventListener("keydown",esc_,true);
 }
 /* LE WIDGET « PLANNING » DE L'ACCUEIL, AU PC (le client, le 04/11/2026) : la
    carte de l'onglet Planning, un seul exemplaire, se pose dans l'Accueil
@@ -36994,7 +37028,8 @@ function accInit(){
   ACC.ro=new ResizeObserver(function(es){ es.forEach(function(e){ accEmpan(e.target); }); accCalqueBientot(); });
   new ResizeObserver(function(){ accForme(); if(ACC.edit){ accBas(); accCalqueBientot(); } }).observe(v);
   new MutationObserver(function(ms){
-    for(var i=0;i<ms.length;i++){ var t=ms[i].target; if(!(ACC.calque&&(t===ACC.calque||ACC.calque.contains(t)))){ if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); return; } }
+    /* ni le calque, ni l'horloge (chaque seconde) ne changent les éléments */
+    for(var i=0;i<ms.length;i++){ var t=ms[i].target; if(!(ACC.calque&&(t===ACC.calque||ACC.calque.contains(t)))&&!(t.id==="pfMtH"||(t.closest&&t.closest("#pfMtH")))){ if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); return; } }
   }).observe(v,{childList:true, subtree:true});
   v.classList.add("acc-perso");
   accForme(); accScan(); accPied();
