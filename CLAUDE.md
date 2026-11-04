@@ -204,13 +204,10 @@ de salaire, ni identifiant de connexion.
 
 ## Le journal, et pourquoi ce fichier est court
 
-Le client, le 18/10/2026 : « il faut absolument trouver une solution pour
-le contexte et les tokens, cela va beaucoup trop vite et compresse toutes
-les 15 min ». Ce fichier pesait **598 Ko (150 000 jetons)**, rechargé à chaque
-session et compression : la moitié du contexte. Tout l'historique a été déplacé MOT POUR MOT
-(vérifié ligne par ligne, aucune perdue) dans `docs/journal/` ; ne restent
-ici que les règles, les commandes et la structure. **Ne jamais le laisser
-regrossir** : au-delà de 25 Ko, déplacer dans le journal.
+Ne restent ici que les règles, les commandes et la structure ; l'historique
+est dans `docs/journal/` (pourquoi : journal 07, « Le fichier des règles
+tient en 25 Ko »). **Ne jamais le laisser regrossir** : au-delà de 25 Ko,
+déplacer dans le journal.
 
 | Fichier | Ce qu'il raconte |
 |---|---|
@@ -323,10 +320,10 @@ deviner à sa place sur ces points : ils touchent à des montants.
   dont l'en-tête, comme une rangée, porte un `data-g` ; un accès, une icône
   d'app dont `--ic` (`--ip-*`) suit son `data-go` ou `data-side-ws` ; un
   sélecteur, les segments `--seg-*` (journal 05).
-- **Jamais la boîte du système** : ni `confirm()`, ni `alert()`, ni
-  `prompt()`, mais `confirmerPro()`. Le client l'a trouvée « horrible », pour
-  la déconnexion (09/10/2026) puis pour l'effacement d'un message
-  (04/11/2026) ; `parcours.js` la refuse.
+- **L'Accueil est une grille de widgets** : un cadre neuf y porte `data-w`
+  et une ligne dans `ACC_W` (journal 05, 04/11/2026).
+- **Jamais `confirm()`, `alert()` ni `prompt()`** : `confirmerPro()` (le
+  client, 09/10 et 04/11/2026) ; `parcours.js` les refuse.
 - **Un seul thème, le sombre.** Le clair (29/10/2026) est retiré le
   03/11/2026, code compris (le client : « supprimer le thème clair, nous
   allons adapter celui-ci plus tard » ; journal 05). Toute couleur passe

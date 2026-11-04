@@ -246,7 +246,9 @@ function constater(){
     if(i===0){ n++;
       const ecrits=selecteursEcrits(path.join(RACINE,"index.html"));
       const retenus=await page.evaluate(()=>{ let n=0; const p=l=>{ for(const x of l){ if(x.selectorText!==undefined) n++; if(x.cssRules) p(x.cssRules); } };
-        [...document.styleSheets].forEach(s=>{ if(s.ownerNode&&s.ownerNode.tagName==="STYLE") p(s.cssRules); }); return n; });
+        /* la feuille que la page écrit elle-même (la disposition de l'Accueil
+           personnalisable, data-genere) n'est pas dans le fichier : hors du compte */
+        [...document.styleSheets].forEach(s=>{ if(s.ownerNode&&s.ownerNode.tagName==="STYLE"&&!s.ownerNode.hasAttribute("data-genere")) p(s.cssRules); }); return n; });
       if(ecrits!==retenus) avant.push({faute:true, txt:"✗ règles CSS : "+ecrits+" écrites, "+retenus+" retenues par le navigateur"});
       else avant.push({faute:false, txt:"✓ règles CSS : les "+ecrits+" écrites, toutes retenues"}); }
     for(const [nom,cible] of VUES){

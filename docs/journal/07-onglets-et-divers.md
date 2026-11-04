@@ -854,3 +854,19 @@ déconnexion, et un commentaire (ligne 1683) le dit. Je ne l'avais pas relu.
 - « Garder » referme sans rien effacer ;
 - « Effacer » appelle la base (id 7), puis la ligne disparaît ;
 - aucune boîte du système ne s'est ouverte.
+
+### Le fichier des règles tient en 25 Ko (texte déplacé du fichier des règles le 04/11/2026)
+
+Ce paragraphe ouvrait la section « Le journal, et pourquoi ce fichier est
+court » de CLAUDE.md. Il y est remplacé par un renvoi ici : le fichier
+venait de passer 25 Ko (26 069 octets, avec deux règles nouvelles du
+04/11/2026), et sa propre règle veut qu'on déplace alors le récit dans le
+journal. Le voici MOT POUR MOT :
+
+> Le client, le 18/10/2026 : « il faut absolument trouver une solution pour
+> le contexte et les tokens, cela va beaucoup trop vite et compresse toutes
+> les 15 min ». Ce fichier pesait **598 Ko (150 000 jetons)**, rechargé à chaque
+> session et compression : la moitié du contexte. Tout l'historique a été déplacé MOT POUR MOT
+> (vérifié ligne par ligne, aucune perdue) dans `docs/journal/` ; ne restent
+> ici que les règles, les commandes et la structure. **Ne jamais le laisser
+> regrossir** : au-delà de 25 Ko, déplacer dans le journal.

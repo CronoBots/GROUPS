@@ -8461,15 +8461,25 @@ html body .pf-hero .pf-wprof .pf-prof{flex-wrap:nowrap}
    la cloche et la roue au bout. La cloche et la roue restent « relatives »
    (le pouls de la cloche, ::after en inset 0, couvrirait sinon le cadre) et
    perdent les décalages de leur place sur la bannière. — */
-@media (min-width:1100px){
-  html body #rythmeTete .pf-hero>.pf-wprof{display:grid; grid-template-columns:minmax(0,1fr) auto auto; grid-template-areas:"couv couv couv" "prof notif roue"; align-items:center; column-gap:8px; padding:0 0 16px}
-  html body #rythmeTete .pf-wprof .pf-couv{grid-area:couv; aspect-ratio:2170/540; height:auto; min-height:0; background-size:cover; background-position:50% 50%}
-  html body #rythmeTete .pf-wprof .pf-prof{grid-area:prof; align-items:center; gap:14px; padding:0 0 0 18px; margin:14px 0 0; min-width:0}
-  html body #rythmeTete .pf-wprof .pf-av{width:64px; height:64px; font-size:20px; border-width:2px; box-shadow:0 0 0 2px var(--marque-vif),0 4px 12px var(--om-noir-40)}
-  html body #rythmeTete .pf-wprof .pf-prof .pf-hmeta{flex:1 1 auto; min-width:0; padding-top:0; gap:4px}
-  html body #rythmeTete .pf-wprof .pf-prof .pf-poste{flex-wrap:wrap; gap:4px 8px; font-size:19px}
-  html body #rythmeTete .pf-wprof .pf-notif{grid-area:notif; position:relative; top:auto; left:auto; margin:14px 0 0; height:38px; background:var(--surface3)}
-  html body #rythmeTete .pf-wprof .pf-roue{grid-area:roue; position:relative; top:auto; right:auto; left:auto; margin:14px 16px 0 0; background:var(--surface3)}
+/* Depuis l'Accueil personnalisable (04/11/2026), ce profil vaut pour tout
+   Accueil large (700 px et plus : tablette et PC, .acc-large), et non plus
+   à partir de 1 100 px d'écran ; sa ligne s'adapte à sa largeur à lui
+   (requête de conteneur « wprof ») : sous 400 px, la cloche et la roue
+   passent sous le nom. */
+html body #v-horaire.acc-large .pf-wprof{container:wprof / inline-size; display:grid; grid-template-columns:minmax(0,1fr) auto auto; grid-template-areas:"couv couv couv" "prof notif roue"; align-items:center; column-gap:8px; padding:0 0 16px}
+html body #v-horaire.acc-large .pf-wprof .pf-couv{grid-area:couv; aspect-ratio:2170/540; height:auto; min-height:0; background-size:cover; background-position:50% 50%}
+html body #v-horaire.acc-large .pf-wprof .pf-prof{grid-area:prof; align-items:center; gap:14px; padding:0 0 0 18px; margin:14px 0 0; min-width:0}
+html body #v-horaire.acc-large .pf-wprof .pf-av{width:64px; height:64px; font-size:20px; border-width:2px; box-shadow:0 0 0 2px var(--marque-vif),0 4px 12px var(--om-noir-40)}
+html body #v-horaire.acc-large .pf-wprof .pf-prof .pf-hmeta{flex:1 1 auto; min-width:0; padding-top:0; gap:4px}
+html body #v-horaire.acc-large .pf-wprof .pf-prof .pf-poste{flex-wrap:wrap; gap:4px 8px; font-size:19px}
+html body #v-horaire.acc-large .pf-wprof .pf-notif{grid-area:notif; position:relative; top:auto; left:auto; margin:14px 0 0; height:38px; background:var(--surface3)}
+html body #v-horaire.acc-large .pf-wprof .pf-roue{grid-area:roue; position:relative; top:auto; right:auto; left:auto; margin:14px 16px 0 0; background:var(--surface3)}
+@container wprof (max-width:399px){
+  html body #v-horaire.acc-large .pf-wprof .pf-prof{grid-column:1 / -1; gap:12px; padding:0 14px}
+  html body #v-horaire.acc-large .pf-wprof .pf-av{width:52px; height:52px; font-size:17px}
+  html body #v-horaire.acc-large .pf-wprof .pf-prof .pf-poste{font-size:16px}
+  html body #v-horaire.acc-large .pf-wprof .pf-notif{grid-row:3; grid-column:1; justify-self:start; margin:12px 0 0 14px}
+  html body #v-horaire.acc-large .pf-wprof .pf-roue{grid-row:3; grid-column:3; margin:12px 14px 0 0}
 }
 /* l'heure et la météo */
 html body .pf-hero>.pf-mt{display:flex; flex:none; align-items:center; justify-content:space-between; gap:12px; min-width:0; box-sizing:border-box; margin:0; padding:16px 18px; color:var(--tx-blanc)}
@@ -8589,6 +8599,118 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
 #filCard .fil-env:disabled{background:var(--surface3); color:var(--muted); cursor:default}
 #filCard .fil-nb{flex:none; align-self:center; font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
 #filCard .fil-err{margin:0 14px 12px; font-size:12.5px; color:var(--tx-rouge-vif2)}
+
+/* — L'ACCUEIL PERSONNALISABLE (le client, le 04/11/2026 : « j'aimerais que
+   l'accueil soit complètement personnalisable, comme des widgets, avec un
+   cadre fantôme qui définirait la largeur et le nombre d'éléments, la
+   disposition de son contenu, etc. »). Une seule grille : 12 colonnes dès
+   700 px de large, 2 au téléphone. Les enveloppes d'avant (le héros, ses
+   colonnes, le tableau de bord) s'effacent (display:contents) : chaque
+   widget (data-w) est une case, à la largeur, à l'ordre et à l'affichage
+   que l'appareil a retenus (accStyle). Rangées de 1 px : chaque widget en
+   prend autant que sa hauteur plus l'écart (accEmpan : 16 px exacts entre
+   deux widgets ; des rangées de 4 px les faisaient varier de 16 à 19), et
+   « dense » remplit les trous — une maçonnerie, sans vide sous un widget
+   court. — */
+.pf-pw{display:flex; flex-direction:column; gap:var(--ip-ecart); min-width:0}
+.pf-pw>*{margin:0; width:auto}
+/* les polyvalences sont un bouton : leur widget l'enveloppe, pour que les
+   outils du mode « Personnaliser » ne soient pas des boutons dans un bouton */
+.pf-pvw{min-width:0}
+html body .pf-hero .pf-pvw>.pf-pv{margin:0; width:100%}
+#v-horaire.acc-perso{display:grid; grid-template-columns:repeat(var(--acc-cols,2),minmax(0,1fr)); grid-auto-rows:1px; grid-auto-flow:row dense;
+  column-gap:var(--ip-ecart); row-gap:0; align-items:start; position:relative}
+#v-horaire.acc-perso #rythmeTete,#v-horaire.acc-perso .pf-hero,#v-horaire.acc-perso .pf-corps,#v-horaire.acc-perso .pf-gauche,
+#v-horaire.acc-perso .acc-grille,#v-horaire.acc-perso .acc-cote,#v-horaire.acc-perso .acc-main{display:contents}
+#v-horaire.acc-perso [data-w],#v-horaire.acc-perso [data-acc-plein]{min-width:0; box-sizing:border-box; margin:0!important; width:auto!important; max-width:none!important;
+  align-self:start!important; justify-self:stretch!important; grid-row-start:auto!important}
+#v-horaire.acc-perso [data-acc-plein]{grid-column:1 / -1!important}
+#v-horaire.acc-perso .pf-pw:not(:has(>:not([hidden]))){display:none}
+/* le nombre d'accès par rangée suit la largeur du widget */
+html body #v-horaire.acc-perso #pfRac .pf-rac-l{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+/* l'heure : la météo passe dessous quand le widget est étroit ; les
+   chiffres grandissent quand il est large */
+html body #v-horaire.acc-perso .pf-mt{container:hmt / inline-size; flex-wrap:wrap; row-gap:10px}
+@container hmt (min-width:440px){
+  html body #v-horaire.acc-perso .pf-mt .pf-mt-hh,html body #v-horaire.acc-perso .pf-mt .pf-mt-c{font-size:38px}
+}
+/* le bouton qui ouvre le mode, et les widgets masqués */
+.acc-pied{display:flex; flex-direction:column; align-items:center; gap:12px; padding:8px 0 4px}
+.acc-perso-btn{display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 16px; border:1px solid var(--line); border-radius:999px;
+  background:var(--surface2); color:var(--ink2); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
+.acc-perso-btn:hover{color:var(--ink); background:var(--surface3)}
+.acc-reserve{width:100%; box-sizing:border-box; padding:14px 16px 16px; border:1.5px dashed var(--line); border-radius:var(--rj); text-align:left}
+.acc-reserve>b{display:block; margin-bottom:10px; font-size:13px; color:var(--ink2)}
+.acc-reserve p{margin:0; font-size:13px; color:var(--muted)}
+.acc-reserve-l{display:flex; flex-wrap:wrap; gap:8px}
+.acc-reserve-l button{display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px 0 10px; border:1px solid var(--line); border-radius:999px;
+  background:var(--surface3); color:var(--ink); font:inherit; font-size:13px; font-weight:600; cursor:pointer}
+.acc-reserve-l button i{font-style:normal; font-size:16px; color:var(--in)}
+/* la barre du mode, au-dessus de la barre d'onglets (accBas) */
+.acc-barre{position:fixed; z-index:90; left:50%; bottom:var(--acc-bas,24px); transform:translateX(-50%); display:flex; align-items:center; gap:8px;
+  max-width:calc(100vw - 24px); box-sizing:border-box; padding:7px 7px 7px 16px; border:1px solid var(--cadre); border-radius:999px;
+  background:var(--surface); box-shadow:var(--ombre-cadre),0 12px 32px rgba(0,0,0,.45)}
+.acc-barre-t{display:flex; flex-direction:column; min-width:0; margin-right:4px; line-height:1.2}
+.acc-barre-t b{font-size:14px; color:var(--ink); white-space:nowrap}
+.acc-barre-t small{font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.acc-barre button{flex:none; height:38px; padding:0 14px; border:1px solid var(--line); border-radius:999px; background:var(--surface3); color:var(--ink);
+  font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
+.acc-barre .acc-ok{background:var(--in); border-color:var(--in); color:var(--sur-in)}
+@media (max-width:380px){ .acc-barre-t small{display:none} .acc-barre button{padding:0 11px} }
+/* le mode « Personnaliser » : chaque widget en pointillé, son contenu
+   inerte, ses outils posés dessus */
+#v-horaire.acc-edit{padding-bottom:96px}
+#v-horaire.acc-edit [data-w]{position:relative; outline:1.5px dashed color-mix(in srgb,var(--in) 60%,transparent); outline-offset:3px;
+  -webkit-user-select:none; user-select:none; cursor:grab}
+#v-horaire.acc-edit [data-w]>*:not(.acc-outils):not(.acc-etirer){pointer-events:none}
+.acc-outils{position:absolute; z-index:6; top:8px; left:8px; right:8px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px;
+  pointer-events:none; cursor:default}
+.acc-outils>*{pointer-events:auto}
+.acc-poignee{display:inline-flex; align-items:center; gap:6px; min-width:0; max-width:100%; height:32px; padding:0 12px 0 8px; border:1px solid var(--line);
+  border-radius:999px; background:var(--surface3); color:var(--ink); font:inherit; font-size:12.5px; font-weight:650; cursor:grab; touch-action:none;
+  box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.acc-poignee:active{cursor:grabbing}
+.acc-poignee span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.acc-poignee svg{flex:none; color:var(--in)}
+.acc-droite{display:inline-flex; align-items:center; gap:6px; margin-left:auto}
+.acc-outils{flex-wrap:nowrap}
+.acc-outils .acc-tailles{display:none}
+.acc-outils.choix .acc-tailles{display:inline-flex}
+.acc-outils.choix .acc-poignee,.acc-outils.choix .acc-tbtn{display:none}
+.acc-tbtn{display:inline-flex; align-items:center; gap:4px; height:32px; padding:0 10px 0 12px; border:1px solid var(--line); border-radius:999px;
+  background:var(--surface3); color:var(--ink); font:inherit; font-size:13.5px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.acc-tbtn svg{color:var(--muted)}
+#v-horaire.acc-edit [data-w]>*:not(.acc-outils):not(.acc-etirer){opacity:.55}
+.acc-tailles{display:inline-flex; padding:2px; border:1px solid var(--line); border-radius:999px; background:var(--surface3); box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.acc-tailles button{min-width:28px; height:28px; padding:0 6px; border:0; border-radius:999px; background:none; color:var(--ink2); font:inherit; font-size:13px;
+  font-weight:700; cursor:pointer}
+.acc-tailles button[aria-pressed="true"]{background:var(--in); color:var(--sur-in)}
+.acc-masquer{display:grid; place-items:center; width:32px; height:32px; border:1px solid var(--line); border-radius:50%; background:var(--surface3);
+  color:var(--ink); cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.acc-masquer:hover{color:var(--tx-rouge-vif2)}
+.acc-etirer{position:absolute; z-index:6; top:50%; right:4px; width:12px; height:52px; margin-top:-26px; border-radius:6px; background:var(--in);
+  box-shadow:0 0 0 3px var(--surface),0 4px 12px rgba(0,0,0,.4); cursor:ew-resize; touch-action:none; pointer-events:auto}
+.acc-etirer::before{content:""; position:absolute; inset:14px 4px; border-left:1.5px solid var(--sur-in); border-right:1.5px solid var(--sur-in); opacity:.7}
+/* le widget qu'on déplace : sa place devient le CADRE FANTÔME, en
+   pointillé, et suit la grille en direct ; une vignette suit le doigt */
+#v-horaire.acc-edit [data-w].acc-tire{outline:2px dashed var(--in); outline-offset:0; background:color-mix(in srgb,var(--in) 10%,transparent)!important;
+  border-color:transparent!important; box-shadow:none!important}
+#v-horaire.acc-edit [data-w].acc-tire>*{visibility:hidden}
+.acc-vol{position:fixed; z-index:400; left:0; top:0; display:flex; flex-direction:column; justify-content:center; gap:4px; box-sizing:border-box;
+  padding:14px 18px; border:1px solid var(--cadre); border-radius:var(--rj); background:var(--surface); color:var(--ink); pointer-events:none;
+  box-shadow:0 18px 40px rgba(0,0,0,.5); opacity:.94; will-change:transform}
+.acc-vol b{font-size:15px} .acc-vol small{font-size:12px; color:var(--muted)}
+/* la largeur qu'on étire : un cadre fantôme aimanté aux colonnes */
+.acc-fantome{position:absolute; z-index:7; box-sizing:border-box; display:grid; place-items:center; border:2px dashed var(--in); border-radius:var(--rj);
+  background:color-mix(in srgb,var(--in) 12%,transparent); pointer-events:none; transition:width .12s ease}
+.acc-fantome b{padding:6px 12px; border-radius:999px; background:var(--in); color:var(--sur-in); font-size:14px}
+/* un widget qui n'a rien à montrer en ce moment : un cadre fantôme à son
+   nom, pour pouvoir le placer quand même */
+#v-horaire.acc-edit [data-w].acc-vide{display:block!important; min-height:96px; background:transparent!important; border:1.5px dashed var(--line)!important;
+  border-radius:var(--rj); box-shadow:none!important}
+#v-horaire.acc-edit [data-w].acc-vide>*:not(.acc-outils){display:none!important}
+#v-horaire.acc-edit [data-w].acc-vide::after{content:attr(data-acc-vide); position:absolute; left:16px; right:16px; bottom:14px; font-size:12.5px; color:var(--muted)}
+@media (prefers-reduced-motion:reduce){ .acc-fantome{transition:none} }
 
 /* — LES SÉLECTEURS À SEGMENTS DE L'IPHONE (le client, le
    03/11/2026 : « applique le même style iPhone aux autres onglets ») : une
@@ -8895,7 +9017,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          personnels au profil », puis « de la manière la plus professionnelle
          possible »). En tête, qui l'on est ; puis le mois, les compteurs, l'année
          (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
-    <p class="lede" id="resumeVide" hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
+    <p class="lede" id="resumeVide" data-acc-plein hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="nt-ov" id="notifOv" hidden><div class="notifcard nt-feuille" id="notifCard" role="dialog" aria-modal="true" aria-label="Horaire modifié"></div></div>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
     <!-- LE CENTRE DE CONTRÔLE (le client, le 22/10/2026, puis le 23/10/2026 :
@@ -8907,27 +9029,27 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          les enveloppes s'effaçant (display:contents). -->
     <div class="acc-grille" id="accGrille">
     <div class="acc-cote" id="accCote">
-    <div class="card" id="ctlCard" hidden>
+    <div class="card" id="ctlCard" data-w="afaire" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>À faire</h2><span class="sub" id="ctlSub"></span></header>
       <div class="ctl" id="ctlCorps"></div>
     </div>
     <!-- les accès rapides avant « Mon année » : l'appel du contremaître et
          les formulaires au deuxième écran du téléphone (le client, le
          24/10/2026 : « optimise au maximum l'accueil de la version mobile ») -->
-    <div class="card" id="racCard" hidden>
+    <div class="card" id="racCard" data-w="acces" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Accès rapides</h2></header>
       <div class="ctl" id="racCorps"></div>
     </div>
     <!-- MON ANNÉE (le client, le 23/10/2026, « go ») : les congés à placer,
          l'avancement de l'année et mes pauses, sortis du héros pour que le
          premier écran du téléphone aille jusqu'aux actions -->
-    <div class="card" id="anCard" hidden>
+    <div class="card" id="anCard" data-w="conges" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Mon année</h2><span class="sub" id="anSub"></span></header>
       <div class="pad an-corps"><div class="ry-an pf-an" id="ryCg"></div><div class="ry-an pf-an pf-prz" id="ryPr"></div></div>
     </div>
     <!-- SUR SITE EN CE MOMENT (le client, le 23/10/2026) : la carte du
          tableau de bord de l'espace RH, pour tout le monde -->
-    <div class="card" id="siteCard" hidden>
+    <div class="card" id="siteCard" data-w="site" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.3.2 4.2 1.8 4.9 4.8"/></svg>Sur site<span class="site-live" aria-hidden="true"></span><span class="site-quand" id="siteQuand"></span></h2><span class="sub" id="siteSub"></span></header>
       <div class="pad" id="siteCorps"></div>
     </div>
@@ -8936,7 +9058,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          fil commun à tous les comptes validés (base/36-messages.sql). Nommé
          « Messages », sans sous-titre (le client, le même jour : « ne pas
          l'appeler fil de l'usine »). -->
-    <div class="card" id="filCard" hidden>
+    <div class="card" id="filCard" data-w="messages" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.6A8.5 8.5 0 1 1 21 12z"/></svg>Messages</h2></header>
       <div class="fil-l" id="filListe" role="log" aria-live="polite" aria-label="Messages"></div>
       <form class="fil-f" id="filForm" autocomplete="off">
@@ -8954,18 +9076,18 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          Planning à sa place, ses présents à la minute. Au PC, sur toute la
          largeur au-dessus des deux colonnes ; au téléphone, après « Sur
          site » (renderUsine). -->
-    <div class="card us-carte" id="usineCard" hidden>
+    <div class="card us-carte" id="usineCard" data-w="usine" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 21h20"/><path d="M4 21V11l5 3v-3l5 3V8l4 2v11"/><path d="M18 10V4h2.5v17"/></svg>L’usine en direct<span class="site-live" aria-hidden="true"></span><span class="site-quand" id="usineQuand"></span></h2><span class="sub" id="usineSub"></span></header>
       <div class="us-corps" id="usineCorps"></div>
     </div>
     <div class="acc-main" id="accMain">
     <!-- MES DEMANDES (le client, le 22/10/2026, « go ») : les demandes de
          congé en cours avec leur avancement. -->
-    <div class="card" id="demCard" hidden>
+    <div class="card" id="demCard" data-w="demandes" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/></svg>Demandes de congé</h2><span class="sub" id="demSub"></span></header>
       <div class="pad" id="demCorps"></div>
     </div>
-    <div class="card calframe" id="calCard">
+    <div class="card calframe" id="calCard" data-w="calendrier">
       <!-- UN EN-TÊTE COMME LES AUTRES CARTES (passe professionnelle du
            30/10/2026) : le titre n'était que pour le lecteur d'écran, et la
            carte, seule sans en-tête, ne s'alignait pas sur sa voisine -->
@@ -9009,7 +9131,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          visibles sans devoir passer par un bouton »). -->
     <!-- (« Mes compteurs » retiré le 22/10/2026, le client : « le cadre des
          compteurs est inutile vu que c'est repris dans le héros ») -->
-    <div class="card" id="rythmeCard" hidden>
+    <div class="card" id="rythmeCard" data-w="rythme" hidden>
       <header>
         <h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Mon rythme</h2>
         <span class="sub" id="rythmeSub"></span>
@@ -9019,7 +9141,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     </div>
     </div>
 
-    <div class="card installcard" id="installCard" hidden>
+    <div class="card installcard" id="installCard" data-acc-plein hidden>
       <div class="in-l">
         <img class="in-ico" src="icon-192.png" alt="" width="40" height="40">
         <div class="in-t"><b>Installer l'application</b><span id="installTxt">Sur l'écran d'accueil, plein écran et hors ligne.</span></div>
@@ -9036,6 +9158,16 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     <!-- Les compteurs suivent l'horaire : c'est le même sujet vu de
          plus loin. Le client, le 22/09/2026 : « Horaire doit s'appeler
          Mon horaire et reprendre le contenu de l'onglet Compteurs ». -->
+    <!-- L'ACCUEIL PERSONNALISABLE (le client, le 04/11/2026) : le bouton qui
+         l'ouvre, puis, en mode « Personnaliser », les widgets masqués ; la
+         barre du mode flotte au-dessus de la barre d'onglets. -->
+    <div class="acc-pied" id="accPied" data-acc-plein hidden></div>
+    <div class="acc-barre" id="accBarre" role="toolbar" aria-label="Personnaliser l'Accueil" hidden>
+      <span class="acc-barre-t"><b>Personnaliser</b><small>Glissez · étirez · masquez</small></span>
+      <button type="button" class="acc-raz" id="accRaz">Réinitialiser</button>
+      <button type="button" class="acc-ok" id="accOk">Terminé</button>
+    </div>
+    <p class="sr-only" id="accAnnonce" aria-live="polite"></p>
 
   </section>
 
@@ -16985,7 +17117,7 @@ function meteoTempsHTML(o){
 }
 function meteoHTML(){
   var d=new Date(), o=meteoFraiche();
-  return '<div class="pf-mt" id="pfMt" role="group" aria-label="Heure et météo à Wanze" title="Météo à Wanze · Open-Meteo.com">'
+  return '<div class="pf-mt" id="pfMt" data-w="heure" role="group" aria-label="Heure et météo à Wanze" title="Météo à Wanze · Open-Meteo.com">'
     +'<span class="pf-mt-h"><span class="pf-mt-hh" id="pfMtH" aria-hidden="true">'+meteoChiffres(d)+'</span><span class="pf-mt-d" id="pfMtD">'+meteoDate(d)+'</span></span>'
     +'<span class="pf-mt-w" id="pfMtW">'+meteoTempsHTML(o)+'</span></div>';
 }
@@ -17021,7 +17153,7 @@ function pointeEcartTexte(v){
   var a=Math.abs(v), t=a>=60?Math.floor(a/60)+" min"+(a%60?" "+(a%60)+" s":""):a+" s";
   return "La pointeuse "+(v>0?"avance":"retarde")+" de "+t+" sur ce téléphone.";
 }
-function pointeHTML(){ return '<div class="pf-pointe" id="pfPointe" role="timer" aria-live="off" hidden></div>'; }
+function pointeHTML(){ return '<div class="pf-pointe" id="pfPointe" data-w="pointeuse" role="timer" aria-live="off" hidden></div>'; }
 function pointeTic(now){
   var e=document.getElementById("pfPointe"); if(!e) return;
   var hero=e.closest?e.closest(".pf-hero"):null;
@@ -17256,7 +17388,7 @@ function _pfHead(db,p){
        que tout le contenu soit comme des widgets ou des icônes du menu de
        l'iPhone ») : le profil est un widget à lui seul, la couverture en
        tête ; l'heure et la météo en font un autre, à côté. */
-    +'<div class="pf-wprof">'
+    +'<div class="pf-wprof" data-w="profil">'
     +'<div class="pf-couv" aria-hidden="true"></div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
     +badgeNotifHTML()
@@ -17271,7 +17403,7 @@ function _pfHead(db,p){
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div></div></div>'+meteoHTML()
-    +'<div class="pf-corps"><div class="pf-gauche">'+pointeHTML()+h+'<div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn"></div>'+pvH+'</div></div>';
+    +'<div class="pf-corps"><div class="pf-gauche">'+pointeHTML()+'<div class="pf-pw" data-w="poste">'+h+'</div><div class="pf-rac" id="pfRac" data-w="acces"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn" data-w="cycle"></div>'+(pvH?'<div class="pf-pvw" data-w="polyvalences">'+pvH+'</div>':'')+'</div></div>';
 }
 /* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
    ont des recyclages à faire, indiquer la progression et les compteurs dans
@@ -36175,6 +36307,338 @@ function confirmerPro(o, surOui){
   document.body.appendChild(ov);
   ov.querySelector(".cfm-non").focus();
 }
+/* L'ACCUEIL PERSONNALISABLE (le client, le 04/11/2026 : « j'aimerais que
+   l'accueil soit complètement personnalisable, comme des widgets, avec un
+   cadre fantôme qui définirait la largeur et le nombre d'éléments, la
+   disposition de son contenu, etc. »). Chaque bloc de l'Accueil est un
+   widget (data-w) d'une grille unique : 12 colonnes dès 700 px de large
+   (« large »), 2 au téléphone (« tel »). Chaque forme d'écran a sa
+   disposition, gardée sur l'appareil (ui/accueil/large, ui/accueil/tel) :
+   l'ordre, la largeur, les widgets masqués. Le mode « Personnaliser »
+   (bouton au pied de l'Accueil) : glisser la poignée déplace le widget, sa
+   place devenant un cadre fantôme qui suit la grille ; la languette de
+   droite étire un cadre fantôme aimanté aux largeurs permises ; les tailles
+   et « − » ; les flèches du clavier sur la poignée ; « Réinitialiser ».
+   Le contenu suit la largeur de son widget (le nombre d'accès par rangée,
+   la ligne du profil, l'heure). Limite connue : l'ordre du clavier (Tab)
+   reste celui de la page, et non celui de l'écran. */
+var ACC_W=[
+  {k:"heure",        nom:"Heure et météo",      l:6,  lmin:3, tmin:1},
+  {k:"profil",       nom:"Mon profil",          l:6,  lmin:3, tmin:2},
+  {k:"pointeuse",    nom:"Pointeuse",           l:6,  lmin:3, tmin:2},
+  {k:"poste",        nom:"Prochain poste",      l:6,  lmin:4, tmin:2},
+  {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
+  {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:4, tmin:2},
+  {k:"polyvalences", nom:"Polyvalences",        l:6,  lmin:3, tmin:1},
+  {k:"usine",        nom:"L’usine en direct",   l:12, lmin:6, tmin:2},
+  {k:"demandes",     nom:"Demandes de congé",   l:8,  lmin:4, tmin:2},
+  {k:"afaire",       nom:"À faire",             l:6,  lmin:3, tmin:1},
+  {k:"calendrier",   nom:"Calendrier",          l:8,  lmin:6, tmin:2},
+  {k:"site",         nom:"Sur site",            l:4,  lmin:4, tmin:2},
+  {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2},
+  {k:"conges",       nom:"Mon année",           l:4,  lmin:3, tmin:2},
+  {k:"rythme",       nom:"Mon rythme",          l:8,  lmin:6, tmin:2}
+];
+/* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
+   les demandes et le calendrier */
+var ACC_ORDRE_TEL=["profil","heure","pointeuse","poste","acces","cycle","polyvalences","afaire","conges","site","messages","usine","demandes","calendrier","rythme"];
+var ACC_TAILLES={large:[3,4,6,8,9,12], tel:[1,2]};
+var ACC_FRAC={large:{3:"¼",4:"⅓",6:"½",8:"⅔",9:"¾",12:"1"}, tel:{1:"½",2:"1"}};
+var ACC={mode:"", cols:2, o:[], t:{}, m:{}, edit:false, gap:16, style:null, ro:null, items:[], scanT:0, drag:null, etire:null};
+function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return ACC_W[i]; return null; }
+function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; return ACC_TAILLES[m].filter(function(s){ return m==="tel"?s>=d.tmin:s>=d.lmin; }); }
+function accTaille(k){ var p=accPermises(k), t=ACC.t[k], d=accDef(k);
+  if(p.indexOf(t)>=0) return t;
+  var def=ACC.mode==="large"?d.l:2; if(p.indexOf(def)>=0) return def; return p[p.length-1]; }
+function accCharger(mode){
+  var sv=lsGet("ui/accueil/"+mode)||{}, connus=ACC_W.map(function(d){ return d.k; });
+  var base=mode==="tel"?ACC_ORDRE_TEL.slice():connus.slice();
+  var o=(sv.o&&sv.o.length?sv.o:base).filter(function(k){ return connus.indexOf(k)>=0; });
+  base.forEach(function(k){ if(o.indexOf(k)<0) o.push(k); });
+  ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{};
+}
+function accSauver(){ lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m}); }
+function accAnnoncer(t){ var a=document.getElementById("accAnnonce"); if(a){ a.textContent=""; setTimeout(function(){ a.textContent=t; },30); } }
+/* la feuille de la disposition : l'ordre, la largeur, les masqués */
+function accStyle(){
+  if(!ACC.style) return;
+  var c=["#v-horaire.acc-perso{--acc-cols:"+ACC.cols+"}"];
+  ACC.o.forEach(function(k,i){
+    var sel='#v-horaire.acc-perso [data-w="'+k+'"]';
+    c.push(sel+"{order:"+((i+1)*10)+"!important; grid-column:span "+Math.min(ACC.cols,accTaille(k))+"!important}");
+    if(ACC.m[k]) c.push(sel+"{display:none!important}");
+  });
+  c.push("#v-horaire.acc-perso #resumeVide{order:0!important} #v-horaire.acc-perso #installCard{order:9000!important} #v-horaire.acc-perso #accPied{order:9990!important}");
+  ACC.style.textContent=c.join("\n");
+}
+/* la maçonnerie : chaque case prend autant de rangées de 1 px que sa
+   hauteur, plus l'écart */
+function accEmpan(el){
+  var h=el.getBoundingClientRect().height;
+  if(!h){ if(el.style.gridRowEnd) el.style.gridRowEnd=""; return; }
+  var v="span "+Math.max(1,Math.ceil(h+ACC.gap));
+  if(el.style.gridRowEnd!==v) el.style.gridRowEnd=v;
+}
+/* la forme d'écran : « large » dès 700 px pour l'Accueil lui-même */
+function accForme(){
+  var v=document.getElementById("v-horaire"); if(!v) return;
+  var w=v.clientWidth; if(!w) return;
+  var mode=w>=700?"large":"tel";
+  ACC.gap=parseFloat(getComputedStyle(v).columnGap)||16;
+  if(mode===ACC.mode) return;
+  ACC.mode=mode; ACC.cols=mode==="large"?12:2;
+  v.classList.toggle("acc-large",mode==="large"); v.classList.toggle("acc-tel",mode==="tel");
+  accCharger(mode); accStyle();
+  if(ACC.edit){ accOutils(true); accPied(); }
+}
+function accScan(){
+  ACC.scanT=0;
+  var v=document.getElementById("v-horaire"); if(!v||!ACC.ro) return;
+  /* GARDE-FOU : un bloc de l'Accueil sans data-w (un cadre neuf qu'on
+     aurait oublié d'inscrire dans ACC_W) serait une case d'une colonne et
+     d'une rangée de 1 px, son contenu débordant sur les autres. Il prend
+     toute la largeur, en tête de l'Accueil (ordre 0) : rien ne casse, et
+     l'oubli se voit. */
+  [].forEach.call(v.querySelectorAll("#v-horaire>*,#accGrille>*,#accCote>*,#accMain>*,#rythmeTete .pf-hero>*,#rythmeTete .pf-corps>*,#rythmeTete .pf-gauche>*"),function(el){
+    if(el.hasAttribute("data-w")||el.hasAttribute("data-acc-plein")||/^(rythmeTete|accGrille|accCote|accMain)$/.test(el.id)||/^(SCRIPT|STYLE|TEMPLATE)$/.test(el.tagName)) return;
+    var cs=getComputedStyle(el); if(cs.display==="contents"||cs.position==="absolute"||cs.position==="fixed") return;
+    el.setAttribute("data-acc-plein","");
+  });
+  var l=[].slice.call(v.querySelectorAll("[data-w],[data-acc-plein]"));
+  l.forEach(function(el){ if(!el.__accObs){ el.__accObs=1; ACC.ro.observe(el); } });
+  ACC.items.forEach(function(el){ if(l.indexOf(el)<0){ try{ ACC.ro.unobserve(el); }catch(e){} el.__accObs=0; } });
+  ACC.items=l;
+  if(ACC.edit) accOutils(false);
+}
+/* les outils posés sur chaque widget, en mode « Personnaliser » */
+var ACC_GRIP='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>';
+function accOutilsHTML(k){
+  var d=accDef(k), t=accTaille(k), f=ACC_FRAC[ACC.mode];
+  return '<button type="button" class="acc-poignee" data-acc-tirer="'+k+'" aria-label="Déplacer « '+esc(d.nom)+' » : glisser, ou les flèches du clavier">'+ACC_GRIP+'<span>'+esc(d.nom)+'</span></button>'
+    +(accPermises(k).length>1?'<span class="acc-tailles" role="group" aria-label="Largeur de « '+esc(d.nom)+' »">'+accPermises(k).map(function(s){
+      return '<button type="button" data-acc-taille="'+k+':'+s+'" aria-pressed="'+(s===t)+'" aria-label="Largeur '+f[s]+'">'+f[s]+'</button>'; }).join("")+'</span>':'')
+    +'<span class="acc-droite">'
+    +(accPermises(k).length>1?'<button type="button" class="acc-tbtn" data-acc-tbtn aria-expanded="false" aria-label="Largeur de « '+esc(d.nom)+' » : '+f[t]+'. Changer">'+f[t]+'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>':'')
+    +'<button type="button" class="acc-masquer" data-acc-masquer="'+k+'" aria-label="Masquer « '+esc(d.nom)+' »"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>'
+    +'</span>';
+}
+function accOutils(tout){
+  ACC.items.forEach(function(el){
+    var k=el.getAttribute("data-w"); if(!k||!accDef(k)) return;
+    var sig=ACC.mode+"|"+accTaille(k), o=null, g=null, i;
+    for(i=0;i<el.children.length;i++){ if(el.children[i].classList.contains("acc-outils")) o=el.children[i]; if(el.children[i].classList.contains("acc-etirer")) g=el.children[i]; }
+    if(!o){ o=document.createElement("div"); o.className="acc-outils"; el.appendChild(o); }
+    if(tout||o.__sig!==sig){ o.innerHTML=accOutilsHTML(k); o.__sig=sig; }
+    if(ACC.mode==="large"&&accPermises(k).length>1){ if(!g){ g=document.createElement("span"); g.className="acc-etirer"; g.setAttribute("data-acc-etirer",k); g.title="Glisser pour choisir la largeur"; el.appendChild(g); } }
+    else if(g) el.removeChild(g);
+    el.classList.toggle("acc-tire",!!(ACC.drag&&ACC.drag.k===k));
+  });
+  /* un widget sans rien à montrer : un cadre fantôme à son nom */
+  var vus={};
+  ACC.items.forEach(function(el){ el.classList.remove("acc-vide"); });
+  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(k&&!el.hidden&&getComputedStyle(el).display!=="none") vus[k]=1; });
+  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(!k||vus[k]||ACC.m[k]||!accDef(k)) return; vus[k]=1;
+    el.classList.add("acc-vide"); el.setAttribute("data-acc-vide",accDef(k).nom+" · rien à montrer pour l’instant"); });
+}
+function accPied(){
+  var p=document.getElementById("accPied"); if(!p) return;
+  p.hidden=false;
+  if(!ACC.edit){ p.innerHTML='<button type="button" class="acc-perso-btn" data-acc-editer><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/></svg>Personnaliser l’Accueil</button>'; return; }
+  var mq=ACC.o.filter(function(k){ return ACC.m[k]; });
+  p.innerHTML='<div class="acc-reserve"><b>Widgets masqués</b>'+(mq.length?'<div class="acc-reserve-l">'+mq.map(function(k){
+      return '<button type="button" data-acc-montrer="'+k+'" aria-label="Remettre « '+esc(accDef(k).nom)+' »"><i aria-hidden="true">+</i>'+esc(accDef(k).nom)+'</button>'; }).join("")+'</div>'
+    :'<p>Aucun : le bouton « − » d’un widget le range ici.</p>')+'</div>';
+}
+/* la barre du mode flotte au-dessus de la barre d'onglets du téléphone */
+function accBas(){
+  var b=document.getElementById("accBarre"); if(!b) return;
+  var nav=document.querySelector("nav.tabs"), bas=24;
+  if(nav&&nav.getClientRects().length){ var r=nav.getBoundingClientRect(); if(r.top>innerHeight/2&&r.width>innerWidth/2) bas=Math.max(24,innerHeight-r.top+14); }
+  b.style.setProperty("--acc-bas",bas+"px");
+  if(window.matchMedia&&matchMedia("(min-width:1100px)").matches){ var s=document.querySelector(".top"); if(s&&s.getClientRects().length){ b.style.left="calc(50% + "+(s.getBoundingClientRect().width/2)+"px)"; return; } }
+  b.style.left="";
+}
+function accEditer(on){
+  var v=document.getElementById("v-horaire"), b=document.getElementById("accBarre"); if(!v||!ACC.style) return;
+  ACC.edit=!!on; v.classList.toggle("acc-edit",ACC.edit);
+  if(b){ b.hidden=!ACC.edit; if(ACC.edit) accBas(); }
+  if(ACC.edit){ accOutils(true); accAnnoncer("Personnaliser l’Accueil : glissez la poignée d’un widget pour le déplacer, la languette de droite ou les tailles pour sa largeur, « − » pour le masquer."); }
+  else {
+    [].forEach.call(v.querySelectorAll(".acc-outils,.acc-etirer"),function(x){ x.parentNode.removeChild(x); });
+    [].forEach.call(v.querySelectorAll(".acc-vide,.acc-tire"),function(x){ x.classList.remove("acc-vide","acc-tire"); });
+  }
+  accPied();
+  if(ACC.edit){ var f=document.getElementById("accOk"); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
+  else { var pb=document.querySelector("#accPied .acc-perso-btn"); if(pb&&on===false) try{ pb.focus({preventScroll:true}); }catch(e){} }
+}
+/* déplacer : la place du widget devient le cadre fantôme ; l'ordre suit le
+   doigt (la case visée, côté gauche ou droit, haut ou bas si elle est
+   pleine largeur) ; la page défile près des bords */
+function accTirer(ev,k,el,attendre){
+  var r=el.getBoundingClientRect(), d={k:k, id:ev.pointerId, x0:ev.clientX, y0:ev.clientY, x:ev.clientX, y:ev.clientY, dx:ev.clientX-r.left, dy:ev.clientY-r.top,
+    w:Math.min(r.width,420), h:Math.min(r.height,120), avant:ACC.o.slice(), cible:"", t:0, parti:!attendre, raf:0, vol:null};
+  ACC.drag=d;
+  function partir(){
+    d.parti=true;
+    var vol=document.createElement("div"); vol.className="acc-vol"; vol.style.width=d.w+"px"; vol.style.height=d.h+"px";
+    vol.innerHTML='<b>'+esc(accDef(k).nom)+'</b><small>Largeur '+ACC_FRAC[ACC.mode][accTaille(k)]+' · lâchez pour poser</small>';
+    document.body.appendChild(vol); d.vol=vol; d.dx=Math.min(d.dx,d.w-20); d.dy=Math.min(d.dy,d.h-20);
+    [].forEach.call(document.querySelectorAll('#v-horaire [data-w="'+k+'"]'),function(x){ x.classList.add("acc-tire"); });
+    placer(); boucle();
+  }
+  function placer(){ if(d.vol) d.vol.style.transform="translate("+(d.x-d.dx)+"px,"+(d.y-d.dy)+"px) rotate(1.2deg)"; }
+  function cibler(){
+    var e=document.elementFromPoint(d.x,d.y), w=e&&e.closest?e.closest("#v-horaire [data-w]"):null; if(!w) return;
+    var kc=w.getAttribute("data-w"); if(!kc||kc===d.k||!accDef(kc)) return;
+    var rc=w.getBoundingClientRect(), v=document.getElementById("v-horaire"), plein=rc.width>v.clientWidth*0.7;
+    var apres=plein?d.y>rc.top+rc.height/2:d.x>rc.left+rc.width/2, sig=kc+(apres?">":"<");
+    if(sig===d.cible||accMaint()-d.t<150) return;
+    d.cible=sig; d.t=accMaint();
+    var o=ACC.o.filter(function(x){ return x!==d.k; }), i=o.indexOf(kc); o.splice(apres?i+1:i,0,d.k);
+    if(o.join()!==ACC.o.join()){ ACC.o=o; accStyle(); }
+  }
+  function boucle(){
+    d.raf=requestAnimationFrame(function(){
+      if(ACC.drag!==d) return;
+      /* le bas réel : le haut de la barre d'onglets du téléphone (portrait),
+         sinon le bas de l'écran ; la zone qui fait défiler, 12 % de la
+         hauteur au plus (couché, 132 px fixes en prenaient un tiers et la
+         page défilait sous le doigt, mesuré le 04/11/2026) */
+      var vb=innerHeight, nav=document.querySelector("nav.tabs"), pas=0;
+      if(nav&&nav.getClientRects().length){ var nr=nav.getBoundingClientRect(); if(nr.top>vb/2&&nr.width>innerWidth/2) vb=nr.top; }
+      var m=Math.min(72,innerHeight*0.12);
+      if(d.y<m) pas=-Math.ceil((m-d.y)/4); else if(d.y>vb-m) pas=Math.ceil((d.y-(vb-m))/4);
+      if(pas){ window.scrollBy(0,pas); cibler(); }
+      boucle();
+    });
+  }
+  function bouger(e){
+    if(e.pointerId!==d.id) return;
+    d.x=e.clientX; d.y=e.clientY;
+    if(!d.parti){ if(Math.abs(d.x-d.x0)+Math.abs(d.y-d.y0)<6) return; partir(); }
+    e.preventDefault(); placer(); cibler();
+  }
+  function fin(e,annule){
+    if(e&&e.pointerId!==undefined&&e.pointerId!==d.id) return;
+    document.removeEventListener("pointermove",bouger,true); document.removeEventListener("pointerup",fin,true);
+    document.removeEventListener("pointercancel",fin,true); document.removeEventListener("keydown",esc_,true);
+    cancelAnimationFrame(d.raf); if(d.vol&&d.vol.parentNode) d.vol.parentNode.removeChild(d.vol);
+    [].forEach.call(document.querySelectorAll("#v-horaire .acc-tire"),function(x){ x.classList.remove("acc-tire"); });
+    ACC.drag=null;
+    if(!d.parti) return;
+    if(annule){ ACC.o=d.avant; accStyle(); return; }
+    accSauver();
+    var vis=ACC.o.filter(function(x){ return !ACC.m[x]; });
+    accAnnoncer("« "+accDef(k).nom+" » posé : position "+(vis.indexOf(k)+1)+" sur "+vis.length+".");
+    accBloqueClic=accMaint();
+  }
+  function esc_(e){ if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); fin(null,true); } }
+  document.addEventListener("pointermove",bouger,{capture:true, passive:false}); document.addEventListener("pointerup",fin,true);
+  document.addEventListener("pointercancel",fin,true); document.addEventListener("keydown",esc_,true);
+  if(d.parti){ try{ ev.target.setPointerCapture(ev.pointerId); }catch(e){} partir(); }
+}
+var accBloqueClic=-1e9;
+function accChoixFermer(){ [].forEach.call(document.querySelectorAll("#v-horaire .acc-outils.choix"),function(o){ o.classList.remove("choix"); var b=o.querySelector("[data-acc-tbtn]"); if(b) b.setAttribute("aria-expanded","false"); }); }
+/* le temps qui passe, et non l'heure du jour (qu'un réglage peut figer) */
+function accMaint(){ return window.performance&&performance.now?performance.now():Date.now(); }
+/* étirer : un cadre fantôme part du bord gauche du widget et s'aimante à
+   la largeur permise la plus proche du doigt ; lâcher l'applique */
+function accEtirer(ev,k,el){
+  var v=document.getElementById("v-horaire"), vr=v.getBoundingClientRect(), r=el.getBoundingClientRect(), cs=getComputedStyle(v);
+  var gl=vr.left+parseFloat(cs.paddingLeft), gw=vr.width-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), cw=(gw-(ACC.cols-1)*ACC.gap)/ACC.cols;
+  var col=Math.max(0,Math.round((r.left-gl)/(cw+ACC.gap))), p=accPermises(k).filter(function(s){ return s<=ACC.cols; });
+  var f=document.createElement("div"); f.className="acc-fantome"; f.setAttribute("aria-hidden","true");
+  f.style.left=(r.left-vr.left)+"px"; f.style.top=(r.top-vr.top)+"px"; f.style.height=r.height+"px";
+  v.appendChild(f);
+  var t=accTaille(k), id=ev.pointerId;
+  function largeur(s){ return s*cw+(s-1)*ACC.gap; }
+  function montrer(){
+    /* au-delà du bord droit, le widget passera à la rangée suivante : le
+       cadre fantôme le montre alors depuis la gauche */
+    var depasse=col+t>ACC.cols;
+    f.style.left=(depasse?gl-vr.left:r.left-vr.left)+"px";
+    f.style.width=largeur(t)+"px";
+    f.innerHTML='<b>'+ACC_FRAC[ACC.mode][t]+'</b>';
+  }
+  function bouger(e){
+    if(e.pointerId!==id) return; e.preventDefault();
+    var voulu=e.clientX-r.left, mieux=t, ec=1e9;
+    p.forEach(function(s){ var dd=Math.abs(largeur(s)-voulu); if(dd<ec){ ec=dd; mieux=s; } });
+    if(mieux!==t){ t=mieux; montrer(); }
+  }
+  function fin(e){
+    if(e&&e.pointerId!==id) return;
+    document.removeEventListener("pointermove",bouger,true); document.removeEventListener("pointerup",fin,true); document.removeEventListener("pointercancel",fin,true);
+    if(f.parentNode) f.parentNode.removeChild(f);
+    if(t!==accTaille(k)){ ACC.t[k]=t; accStyle(); accSauver(); accOutils(false);
+      accAnnoncer("« "+accDef(k).nom+" » : largeur "+ACC_FRAC[ACC.mode][t]+"."); }
+    accBloqueClic=accMaint();
+  }
+  montrer();
+  try{ ev.target.setPointerCapture(id); }catch(er){}
+  document.addEventListener("pointermove",bouger,{capture:true, passive:false}); document.addEventListener("pointerup",fin,true); document.addEventListener("pointercancel",fin,true);
+}
+function accInit(){
+  var v=document.getElementById("v-horaire");
+  if(!v||!window.ResizeObserver||!window.MutationObserver||!(window.CSS&&CSS.supports&&CSS.supports("display","contents"))) return;
+  ACC.style=document.createElement("style"); ACC.style.id="accStyle"; ACC.style.setAttribute("data-genere",""); document.head.appendChild(ACC.style);
+  ACC.ro=new ResizeObserver(function(es){ es.forEach(function(e){ accEmpan(e.target); }); });
+  new ResizeObserver(function(){ accForme(); if(ACC.edit) accBas(); }).observe(v);
+  new MutationObserver(function(){ if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); }).observe(v,{childList:true, subtree:true});
+  v.classList.add("acc-perso");
+  accForme(); accScan(); accPied();
+  /* en mode « Personnaliser », le contenu des widgets ne réagit pas */
+  v.addEventListener("click",function(e){
+    if(accMaint()-accBloqueClic<350){ e.preventDefault(); e.stopPropagation(); return; }
+    var t=e.target;
+    if(t.closest("[data-acc-editer]")){ accEditer(true); return; }
+    if(!ACC.edit) return;
+    var x;
+    if((x=t.closest("[data-acc-tbtn]"))){ var ob=x.closest(".acc-outils"), ouvre=!ob.classList.contains("choix"); accChoixFermer();
+      if(ouvre){ ob.classList.add("choix"); x.setAttribute("aria-expanded","true"); var pr=ob.querySelector('.acc-tailles [aria-pressed="true"]'); if(pr) try{ pr.focus(); }catch(er){} } return; }
+    if((x=t.closest("[data-acc-taille]"))){ var kv=x.getAttribute("data-acc-taille").split(":"); accChoixFermer(); ACC.t[kv[0]]=Number(kv[1]); accStyle(); accSauver(); accOutils(false);
+      accAnnoncer("« "+accDef(kv[0]).nom+" » : largeur "+ACC_FRAC[ACC.mode][Number(kv[1])]+"."); return; }
+    if((x=t.closest("[data-acc-masquer]"))){ var km=x.getAttribute("data-acc-masquer"); ACC.m[km]=true; accStyle(); accSauver(); accPied();
+      accAnnoncer("« "+accDef(km).nom+" » masqué : il est dans « Widgets masqués », au bas de l’Accueil."); return; }
+    if((x=t.closest("[data-acc-montrer]"))){ var kr=x.getAttribute("data-acc-montrer"); delete ACC.m[kr]; accStyle(); accSauver(); accPied(); accOutils(false);
+      accAnnoncer("« "+accDef(kr).nom+" » remis à sa place."); return; }
+    if(t.closest("#accOk")){ accEditer(false); return; }
+    if(t.closest("#accRaz")){
+      confirmerPro({titre:"Réinitialiser l’Accueil ?", texte:"La disposition d’origine revient pour cet écran : l’ordre, les largeurs et les widgets masqués.", ok:"Réinitialiser", annuler:"Garder"},function(){
+        try{ localStorage.removeItem("ui/accueil/"+ACC.mode); }catch(er){}
+        accCharger(ACC.mode); accStyle(); accOutils(true); accPied(); accAnnoncer("Disposition d’origine rétablie.");
+      });
+      return;
+    }
+    if(t.closest(".acc-outils,.acc-pied,.acc-barre")) return;
+    accChoixFermer();
+    e.preventDefault(); e.stopPropagation();
+  },true);
+  v.addEventListener("pointerdown",function(e){
+    if(!ACC.edit||ACC.drag||(e.button!==undefined&&e.button!==0)) return;
+    var g=e.target.closest("[data-acc-etirer]"), h=e.target.closest("[data-acc-tirer]"), w;
+    if(g){ e.preventDefault(); accEtirer(e,g.getAttribute("data-acc-etirer"),g.parentNode); return; }
+    if(h){ e.preventDefault(); w=h.closest("[data-w]"); if(w) accTirer(e,h.getAttribute("data-acc-tirer"),w,false); return; }
+    /* à la souris, tout le widget se saisit (au doigt, la poignée seule :
+       le reste fait défiler la page) */
+    if(e.pointerType==="mouse"&&!e.target.closest(".acc-outils")&&(w=e.target.closest("[data-w]"))&&accDef(w.getAttribute("data-w"))){ e.preventDefault(); accTirer(e,w.getAttribute("data-w"),w,true); }
+  });
+  /* le clavier : les flèches sur la poignée déplacent d'une place */
+  v.addEventListener("keydown",function(e){
+    if(ACC.edit&&e.key==="Escape"&&document.querySelector("#v-horaire .acc-outils.choix")){ var ob=e.target.closest&&e.target.closest(".acc-outils"); accChoixFermer();
+      var tb=ob&&ob.querySelector("[data-acc-tbtn]"); if(tb) try{ tb.focus(); }catch(er){} e.preventDefault(); return; }
+    var h=ACC.edit&&e.target.closest&&e.target.closest("[data-acc-tirer]"); if(!h) return;
+    var sens={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[e.key]; if(!sens) return;
+    e.preventDefault();
+    var k=h.getAttribute("data-acc-tirer"), vis=ACC.o.filter(function(x){ return !ACC.m[x]; }), i=vis.indexOf(k), j=i+sens;
+    if(j<0||j>=vis.length) return;
+    var o=ACC.o.filter(function(x){ return x!==k; }), a=o.indexOf(vis[j]); o.splice(sens>0?a+1:a,0,k);
+    ACC.o=o; accStyle(); accSauver();
+    accAnnoncer("« "+accDef(k).nom+" » : position "+(j+1)+" sur "+vis.length+".");
+  });
+  window.addEventListener("resize",function(){ if(ACC.edit) accBas(); });
+}
+
 function deconnecterCompte(){
   var acc=st.account||lsGet("account/current")||{};
   var qui=acc.role==="rh"?"BWZ RH":(acc.tri?idLisible(acc.tri):"");
@@ -36203,6 +36667,8 @@ window.addEventListener("afterprint",function(){
 });
 function boot(){
   if(booted) return; booted=true;
+  /* l'Accueil personnalisable, avant son premier rendu */
+  try{ accInit(); }catch(e){}
   /* La bulle de l'onglet Effectifs se calcule sans attendre qu'on ouvre
      l'onglet, mais au repos : le calcul balaie toutes les journées à venir. */
   fetchHoraireDB().then(function(db){ if(!db) return;

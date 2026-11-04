@@ -11523,3 +11523,121 @@ bandeau hors ligne suivent.
 **Mesuré** à 1100, 1280 et 1440 px, avec une cloche simulée (« 18 »). La
 tablette (900 px) et le téléphone (390 px) sont inchangés. Parcours :
 112 essais, 0 faute.
+
+### L'Accueil personnalisable : une grille de widgets, le cadre fantôme (04/11/2026, `nfdm-v1363`)
+
+Le client : « j'aimerais que l'accueil soit complètement personnalisable,
+comme des widgets, avec un cadre fantôme qui définirait la largeur et le
+nombre d'éléments, la disposition de son contenu, etc. »
+
+**Lu ainsi, et choisi seul (question de goût).** Comme les widgets de
+l'iPhone :
+- chaque bloc de l'Accueil se déplace, s'élargit ou se rétrécit, se masque ;
+- la largeur décide combien de widgets tiennent par rangée ;
+- le contenu de chacun se dispose selon sa largeur.
+
+Le « cadre fantôme » est le pointillé qui montre la place et la largeur
+pendant qu'on déplace ou qu'on étire un widget.
+
+**La grille.** Une seule, `#v-horaire.acc-perso` :
+- 12 colonnes dès que l'Accueil fait 700 px de large (« large » : tablette,
+  PC), 2 au téléphone (« tel ») ;
+- les enveloppes d'avant s'effacent (`display:contents`) : le héros, ses
+  colonnes, le tableau de bord ;
+- 15 widgets (`data-w`) en sont les cases : les morceaux du héros (profil,
+  heure, pointeuse, prochain poste, accès, cycle, polyvalences) et les
+  cadres (usine, demandes, à faire, calendrier, sur site, messages, mon
+  année, mon rythme).
+
+Deux enveloppes nouvelles :
+- `.pf-pw` réunit le prochain poste, ses changements proposés et « N
+  actions à faire » ;
+- `.pf-pvw` enveloppe le bouton des polyvalences : sans elle, les outils
+  seraient des boutons dans un bouton.
+
+**Sans trou.** Les rangées font 1 px. Chaque widget en prend sa hauteur
+plus 16 px (`ResizeObserver`), et `grid-auto-flow: dense` remplit les vides
+sous un widget court : une maçonnerie.
+- Un `MutationObserver` suit les rendus (le héros se réécrit).
+- Des rangées de 4 px faisaient varier les écarts de 16 à 19 px.
+
+**Une disposition par forme d'écran, sur l'appareil**
+(`ui/accueil/large`, `ui/accueil/tel`) : l'ordre, la largeur de chaque
+widget, les masqués. Elle est écrite dans une feuille générée (`#accStyle`,
+`data-genere`).
+- Large, par défaut : l'heure et le profil en tête (le profil à droite, ce
+  que le client avait demandé) ; puis le prochain poste, les accès, « À
+  faire » et « Messages » (½) à gauche, le cycle à droite ; l'usine sur
+  toute la largeur ; le calendrier et « Mon rythme » (⅔), « Sur site » et
+  « Mon année » (⅓).
+- Téléphone : l'ordre de la page d'avant, tout en pleine largeur.
+- Largeurs permises : ¼, ⅓, ½, ⅔, ¾ et 1 en large ; ½ et 1 au téléphone
+  (½ pour l'heure, les accès, « À faire » et les polyvalences seulement).
+  Un minimum par widget : le calendrier ⅔ au moins, le cycle ⅓.
+
+**Le mode « Personnaliser »** s'ouvre par le bouton au pied de l'Accueil.
+- Chaque widget passe en pointillé, son contenu éteint (55 %) et inerte (les
+  clics sont arrêtés en capture).
+- Sa barre d'outils : la poignée et le nom, la largeur (« ½ ▾ », qui déplie
+  les tailles), et « − ».
+- **Déplacer** : la poignée au doigt, ou tout le widget à la souris. Sa
+  place devient le cadre fantôme, qui suit la grille en direct, et une
+  vignette suit le doigt. La page défile près des bords. Échap annule.
+- **Étirer** (large) : la languette de droite tire un cadre fantôme depuis
+  le bord gauche du widget, aimanté à la largeur permise la plus proche,
+  avec sa fraction ; lâcher l'applique.
+- **Masquer** : « − » range le widget dans « Widgets masqués », au pied ;
+  « + » l'y reprend.
+- **Clavier** : les flèches sur la poignée déplacent d'une place ; chaque
+  action est annoncée (`aria-live`).
+- Un widget sans rien à montrer en ce moment (la pointeuse, les demandes)
+  paraît en cadre fantôme à son nom : on peut le placer quand même.
+- « Réinitialiser » rend la disposition d'origine de cet écran ;
+  « Terminé » referme.
+
+**Le contenu suit la largeur de son widget :**
+- les accès : autant d'icônes par rangée que la largeur en permet
+  (`auto-fill`, 84 px), d'où le nombre d'éléments ;
+- le profil (large) : la bannière entière ; sous 400 px, la cloche et la
+  roue passent sous le nom (requête de conteneur `wprof`) ;
+- l'heure : la météo passe dessous quand le widget est étroit, et les
+  chiffres grandissent dès 440 px (`hmt`).
+
+**Garde-fou.** Un bloc de l'Accueil sans `data-w` serait une case d'une
+colonne et d'un pixel, débordant sur les autres. `accScan` le pose en pleine
+largeur, en tête (ordre 0) : rien ne casse, et l'oubli se voit.
+- Épreuve : un cadre neuf inséré dans la page a pris 960 px sur 960, en
+  tête, sans chevauchement.
+- La règle est dans CLAUDE.md.
+
+**Trois défauts mesurés et corrigés avant le commit :**
+- le temps des gestes lisait `Date.now()`, que l'horloge figée des essais
+  arrêtait : le glisser ne bougeait qu'une place, et le blocage des clics
+  ne se levait jamais. C'est désormais `performance.now()` ;
+- couché (390 px de haut), la zone de défilement automatique (132 px)
+  prenait un tiers de l'écran, et la page défilait sous le doigt. Elle est
+  désormais bornée au-dessus de la barre d'onglets, à 12 % de la hauteur ;
+- les tailles, toutes affichées, passaient sur deux lignes dans un widget
+  de ⅓. Elles se déplient désormais d'un bouton.
+
+**Limite connue :** l'ordre du clavier (Tab) reste celui de la page, et non
+celui de l'écran.
+
+**`parcours.js`** ne compte plus la feuille générée parmi les règles
+écrites : elle n'est pas dans le fichier, et les 19 règles en trop
+faisaient faute.
+
+**Mesuré au navigateur** (390, 900, 1280 px ; 320 × 640 ; 844 × 390
+couché) :
+- 0 chevauchement au repos, en mode « Personnaliser » et après chaque
+  réglage ;
+- glisser à la souris : « Messages » passe en tête ;
+- glisser au vrai doigt (événements tactiles) : « Accès rapides » remonte,
+  en portrait comme couché ;
+- étirer : le cadre fantôme indique « ¾ », puis le cycle passe de 467 à
+  709 px ;
+- largeur « ⅓ » choisie dans la barre ; masquer puis reprendre ;
+- après rechargement, chaque forme d'écran retrouve sa disposition ;
+- aucune erreur de page.
+
+Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0.
