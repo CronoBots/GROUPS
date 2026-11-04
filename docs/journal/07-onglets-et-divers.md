@@ -599,3 +599,47 @@ montant — y reste) :
 Le report dans Notion a été suspendu du 22 au 28/10/2026, et repris le
 28/10 à la demande du client : « pousse tout cela vers Notion et mets-le à
 jour ».
+
+### Le fil de l'usine, une messagerie dans l'Accueil (04/11/2026, `nfdm-v1355`)
+
+Le client, le 04/11/2026 : « J'aimerais bien que tu ajoutes un chat message
+pro comme cadre dans l'accueil ». Puis, en QCM sur qui écrit à qui :
+« usine seulement ». C'est donc un seul fil, commun à tous les comptes
+validés, sans messages privés ni fil par équipe.
+
+**La base, `base/36-messages.sql`.** Elle suit le modèle des annonces
+(base/35) : une table fermée, `biowanze.messages`, à laquelle on n'accède
+que par trois fonctions.
+- `biowanze_messages` lit les cent derniers messages, pour tout compte
+  validé.
+- `biowanze_ecrire_message` écrit sous le trigramme du compte, de 1 à
+  1 000 caractères, dix messages par minute au plus.
+- `biowanze_effacer_message` est permise à l'auteur, ou à la RH pour la
+  modération. Le texte disparaît du fil, mais l'heure, l'auteur et qui a
+  effacé restent.
+
+La sauvegarde quotidienne (base/22) reprend d'office la nouvelle table.
+
+**Une table neuve demande une confirmation** que le mode « Auto » ne donne
+pas : le fichier est donné au client pour l'éditeur SQL du projet. Tant
+qu'il n'est pas passé, la fonction est absente (404) et le cadre reste
+caché.
+
+**Le cadre « Fil de l'usine ».** Il se place après « Sur site » ; au PC,
+dans la colonne de droite.
+- Des bulles de messagerie : les miennes à droite, à la couleur de la
+  marque ; celles des autres à gauche, sous leur trigramme ; un séparateur
+  par jour (« Aujourd'hui », « Hier », la date).
+- Un message effacé apparaît en pointillé : « Message effacé ».
+- Entrée envoie le message, Maj+Entrée va à la ligne, et le champ grandit
+  jusqu'à cinq lignes.
+- Le fil est relu toutes les 30 s tant que l'Accueil est à l'écran. La
+  dernière liste reste sur l'appareil (`ui/fil`) pour le hors-ligne.
+
+La page « Vos données » dit ce que le fil enregistre et qui le lit.
+
+**Éprouvé au navigateur, base simulée.**
+- Le rendu (un collègue, moi, un message effacé, deux jours), puis l'envoi
+  par Entrée : le texte part tel quel, et le fil se relit.
+- Fonction absente : le cadre reste caché.
+- Parcours : 112 essais, 0 faute (contraste compris). Garde-fou : 0.

@@ -8391,7 +8391,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 /* les widgets de l'Accueil : en tête, la petite icône de l'app dont ils
    parlent, comme sur l'iPhone */
 #ctlCard>header{--ic:var(--ip-valider)} #anCard>header{--ic:var(--ip-demandes)} #siteCard>header{--ic:var(--ip-equipes)}
-#usineCard>header{--ic:var(--ip-accueil)} #calCard>header{--ic:var(--ip-planning)} #rythmeCard>header{--ic:var(--ip-horaire)}
+#usineCard>header{--ic:var(--ip-accueil)} #filCard>header{--ic:var(--ip-cm)} #calCard>header{--ic:var(--ip-planning)} #rythmeCard>header{--ic:var(--ip-horaire)}
 
 /* — LA MATIÈRE D'UNE ICÔNE D'APP, partout la même ; la taille et l'arrondi
    se règlent par contexte, plus bas — */
@@ -8517,6 +8517,26 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
    rangée s'étire, à toute largeur. — */
 html body .pf-cgs,html body #v-horaire .pf-cgs{display:flex; flex-wrap:wrap; gap:6px}
 html body .pf-cgs>.pf-cgc,html body #v-horaire .pf-cgs>.pf-cgc{flex:1 1 calc(33.333% - 6px); grid-column:auto; min-width:0; padding-left:6px; padding-right:6px}
+
+/* — LE FIL DE L'USINE : des bulles comme une messagerie, les miennes à
+   droite à la couleur de la marque, celles des autres à gauche avec leur
+   trigramme ; un séparateur par jour ; le champ et la flèche dessous — */
+#filCard .fil-l{display:flex; flex-direction:column; gap:6px; max-height:340px; overflow-y:auto; padding:4px 14px 10px; overscroll-behavior:contain}
+#filCard .fil-vide{margin:8px 0; font-size:13px; color:var(--muted); text-align:center}
+#filCard .fil-j{align-self:center; margin:6px 0 2px; font-size:11.5px; font-weight:600; color:var(--muted)}
+#filCard .fil-m{max-width:82%; align-self:flex-start; display:flex; flex-direction:column; gap:2px}
+#filCard .fil-m.moi{align-self:flex-end; align-items:flex-end}
+#filCard .fil-a{font:700 11.5px/1 "IBM Plex Mono",monospace; color:var(--ink2); padding:0 4px}
+#filCard .fil-b{padding:8px 11px; border-radius:16px 16px 16px 5px; background:var(--surface3); color:var(--ink); font-size:14px; line-height:1.35; white-space:pre-wrap; overflow-wrap:anywhere}
+#filCard .fil-m.moi .fil-b{border-radius:16px 16px 5px 16px; background:var(--in2); color:var(--tx-blanc)}
+#filCard .fil-m.eff .fil-b{background:none; border:1px dashed var(--line); color:var(--muted); font-style:italic}
+#filCard .fil-h{display:flex; align-items:center; gap:8px; padding:0 4px; font-size:11px; color:var(--muted)}
+#filCard .fil-x{border:0; background:none; padding:0; color:var(--muted); font:inherit; font-size:11px; text-decoration:underline; cursor:pointer}
+#filCard .fil-f{display:flex; align-items:flex-end; gap:8px; padding:10px 14px 14px; border-top:1px solid var(--line2)}
+#filCard .fil-f textarea{flex:1 1 auto; min-height:40px; max-height:120px; resize:none; padding:9px 12px; border:1px solid var(--line); border-radius:20px; background:var(--surface2); color:var(--ink); font:inherit; font-size:15px; line-height:1.35}
+#filCard .fil-env{flex:none; display:grid; place-items:center; width:40px; height:40px; border:0; border-radius:50%; background:var(--marque-vif); color:var(--tx-sur-vif); cursor:pointer}
+#filCard .fil-env:disabled{opacity:.5; cursor:default}
+#filCard .fil-err{margin:0 14px 12px; font-size:12.5px; color:var(--tx-rouge-vif2)}
 
 /* — LES SÉLECTEURS À SEGMENTS DE L'IPHONE (le client, le
    03/11/2026 : « applique le même style iPhone aux autres onglets ») : une
@@ -8858,6 +8878,18 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     <div class="card" id="siteCard" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.3.2 4.2 1.8 4.9 4.8"/></svg>Sur site<span class="site-live" aria-hidden="true"></span><span class="site-quand" id="siteQuand"></span></h2><span class="sub" id="siteSub"></span></header>
       <div class="pad" id="siteCorps"></div>
+    </div>
+    <!-- LE FIL DE L'USINE (le client, le 04/11/2026 : « un chat message pro
+         comme cadre dans l'accueil » ; en QCM : « usine seulement ») : un
+         fil commun à tous les comptes validés (base/36-messages.sql). -->
+    <div class="card" id="filCard" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.6A8.5 8.5 0 1 1 21 12z"/></svg>Fil de l'usine</h2><span class="sub" id="filSub">entre collègues · visible de tous les comptes validés</span></header>
+      <div class="fil-l" id="filListe" role="log" aria-live="polite" aria-label="Messages du fil de l'usine"></div>
+      <form class="fil-f" id="filForm" autocomplete="off">
+        <textarea id="filTexte" rows="1" maxlength="1000" placeholder="Écrire au fil de l'usine…" aria-label="Votre message"></textarea>
+        <button type="submit" class="fil-env" id="filEnvoyer" aria-label="Envoyer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      <p class="fil-err" id="filErr" role="status" hidden></p>
     </div>
     </div>
     <!-- L'USINE EN DIRECT (le client, le 01/11/2026 : « représenter l'usine
@@ -9567,6 +9599,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 <li>l’horaire d’équipe, congés et absences compris, et les corrections de la RH ou de la hiérarchie ;</li>
 <li>vos demandes de congé, d’heures supplémentaires ou de flex time et vos fiches de recyclage, avec remplaçants, visas et motifs ;</li>
 <li>si vous activez les notifications : l’adresse d’envoi de votre navigateur, votre trigramme et les messages qui vous sont adressés ;</li>
+<li>les messages du fil de l’usine (Accueil) : votre trigramme, le texte et l’heure ; tout compte validé les lit ; un message effacé perd son texte, l’heure et l’auteur restent ;</li>
 <li>un historique des modifications : avant, après, auteur et heure.</li>
 </ul>
 <p><b>Publié avec l’application</b> : l’horaire d’équipe et les agendas à s’abonner, où chacun n’est désigné que par son trigramme, jamais par son nom.</p>
@@ -22162,6 +22195,76 @@ function wsSiteHTML(){
    monde, sans ouvrir de fiche (c'est un outil de l'espace RH) ; la personne
    de l'appareil est repérée « vous ». Calculée au repos, après le reste de
    l'Accueil, puis chaque minute tant que l'Accueil est à l'écran. */
+/* LE FIL DE L'USINE (le client, le 04/11/2026 : « un chat message pro comme
+   cadre dans l'accueil » ; en QCM : « usine seulement »). Un seul fil,
+   commun à tous les comptes validés, gardé par la base (base/36-messages.sql :
+   lire, écrire sous son trigramme, effacer le sien — la RH, tous). Les
+   cent derniers messages, relus toutes les 30 s tant que l'Accueil est à
+   l'écran ; la dernière liste reste sur l'appareil pour le hors-ligne. */
+var FIL={liste:null, charge:null, absente:false, tic:null, envoi:false};
+function filListe(){ if(FIL.liste==null){ var c=lsGet("ui/fil"); if(c&&c.length!=null) FIL.liste=c; } return FIL.liste||[]; }
+function filMoi(){ var a=st.account||lsGet("account/current")||{}; return String(a.tri||"").toUpperCase(); }
+function filCharger(){
+  if(!compteBase()) return Promise.resolve(null);
+  if(FIL.charge) return FIL.charge;
+  FIL.charge=baseRpc("biowanze_messages",{p_apres:null}).then(function(l){
+    FIL.liste=l||[]; FIL.absente=false; FIL.charge=null; lsSet("ui/fil",FIL.liste); filRendre(); return FIL.liste;
+  }).catch(function(e){
+    /* la fonction absente : base/36 n'est pas encore passée */
+    FIL.absente=/404|PGRST202|could not find/i.test(String(e&&e.message||e)); FIL.charge=null; filRendre(); return null;
+  });
+  return FIL.charge;
+}
+function filRendre(){
+  var c=document.getElementById("filCard"), l=document.getElementById("filListe"); if(!c||!l) return;
+  if(!compteBase() || FIL.absente){ c.hidden=true; return; }
+  c.hidden=false;
+  var m=filListe(), moi=filMoi(), rh=(st.account||lsGet("account/current")||{}).role==="rh", h=[], jour="";
+  var auj=jourUsine(), hier=new Date(auj); hier.setDate(hier.getDate()-1);
+  function cle(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+  if(!m.length) h.push('<p class="fil-vide">Aucun message pour l’instant. Le premier sera lu de toute l’usine.</p>');
+  m.forEach(function(x){
+    var d=new Date(x.cree_le); if(isNaN(d)) return;
+    var k=cle(d);
+    if(k!==jour){ jour=k; h.push('<span class="fil-j">'+(k===cle(auj)?"Aujourd’hui":k===cle(hier)?"Hier":pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+(d.getFullYear()!==auj.getFullYear()?"/"+d.getFullYear():""))+'</span>'); }
+    var mien=String(x.auteur||"").toUpperCase()===moi, eff=!!x.efface;
+    h.push('<div class="fil-m'+(mien?" moi":"")+(eff?" eff":"")+'">'
+      +(mien?"":'<span class="fil-a">'+esc(x.auteur||"?")+'</span>')
+      +'<span class="fil-b">'+(eff?"Message effacé":esc(x.corps))+'</span>'
+      +'<span class="fil-h">'+pad2(d.getHours())+":"+pad2(d.getMinutes())
+      +(!eff&&(mien||rh)?' <button type="button" class="fil-x" data-fil-x="'+esc(String(x.id))+'">Effacer</button>':'')+'</span></div>');
+  });
+  var bas=l.scrollHeight-l.scrollTop-l.clientHeight<40;
+  if(l.__h!==h.join("")){ l.__h=h.join(""); l.innerHTML=l.__h; if(bas||!l.__vu){ l.scrollTop=l.scrollHeight; l.__vu=1; } }
+}
+function filEnvoyer(){
+  var t=document.getElementById("filTexte"), b=document.getElementById("filEnvoyer"), e=document.getElementById("filErr");
+  var v=String(t&&t.value||"").trim(); if(!v || FIL.envoi) return;
+  FIL.envoi=true; if(b) b.disabled=true; if(e) e.hidden=true;
+  baseRpc("biowanze_ecrire_message",{p_corps:v}).then(function(){
+    t.value=""; t.style.height=""; FIL.envoi=false; if(b) b.disabled=false; return filCharger();
+  }).catch(function(er){
+    FIL.envoi=false; if(b) b.disabled=false; if(e){ e.textContent="Message non envoyé : "+baseMsg(er)+"."; e.hidden=false; }
+  });
+}
+function filInit(){
+  var f=document.getElementById("filForm"), t=document.getElementById("filTexte"), l=document.getElementById("filListe");
+  if(!f || f.__init) return; f.__init=1;
+  f.addEventListener("submit",function(ev){ ev.preventDefault(); filEnvoyer(); });
+  /* Entrée envoie, Maj+Entrée va à la ligne ; le champ grandit jusqu'à 5 lignes */
+  t.addEventListener("keydown",function(ev){ if(ev.key==="Enter" && !ev.shiftKey && !ev.isComposing){ ev.preventDefault(); filEnvoyer(); } });
+  t.addEventListener("input",function(){ t.style.height="auto"; t.style.height=Math.min(120,t.scrollHeight)+"px"; });
+  l.addEventListener("click",function(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-fil-x]"); if(!b) return;
+    if(!confirm("Effacer ce message ? Il disparaîtra du fil pour tout le monde.")) return;
+    baseRpc("biowanze_effacer_message",{p_id:Number(b.getAttribute("data-fil-x"))}).then(filCharger).catch(function(er){
+      var e=document.getElementById("filErr"); if(e){ e.textContent="Message non effacé : "+baseMsg(er)+"."; e.hidden=false; } });
+  });
+}
+function filAccueil(){
+  filInit(); filRendre(); filCharger();
+  if(!FIL.tic) FIL.tic=setInterval(function(){ if(st.view==="horaire"&&!document.hidden&&compteBase()) filCharger(); },30000);
+}
 var SITE_TIC=null;
 function renderSiteAccueil(){
   var c=document.getElementById("siteCard"), corps=document.getElementById("siteCorps"); if(!c||!corps) return;
@@ -24446,6 +24549,7 @@ function renderRythme(){
   try{ renderMesDemandes(); }catch(e){}
   try{ renderCentre(db,person); }catch(e){}
   plusTard(function(){ try{ renderSiteAccueil(); }catch(e){} });
+  plusTard(function(){ try{ filAccueil(); }catch(e){} });
   /* « Ma semaine » d'abord, puis l'année et ses pauses d'un seul tenant
      (le client, le 22/10/2026 : « combiner année et mes pauses ») */
   /* « Ma semaine » remplacée par le cycle en cours (le client, le
