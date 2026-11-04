@@ -8517,26 +8517,41 @@ html body #v-horaire .card>header{border-bottom-color:transparent}
 html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; height:24px; padding:4px; border-radius:6px; stroke-width:2.1; box-shadow:var(--ip-relief-petit)}
 
 
-/* — LE FIL DE L'USINE : des bulles comme une messagerie, les miennes à
-   droite à la couleur de la marque, celles des autres à gauche avec leur
-   trigramme ; un séparateur par jour ; le champ et la flèche dessous — */
-#filCard .fil-l{display:flex; flex-direction:column; gap:6px; max-height:340px; overflow-y:auto; padding:4px 14px 10px; overscroll-behavior:contain}
-#filCard .fil-vide{margin:8px 0; font-size:13px; color:var(--muted); text-align:center}
-#filCard .fil-j{align-self:center; margin:6px 0 2px; font-size:11.5px; font-weight:600; color:var(--muted)}
-#filCard .fil-m{max-width:86%; align-self:flex-start; display:flex; align-items:flex-start; gap:8px}
-#filCard .fil-m.suite{margin-top:-2px}
-#filCard .fil-m.moi{align-self:flex-end; justify-content:flex-end}
-#filCard .fil-c{display:flex; flex-direction:column; gap:3px; min-width:0}
-#filCard .fil-m.moi .fil-c{align-items:flex-end}
-/* le rond au trigramme, à la matière des icônes de l'écran d'iPhone */
-#filCard .fil-av{flex:none; display:grid; place-items:center; width:32px; height:32px; border-radius:50%; background:var(--surface3);
+/* — LES MESSAGES, regroupés comme sur Discord (le client, le 04/11/2026 :
+   « si c'est le même utilisateur qui envoie deux messages, il ne faut pas
+   tout remettre mais regrouper comme sur Discord ») : une série d'un même
+   auteur (moins de 7 min entre deux messages, le même jour) n'a qu'un
+   en-tête, le rond et le trigramme puis l'heure ; les lignes suivantes, le
+   texte seul. L'heure d'une ligne et « Effacer » viennent au survol, au
+   focus, ou d'un toucher (.ouvert). Tout le monde à gauche, comme Discord :
+   les miens se reconnaissent au rond à la couleur de la marque. — */
+#filCard .fil-l{display:flex; flex-direction:column; max-height:360px; overflow-y:auto; padding:2px 0 10px; overscroll-behavior:contain}
+#filCard .fil-vide{margin:10px 14px; font-size:13px; color:var(--muted); text-align:center}
+#filCard .fil-j{display:flex; align-items:center; gap:10px; margin:10px 14px 2px; font-size:11.5px; font-weight:600; color:var(--muted)}
+#filCard .fil-j::before,#filCard .fil-j::after{content:""; flex:1 1 auto; height:1px; background:var(--line2)}
+#filCard .fil-m{position:relative; padding:2px 14px 2px 60px}
+#filCard .fil-m.prem{margin-top:10px; min-height:40px}
+#filCard .fil-m.ouvert,#filCard .fil-m:focus-visible{background:var(--surface2)}
+#filCard .fil-av{position:absolute; left:14px; top:4px; display:grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--surface3);
   box-shadow:inset 0 0 0 1px var(--line); font:700 10.5px/1 "IBM Plex Mono",monospace; letter-spacing:-.02em; color:var(--ink)}
-#filCard .fil-m.suite .fil-av{background:none; box-shadow:none}
-#filCard .fil-b{padding:8px 11px; border-radius:16px 16px 16px 5px; background:var(--surface3); color:var(--ink); font-size:14px; line-height:1.35; white-space:pre-wrap; overflow-wrap:anywhere}
-#filCard .fil-m.moi .fil-b{border-radius:16px 16px 5px 16px; background:var(--in2); color:var(--tx-blanc)}
-#filCard .fil-m.eff .fil-b{background:none; border:1px dashed var(--line); color:var(--muted); font-style:italic}
-#filCard .fil-h{display:flex; align-items:center; gap:8px; padding:0 4px; font-size:11.5px; color:var(--muted)}
-#filCard .fil-h b{font:700 11.5px/1 "IBM Plex Mono",monospace; color:var(--ink2)}
+#filCard .fil-m.moi .fil-av{background:var(--in2); box-shadow:none; color:var(--tx-blanc)}
+#filCard .fil-t{display:flex; align-items:baseline; gap:8px; margin-bottom:1px}
+#filCard .fil-n{font:700 13px/1.3 "IBM Plex Mono",monospace; color:var(--ink)}
+#filCard .fil-t time,#filCard .fil-o time{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+#filCard .fil-b{display:block; color:var(--ink); font-size:15px; line-height:1.4; white-space:pre-wrap; overflow-wrap:anywhere}
+#filCard .fil-m.eff .fil-b{color:var(--muted); font-style:italic}
+/* l'heure et « Effacer » d'une ligne : une petite barre posée en haut à
+   droite, comme sur Discord, sans pousser le texte. Le survol n'existe
+   qu'à la souris : au téléphone, Chrome prenait le second toucher pour un
+   survol et ne refermait pas la ligne (mesuré le 04/11/2026). */
+#filCard .fil-o{position:absolute; z-index:1; right:10px; top:-13px; display:none; align-items:center; gap:10px; padding:3px 10px; white-space:nowrap; font-style:normal;
+  background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.35)}
+#filCard .fil-m.prem .fil-o{top:2px}
+#filCard .fil-m.ouvert .fil-o,#filCard .fil-m:focus-within .fil-o{display:flex}
+@media (hover:hover){
+  #filCard .fil-m:hover{background:var(--surface2)}
+  #filCard .fil-m:hover .fil-o{display:flex}
+}
 #filCard .fil-x{border:0; background:none; padding:2px 0; color:var(--muted); font:inherit; font-size:11.5px; cursor:pointer}
 #filCard .fil-x:hover,#filCard .fil-x:focus-visible{color:var(--ink); text-decoration:underline}
 #filCard .fil-f{display:flex; align-items:flex-end; gap:8px; padding:10px 14px 14px; border-top:1px solid var(--line2)}
@@ -8887,14 +8902,16 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.3.2 4.2 1.8 4.9 4.8"/></svg>Sur site<span class="site-live" aria-hidden="true"></span><span class="site-quand" id="siteQuand"></span></h2><span class="sub" id="siteSub"></span></header>
       <div class="pad" id="siteCorps"></div>
     </div>
-    <!-- LE FIL DE L'USINE (le client, le 04/11/2026 : « un chat message pro
+    <!-- LES MESSAGES (le client, le 04/11/2026 : « un chat message pro
          comme cadre dans l'accueil » ; en QCM : « usine seulement ») : un
-         fil commun à tous les comptes validés (base/36-messages.sql). -->
+         fil commun à tous les comptes validés (base/36-messages.sql). Nommé
+         « Messages », sans sous-titre (le client, le même jour : « ne pas
+         l'appeler fil de l'usine »). -->
     <div class="card" id="filCard" hidden>
-      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.6A8.5 8.5 0 1 1 21 12z"/></svg>Fil de l'usine</h2><span class="sub" id="filSub">toute l’usine · comptes validés</span></header>
-      <div class="fil-l" id="filListe" role="log" aria-live="polite" aria-label="Messages du fil de l'usine"></div>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.6A8.5 8.5 0 1 1 21 12z"/></svg>Messages</h2></header>
+      <div class="fil-l" id="filListe" role="log" aria-live="polite" aria-label="Messages"></div>
       <form class="fil-f" id="filForm" autocomplete="off">
-        <textarea id="filTexte" rows="1" maxlength="1000" placeholder="Écrire au fil de l'usine…" aria-label="Votre message"></textarea>
+        <textarea id="filTexte" rows="1" maxlength="1000" placeholder="Écrire un message…" aria-label="Votre message"></textarea>
         <span class="fil-nb" id="filNb" aria-live="polite" hidden></span>
         <button type="submit" class="fil-env" id="filEnvoyer" aria-label="Envoyer" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       </form>
@@ -9608,7 +9625,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 <li>l’horaire d’équipe, congés et absences compris, et les corrections de la RH ou de la hiérarchie ;</li>
 <li>vos demandes de congé, d’heures supplémentaires ou de flex time et vos fiches de recyclage, avec remplaçants, visas et motifs ;</li>
 <li>si vous activez les notifications : l’adresse d’envoi de votre navigateur, votre trigramme et les messages qui vous sont adressés ;</li>
-<li>les messages du fil de l’usine (Accueil) : votre trigramme, le texte et l’heure ; tout compte validé les lit ; un message effacé perd son texte, l’heure et l’auteur restent ;</li>
+<li>les messages (cadre « Messages » de l’Accueil) : votre trigramme, le texte et l’heure ; tout compte validé les lit ; un message effacé perd son texte, l’heure et l’auteur restent ;</li>
 <li>un historique des modifications : avant, après, auteur et heure.</li>
 </ul>
 <p><b>Publié avec l’application</b> : l’horaire d’équipe et les agendas à s’abonner, où chacun n’est désigné que par son trigramme, jamais par son nom.</p>
@@ -22208,8 +22225,9 @@ function wsSiteHTML(){
    monde, sans ouvrir de fiche (c'est un outil de l'espace RH) ; la personne
    de l'appareil est repérée « vous ». Calculée au repos, après le reste de
    l'Accueil, puis chaque minute tant que l'Accueil est à l'écran. */
-/* LE FIL DE L'USINE (le client, le 04/11/2026 : « un chat message pro comme
-   cadre dans l'accueil » ; en QCM : « usine seulement »). Un seul fil,
+/* LES MESSAGES (le client, le 04/11/2026 : « un chat message pro comme
+   cadre dans l'accueil » ; en QCM : « usine seulement » ; nommé
+   « Messages », sans sous-titre, le même jour). Un seul fil,
    commun à tous les comptes validés, gardé par la base (base/36-messages.sql :
    lire, écrire sous son trigramme, effacer le sien — la RH, tous). Les
    cent derniers messages, relus toutes les 30 s tant que l'Accueil est à
@@ -22238,25 +22256,24 @@ function filRendre(){
      « 04/11 » (le client, le 04/11/2026, capture à l'appui) */
   var auj=new Date(), hier=new Date(auj); hier.setDate(hier.getDate()-1);
   function cle(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
-  if(!m.length) h.push('<p class="fil-vide">Aucun message pour l’instant. Le premier sera lu de toute l’usine.</p>');
+  if(!m.length) h.push('<p class="fil-vide">Aucun message pour l’instant.</p>');
   m.forEach(function(x){
     var d=new Date(x.cree_le); if(isNaN(d)) return;
     var k=cle(d);
     if(k!==jour){ jour=k; prec=null; h.push('<span class="fil-j">'+(k===cle(auj)?"Aujourd’hui":k===cle(hier)?"Hier":pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+(d.getFullYear()!==auj.getFullYear()?"/"+d.getFullYear():""))+'</span>'); }
     var aut=String(x.auteur||"?").toUpperCase(), mien=aut===moi, eff=!!x.efface;
-    /* Qui écrit se lit toujours (le client : « voit-on le trigramme de celui
-       qui écrit ? ») : les autres, un rond à leur trigramme devant la
-       première bulle d'une série (même auteur, moins de dix minutes) ;
-       les miennes, mon trigramme sous la bulle, comme chacun le lit */
-    var suite=prec && prec.a===aut && (d-prec.d)<600000; prec={a:aut, d:d};
-    var hh=pad2(d.getHours())+":"+pad2(d.getMinutes());
-    h.push('<div class="fil-m'+(mien?" moi":"")+(eff?" eff":"")+(suite?" suite":"")+'">'
-      +(mien?"":'<span class="fil-av" aria-hidden="true">'+(suite?"":esc(aut))+'</span>')
-      +'<div class="fil-c">'
-      +'<span class="fil-b"><span class="sr-only">'+esc(aut)+' : </span>'+(eff?"Message effacé":esc(x.corps))+'</span>'
-      +'<span class="fil-h">'+(mien?'<b>'+esc(aut)+'</b> · ':'')+'<time datetime="'+esc(String(x.cree_le))+'" title="'+esc(d.toLocaleString("fr-BE"))+'">'+hh+'</time>'
-      +(!eff&&(mien||rh)?'<button type="button" class="fil-x" data-fil-x="'+esc(String(x.id))+'" aria-label="Effacer ce message">Effacer</button>':'')+'</span>'
-      +'</div></div>');
+    /* Regroupé comme sur Discord (le client, le 04/11/2026) : la première
+       ligne d'une série porte le rond, le trigramme et l'heure ; les
+       suivantes (même auteur, moins de 7 min depuis la précédente), le
+       texte seul, leur heure au survol ou d'un toucher */
+    var suite=!!(prec && prec.a===aut && (d-prec.d)<420000); prec={a:aut, d:d};
+    var hh='<time datetime="'+esc(String(x.cree_le))+'" title="'+esc(d.toLocaleString("fr-BE"))+'">'+pad2(d.getHours())+":"+pad2(d.getMinutes())+'</time>';
+    var peut=!eff&&(mien||rh);
+    var opt=(suite?hh:"")+(peut?'<button type="button" class="fil-x" data-fil-x="'+esc(String(x.id))+'" aria-label="Effacer ce message">Effacer</button>':'');
+    h.push('<div class="fil-m'+(suite?"":" prem")+(mien?" moi":"")+(eff?" eff":"")+'"'+(peut?' tabindex="0"':'')+'>'
+      +(suite?"":'<span class="fil-av" aria-hidden="true">'+esc(aut)+'</span><div class="fil-t"><b class="fil-n">'+esc(aut)+'</b>'+hh+'</div>')
+      +'<span class="fil-b">'+(eff?"Message effacé":esc(x.corps))+(opt?'<span class="fil-o">'+opt+'</span>':'')+'</span>'
+      +'</div>');
   });
   var bas=l.scrollHeight-l.scrollTop-l.clientHeight<40;
   if(l.__h!==h.join("")){ l.__h=h.join(""); l.innerHTML=l.__h; if(bas||!l.__vu){ l.scrollTop=l.scrollHeight; l.__vu=1; } }
@@ -22288,8 +22305,14 @@ function filInit(){
   t.addEventListener("input",function(){ t.style.height="auto"; t.style.height=Math.min(120,t.scrollHeight)+"px"; filChamp(); });
   filChamp();
   l.addEventListener("click",function(ev){
-    var b=ev.target.closest&&ev.target.closest("[data-fil-x]"); if(!b) return;
-    if(!confirm("Effacer ce message ? Il disparaîtra du fil pour tout le monde.")) return;
+    var b=ev.target.closest&&ev.target.closest("[data-fil-x]");
+    if(!b){
+      /* au téléphone, pas de survol : un toucher ouvre la ligne, un autre la referme */
+      var r=ev.target.closest&&ev.target.closest(".fil-m"); if(!r) return;
+      var o=l.querySelector(".fil-m.ouvert"); if(o&&o!==r) o.classList.remove("ouvert");
+      if(!r.classList.toggle("ouvert") && r.blur) r.blur(); return;
+    }
+    if(!confirm("Effacer ce message ? Il disparaîtra pour tout le monde.")) return;
     baseRpc("biowanze_effacer_message",{p_id:Number(b.getAttribute("data-fil-x"))}).then(filCharger).catch(function(er){
       var e=document.getElementById("filErr"); if(e){ e.textContent="Message non effacé : "+baseMsg(er)+"."; e.hidden=false; } });
   });

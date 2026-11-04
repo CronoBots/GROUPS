@@ -696,3 +696,54 @@ du calendrier : `new Date()`.
 
 Parcours : 112 essais, 0 faute. Garde-fou : 0, après une reformulation (un
 commentaire en capitales avait la forme « Nom, Prénom »).
+
+### « Messages », regroupés comme sur Discord (04/11/2026, `nfdm-v1359`)
+
+Le client, sur la v1358 : « ne pas l'appeler fil de l'usine, et supprimer
+“toute l'usine · comptes validés” ; si c'est le même utilisateur qui envoie
+deux messages, il ne faut pas tout remettre mais regrouper comme sur
+Discord ».
+
+**Choisi seul (question de goût), à corriger s'il le veut.**
+- Le nom : « Messages », sans sous-titre. C'est le nom de l'app de l'iPhone,
+  dans le style de l'écran.
+- La mise en page de Discord, entière : tout le monde à gauche, sans bulles.
+  Les bulles de la v1358 (les miens à droite, un rond vide devant les suites)
+  répétaient l'heure et « Effacer » sous chaque message : c'est précisément
+  ce que le client ne voulait plus. Les miens se reconnaissent à leur rond,
+  à la couleur de la marque.
+
+**La règle de regroupement, celle de Discord.** Une série regroupe les
+messages d'un même auteur, le même jour du calendrier, à moins de 7 minutes
+du précédent (la v1358 avait 10 minutes).
+- La première ligne d'une série porte le rond, le trigramme et l'heure.
+- Les suivantes : le texte seul.
+- Un séparateur de jour, avec un filet de part et d'autre, coupe toujours
+  une série.
+
+**L'heure d'une ligne et « Effacer ».** Elles apparaissent dans une petite
+barre posée en haut à droite de la ligne, comme sur Discord, sans pousser le
+texte. On les fait venir :
+- à la souris : au survol ;
+- au clavier : la ligne qu'on peut effacer prend le focus ;
+- au téléphone : un toucher ouvre la ligne, un autre la referme.
+
+**Deux défauts mesurés et corrigés avant le commit.**
+- L'heure posée au bout du texte faisait passer « Effacer » à la ligne : la
+  ligne passait de 25 à 46 px au toucher. C'est réglé par la barre posée par-dessus.
+- Le survol, au téléphone : Chrome ne changeait plus rien au second toucher.
+  Le survol est désormais réservé aux appareils qui en ont
+  (`@media (hover:hover)`).
+- Le simulateur, lui, prend encore deux touchers AU MÊME PIXEL pour un
+  double toucher et ne rend pas le clic. Un second toucher décalé de 40 px
+  referme bien la ligne. Ce n'est pas un défaut de la page.
+
+**Éprouvé au navigateur** (base simulée, horloge à 03:10, 320, 390 et
+1280 px) :
+- 7 messages en 5 séries : ATR 21:40 (deux lignes), ATR 21:55 (13 min
+  après : une nouvelle série), GDT effacé, VBN 03:08 (deux lignes, puis le
+  message envoyé à 03:10 qui rejoint la série) ;
+- titre « Messages », aucun sous-titre ;
+- aucun débordement, aucune erreur de page.
+
+Parcours : 112 essais, 0 faute. Garde-fou : 0.
