@@ -11407,3 +11407,46 @@ téléphone).
 Mesuré : 12 mois en gras à 320, 390 et 1280 px, et aucune lettre ne déborde
 de sa colonne (34 px au téléphone, 44 au PC). Parcours : 112 essais,
 0 faute.
+
+### Au PC, le profil en tête du menu (04/11/2026, `nfdm-v1360`)
+
+Le client, photo de son écran à l'appui, le doigt sur le haut du menu
+(logo, « VBN », « Mardi 3 novembre · Contremaître · N · jusqu'à 6 h ») :
+« sur PC, il faut que le cadre avec la bannière et le pseudo prenne la place
+de ce qui est présent tout au-dessus de la barre de menu ».
+
+**Un seul exemplaire, déplacé.** Le widget du profil de l'Accueil
+(couverture, roue, cloche, cercle au trigramme, poste et statut) n'est pas
+recopié : `profilAuMenu()` le déplace dans `#sideProf`, en tête du menu,
+et la marque (`.brand`) se retire.
+- Il reste là d'un onglet à l'autre : l'Accueil se dessine au démarrage,
+  quel que soit l'onglet ouvert.
+- Sous 1 100 px, il revient à sa place dans l'Accueil.
+- `profilAuMenu()` est rappelée à chaque rendu de l'Accueil et quand la
+  fenêtre passe le seuil.
+- La cloche des notifications (`majBadgeNotif`) cherche le widget dans le
+  menu d'abord.
+- Sans personne choisie, la place se vide et la marque revient.
+
+**Le style.** C'est le même widget, à la largeur du menu (200 px) :
+- la couverture fait 96 px de haut ;
+- le cercle (68 px) est centré, à cheval sur la couverture ;
+- le poste et le statut sont centrés dessous.
+
+**Un défaut mesuré et corrigé.** La place du profil dans la grille de
+l'Accueil restait vide, soit 100 px au-dessus de l'heure. La grille se
+referme désormais (`.sans-prof`) : l'heure, le prochain poste et les accès
+montent.
+
+**Ce qui part avec la marque.** La date et le poste du jour (« Mardi
+3 novembre · Contremaître · N · jusqu'à 6 h ») ne sont plus dans le menu au
+PC : le widget de l'heure les donne dans l'Accueil, et le prochain poste
+aussi. La marque reste au téléphone et à la tablette.
+
+**Éprouvé au navigateur**, à 1280 et 1440 px :
+- le profil est dans le menu, la marque est cachée ;
+- il y reste sur un autre onglet ;
+- il revient dans l'Accueil à 900 px, puis repart dans le menu à 1280 px ;
+- aucune erreur de page.
+
+Parcours : 112 essais, 0 faute.

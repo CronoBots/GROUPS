@@ -747,3 +747,50 @@ texte. On les fait venir :
 - aucun débordement, aucune erreur de page.
 
 Parcours : 112 essais, 0 faute. Garde-fou : 0.
+
+### Un message effacé ne laisse pas de trace ; « Effacer » en fin de ligne (04/11/2026, `nfdm-v1360`, `base/37`)
+
+Le client, sur la v1359 : « les messages effacés ne doivent pas laisser de
+traces », puis « l'effacer ne doit pas être dans une bulle à part, mais en
+fin de ligne ».
+
+**Ce que faisait la base, mesuré en relisant `base/36`.** Effacer posait
+`efface_le` et `efface_par`, mais la ligne restait entière, avec son texte :
+seule la lecture le masquait, et le fil affichait « Message effacé » à la
+place. La v1355 disait donc vrai à l'écran (« le texte disparaît du fil »),
+mais pas dans la base, où le texte restait.
+
+**`base/37-messages-effaces.sql`.**
+- Effacer supprime la ligne (`delete`). L'auteur peut effacer son message,
+  la RH n'importe lequel.
+- Les messages déjà effacés sont supprimés.
+- La lecture ne rend plus que les messages vivants. La colonne `efface`
+  reste, toujours fausse : la page déjà installée garde le même appel.
+- Les colonnes `efface_le` et `efface_par` restent, vides : les retirer
+  serait un `drop` de plus, sans rien gagner.
+
+Une seule trace demeure : la sauvegarde quotidienne chiffrée (`base/22`),
+qui garde trente jours. La page « Vos données » le dit.
+
+La migration contient un `delete` : elle est donnée au client pour
+l'éditeur SQL (CLAUDE.md, « Une migration de la base »).
+
+**La page, dès la v1360, sans attendre la base.**
+- Un message effacé n'est jamais montré, même si la base le rend encore.
+- Il disparaît de l'écran dès que la base a répondu, sans attendre la
+  relecture suivante du fil.
+- « Message effacé » et son style sont retirés.
+
+**« Effacer » en fin de ligne.** L'heure d'une ligne et « Effacer » ne sont
+plus dans une petite barre flottante : ils suivent le texte, alignés à
+droite (`float:right`).
+- Ligne courte : sur la même ligne (« Troisième. ··· 03:10 Effacer »). La
+  ligne passe de 25 à 27 px.
+- Ligne pleine : juste en dessous, toujours à droite (25 à 48 px). C'est
+  la place que prend une fin de ligne, et le client l'a demandée ainsi.
+
+**Éprouvé au navigateur** (390 px, base simulée) :
+- un message effacé envoyé par la base n'apparaît pas : cinq lignes sur six ;
+- « Effacer » se place sur la ligne ou dessous, toujours à droite.
+
+Parcours : 112 essais, 0 faute. Garde-fou : 0.

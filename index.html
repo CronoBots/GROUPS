@@ -8436,7 +8436,7 @@ html body #pfRac .ctl-t>.plus-nb+.plus-nb{left:auto; right:calc(50% + var(--ip-t
 
 /* — LE HÉROS N'EST PLUS UN CADRE : ses morceaux sont des widgets — */
 html body #rythmeTete .pf-hero{display:flex; flex-direction:column; gap:var(--ip-ecart)}
-html body .pf-hero .pf-wprof,html body .pf-hero>.pf-mt,html body .pf-hero .pf-bloc,html body .pf-hero .pf-corps>#ryAn,html body .pf-hero .pf-pv{
+html body .pf-hero .pf-wprof,html body #sideProf .pf-wprof,html body .pf-hero>.pf-mt,html body .pf-hero .pf-bloc,html body .pf-hero .pf-corps>#ryAn,html body .pf-hero .pf-pv{
   background:var(--surface); border:1px solid var(--cadre); border-radius:var(--rj); box-shadow:inset 0 1px 0 var(--bd-blanc-07), var(--ombre-cadre)}
 /* deux widgets gardent leur teinte : le prochain poste, la carte qui
    ressort (le cyan validé le 03/11/2026, v1332), et la pointeuse, son ambre
@@ -8445,8 +8445,29 @@ html body .pf-hero .pf-wprof,html body .pf-hero>.pf-mt,html body .pf-hero .pf-bl
 html body .pf-hero .pf-bloc{background:color-mix(in srgb,var(--in) 10%,var(--surface)); border-color:color-mix(in srgb,var(--in) 30%,transparent)}
 html body .pf-hero .pf-pointe{box-shadow:var(--ombre-cadre)}
 /* le profil : la couverture en tête du widget, le cercle à cheval */
-html body .pf-hero .pf-wprof{position:relative; overflow:hidden; padding-bottom:14px}
-html body .pf-hero .pf-wprof .pf-prof{flex-wrap:nowrap}
+html body .pf-hero .pf-wprof,html body #sideProf .pf-wprof{position:relative; overflow:hidden; padding-bottom:14px}
+html body .pf-hero .pf-wprof .pf-prof,html body #sideProf .pf-wprof .pf-prof{flex-wrap:nowrap}
+/* — EN TÊTE DU MENU DU PC (le client, le 04/11/2026) : le même widget, à
+   la largeur du menu (216 px) ; la couverture plus basse, le cercle centré
+   à cheval, le poste et le statut dessous, centrés. La marque (logo,
+   trigramme, jour) se retire tant qu'il est là. — */
+@media (min-width:1100px){
+  html .top.a-prof .brand{display:none}
+  html .top.a-prof>.top-in{padding-bottom:12px}
+  html body #sideProf{margin:0; flex:1 1 100%; width:100%; min-width:0; box-sizing:border-box}
+  html body #sideProf .pf-couv{aspect-ratio:auto; height:96px; min-height:0; background-position:100% 100%}
+  html body #sideProf .pf-roue{top:8px; right:8px; width:34px; height:34px}
+  html body #sideProf .pf-roue svg{width:18px; height:18px}
+  html body #sideProf .pf-notif{top:8px; left:8px; height:34px}
+  html body #sideProf .pf-prof{flex-direction:column; align-items:center; gap:6px; padding:0 10px; margin-top:-34px; text-align:center}
+  html body #sideProf .pf-av{width:68px; height:68px; font-size:21px}
+  html body #sideProf .pf-prof .pf-hmeta{padding-top:0; align-items:center; max-width:100%}
+  html body #sideProf .pf-prof .pf-poste{justify-content:center; flex-wrap:wrap; font-size:16px}
+  html body #sideProf .pf-wprof{padding-bottom:12px}
+  /* l'Accueil sans le profil : sa place dans la grille se referme (un vide
+     de 100 px restait au-dessus de l'heure, mesuré le 04/11/2026) */
+  html body #rythmeTete .pf-hero.sans-prof{grid-template-areas:"mt cyc" "gau cyc" "pv cyc"}
+}
 /* l'heure et la météo */
 html body .pf-hero>.pf-mt{display:flex; flex:none; align-items:center; justify-content:space-between; gap:12px; min-width:0; box-sizing:border-box; margin:0; padding:16px 18px; color:var(--tx-blanc)}
 html body .pf-hero>.pf-mt .pf-mt-hh,html body .pf-hero>.pf-mt .pf-mt-c{font-size:30px}
@@ -8538,15 +8559,13 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
 #filCard .fil-t{display:flex; align-items:baseline; gap:8px; margin-bottom:1px}
 #filCard .fil-n{font:700 13px/1.3 "IBM Plex Mono",monospace; color:var(--ink)}
 #filCard .fil-t time,#filCard .fil-o time{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
-#filCard .fil-b{display:block; color:var(--ink); font-size:15px; line-height:1.4; white-space:pre-wrap; overflow-wrap:anywhere}
-#filCard .fil-m.eff .fil-b{color:var(--muted); font-style:italic}
-/* l'heure et « Effacer » d'une ligne : une petite barre posée en haut à
-   droite, comme sur Discord, sans pousser le texte. Le survol n'existe
-   qu'à la souris : au téléphone, Chrome prenait le second toucher pour un
-   survol et ne refermait pas la ligne (mesuré le 04/11/2026). */
-#filCard .fil-o{position:absolute; z-index:1; right:10px; top:-13px; display:none; align-items:center; gap:10px; padding:3px 10px; white-space:nowrap; font-style:normal;
-  background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.35)}
-#filCard .fil-m.prem .fil-o{top:2px}
+#filCard .fil-b{display:flow-root; color:var(--ink); font-size:15px; line-height:1.4; white-space:pre-wrap; overflow-wrap:anywhere}
+/* l'heure et « Effacer » d'une ligne : en FIN DE LIGNE, à la suite du
+   texte, sans bulle à part (le client, le 04/11/2026 : « l'effacer ne doit
+   pas être dans une bulle à part, mais en fin de ligne »). Le survol
+   n'existe qu'à la souris : au téléphone, Chrome prenait le second toucher
+   pour un survol et ne refermait pas la ligne (mesuré le 04/11/2026). */
+#filCard .fil-o{display:none; float:right; align-items:baseline; gap:8px; margin:3px 0 0 12px; white-space:nowrap; font-style:normal; line-height:1.4}
 #filCard .fil-m.ouvert .fil-o,#filCard .fil-m:focus-within .fil-o{display:flex}
 @media (hover:hover){
   #filCard .fil-m:hover{background:var(--surface2)}
@@ -8714,6 +8733,12 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 
 <header class="top">
   <div class="top-in">
+    <!-- LE PROFIL EN TÊTE DU MENU, AU PC (le client, le 04/11/2026 : « sur
+         PC, il faut que le cadre avec la bannière et le pseudo prenne la
+         place de ce qui est présent tout au-dessus de la barre de menu ») :
+         profilAuMenu() y pose le widget du profil de l'Accueil, un seul
+         exemplaire, et la marque se retire. -->
+    <div class="side-prof" id="sideProf" hidden></div>
     <!-- Le nom du bouton contient ce qu'il montre (trigramme, date, poste),
          précédé de ce qu'il fait ; le titre de la page n'est plus DANS un
          bouton, il est en tête du contenu (audit du 23/10/2026) -->
@@ -9625,7 +9650,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 <li>l’horaire d’équipe, congés et absences compris, et les corrections de la RH ou de la hiérarchie ;</li>
 <li>vos demandes de congé, d’heures supplémentaires ou de flex time et vos fiches de recyclage, avec remplaçants, visas et motifs ;</li>
 <li>si vous activez les notifications : l’adresse d’envoi de votre navigateur, votre trigramme et les messages qui vous sont adressés ;</li>
-<li>les messages (cadre « Messages » de l’Accueil) : votre trigramme, le texte et l’heure ; tout compte validé les lit ; un message effacé perd son texte, l’heure et l’auteur restent ;</li>
+<li>les messages (cadre « Messages » de l’Accueil) : votre trigramme, le texte et l’heure ; tout compte validé les lit ; un message effacé est supprimé de la base, sans laisser de trace (seule la sauvegarde chiffrée de la base le garde, au plus trente jours) ;</li>
 <li>un historique des modifications : avant, après, auteur et heure.</li>
 </ul>
 <p><b>Publié avec l’application</b> : l’horaire d’équipe et les agendas à s’abonner, où chacun n’est désigné que par son trigramme, jamais par son nom.</p>
@@ -17442,10 +17467,36 @@ function majBadgeNotif(){
   if(!NOTIF_NB) return;
   /* la roue vit dans le widget du profil depuis le 03/11/2026 : insérer
      dans le héros, avant un nœud qui n'en est plus l'enfant, levait une
-     erreur qui emportait aussi le cadre « Horaire modifié » (revue) */
-  var r=h.querySelector(".pf-roue"), w=document.createElement("div"); w.innerHTML=badgeNotifHTML();
-  if(r&&r.parentNode) r.parentNode.insertBefore(w.firstChild,r.nextSibling); else (h.querySelector(".pf-wprof")||h).appendChild(w.firstChild);
+     erreur qui emportait aussi le cadre « Horaire modifié » (revue). Au PC,
+     le widget est en tête du menu depuis le 04/11/2026 : on le cherche là
+     d'abord (profilAuMenu). */
+  var wp=document.querySelector("#sideProf .pf-wprof")||h.querySelector(".pf-wprof");
+  var r=wp&&wp.querySelector(".pf-roue"), w=document.createElement("div"); w.innerHTML=badgeNotifHTML();
+  if(r&&r.parentNode) r.parentNode.insertBefore(w.firstChild,r.nextSibling); else (wp||h).appendChild(w.firstChild);
 }
+/* LE PROFIL EN TÊTE DU MENU, AU PC (le client, le 04/11/2026 : « sur PC,
+   il faut que le cadre avec la bannière et le pseudo prenne la place de ce
+   qui est présent tout au-dessus de la barre de menu »). Le widget du
+   profil de l'Accueil (couverture, roue, cloche, cercle, poste) n'existe
+   qu'une fois : au PC, il quitte l'Accueil pour le haut du menu, où il
+   reste d'un onglet à l'autre, et la marque se retire ; sous 1 100 px, il
+   revient à sa place dans l'Accueil. Rappelé à chaque rendu de l'Accueil
+   et quand la fenêtre passe le seuil. */
+function profilAuMenu(){
+  var slot=document.getElementById("sideProf"); if(!slot) return;
+  var pc=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
+  var tete=document.getElementById("rythmeTete"), hero=tete&&!tete.hidden?tete.querySelector(".pf-hero"):null;
+  var dansHero=hero?hero.querySelector(".pf-wprof"):null, dansMenu=slot.querySelector(".pf-wprof");
+  if(!hero) slot.innerHTML="";
+  else if(pc){ if(dansHero){ slot.innerHTML=""; slot.appendChild(dansHero); } }
+  else if(dansMenu && !dansHero){ var t=hero.querySelector("h2"); hero.insertBefore(dansMenu,t?t.nextSibling:hero.firstChild); }
+  if(!pc) slot.innerHTML="";
+  var a=pc && !!slot.querySelector(".pf-wprof"), top=slot.parentNode&&slot.parentNode.parentNode;
+  slot.hidden=!a; if(top&&top.classList) top.classList.toggle("a-prof",a);
+  if(hero) hero.classList.toggle("sans-prof",a);
+}
+(function(){ var m=window.matchMedia&&matchMedia("(min-width:1100px)"); if(!m) return;
+  if(m.addEventListener) m.addEventListener("change",profilAuMenu); else if(m.addListener) m.addListener(profilAuMenu); })();
 var notifRetour=null;
 function ouvrirNotif(){
   var ov=document.getElementById("notifOv"); if(!ov||!NOTIF_NB) return;
@@ -22233,13 +22284,15 @@ function wsSiteHTML(){
    cent derniers messages, relus toutes les 30 s tant que l'Accueil est à
    l'écran ; la dernière liste reste sur l'appareil pour le hors-ligne. */
 var FIL={liste:null, charge:null, absente:false, tic:null, envoi:false};
-function filListe(){ if(FIL.liste==null){ var c=lsGet("ui/fil"); if(c&&c.length!=null) FIL.liste=c; } return FIL.liste||[]; }
+/* un message effacé ne laisse pas de trace (le client, le 04/11/2026) : il
+   n'est jamais montré, même si la base (avant base/37) le rend encore */
+function filListe(){ if(FIL.liste==null){ var c=lsGet("ui/fil"); if(c&&c.length!=null) FIL.liste=c; } return (FIL.liste||[]).filter(function(x){ return x && !x.efface; }); }
 function filMoi(){ var a=st.account||lsGet("account/current")||{}; return String(a.tri||"").toUpperCase(); }
 function filCharger(){
   if(!compteBase()) return Promise.resolve(null);
   if(FIL.charge) return FIL.charge;
   FIL.charge=baseRpc("biowanze_messages",{p_apres:null}).then(function(l){
-    FIL.liste=l||[]; FIL.absente=false; FIL.charge=null; lsSet("ui/fil",FIL.liste); filRendre(); return FIL.liste;
+    FIL.liste=(l||[]).filter(function(x){ return x && !x.efface; }); FIL.absente=false; FIL.charge=null; lsSet("ui/fil",FIL.liste); filRendre(); return FIL.liste;
   }).catch(function(e){
     /* la fonction absente : base/36 n'est pas encore passée */
     FIL.absente=/404|PGRST202|could not find/i.test(String(e&&e.message||e)); FIL.charge=null; filRendre(); return null;
@@ -22261,18 +22314,18 @@ function filRendre(){
     var d=new Date(x.cree_le); if(isNaN(d)) return;
     var k=cle(d);
     if(k!==jour){ jour=k; prec=null; h.push('<span class="fil-j">'+(k===cle(auj)?"Aujourd’hui":k===cle(hier)?"Hier":pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+(d.getFullYear()!==auj.getFullYear()?"/"+d.getFullYear():""))+'</span>'); }
-    var aut=String(x.auteur||"?").toUpperCase(), mien=aut===moi, eff=!!x.efface;
+    var aut=String(x.auteur||"?").toUpperCase(), mien=aut===moi;
     /* Regroupé comme sur Discord (le client, le 04/11/2026) : la première
        ligne d'une série porte le rond, le trigramme et l'heure ; les
        suivantes (même auteur, moins de 7 min depuis la précédente), le
        texte seul, leur heure au survol ou d'un toucher */
     var suite=!!(prec && prec.a===aut && (d-prec.d)<420000); prec={a:aut, d:d};
     var hh='<time datetime="'+esc(String(x.cree_le))+'" title="'+esc(d.toLocaleString("fr-BE"))+'">'+pad2(d.getHours())+":"+pad2(d.getMinutes())+'</time>';
-    var peut=!eff&&(mien||rh);
+    var peut=mien||rh;
     var opt=(suite?hh:"")+(peut?'<button type="button" class="fil-x" data-fil-x="'+esc(String(x.id))+'" aria-label="Effacer ce message">Effacer</button>':'');
-    h.push('<div class="fil-m'+(suite?"":" prem")+(mien?" moi":"")+(eff?" eff":"")+'"'+(peut?' tabindex="0"':'')+'>'
+    h.push('<div class="fil-m'+(suite?"":" prem")+(mien?" moi":"")+'"'+(peut?' tabindex="0"':'')+'>'
       +(suite?"":'<span class="fil-av" aria-hidden="true">'+esc(aut)+'</span><div class="fil-t"><b class="fil-n">'+esc(aut)+'</b>'+hh+'</div>')
-      +'<span class="fil-b">'+(eff?"Message effacé":esc(x.corps))+(opt?'<span class="fil-o">'+opt+'</span>':'')+'</span>'
+      +'<span class="fil-b">'+esc(x.corps)+(opt?'<span class="fil-o">'+opt+'</span>':'')+'</span>'
       +'</div>');
   });
   var bas=l.scrollHeight-l.scrollTop-l.clientHeight<40;
@@ -22313,7 +22366,10 @@ function filInit(){
       if(!r.classList.toggle("ouvert") && r.blur) r.blur(); return;
     }
     if(!confirm("Effacer ce message ? Il disparaîtra pour tout le monde.")) return;
-    baseRpc("biowanze_effacer_message",{p_id:Number(b.getAttribute("data-fil-x"))}).then(filCharger).catch(function(er){
+    var id=Number(b.getAttribute("data-fil-x"));
+    baseRpc("biowanze_effacer_message",{p_id:id}).then(function(){
+      FIL.liste=(FIL.liste||[]).filter(function(x){ return Number(x.id)!==id; }); lsSet("ui/fil",FIL.liste); filRendre(); return filCharger();
+    }).catch(function(er){
       var e=document.getElementById("filErr"); if(e){ e.textContent="Message non effacé : "+baseMsg(er)+"."; e.hidden=false; } });
   });
 }
@@ -24569,9 +24625,9 @@ function renderRythme(){
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
   var vide=document.getElementById("resumeVide");
   var ag=document.getElementById("agendaCard");
-  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
+  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; try{ profilAuMenu(); }catch(e){} if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
   card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
-  if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} meteoDemarrer(); }
+  if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} meteoDemarrer(); try{ profilAuMenu(); }catch(e){} }
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
      l'onglet, jusqu'à 7 s sur un téléphone lent — audit du 10/10/2026). */
   if(typeof finIntro==="function") finIntro();
