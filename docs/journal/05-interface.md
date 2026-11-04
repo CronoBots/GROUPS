@@ -12710,9 +12710,198 @@ dernières versions.
 **Mesuré.**
 - Avec données, à 7 largeurs et 3 heures : 365 mesures par heure,
   0 faute.
+  - **Correction (v1384).** 7 h 40 n'était pas parmi ces trois heures.
+    Deux postes y sont en cours (le matin et le jour), et « Sur site » en
+    4 rangées y chevauchait déjà : « CAN » sur « Équipe 2 », mesuré sur
+    une copie de la v1382. Corrigé en v1384.
 - Sans données : 229 mesures, 0 faute.
 - L'alignement : 96 widgets, 0 hors des icônes.
 - La grille (règle mise à jour : la case d'un widget, ses marges
   comprises), les gestes (47), le repos (0 mutation), le parcours
   (112 essais) et statique : 0 faute.
 
+### Les formats des widgets d'Apple ; la météo carrée sur 2 × 2 icônes (04/11/2026, `nfdm-v1384`)
+
+Le client, capture de l'application à l'appui (Messages pleine largeur,
+la météo en ½ à côté de quatre icônes) : « Le cadre météo n'est pas
+aligné aux bords des icônes. Les formats de widget doivent avoir les
+mêmes formats d'agrandissement et de réduction que les widgets sur
+Apple. Donc la météo équivaut 2 × 2 icônes, donc elle doit être
+carrée. »
+
+**Le numéro.** Le robot a pris la v1383 pendant ce travail (les
+recyclages du 04/11/2026, 17 h 24) : cette version-ci est la v1384, au
+dessus de la sienne.
+
+**La capture montre encore la v1381** : la météo y prend toute sa case.
+Le widget posé sur les icônes est arrivé en v1382, que le téléphone
+n'avait pas encore prise. Mais même posée sur les icônes, la météo de
+2 × 2 n'était pas carrée : 153,5 px de large pour 172 de haut à 390 px
+d'écran. Une rangée d'icônes avait 96 px de haut, une colonne 77,5 de
+large.
+
+**Ce que fait l'iPhone.** Quatre formats, toujours les mêmes :
+
+| Format | Icônes couvertes | iPhone de 390 pt |
+|---|---|---|
+| petit | 2 × 2 | 158 × 158, carré |
+| moyen | 4 × 2 | 338 × 158 |
+| grand | 4 × 4 | 338 × 354 |
+| très grand (iPad seul) | 8 × 4 | — |
+
+D'une rangée d'icônes à la suivante, l'iPhone compte 98 pt.
+
+**Les cases carrées.** `accAligner()` donne désormais à une rangée la
+hauteur d'une case d'icône (`ACC.p`, `--acc-p`). Un widget posé sur
+2 × 2 icônes est carré, et celui de 4 × 4 aussi. Les icônes se
+rapprochent d'une rangée à l'autre : 93,5 px à 390 px d'écran (112
+avant, 98 sur l'iPhone). Une icône tient toujours une rangée ; son nom
+descend au besoin dans l'écart, comme sur l'iPhone.
+
+| Écran | Rangée | Petit | Moyen | Grand | Très grand |
+|---|---|---|---|---|---|
+| 320 | 60 | 130 × 130 | 282 × 130 | 282 × 282 | — |
+| 360 | 70 | 140 × 140 | 312 × 140 | 312 × 312 | — |
+| 390 | 77,5 | 153,5 × 153,5 | 340,5 × 153,5 | 340,5 × 340,5 | — |
+| 414 | 83,5 | 159,5 × 159,5 | 358,5 × 159,5 | 358,5 × 358,5 | — |
+| 900 (PC) | 94,5 | 170,5 × 170,5 | 391,5 × 170,5 | 391,5 × 391,5 | 833,5 × 391,5 |
+| 1280 (PC) | 106 | 182 × 182 | 426 × 182 | 426 × 426 | 914 × 426 |
+
+**Les formats d'Apple, et eux seuls** (`ACC_FORMATS`). Chaque widget
+choisit les siens (`f`) :
+
+| Widget | Formats |
+|---|---|
+| Heure et poste · Météo · Ma paie · À retenir · À faire · Effectif · Mon année | petit, moyen, grand |
+| Congés restants | petit, moyen |
+| Polyvalences | petit |
+| Mon profil | moyen |
+| Demandes · Annonces · Messages | moyen, grand |
+| Mon cycle · Calendrier · Sur site · Mon rythme | moyen, grand, très grand (PC) |
+| L'usine en direct | grand au téléphone, très grand au PC |
+| Planning (PC) | très grand |
+
+- Disparaissent les formats qu'Apple n'a pas :
+  - la moitié sur quatre rangées (2 × 4) ;
+  - les trois quarts au PC (6 × …) ;
+  - le Planning sur 6 ou 8 rangées.
+- Une taille gardée par un appareil et devenue impossible revient à
+  celle d'origine du widget (`accTaille`, `accHaut`).
+- « Congés restants » passe en moyen au PC : en petit, il laissait un
+  trou de 2 × 2 à côté de lui, sous le calendrier.
+
+**Le Planning en très grand** (914 × 426 à 1280 px) ne montrait que 6
+postes sur 10. Il est resserré, et les dix postes et les trois pauses
+tiennent :
+- la date sur une barre plus basse ;
+- chaque pause sur une ligne (« AM · Équipe 3 ») ;
+- chaque personne sur une ligne, ses heures à droite de son trigramme ;
+- la colonne des postes plus étroite.
+
+**La taille se dit comme sur l'iPhone** : « Petit · 2 × 2 »,
+« Moyen · 4 × 2 », « Grand · 4 × 4 », « Très grand · 8 × 4 ». Les
+icônes sont comptées en colonnes × rangées, dans la bulle du geste, la
+galerie et l'annonce lue à voix haute.
+- Au clavier, les flèches passent d'un format au suivant, comme la
+  galerie de l'iPhone.
+- Au doigt et à la souris, le geste choisit la largeur la plus proche,
+  puis, parmi les hauteurs qu'elle permet, la plus proche.
+
+**Le contenu suit la hauteur réelle.** Avec les cases carrées, la
+hauteur d'un format suit la largeur de l'écran : un petit widget fait
+130 px de haut à 320 px, 182 à 1280.
+- Chaque widget est un conteneur de taille, en largeur ET en hauteur
+  (`container-type:size`). Sa taille ne vient que de la grille, jamais
+  de son contenu.
+- Son contenu se règle par des requêtes de conteneur en hauteur.
+- Chaque widget porte son format (`data-acc-f` : S, M, L, XL), pour les
+  règles qui touchent le widget lui-même.
+- **Une requête de conteneur lit la boîte de contenu**, marges ôtées.
+  Mon cycle (26 px de marge) fait 312 px de haut à 360 px d'écran, mais
+  286 px pour la requête.
+
+Ce que la matrice a demandé (11 fautes à la première mesure, à 15 h 21 ;
+d'autres à 23 h 10, en poste, et à 7 h 40) :
+- **Heure et poste**
+  - moyen et bas : le décompte monte à droite de l'heure ;
+  - en poste : sans la date sous l'heure ;
+  - petit et bas : quoi et quand, sans le décompte (« Demain matin »
+    passe sur deux lignes) ;
+  - petit, en poste : le titre, la barre et le temps restant, sans les
+    heures (sous 170 px) ni le pourcentage (sous 150 px).
+- **Météo**
+  - petite : le lieu en haut, le ciel en bas, comme l'iPhone (au PC,
+    elle flottait au haut de ses 182 px, 44 px vides) ;
+  - petite et basse : la température en 34 px ;
+  - moyenne et basse : les heures serrées, la température en 36 px
+    (32 à 360 px).
+- **Ma paie** (petite et basse) : la note cède sa place. Le versement est
+  aussi dans « À retenir ».
+- **Effectif** (petit et bas) : chaque pause et son compte sur une
+  ligne.
+- **Calendrier · Mon cycle** (grands, 282 à 360 px) : la pastille de la
+  sixième semaine n'est plus rognée.
+- **Sur site** (grand)
+  - sous 300 px : sans la date du jour (le décompte la dit) ;
+  - deux postes en cours (voir plus bas).
+- **L'usine en direct au téléphone** (grand, 341 × 341 au lieu de 620 de
+  haut) :
+  - la photo entière, sans ses bandes de trigrammes, qui ne lui
+    laissaient que 55 px de haut ;
+  - la légende en tuiles serrées, le crédit sur une ligne ;
+  - la fiche du poste touché vient par-dessus le widget, avec sa croix
+    (Échap la ferme aussi). Sous la légende, elle passait sous le bord.
+
+**Trois défauts trouvés en chemin.**
+- **« Sur site » à 7 h 40.** Deux postes sont en cours (le matin et le
+  jour), et leurs listes passaient sous la relève : « 7 h – 15 h » sur
+  « Relève ».
+  - C'était déjà le cas en v1382, à 396 px de haut (« CAN » sur
+    « Équipe 2 », mesuré sur une copie de la v1382). Les trois heures
+    mesurées alors ne comprenaient pas 7 h 40.
+  - La cause : le bloc des postes était réduit à la place restante
+    (`min-height:0`). Ses listes débordaient en dessous sans que
+    l'ajustement le voie. Il garde maintenant la hauteur de son contenu.
+    Dépassant, il est vu, et ses listes cèdent des lignes.
+  - Sous 400 px, le second poste ne garde que son titre et son compte ;
+    sous 300 px, la relève aussi.
+- **Une règle de la météo ne s'appliquait pas** (marges serrées en
+  moyen). Elle était écrite dans une requête de conteneur et visait le
+  conteneur lui-même ; une requête ne règle que ce qu'il contient. Elle
+  passe par `data-acc-f="M"`.
+  - Et mes propres règles ont d'abord perdu en spécificité : la
+    température restait en 40 px. Mesuré au calcul du style, corrigé.
+- **Les segments fusionnés du Planning portaient `data-w`** (une largeur
+  en %), l'attribut des widgets. La grille de l'Accueil les aurait pris
+  pour des widgets : marges, rangées, appui long.
+  - Aucun n'a paru dans le Planning de l'Accueil sur 120 jours ; le
+    risque n'est pas prouvé.
+  - Renommé `data-larg`, par précaution.
+
+**Mesuré.**
+- **La matrice** : chaque widget à chaque format, à 7 largeurs (320,
+  360, 390, 414, 760, 900 et 1280 px) et 5 états — 15 h 21 ; 23 h 10, en
+  poste ; 7 h 40, deux postes en cours ; 5 h 50, la relève ; sans
+  données. 4 × 286 mesures avec données et 279 sans, 0 faute (coupé,
+  vide, chevauchement, rogné). Après la dernière retouche (les icônes),
+  2 × 286 mesures de plus, 0 faute.
+- **L'alignement et le carré** : 97 widgets à 6 largeurs, 0 hors des
+  icônes ; chaque 2 × 2 et 4 × 4 est carré au pixel.
+  - La météo en petit fait 130, 140, 153,5 et 159,5 px de côté au
+    téléphone, 170,5 et 182 au PC.
+  - Le contrôle du carré mord : sur une copie de la v1382, 30 widgets sur
+    97 ne sont pas carrés (la météo en petit : 153,5 × 172 à 390 px).
+- **Les icônes** : à chaque largeur, l'icône et son nom tiennent dans le
+  pas de la grille (75 px pour 76 à 320 px), sans toucher un widget ni
+  une autre icône.
+  - **Une erreur de ma part, vue à la photo et pas au contrôle.** Quand la
+    boîte de l'icône a pris la hauteur de sa rangée, son nom s'y est tassé
+    jusqu'à 0 px de haut et a disparu. Le contrôle des icônes ne mesurait
+    que des positions.
+  - Il vérifie maintenant que le nom se voit. Sur l'état fautif, il
+    criait à 5 largeurs ; corrigé (rien ne se tasse dans l'icône), 0.
+- **La grille** : son seuil « moins d'une rangée » était figé à 112 px,
+  l'ancien pas ; il suit maintenant le pas de la grille. 0 faute, comme
+  les gestes (47), le repos (0 mutation), la fiche de l'usine par-dessus
+  (ouverte dans le widget, fermée par la croix), le parcours (112 essais)
+  et statique.
