@@ -8567,11 +8567,11 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
 #accPlanning #jourCard>.jour-acc-t{display:flex}
 #accPlanning #jourCard>header{--ic:var(--ip-planning)}
 .acc-planning{min-width:0}
-/* les polyvalences sont un bouton : leur widget l'enveloppe, pour que les
-   outils du mode « Personnaliser » ne soient pas des boutons dans un bouton */
+/* les polyvalences sont un bouton : leur widget l'enveloppe (un élément
+   de la grille qui ne soit pas lui-même un bouton) */
 .pf-pvw{min-width:0}
 html body .pf-hero .pf-pvw>.pf-pv{margin:0; width:100%}
-#v-horaire.acc-perso{display:grid; grid-template-columns:repeat(var(--acc-cols,2),minmax(0,1fr)); grid-auto-rows:1px; grid-auto-flow:row dense;
+#v-horaire.acc-perso{display:grid; grid-template-columns:repeat(var(--acc-cols,4),minmax(0,1fr)); grid-auto-rows:1px; grid-auto-flow:row dense;
   column-gap:var(--ip-ecart); row-gap:0; align-items:start; position:relative}
 #v-horaire.acc-perso #rythmeTete,#v-horaire.acc-perso .pf-hero,#v-horaire.acc-perso .pf-corps,#v-horaire.acc-perso .pf-gauche,
 #v-horaire.acc-perso .acc-grille,#v-horaire.acc-perso .acc-cote,#v-horaire.acc-perso .acc-main{display:contents}
@@ -8579,8 +8579,12 @@ html body .pf-hero .pf-pvw>.pf-pv{margin:0; width:100%}
   align-self:start!important; justify-self:stretch!important; grid-row-start:auto!important}
 #v-horaire.acc-perso [data-acc-plein]{grid-column:1 / -1!important}
 #v-horaire.acc-perso .pf-pw:not(:has(>:not([hidden]))){display:none}
-/* le nombre d'accès par rangée suit la largeur du widget */
-html body #v-horaire.acc-perso #pfRac .pf-rac-l{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+/* CHAQUE ACCÈS RAPIDE EST UNE APP (le client, le 04/11/2026) : leur bloc
+   s'efface ; chaque icône est un élément de la grille (data-w « app:… »,
+   accScan), une colonne sur quatre au téléphone, trois sur vingt-quatre
+   sur un grand écran */
+html body #v-horaire.acc-perso #pfRac:not([hidden]),html body #v-horaire.acc-perso #pfRac .pf-rac-l{display:contents}
+html body #v-horaire.acc-perso #pfRac .ctl-t{padding:2px 0 12px}
 /* — L'HEURE EN TÊTE DU CADRE DU POSTE (le client, le 04/11/2026), et la
    disposition selon la largeur du widget (requête de conteneur « pposte ») :
    étroit, la date sous les chiffres ; large, les chiffres grandissent. — */
@@ -8686,87 +8690,92 @@ html body .pf-hero .pf-meteo{container:meteo / inline-size; display:flex; flex-d
   .pm-c{font-size:40px}
   .pm-heures{display:none}
 }
-/* le bouton qui ouvre le mode, et les widgets masqués */
+/* le bouton qui ouvre le mode, au pied de l'Accueil */
 .acc-pied{display:flex; flex-direction:column; align-items:center; gap:12px; padding:8px 0 4px}
 .acc-perso-btn{display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 16px; border:1px solid var(--line); border-radius:999px;
   background:var(--surface2); color:var(--ink2); font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
 .acc-perso-btn:hover{color:var(--ink); background:var(--surface3)}
-.acc-reserve{width:100%; box-sizing:border-box; padding:14px 16px 16px; border:1.5px dashed var(--line); border-radius:var(--rj); text-align:left}
-.acc-reserve>b{display:block; margin-bottom:10px; font-size:13px; color:var(--ink2)}
-.acc-reserve p{margin:0; font-size:13px; color:var(--muted)}
-.acc-reserve-l{display:flex; flex-wrap:wrap; gap:8px}
-.acc-reserve-l button{display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px 0 10px; border:1px solid var(--line); border-radius:999px;
-  background:var(--surface3); color:var(--ink); font:inherit; font-size:13px; font-weight:600; cursor:pointer}
-.acc-reserve-l button i{font-style:normal; font-size:16px; color:var(--in)}
-/* la barre du mode, au-dessus de la barre d'onglets (accBas) */
-.acc-barre{position:fixed; z-index:90; left:50%; bottom:var(--acc-bas,24px); transform:translateX(-50%); display:flex; align-items:center; gap:8px;
-  max-width:calc(100vw - 24px); box-sizing:border-box; padding:7px 7px 7px 16px; border:1px solid var(--cadre); border-radius:999px;
-  background:var(--surface); box-shadow:var(--ombre-cadre),0 12px 32px rgba(0,0,0,.45)}
-.acc-barre-t{display:flex; flex-direction:column; min-width:0; margin-right:4px; line-height:1.2}
-.acc-barre-t b{font-size:14px; color:var(--ink); white-space:nowrap}
-.acc-barre-t small{font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.acc-barre button{flex:none; height:38px; padding:0 14px; border:1px solid var(--line); border-radius:999px; background:var(--surface3); color:var(--ink);
-  font:inherit; font-size:13.5px; font-weight:600; cursor:pointer}
-.acc-barre .acc-ok{background:var(--in); border-color:var(--in); color:var(--sur-in)}
-@media (max-width:380px){ .acc-barre-t small{display:none} .acc-barre button{padding:0 11px} }
-/* le mode « Personnaliser » : chaque widget en pointillé, son contenu
-   inerte, ses outils posés dessus */
-#v-horaire.acc-edit{padding-bottom:96px}
-#v-horaire.acc-edit [data-w]{position:relative; outline:1.5px dashed color-mix(in srgb,var(--in) 60%,transparent); outline-offset:3px;
-  -webkit-user-select:none; user-select:none; cursor:grab}
-#v-horaire.acc-edit [data-w]>*:not(.acc-outils):not(.acc-etirer){pointer-events:none}
-.acc-outils{position:absolute; z-index:6; top:8px; left:8px; right:8px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px;
-  pointer-events:none; cursor:default}
-.acc-outils>*{pointer-events:auto}
-.acc-poignee{display:inline-flex; align-items:center; gap:6px; min-width:0; max-width:100%; height:32px; padding:0 12px 0 8px; border:1px solid var(--line);
-  border-radius:999px; background:var(--surface3); color:var(--ink); font:inherit; font-size:12.5px; font-weight:650; cursor:grab; touch-action:none;
-  box-shadow:0 4px 12px rgba(0,0,0,.35)}
-.acc-poignee:active{cursor:grabbing}
-.acc-poignee span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.acc-poignee svg{flex:none; color:var(--in)}
-.acc-droite{display:inline-flex; align-items:center; gap:6px; margin-left:auto}
-.acc-outils{flex-wrap:nowrap}
-.acc-outils .acc-tailles{display:none}
-.acc-outils.choix .acc-tailles{display:inline-flex}
-.acc-outils.choix .acc-poignee,.acc-outils.choix .acc-tbtn{display:none}
-.acc-tbtn{display:inline-flex; align-items:center; gap:4px; height:32px; padding:0 10px 0 12px; border:1px solid var(--line); border-radius:999px;
-  background:var(--surface3); color:var(--ink); font:inherit; font-size:13.5px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35)}
-.acc-tbtn svg{color:var(--muted)}
-#v-horaire.acc-edit [data-w]>*:not(.acc-outils):not(.acc-etirer){opacity:.55}
-.acc-tailles{display:inline-flex; padding:2px; border:1px solid var(--line); border-radius:999px; background:var(--surface3); box-shadow:0 4px 12px rgba(0,0,0,.35)}
-.acc-tailles button{min-width:28px; height:28px; padding:0 6px; border:0; border-radius:999px; background:none; color:var(--ink2); font:inherit; font-size:13px;
-  font-weight:700; cursor:pointer}
-.acc-tailles button[aria-pressed="true"]{background:var(--in); color:var(--sur-in)}
-.acc-masquer{display:grid; place-items:center; width:32px; height:32px; border:1px solid var(--line); border-radius:50%; background:var(--surface3);
-  color:var(--ink); cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.35)}
-.acc-masquer:hover{color:var(--tx-rouge-vif2)}
-/* la languette dans le coin bas-droit : au milieu du bord, elle mordait
-   sur la barre d'outils d'un widget bas (l'heure, 84 px) */
-.acc-etirer{position:absolute; z-index:6; bottom:8px; right:4px; width:12px; height:36px; border-radius:6px; background:var(--in);
-  box-shadow:0 0 0 3px var(--surface),0 4px 12px rgba(0,0,0,.4); cursor:ew-resize; touch-action:none; pointer-events:auto}
-.acc-etirer::before{content:""; position:absolute; inset:10px 4px; border-left:1.5px solid var(--sur-in); border-right:1.5px solid var(--sur-in); opacity:.7}
-/* au doigt, une prise plus large que la languette visible */
-@media (pointer:coarse){ .acc-etirer{width:14px; height:34px; bottom:6px} .acc-etirer::after{content:""; position:absolute; inset:-6px -10px -6px -14px} }
-/* le widget qu'on déplace : sa place devient le CADRE FANTÔME, en
-   pointillé, et suit la grille en direct ; une vignette suit le doigt */
-#v-horaire.acc-edit [data-w].acc-tire{outline:2px dashed var(--in); outline-offset:0; background:color-mix(in srgb,var(--in) 10%,transparent)!important;
-  border-color:transparent!important; box-shadow:none!important}
+/* — « MODIFIER L'ACCUEIL », comme l'iPhone (le client, le 04/11/2026) — */
+/* en haut, deux pastilles de verre : « + » à gauche, « ✓ » à droite (accBas
+   les cale aux bords de l'Accueil, sous la barre du haut de la tablette) */
+.acc-barre{position:fixed; z-index:95; top:calc(var(--acc-h,0px) + max(10px, env(safe-area-inset-top))); left:var(--acc-g,12px); right:var(--acc-d,12px);
+  display:flex; justify-content:space-between; align-items:center; pointer-events:none}
+.acc-barre[hidden]{display:none}
+.acc-barre button{pointer-events:auto; display:inline-flex; align-items:center; justify-content:center; min-width:64px; height:40px; padding:0 18px;
+  border:1px solid var(--bd-blanc-45); border-radius:999px; background:var(--fd-blanc-16); -webkit-backdrop-filter:blur(18px) saturate(1.6); backdrop-filter:blur(18px) saturate(1.6);
+  color:var(--tx-blanc); box-shadow:0 6px 18px var(--om-noir-40),inset 0 1px 0 var(--bd-blanc-25); font:inherit; cursor:pointer}
+.acc-barre button svg{width:20px; height:20px}
+.acc-barre button:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
+@media (hover:hover){ .acc-barre button:hover{background:var(--fd-blanc-25)} }
+/* les éléments : inertes, leur contenu ne réagit pas */
+#v-horaire.acc-edit [data-w]{position:relative; -webkit-user-select:none; user-select:none}
+#v-horaire.acc-edit [data-w]>*{pointer-events:none}
+/* le calque des commandes (accOutils), une case par élément */
+.acc-calque{position:absolute; inset:0; z-index:20; pointer-events:none}
+#v-horaire:not(.acc-edit) .acc-calque{display:none}
+.acc-b{position:absolute; box-sizing:border-box; pointer-events:auto; border-radius:var(--rj); cursor:grab; -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
+.acc-b:active{cursor:grabbing}
+.acc-b.app{border-radius:16px}
+.acc-b.acc-tire>*{visibility:hidden}
+/* « − » : le rond gris de l'iPhone, au coin haut-gauche (sur l'icône, pour
+   une app) ; la prise fait 44 px */
+.acc-moins{position:absolute; z-index:2; top:-10px; left:-10px; display:grid; place-items:center; width:26px; height:26px; padding:0; border:0; border-radius:50%;
+  background:var(--fd-blanc-75); color:var(--om-noir-85); box-shadow:0 2px 6px var(--om-noir-40); cursor:pointer;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px)}
+.acc-moins::after{content:""; position:absolute; inset:-9px}
+.acc-b.app .acc-moins{top:-7px; left:calc(50% - var(--ip-taille,60px) / 2 - 10px)}
+@media (hover:hover){ .acc-moins:hover{background:var(--fd-blanc-92)} }
+/* le coin bas-droit : l'arc blanc de l'iPhone, qu'on tire pour la taille */
+.acc-etirer{position:absolute; z-index:2; right:-9px; bottom:-9px; width:38px; height:38px; padding:0; border:0; background:none; cursor:nwse-resize; touch-action:none}
+.acc-etirer::before{content:""; position:absolute; right:5px; bottom:5px; width:26px; height:26px; box-sizing:border-box; border:4.5px solid transparent;
+  border-right-color:var(--fd-blanc-92); border-bottom-color:var(--fd-blanc-92); border-bottom-right-radius:28px; filter:drop-shadow(0 1px 2px var(--om-noir-50))}
+.acc-moins:focus-visible,.acc-etirer:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
+/* « Déplacer » : pour le clavier seulement (les flèches) ; visible au focus */
+.acc-bouger{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:calc(100% - 8px); overflow:hidden; text-overflow:ellipsis; padding:6px 12px;
+  border:0; border-radius:999px; background:var(--in); color:var(--sur-in); font:inherit; font-size:13px; font-weight:650; white-space:nowrap; opacity:0; pointer-events:none}
+.acc-bouger:focus-visible{opacity:1; outline:2px solid var(--marque-vif); outline-offset:2px}
+/* le soulevé : sa place devient un creux ; sa copie suit le doigt */
+#v-horaire.acc-edit [data-w].acc-tire{background:var(--fd-blanc-05)!important; border-color:transparent!important; box-shadow:none!important; border-radius:var(--rj)}
 #v-horaire.acc-edit [data-w].acc-tire>*{visibility:hidden}
-.acc-vol{position:fixed; z-index:400; left:0; top:0; display:flex; flex-direction:column; justify-content:center; gap:4px; box-sizing:border-box;
-  padding:14px 18px; border:1px solid var(--cadre); border-radius:var(--rj); background:var(--surface); color:var(--ink); pointer-events:none;
-  box-shadow:0 18px 40px rgba(0,0,0,.5); opacity:.94; will-change:transform}
-.acc-vol b{font-size:15px} .acc-vol small{font-size:12px; color:var(--muted)}
-/* la largeur qu'on étire : un cadre fantôme aimanté aux colonnes */
-.acc-fantome{position:absolute; z-index:7; box-sizing:border-box; display:grid; place-items:center; border:2px dashed var(--in); border-radius:var(--rj);
+.acc-vol{position:fixed!important; z-index:400!important; left:0!important; top:0!important; right:auto!important; bottom:auto!important; margin:0!important;
+  pointer-events:none!important; transform-origin:0 0; box-shadow:0 24px 50px var(--om-noir-50)!important; opacity:.97; will-change:transform; animation:none!important; transition:none!important}
+/* la taille qu'on tire : un cadre fantôme aimanté aux colonnes */
+.acc-fantome{position:absolute; z-index:21; box-sizing:border-box; display:grid; place-items:center; border:2px dashed var(--in); border-radius:var(--rj);
   background:color-mix(in srgb,var(--in) 12%,transparent); pointer-events:none; transition:width .12s ease}
 .acc-fantome b{padding:6px 12px; border-radius:999px; background:var(--in); color:var(--sur-in); font-size:14px}
 /* un widget qui n'a rien à montrer en ce moment : un cadre fantôme à son
    nom, pour pouvoir le placer quand même */
 #v-horaire.acc-edit [data-w].acc-vide{display:block!important; min-height:96px; background:transparent!important; border:1.5px dashed var(--line)!important;
   border-radius:var(--rj); box-shadow:none!important}
-#v-horaire.acc-edit [data-w].acc-vide>*:not(.acc-outils){display:none!important}
+#v-horaire.acc-edit [data-w].acc-vide>*{display:none!important}
 #v-horaire.acc-edit [data-w].acc-vide::after{content:attr(data-acc-vide); position:absolute; left:16px; right:16px; bottom:14px; font-size:12.5px; color:var(--muted)}
 @media (prefers-reduced-motion:reduce){ .acc-fantome{transition:none} }
+/* « + » : « Ajouter à l'Accueil », la galerie de ce qui a été retiré
+   (accGalerie) ; une feuille du bas au téléphone, une fenêtre au milieu
+   sur un grand écran */
+.acc-gal-ov{position:fixed; inset:0; z-index:290; display:flex; align-items:flex-end; justify-content:center; background:var(--om-noir-50)}
+.acc-gal{box-sizing:border-box; width:100%; max-width:520px; max-height:min(80vh,640px); overflow:auto; padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  border:1px solid var(--cadre); border-radius:24px 24px 0 0; background:var(--surface); box-shadow:0 -12px 40px var(--om-noir-50)}
+@media (min-width:700px){ .acc-gal-ov{align-items:center} .acc-gal{border-radius:24px; padding-bottom:18px} }
+.acc-gal-tete{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px}
+.acc-gal-tete h2{margin:0; font-size:18px; font-weight:750; color:var(--ink)}
+.acc-gal-x{display:grid; place-items:center; flex:none; width:34px; height:34px; padding:0; border:0; border-radius:50%; background:var(--surface3); color:var(--ink2); cursor:pointer}
+.acc-gal-st{margin:14px 0 6px; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted)}
+.acc-gal-vide{margin:10px 0 4px; font-size:14px; line-height:1.45; color:var(--ink2)}
+.acc-gal-l{display:flex; flex-direction:column; border:1px solid var(--line2); border-radius:14px; overflow:hidden}
+.acc-gal-i{display:flex; align-items:center; gap:12px; width:100%; padding:10px 12px; border:0; background:none; color:var(--ink); font:inherit; text-align:left; cursor:pointer}
+.acc-gal-i+.acc-gal-i{border-top:1px solid var(--line2)}
+@media (hover:hover){ .acc-gal-i:hover{background:var(--fd-blanc-05)} }
+.acc-gal-ico{display:grid; place-items:center; flex:none; width:40px; height:40px; border-radius:10px; background:var(--ic,var(--ip-accueil)); color:var(--tx-blanc);
+  font-style:normal; box-shadow:var(--ip-relief)}
+.acc-gal-ico svg{width:22px; height:22px; color:var(--tx-blanc)}
+.acc-gal-i>span:not(.acc-gal-plus){display:flex; flex:1; flex-direction:column; gap:2px; min-width:0}
+.acc-gal-i b{font-size:15px; font-weight:650}
+.acc-gal-i small{font-size:12.5px; color:var(--muted)}
+.acc-gal-plus{display:grid; place-items:center; flex:none; width:28px; height:28px; border-radius:50%; background:var(--in); color:var(--sur-in); font-size:19px; font-weight:700; line-height:1}
+.acc-gal-raz{display:block; margin:16px auto 2px; padding:8px 14px; border:0; border-radius:999px; background:none; color:var(--in); font:inherit; font-size:14px; font-weight:650; cursor:pointer}
+.acc-gal-i:focus-visible,.acc-gal-x:focus-visible,.acc-gal-raz:focus-visible{outline:2px solid var(--marque-vif); outline-offset:-2px}
 
 /* — Mon cycle et le Calendrier à la manière du widget Calendrier de l'iPhone (le
    client, le 04/11/2026 : « les backgrounds doivent aussi être modifiés
@@ -8814,7 +8823,7 @@ html body #v-horaire #calCard .cstat{background:none}
 html body #v-horaire #calCard .cstat+.cstat{box-shadow:inset 1px 0 0 var(--line2)}
 html body #v-horaire .pf-cgc{background:none; border-color:var(--line2)}
 html body #v-horaire .pf-statut,html body #v-horaire .pf-reste em.pf-rel,html body #v-horaire .pf-proch-tete em,html body #v-horaire .pf-pr-d .pf-pr-q{background:none}
-/* l'appui prolongé ouvre « Personnaliser » (accInit) : au doigt, ni loupe
+/* l'appui prolongé ouvre « Modifier l'Accueil » (accInit) : au doigt, ni loupe
    ni menu du système sur un widget ; le texte qu'on écrit reste
    sélectionnable */
 @media (pointer:coarse){
@@ -9276,13 +9285,13 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          plus loin. Le client, le 22/09/2026 : « Horaire doit s'appeler
          Mon horaire et reprendre le contenu de l'onglet Compteurs ». -->
     <!-- L'ACCUEIL PERSONNALISABLE (le client, le 04/11/2026) : le bouton qui
-         l'ouvre, puis, en mode « Personnaliser », les widgets masqués ; la
-         barre du mode flotte au-dessus de la barre d'onglets. -->
+         ouvre « Modifier l'Accueil » ; pendant la modification, comme sur
+         l'iPhone, « + » en haut à gauche (ce qui a été retiré) et « ✓ » en
+         haut à droite (terminer). -->
     <div class="acc-pied" id="accPied" data-acc-plein hidden></div>
-    <div class="acc-barre" id="accBarre" role="toolbar" aria-label="Personnaliser l'Accueil" hidden>
-      <span class="acc-barre-t"><b>Personnaliser</b><small>Glissez · étirez · masquez</small></span>
-      <button type="button" class="acc-raz" id="accRaz">Réinitialiser</button>
-      <button type="button" class="acc-ok" id="accOk">Terminé</button>
+    <div class="acc-barre" id="accBarre" role="toolbar" aria-label="Modifier l'Accueil" hidden>
+      <button type="button" class="acc-ajout" id="accAjout" aria-haspopup="dialog" aria-label="Ajouter un widget ou une icône" title="Ajouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button type="button" class="acc-ok" id="accOk" aria-label="Terminé" title="Terminé"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
     </div>
     <p class="sr-only" id="accAnnonce" aria-live="polite"></p>
 
@@ -17515,7 +17524,7 @@ function _pfHead(db,p){
     +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
     +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div></div></div>'+meteoWidgetHTML()
-    +'<div class="pf-corps"><div class="pf-gauche"><div class="pf-pw" data-w="poste">'+h+'</div><div class="pf-rac" id="pfRac" data-w="acces"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn" data-w="cycle"></div>'+(pvH?'<div class="pf-pvw" data-w="polyvalences">'+pvH+'</div>':'')+'</div></div>';
+    +'<div class="pf-corps"><div class="pf-gauche"><div class="pf-pw" data-w="poste">'+h+'</div><div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn" data-w="cycle"></div>'+(pvH?'<div class="pf-pvw" data-w="polyvalences">'+pvH+'</div>':'')+'</div></div>';
 }
 /* LES RECYCLAGES DANS LE HÉROS (le client, le 18/10/2026 : « pour ceux qui
    ont des recyclages à faire, indiquer la progression et les compteurs dans
@@ -24945,7 +24954,7 @@ function accueilTic(){
   if(cl&&cl.getAttribute("data-cm")!==cmSig(c0)){ var tmp=document.createElement("div"); tmp.innerHTML=cmLigneHTML(); cl.parentNode.replaceChild(tmp.firstChild,cl); }
   var ct=document.querySelector("#pfRac .ctl-cm-t");
   if(ct&&ct.getAttribute("data-cm")!==cmSig(c0)){ var tm2=document.createElement("div"); tm2.innerHTML=cmTuileHTML(); ct.parentNode.replaceChild(tm2.firstChild,ct);
-    RAC_HTML=document.getElementById("pfRac").innerHTML; }
+    var cpR=document.getElementById("pfRac").cloneNode(true); [].forEach.call(cpR.querySelectorAll("[data-w],[inert]"),function(x){ x.removeAttribute("data-w"); x.removeAttribute("inert"); }); RAC_HTML=cpR.innerHTML; }
   var id=trigCourant(), person=id?HORAIRE_DB.people.filter(function(p){ return p.id===id; })[0]:null; if(!person) return;
   var b=document.querySelector("#rythmeTete .pf-proch"), inf=null; try{ inf=_pfInfos(person); }catch(e){ return; }
   var pr=inf&&inf.prochain,
@@ -36439,14 +36448,13 @@ function confirmerPro(o, surOui){
    l'accueil soit complètement personnalisable, comme des widgets, avec un
    cadre fantôme qui définirait la largeur et le nombre d'éléments, la
    disposition de son contenu, etc. »). Chaque bloc de l'Accueil est un
-   widget (data-w) d'une grille unique : 12 colonnes dès 700 px de large
-   (« large »), 2 au téléphone (« tel »). Chaque forme d'écran a sa
-   disposition, gardée sur l'appareil (ui/accueil/large, ui/accueil/tel) :
-   l'ordre, la largeur, les widgets masqués. Le mode « Personnaliser »
-   (bouton au pied de l'Accueil) : glisser la poignée déplace le widget, sa
-   place devenant un cadre fantôme qui suit la grille ; la languette de
-   droite étire un cadre fantôme aimanté aux largeurs permises ; les tailles
-   et « − » ; les flèches du clavier sur la poignée ; « Réinitialiser ».
+   widget (data-w) d'une grille unique : 24 colonnes dès 700 px de large
+   (« large », où « ¼ » en prend 6), 4 au téléphone (« tel », où « ½ » en
+   prend 2). Chaque
+   forme d'écran a sa disposition, gardée sur l'appareil (ui/accueil/large,
+   ui/accueil/tel) : l'ordre, la largeur, ce qui est retiré. Le mode
+   « Modifier l'Accueil » (bouton au pied de l'Accueil, ou l'appui
+   prolongé) se fait comme sur l'iPhone : voir accOutils.
    Le contenu suit la largeur de son widget (le nombre d'accès par rangée,
    la ligne du profil, l'heure). Limite connue : l'ordre du clavier (Tab)
    reste celui de la page, et non celui de l'écran. */
@@ -36475,12 +36483,38 @@ var ACC_W=[
 var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","planning","afaire","conges","site","messages","usine","demandes","calendrier","rythme"];
 var ACC_TAILLES={large:[3,4,6,8,9,12], tel:[1,2]};
 var ACC_FRAC={large:{3:"¼",4:"⅓",6:"½",8:"⅔",9:"¾",12:"1"}, tel:{1:"½",2:"1"}};
-var ACC={mode:"", cols:2, o:[], t:{}, m:{}, edit:false, gap:16, style:null, ro:null, items:[], scanT:0, drag:null, etire:null};
-function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return ACC_W[i]; return null; }
-function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; return ACC_TAILLES[m].filter(function(s){ return m==="tel"?s>=d.tmin:s>=d.lmin; }); }
+var ACC={mode:"", cols:4, o:[], t:{}, m:{}, edit:false, gap:16, style:null, ro:null, items:[], scanT:0, drag:null, etire:false,
+  calque:null, anims:[], t0:0, jig:{}, placeT:0};
+/* CHAQUE ACCÈS RAPIDE EST UNE APP (le client, le 04/11/2026 : « pour les
+   raccourcis rapides, cela doit être des onglets à part, 1 sur 1, comme
+   des applications d'iPhone ») : chaque icône du bloc des accès est un
+   élément de la grille, à sa clé « app:… », lue sur l'icône elle-même
+   (accScan) ; son nom, celui de son infobulle. Une icône se déplace et se
+   retire comme un widget, mais garde sa taille : une colonne sur quatre
+   au téléphone, trois sur vingt-quatre sur un grand écran. */
+var ACC_APPN={};
+function accAppCle(el){
+  if(el.classList.contains("ctl-cm-t")) return "app:cm";
+  var a=el.getAttribute("data-ctl")||el.getAttribute("data-ip"); if(a) return "app:"+a;
+  if((a=el.getAttribute("data-side-ws"))) return "app:ws-"+a;
+  if((a=el.getAttribute("data-go"))) return "app:go-"+a;
+  return "";
+}
+function accAppNom(el){ var t=(el.getAttribute("title")||"").split(" · ")[0]; if(!t){ var sp=el.querySelector("span"); t=sp?sp.textContent:""; } return t.replace(/\s+/g," ").trim()||"Icône"; }
+function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return ACC_W[i];
+  if(k&&k.indexOf("app:")===0) return {k:k, nom:ACC_APPN[k]||"Icône", app:true, l:2, lmin:2, tmin:1}; return null; }
+function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; if(!d||d.app) return []; return ACC_TAILLES[m].filter(function(s){ return m==="tel"?s>=d.tmin:s>=d.lmin; }); }
 function accTaille(k){ var p=accPermises(k), t=ACC.t[k], d=accDef(k);
+  if(!p.length) return 0;
   if(p.indexOf(t)>=0) return t;
   var def=ACC.mode==="large"?d.l:2; if(p.indexOf(def)>=0) return def; return p[p.length-1]; }
+/* les colonnes d'une taille : la grille en a le double des tailles (4 au
+   téléphone, où « ½ » en prend 2 ; 24 sur un grand écran, où « ¼ » en prend
+   6), pour qu'une icône d'app y tienne : une colonne sur quatre au
+   téléphone, trois sur vingt-quatre ailleurs — quatre icônes à côté d'un
+   widget « ½ », comme sur l'iPad */
+function accN(s){ return s*2; }
+function accSpan(k){ var d=accDef(k); if(d&&d.app) return ACC.mode==="tel"?1:3; return Math.min(ACC.cols,accN(accTaille(k))); }
 function accCharger(mode){
   var sv=lsGet("ui/accueil/"+mode)||{}, connus=ACC_W.map(function(d){ return d.k; });
   var base=mode==="tel"?ACC_ORDRE_TEL.slice():connus.slice();
@@ -36488,7 +36522,7 @@ function accCharger(mode){
   /* l'heure est passée dans le cadre du poste (04/11/2026) : dans une
      disposition déjà réglée, « Heure et poste » prend la place de l'heure */
   var ih=o0.indexOf("heure"); if(ih>=0){ var ip=o0.indexOf("poste"); if(ip>=0) o0.splice(ip,1); o0.splice(o0.indexOf("heure"),1,"poste"); }
-  var o=o0.filter(function(k){ return connus.indexOf(k)>=0; });
+  var o=o0.filter(function(k){ return connus.indexOf(k)>=0||k.indexOf("app:")===0; });
   /* un widget nouveau (le Planning, le 04/11/2026) se pose à sa place
      d'origine, après son voisin dans l'ordre d'origine, et non à la fin
      d'une disposition déjà réglée */
@@ -36503,11 +36537,12 @@ function accStyle(){
   var c=["#v-horaire.acc-perso{--acc-cols:"+ACC.cols+"}"];
   ACC.o.forEach(function(k,i){
     var sel='#v-horaire.acc-perso [data-w="'+k+'"]';
-    c.push(sel+"{order:"+((i+1)*10)+"!important; grid-column:span "+Math.min(ACC.cols,accTaille(k))+"!important}");
+    c.push(sel+"{order:"+((i+1)*10)+"!important; grid-column:span "+accSpan(k)+"!important}");
     if(ACC.m[k]) c.push(sel+"{display:none!important}");
   });
   c.push("#v-horaire.acc-perso #resumeVide{order:0!important} #v-horaire.acc-perso #installCard{order:9000!important} #v-horaire.acc-perso #accPied{order:9990!important}");
   ACC.style.textContent=c.join("\n");
+  accCalqueBientot();
 }
 /* la maçonnerie : chaque case prend autant de rangées de 1 px que sa
    hauteur, plus l'écart */
@@ -36524,7 +36559,7 @@ function accForme(){
   var mode=w>=700?"large":"tel";
   ACC.gap=parseFloat(getComputedStyle(v).columnGap)||16;
   if(mode===ACC.mode) return;
-  ACC.mode=mode; ACC.cols=mode==="large"?12:2;
+  ACC.mode=mode; ACC.cols=mode==="large"?24:4;
   v.classList.toggle("acc-large",mode==="large"); v.classList.toggle("acc-tel",mode==="tel");
   accCharger(mode); accStyle();
   if(ACC.edit){ accOutils(true); accPied(); }
@@ -36542,97 +36577,274 @@ function accScan(){
     var cs=getComputedStyle(el); if(cs.display==="contents"||cs.position==="absolute"||cs.position==="fixed") return;
     el.setAttribute("data-acc-plein","");
   });
+  [].forEach.call(v.querySelectorAll("#pfRac .ctl-t"),function(el){ var k=accAppCle(el); if(!k) return; ACC_APPN[k]=accAppNom(el); if(el.getAttribute("data-w")!==k) el.setAttribute("data-w",k); });
   var l=[].slice.call(v.querySelectorAll("[data-w],[data-acc-plein]"));
+  /* une icône qu'on n'a jamais vue se pose après les autres icônes, ou à
+     la place du bloc des accès d'avant (« acces ») ; si ce bloc était
+     masqué, elle l'est aussi */
+  var neufs=[];
+  l.forEach(function(el){ var k=el.getAttribute("data-w"); if(k&&k.indexOf("app:")===0&&ACC.o.indexOf(k)<0&&neufs.indexOf(k)<0) neufs.push(k); });
+  if(neufs.length&&ACC.o.length){
+    var dej=ACC.o.filter(function(k){ return k.indexOf("app:")===0; }), at=dej.length?ACC.o.indexOf(dej[dej.length-1])+1:ACC.o.indexOf("acces")+1;
+    if(at<=0) at=ACC.o.length;
+    ACC.o.splice.apply(ACC.o,[at,0].concat(neufs));
+    if(ACC.m.acces) neufs.forEach(function(k){ ACC.m[k]=true; });
+    accStyle();
+  }
   l.forEach(function(el){ if(!el.__accObs){ el.__accObs=1; ACC.ro.observe(el); } });
   ACC.items.forEach(function(el){ if(l.indexOf(el)<0){ try{ ACC.ro.unobserve(el); }catch(e){} el.__accObs=0; } });
   ACC.items=l;
   if(ACC.edit) accOutils(false);
 }
-/* les outils posés sur chaque widget, en mode « Personnaliser » */
-var ACC_GRIP='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>';
-function accOutilsHTML(k){
-  var d=accDef(k), t=accTaille(k), f=ACC_FRAC[ACC.mode];
-  return '<button type="button" class="acc-poignee" data-acc-tirer="'+k+'" aria-label="Déplacer « '+esc(d.nom)+' » : glisser, ou les flèches du clavier">'+ACC_GRIP+'<span>'+esc(d.nom)+'</span></button>'
-    +(accPermises(k).length>1?'<span class="acc-tailles" role="group" aria-label="Largeur de « '+esc(d.nom)+' »">'+accPermises(k).map(function(s){
-      return '<button type="button" data-acc-taille="'+k+':'+s+'" aria-pressed="'+(s===t)+'" aria-label="Largeur '+f[s]+'">'+f[s]+'</button>'; }).join("")+'</span>':'')
-    +'<span class="acc-droite">'
-    +(accPermises(k).length>1?'<button type="button" class="acc-tbtn" data-acc-tbtn aria-expanded="false" aria-label="Largeur de « '+esc(d.nom)+' » : '+f[t]+'. Changer">'+f[t]+'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>':'')
-    +'<button type="button" class="acc-masquer" data-acc-masquer="'+k+'" aria-label="Masquer « '+esc(d.nom)+' »"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>'
-    +'</span>';
+/* LE MODE « MODIFIER L'ACCUEIL », comme celui de l'iPhone (le client, le
+   04/11/2026, capture de son iPhone à l'appui : « masquer et modifier un
+   widget doit être comme sur Apple ; il faut aussi faire bouger les
+   widgets et icônes comme lors d'une modification sur iPhone ») :
+   - chaque widget et chaque icône tremble (animations du navigateur, un départ
+     commun ACC.t0, décalé par élément ; rien si l'appareil demande moins
+     de mouvement) ;
+   - un rond gris « − », au coin haut-gauche, le retire de l'Accueil, après
+     confirmation comme sur l'iPhone ; « + », en haut à gauche, le remet
+     (accGalerie) ;
+   - l'arc blanc du coin bas-droit change sa taille, tiré ou aux flèches ;
+   - on le saisit n'importe où pour le déplacer : à la souris aussitôt, au
+     doigt après un instant posé (un glissement immédiat fait défiler) ; sa
+     copie suit le doigt, sa place devient un creux ;
+   - « ✓ », en haut à droite, termine.
+   Les commandes sont sur un calque posé sur la grille (#accCalque), une
+   case par élément, à sa place exacte : huit cadres coupent ce qui dépasse
+   de leurs bords (pour leurs coins arrondis), et le « − » déborde du coin.
+   La case tremble avec son élément (même animation, même départ). Les
+   éléments, eux, sont inertes tant qu'on modifie. */
+var ACC_MOINS='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
+function accItem(k){ var l=document.querySelectorAll('#v-horaire [data-w="'+k+'"]'); for(var i=0;i<l.length;i++) if(l[i].getClientRects().length) return l[i]; return null; }
+/* la place d'un élément dans la grille, sans le tremblement (offset*) */
+function accPos(el){
+  var v=document.getElementById("v-horaire"), x=0, y=0, n=el;
+  while(n&&n!==v){ x+=n.offsetLeft; y+=n.offsetTop; n=n.offsetParent; }
+  if(n!==v){ var r=el.getBoundingClientRect(), vr=v.getBoundingClientRect(); x=r.left-vr.left-v.clientLeft; y=r.top-vr.top-v.clientTop; }
+  return {x:x, y:y};
+}
+function accBoiteHTML(k){
+  var d=accDef(k), t=accTaille(k), f=ACC_FRAC[ACC.mode], nom=esc(d.nom);
+  return '<button type="button" class="acc-moins" data-acc-masquer="'+k+'" aria-label="Retirer « '+nom+' » de l’Accueil">'+ACC_MOINS+'</button>'
+    +'<button type="button" class="acc-bouger" data-acc-tirer="'+k+'" aria-label="Déplacer « '+nom+' » : flèches du clavier">Déplacer · '+nom+'</button>'
+    +(accPermises(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+f[t]+'. Flèches gauche et droite pour la changer" title="Tirer pour changer la taille"></button>':'');
 }
 function accOutils(tout){
-  ACC.items.forEach(function(el){
-    var k=el.getAttribute("data-w"); if(!k||!accDef(k)) return;
-    var sig=ACC.mode+"|"+accTaille(k), o=null, g=null, i;
-    for(i=0;i<el.children.length;i++){ if(el.children[i].classList.contains("acc-outils")) o=el.children[i]; if(el.children[i].classList.contains("acc-etirer")) g=el.children[i]; }
-    if(!o){ o=document.createElement("div"); o.className="acc-outils"; el.appendChild(o); }
-    if(tout||o.__sig!==sig){ o.innerHTML=accOutilsHTML(k); o.__sig=sig; }
-    /* la languette aussi au téléphone (le client, le 04/11/2026 : « sur
-       mobile les widgets de l'accueil peuvent être modifiés aussi ») */
-    if(accPermises(k).length>1){ if(!g){ g=document.createElement("span"); g.className="acc-etirer"; g.setAttribute("data-acc-etirer",k); g.title="Glisser pour choisir la largeur"; el.appendChild(g); } }
-    else if(g) el.removeChild(g);
-    el.classList.toggle("acc-tire",!!(ACC.drag&&ACC.drag.k===k));
-  });
-  /* un widget sans rien à montrer : un cadre fantôme à son nom */
-  var vus={};
+  var v=document.getElementById("v-horaire"); if(!v||!ACC.edit) return;
+  var c=ACC.calque;
+  if(!c){ c=ACC.calque=document.createElement("div"); c.className="acc-calque"; c.id="accCalque"; c.setAttribute("role","group"); c.setAttribute("aria-label","Modifier l’Accueil"); }
+  if(c.parentNode!==v) v.insertBefore(c,document.getElementById("accPied"));
+  /* un widget sans rien à montrer : un cadre fantôme à son nom (pas le bloc
+     des accès d'avant, dont les icônes sont désormais chacune un élément) */
+  var pc=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches), apps=!!v.querySelector('[data-w^="app:"]'), vus={};
   ACC.items.forEach(function(el){ el.classList.remove("acc-vide"); });
   ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(k&&!el.hidden&&getComputedStyle(el).display!=="none") vus[k]=1; });
-  var pc=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
-  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(!k||vus[k]||ACC.m[k]||!accDef(k)||(accDef(k).pc&&!pc)) return; vus[k]=1;
-    el.classList.add("acc-vide"); el.setAttribute("data-acc-vide",accDef(k).nom+" · rien à montrer pour l’instant"); });
+  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||vus[k]||ACC.m[k]||d.app||(d.pc&&!pc)||(k==="acces"&&apps)) return; vus[k]=1;
+    el.classList.add("acc-vide"); el.setAttribute("data-acc-vide",d.nom+" · rien à montrer pour l’instant"); });
+  /* une case par élément visible, dans l'ordre de l'Accueil (celui du clavier) */
+  var actif=document.activeElement, garde={}, i=0;
+  ACC.o.forEach(function(k){
+    var d=accDef(k); if(!d||ACC.m[k]) return;
+    var el=accItem(k); if(!el) return;
+    garde[k]=1;
+    var b=null, j;
+    for(j=0;j<c.children.length;j++) if(c.children[j].getAttribute("data-acc-pour")===k){ b=c.children[j]; break; }
+    if(!b){ b=document.createElement("div"); b.className="acc-b"; b.setAttribute("data-acc-pour",k); }
+    if(c.children[i]!==b) c.insertBefore(b,c.children[i]||null);
+    i++;
+    var sig=ACC.mode+"|"+accTaille(k)+"|"+d.nom;
+    if(tout||b.__sig!==sig){
+      var fc=actif&&b.contains(actif)?String(actif.className).split(" ")[0]:"";
+      b.innerHTML=accBoiteHTML(k); b.__sig=sig;
+      if(fc){ var nf=b.querySelector("."+fc); if(nf) actif=nf; }
+    }
+    b.classList.toggle("app",!!d.app);
+    if(d.app){ var ip=getComputedStyle(el).getPropertyValue("--ip-taille").trim(); if(ip&&b.style.getPropertyValue("--ip-taille")!==ip) b.style.setProperty("--ip-taille",ip); }
+    if(!el.inert) el.inert=true;
+  });
+  [].slice.call(c.children).forEach(function(b){ if(!garde[b.getAttribute("data-acc-pour")]) c.removeChild(b); });
+  if(actif&&c.contains(actif)&&document.activeElement!==actif) try{ actif.focus({preventScroll:true}); }catch(e){}
+  accCalquePlacer(); accTrembler();
 }
+function accCalquePlacer(){
+  ACC.placeT=0;
+  var c=ACC.calque; if(!c||!ACC.edit) return;
+  [].forEach.call(c.children,function(b){
+    var el=accItem(b.getAttribute("data-acc-pour")); if(!el){ b.style.display="none"; return; }
+    var q=accPos(el);
+    b.style.display=""; b.style.left=q.x+"px"; b.style.top=q.y+"px"; b.style.width=el.offsetWidth+"px"; b.style.height=el.offsetHeight+"px";
+  });
+}
+function accCalqueBientot(){ if(ACC.edit&&!ACC.placeT) ACC.placeT=requestAnimationFrame(accCalquePlacer); }
+/* le tremblement : l'élément et sa case, même animation, même départ ;
+   l'angle se réduit pour un grand widget (le bord ne bouge que d'un ou
+   deux pixels) */
+function accTrembler(){
+  if(!ACC.edit||!ACC.calque||!document.timeline||!Element.prototype.animate) return;
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  if(!ACC.t0) ACC.t0=document.timeline.currentTime||0;
+  ACC.anims=ACC.anims.filter(function(a){ return a.playState!=="idle"; });
+  [].forEach.call(ACC.calque.children,function(b){
+    var k=b.getAttribute("data-acc-pour"), el=accItem(k); if(!el||(ACC.drag&&ACC.drag.parti&&ACC.drag.k===k)) return;
+    if(ACC.jig[k]===undefined) ACC.jig[k]=Math.round(Math.random()*240);
+    var a=Math.round(Math.max(.18,Math.min(1.6,110/(el.offsetWidth||110)))*100)/100;
+    [el,b].forEach(function(x){
+      if(x.__accAnim&&x.__accA===a&&x.__accAnim.playState==="running") return;
+      if(x.__accAnim) try{ x.__accAnim.cancel(); }catch(e){}
+      var an=x.animate([{transform:"rotate(-"+a+"deg)"},{transform:"rotate("+a+"deg)"}],{duration:250,iterations:Infinity,direction:"alternate",easing:"ease-in-out"});
+      try{ an.startTime=ACC.t0-ACC.jig[k]; }catch(e){}
+      x.__accAnim=an; x.__accA=a; ACC.anims.push(an);
+    });
+  });
+}
+function accTremblerStop(){
+  ACC.anims.forEach(function(a){ try{ a.cancel(); }catch(e){} }); ACC.anims=[]; ACC.t0=0;
+  [].forEach.call(document.querySelectorAll("#v-horaire [data-w]"),function(x){ x.__accAnim=null; });
+  if(ACC.calque) [].forEach.call(ACC.calque.children,function(b){ b.__accAnim=null; });
+}
+/* le bouton qui ouvre le mode, au pied de l'Accueil */
 function accPied(){
   var p=document.getElementById("accPied"); if(!p) return;
+  if(ACC.edit){ p.hidden=true; return; }
   p.hidden=false;
-  if(!ACC.edit){ p.innerHTML='<button type="button" class="acc-perso-btn" data-acc-editer><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/></svg>Personnaliser l’Accueil</button>'; return; }
-  var pcR=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
-  var mq=ACC.o.filter(function(k){ return ACC.m[k]&&(!accDef(k).pc||pcR); });
-  p.innerHTML='<div class="acc-reserve"><b>Widgets masqués</b>'+(mq.length?'<div class="acc-reserve-l">'+mq.map(function(k){
-      return '<button type="button" data-acc-montrer="'+k+'" aria-label="Remettre « '+esc(accDef(k).nom)+' »"><i aria-hidden="true">+</i>'+esc(accDef(k).nom)+'</button>'; }).join("")+'</div>'
-    :'<p>Aucun : le bouton « − » d’un widget le range ici.</p>')+'</div>';
+  p.innerHTML='<button type="button" class="acc-perso-btn" data-acc-editer><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/></svg>Modifier l’Accueil</button>';
 }
-/* la barre du mode flotte au-dessus de la barre d'onglets du téléphone */
+/* « + » et « ✓ » en haut, aux bords de l'Accueil, sous la barre du haut de
+   la tablette s'il y en a une */
 function accBas(){
-  var b=document.getElementById("accBarre"); if(!b) return;
-  var nav=document.querySelector("nav.tabs"), bas=24;
-  if(nav&&nav.getClientRects().length){ var r=nav.getBoundingClientRect(); if(r.top>innerHeight/2&&r.width>innerWidth/2) bas=Math.max(24,innerHeight-r.top+14); }
-  b.style.setProperty("--acc-bas",bas+"px");
-  if(window.matchMedia&&matchMedia("(min-width:1100px)").matches){ var s=document.querySelector(".top"); if(s&&s.getClientRects().length){ b.style.left="calc(50% + "+(s.getBoundingClientRect().width/2)+"px)"; return; } }
-  b.style.left="";
+  var b=document.getElementById("accBarre"), v=document.getElementById("v-horaire"); if(!b||!v) return;
+  var r=v.getBoundingClientRect(), cs=getComputedStyle(v), g=r.left+(parseFloat(cs.paddingLeft)||0),
+      d=document.documentElement.clientWidth-r.right+(parseFloat(cs.paddingRight)||0), h=0;
+  var t=document.querySelector(".top");
+  if(t&&t.getClientRects().length){ var tr=t.getBoundingClientRect(); if(tr.width>innerWidth/2&&tr.top<=1&&tr.bottom<innerHeight/3) h=Math.max(0,tr.bottom); }
+  b.style.setProperty("--acc-g",Math.max(8,Math.round(g))+"px"); b.style.setProperty("--acc-d",Math.max(8,Math.round(d))+"px"); b.style.setProperty("--acc-h",Math.round(h)+"px");
+}
+/* la place de « + » et « ✓ » : l'Accueil descend d'autant que les
+   pastilles en couvriraient le haut (le « − » du premier widget passait
+   dessous, mesuré le 04/11/2026). Ouvert du doigt sur un élément, la page
+   défile d'autant : l'élément reste sous le doigt. */
+function accEspaceHaut(on,garderVue){
+  var v=document.getElementById("v-horaire"), b=document.getElementById("accBarre"), bt=b&&b.querySelector("button"); if(!v) return;
+  var avant=ACC.pad||0; v.style.paddingTop=""; ACC.pad=0;
+  if(!on||!bt){ if(avant&&scrollY>0) window.scrollBy(0,-Math.min(avant,scrollY)); return; }
+  var P=parseFloat(getComputedStyle(v).paddingTop)||0, vr=v.getBoundingClientRect(), br=bt.getBoundingClientRect();
+  var besoin=Math.ceil(br.bottom+12-(vr.top+scrollY+P));
+  if(besoin>0){ v.style.paddingTop=(P+besoin)+"px"; ACC.pad=besoin; if(garderVue&&!avant) window.scrollBy(0,besoin); }
 }
 function accEditer(on){
   var v=document.getElementById("v-horaire"), b=document.getElementById("accBarre"); if(!v||!ACC.style) return;
   ACC.edit=!!on; v.classList.toggle("acc-edit",ACC.edit);
   if(b){ b.hidden=!ACC.edit; if(ACC.edit) accBas(); }
-  if(ACC.edit){ accOutils(true); accAnnoncer("Personnaliser l’Accueil : glissez la poignée d’un widget pour le déplacer, la languette de droite ou les tailles pour sa largeur, « − » pour le masquer."); }
+  accEspaceHaut(ACC.edit,on==="doigt");
+  if(ACC.edit){ accOutils(true); accAnnoncer("Modifier l’Accueil. Glissez un widget ou une icône pour le déplacer ; l’arc de son coin change sa taille ; « − » le retire ; « + », en haut, le remet ; « ✓ » termine."); }
   else {
-    [].forEach.call(v.querySelectorAll(".acc-outils,.acc-etirer"),function(x){ x.parentNode.removeChild(x); });
-    [].forEach.call(v.querySelectorAll(".acc-vide,.acc-tire"),function(x){ x.classList.remove("acc-vide","acc-tire"); });
+    accGalerieFermer(); accTremblerStop();
+    if(ACC.calque){ ACC.calque.innerHTML=""; if(ACC.calque.parentNode) ACC.calque.parentNode.removeChild(ACC.calque); }
+    [].forEach.call(v.querySelectorAll("[data-w]"),function(x){ if(x.inert) x.inert=false; x.classList.remove("acc-vide","acc-tire"); });
   }
   accPied();
-  if(ACC.edit){ var f=document.getElementById("accOk"); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }
+  if(ACC.edit){ var f=document.getElementById("accOk"); if(f&&on!=="doigt") try{ f.focus({preventScroll:true}); }catch(e){} }
   else { var pb=document.querySelector("#accPied .acc-perso-btn"); if(pb&&on===false) try{ pb.focus({preventScroll:true}); }catch(e){} }
 }
-/* déplacer : la place du widget devient le cadre fantôme ; l'ordre suit le
-   doigt (la case visée, côté gauche ou droit, haut ou bas si elle est
-   pleine largeur) ; la page défile près des bords */
+/* « − » : comme l'iPhone, une confirmation ; rien n'est effacé */
+function accRetirer(k){
+  var d=accDef(k); if(!d) return;
+  confirmerPro({titre:d.app?"Retirer « "+d.nom+" » de l’Accueil ?":"Retirer le widget « "+d.nom+" » ?",
+    texte:(d.app?"L’icône quitte l’Accueil ; rien n’est effacé. Le bouton « + », en haut, la remet.":"Le widget quitte l’Accueil ; rien n’est effacé. Le bouton « + », en haut, le remet."),
+    ok:"Retirer", annuler:"Annuler"},function(){
+    ACC.m[k]=true; accStyle(); accSauver(); accOutils(false);
+    accAnnoncer("« "+d.nom+" » retiré de l’Accueil. « + », en haut, le remet.");
+    var a=document.getElementById("accAjout"); if(a) try{ a.focus({preventScroll:true}); }catch(e){}
+  });
+}
+/* « + » : la galerie de ce qui a été retiré, comme celle des widgets de
+   l'iPhone ; « Rétablir la disposition d'origine » au pied */
+var ACC_ICO_W={
+  poste:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  profil:'<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  meteo:'<path d="M12 3v2M5.6 5.6l1.4 1.4M3 12h2M18.4 5.6 17 7"/><path d="M15.4 11.2a4 4 0 0 0-7.3-1.6"/><path d="M17 20H8.5a4 4 0 1 1 3.8-5.2H13a2.6 2.6 0 0 1 4 5.2z"/>',
+  cycle:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  polyvalences:'<path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/>'
+};
+function accIcone(k){
+  var d=accDef(k), el=document.querySelector('#v-horaire [data-w="'+k+'"]'), sv=null;
+  if(el) sv=d.app?el.querySelector(".ctl-ti svg"):el.querySelector("header .cc-ico");
+  if(sv) return {svg:sv.outerHTML, c:getComputedStyle(d.app?el:(sv.closest("header")||el)).getPropertyValue("--ic").trim()};
+  return {svg:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    +(ACC_ICO_W[k]||'<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>')+'</svg>', c:""};
+}
+function accGalerieFermer(){ var g=document.getElementById("accGal"); if(g&&g.parentNode) g.parentNode.removeChild(g); document.removeEventListener("keydown",accGalClavier,true); }
+function accGalClavier(e){
+  var g=document.getElementById("accGal"); if(!g||document.querySelector(".cfm-ov")) return;
+  if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); accGalerieFermer(); var a=document.getElementById("accAjout"); if(a) try{ a.focus(); }catch(er){} }
+  else if(e.key==="Tab"){ var b=g.querySelectorAll("button"), i=[].indexOf.call(b,document.activeElement); e.preventDefault(); b[(i+(e.shiftKey?b.length-1:1)+b.length)%b.length].focus(); }
+}
+function accGalerie(){
+  accGalerieFermer();
+  var pcR=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches), apps=!!document.querySelector('#v-horaire [data-w^="app:"]');
+  var mq=ACC.o.filter(function(k){ var d=accDef(k); return ACC.m[k]&&d&&(!d.pc||pcR)&&!(k==="acces"&&apps)&&document.querySelector('#v-horaire [data-w="'+k+'"]'); });
+  var wid=mq.filter(function(k){ return !accDef(k).app; }), ics=mq.filter(function(k){ return accDef(k).app; });
+  function ligne(k){ var d=accDef(k), ic=accIcone(k);
+    return '<button type="button" class="acc-gal-i" data-acc-montrer="'+k+'"><i class="acc-gal-ico" aria-hidden="true"'+(ic.c?' style="--ic:'+esc(ic.c)+'"':'')+'>'+ic.svg+'</i>'
+      +'<span><b>'+esc(d.nom)+'</b><small>'+(d.app?"Icône":"Widget · largeur "+ACC_FRAC[ACC.mode][accTaille(k)])+'</small></span><span class="acc-gal-plus" aria-hidden="true">+</span></button>'; }
+  var o=document.createElement("div"); o.className="acc-gal-ov"; o.id="accGal";
+  o.innerHTML='<div class="acc-gal" role="dialog" aria-modal="true" aria-labelledby="accGalT">'
+    +'<div class="acc-gal-tete"><h2 id="accGalT">Ajouter à l’Accueil</h2><button type="button" class="acc-gal-x" aria-label="Fermer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'
+    +(mq.length?'':'<p class="acc-gal-vide">Tout est sur l’Accueil. Le « − » d’un widget ou d’une icône l’en retire ; il revient ici.</p>')
+    +(wid.length?'<p class="acc-gal-st">Widgets</p><div class="acc-gal-l">'+wid.map(ligne).join("")+'</div>':'')
+    +(ics.length?'<p class="acc-gal-st">Icônes</p><div class="acc-gal-l">'+ics.map(ligne).join("")+'</div>':'')
+    +'<button type="button" class="acc-gal-raz">Rétablir la disposition d’origine</button></div>';
+  o.addEventListener("click",function(e){
+    var t=e.target, b;
+    if(t===o||t.closest(".acc-gal-x")){ accGalerieFermer(); var a=document.getElementById("accAjout"); if(a) try{ a.focus(); }catch(er){} return; }
+    if((b=t.closest("[data-acc-montrer]"))){
+      var k=b.getAttribute("data-acc-montrer"); delete ACC.m[k]; accStyle(); accSauver(); accGalerieFermer(); accOutils(false);
+      accAnnoncer("« "+accDef(k).nom+" » remis sur l’Accueil.");
+      var el=accItem(k); if(el) try{ el.scrollIntoView({block:"center"}); }catch(er){}
+      var bx=ACC.calque&&ACC.calque.querySelector('.acc-b[data-acc-pour="'+k+'"] .acc-moins'); if(bx) try{ bx.focus({preventScroll:true}); }catch(er){}
+      return;
+    }
+    if(t.closest(".acc-gal-raz")){
+      confirmerPro({titre:"Rétablir la disposition d’origine ?", texte:"Pour cet écran, l’ordre, les tailles et ce qui a été retiré reviennent comme au premier jour.", ok:"Rétablir", annuler:"Garder"},function(){
+        try{ localStorage.removeItem("ui/accueil/"+ACC.mode); }catch(er){}
+        accGalerieFermer(); accCharger(ACC.mode); accScan(); accStyle(); accOutils(true); accAnnoncer("Disposition d’origine rétablie.");
+      });
+    }
+  });
+  document.body.appendChild(o); document.addEventListener("keydown",accGalClavier,true);
+  var f=o.querySelector(".acc-gal-i")||o.querySelector(".acc-gal-x"); if(f) try{ f.focus(); }catch(e){}
+}
+/* déplacer : la place de l'élément devient un creux ; sa copie, un peu
+   soulevée, suit le doigt ; l'ordre suit la case visée (côté gauche ou
+   droit, haut ou bas si elle est pleine largeur) ; la page défile près
+   des bords */
 function accTirer(ev,k,el,attendre){
   var r=el.getBoundingClientRect(), d={k:k, id:ev.pointerId, x0:ev.clientX, y0:ev.clientY, x:ev.clientX, y:ev.clientY, dx:ev.clientX-r.left, dy:ev.clientY-r.top,
-    w:Math.min(r.width,420), h:Math.min(r.height,120), avant:ACC.o.slice(), cible:"", t:0, parti:!attendre, raf:0, vol:null};
+    avant:ACC.o.slice(), cible:"", t:0, parti:!attendre, raf:0, vol:null, s:1};
   ACC.drag=d;
+  function boite(){ return ACC.calque?ACC.calque.querySelector('.acc-b[data-acc-pour="'+k+'"]'):null; }
   function partir(){
     d.parti=true;
-    var vol=document.createElement("div"); vol.className="acc-vol"; vol.style.width=d.w+"px"; vol.style.height=d.h+"px";
-    vol.innerHTML='<b>'+esc(accDef(k).nom)+'</b><small>Largeur '+ACC_FRAC[ACC.mode][accTaille(k)]+' · lâchez pour poser</small>';
-    document.body.appendChild(vol); d.vol=vol; d.dx=Math.min(d.dx,d.w-20); d.dy=Math.min(d.dy,d.h-20);
-    [].forEach.call(document.querySelectorAll('#v-horaire [data-w="'+k+'"]'),function(x){ x.classList.add("acc-tire"); });
+    var w=el.offsetWidth||r.width, h=el.offsetHeight||r.height, cl=el.cloneNode(true), bx=boite();
+    d.s=Math.min(1.05,innerWidth*0.8/w,innerHeight*0.5/h);
+    d.dx=Math.max(0,Math.min(d.dx,w)); d.dy=Math.max(0,Math.min(d.dy,h));
+    cl.removeAttribute("data-w"); [].forEach.call(cl.querySelectorAll("[data-w]"),function(x){ x.removeAttribute("data-w"); });
+    cl.classList.remove("acc-tire","acc-vide"); cl.classList.add("acc-vol"); cl.setAttribute("aria-hidden","true");
+    cl.style.width=w+"px"; cl.style.height=h+"px"; cl.style.gridRowEnd="auto";
+    el.parentNode.insertBefore(cl,el.nextSibling); d.vol=cl;
+    [el,bx].forEach(function(x){ if(x&&x.__accAnim){ try{ x.__accAnim.cancel(); }catch(e){} x.__accAnim=null; } });
+    el.classList.add("acc-tire"); if(bx) bx.classList.add("acc-tire");
+    try{ if(navigator.vibrate&&ev.pointerType!=="mouse") navigator.vibrate(8); }catch(e){}
     placer(); boucle();
   }
-  function placer(){ if(d.vol) d.vol.style.transform="translate("+(d.x-d.dx)+"px,"+(d.y-d.dy)+"px) rotate(1.2deg)"; }
+  function placer(){ if(d.vol) d.vol.style.transform="translate("+(d.x-d.dx*d.s)+"px,"+(d.y-d.dy*d.s)+"px) scale("+d.s+")"; }
   function cibler(){
-    var e=document.elementFromPoint(d.x,d.y), w=e&&e.closest?e.closest("#v-horaire [data-w]"):null; if(!w) return;
-    var kc=w.getAttribute("data-w"); if(!kc||kc===d.k||!accDef(kc)) return;
-    var rc=w.getBoundingClientRect(), v=document.getElementById("v-horaire"), plein=rc.width>v.clientWidth*0.7;
+    var e=document.elementFromPoint(d.x,d.y), w=e&&e.closest?(e.closest(".acc-b")||e.closest("#v-horaire [data-w]")):null; if(!w) return;
+    var kc=w.getAttribute("data-acc-pour")||w.getAttribute("data-w"); if(!kc||kc===d.k||!accDef(kc)) return;
+    var it=accItem(kc); if(!it) return;
+    var rc=it.getBoundingClientRect(), v=document.getElementById("v-horaire"), plein=rc.width>v.clientWidth*0.7;
     var apres=plein?d.y>rc.top+rc.height/2:d.x>rc.left+rc.width/2, sig=kc+(apres?">":"<");
     if(sig===d.cible||accMaint()-d.t<150) return;
     d.cible=sig; d.t=accMaint();
@@ -36650,7 +36862,8 @@ function accTirer(ev,k,el,attendre){
       if(nav&&nav.getClientRects().length){ var nr=nav.getBoundingClientRect(); if(nr.top>vb/2&&nr.width>innerWidth/2) vb=nr.top; }
       var m=Math.min(72,innerHeight*0.12);
       if(d.y<m) pas=-Math.ceil((m-d.y)/4); else if(d.y>vb-m) pas=Math.ceil((d.y-(vb-m))/4);
-      if(pas){ window.scrollBy(0,pas); cibler(); }
+      if(pas) window.scrollBy(0,pas);
+      cibler();
       boucle();
     });
   }
@@ -36665,14 +36878,16 @@ function accTirer(ev,k,el,attendre){
     document.removeEventListener("pointermove",bouger,true); document.removeEventListener("pointerup",fin,true);
     document.removeEventListener("pointercancel",fin,true); document.removeEventListener("keydown",esc_,true);
     cancelAnimationFrame(d.raf); if(d.vol&&d.vol.parentNode) d.vol.parentNode.removeChild(d.vol);
-    [].forEach.call(document.querySelectorAll("#v-horaire .acc-tire"),function(x){ x.classList.remove("acc-tire"); });
+    el.classList.remove("acc-tire"); var bx=boite(); if(bx) bx.classList.remove("acc-tire");
     ACC.drag=null;
     if(!d.parti) return;
-    if(annule){ ACC.o=d.avant; accStyle(); return; }
-    accSauver();
-    var vis=ACC.o.filter(function(x){ return !ACC.m[x]; });
-    accAnnoncer("« "+accDef(k).nom+" » posé : position "+(vis.indexOf(k)+1)+" sur "+vis.length+".");
-    accBloqueClic=accMaint();
+    if(annule){ ACC.o=d.avant; accStyle(); }
+    else {
+      accSauver();
+      var vis=ACC.o.filter(function(x){ return !ACC.m[x]&&accItem(x); });
+      accAnnoncer("« "+accDef(k).nom+" » posé : position "+(vis.indexOf(k)+1)+" sur "+vis.length+".");
+    }
+    accBloqueClic=accMaint(); accOutils(false);
   }
   function esc_(e){ if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); fin(null,true); } }
   document.addEventListener("pointermove",bouger,{capture:true, passive:false}); document.addEventListener("pointerup",fin,true);
@@ -36680,31 +36895,32 @@ function accTirer(ev,k,el,attendre){
   if(d.parti){ try{ ev.target.setPointerCapture(ev.pointerId); }catch(e){} partir(); }
 }
 var accBloqueClic=-1e9;
-function accChoixFermer(){ [].forEach.call(document.querySelectorAll("#v-horaire .acc-outils.choix"),function(o){ o.classList.remove("choix"); var b=o.querySelector("[data-acc-tbtn]"); if(b) b.setAttribute("aria-expanded","false"); }); }
 /* le temps qui passe, et non l'heure du jour (qu'un réglage peut figer) */
 function accMaint(){ return window.performance&&performance.now?performance.now():Date.now(); }
-/* étirer : un cadre fantôme part du bord gauche du widget et s'aimante à
-   la largeur permise la plus proche du doigt ; lâcher l'applique */
-function accEtirer(ev,k,el){
-  var v=document.getElementById("v-horaire"), vr=v.getBoundingClientRect(), r=el.getBoundingClientRect(), cs=getComputedStyle(v);
-  var gl=vr.left+parseFloat(cs.paddingLeft), gw=vr.width-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight), cw=(gw-(ACC.cols-1)*ACC.gap)/ACC.cols;
-  var col=Math.max(0,Math.round((r.left-gl)/(cw+ACC.gap))), p=accPermises(k).filter(function(s){ return s<=ACC.cols; });
+/* la taille : l'arc du coin tire un cadre fantôme, depuis le bord gauche
+   de l'élément, aimanté à la taille permise la plus proche ; lâcher
+   l'applique */
+function accEtirer(ev,k,el,g){
+  var v=document.getElementById("v-horaire"), cs=getComputedStyle(v), pl=parseFloat(cs.paddingLeft)||0,
+      gw=v.clientWidth-pl-(parseFloat(cs.paddingRight)||0), cw=(gw-(ACC.cols-1)*ACC.gap)/ACC.cols, q=accPos(el);
+  var col=Math.max(0,Math.round((q.x-pl)/(cw+ACC.gap))), p=accPermises(k).filter(function(s){ return accN(s)<=ACC.cols; });
   var f=document.createElement("div"); f.className="acc-fantome"; f.setAttribute("aria-hidden","true");
-  f.style.left=(r.left-vr.left)+"px"; f.style.top=(r.top-vr.top)+"px"; f.style.height=r.height+"px";
+  f.style.left=q.x+"px"; f.style.top=q.y+"px"; f.style.height=el.offsetHeight+"px";
   v.appendChild(f);
   var t=accTaille(k), id=ev.pointerId;
-  function largeur(s){ return s*cw+(s-1)*ACC.gap; }
+  ACC.etire=true;
+  function largeur(s){ var n=accN(s); return n*cw+(n-1)*ACC.gap; }
   function montrer(){
-    /* au-delà du bord droit, le widget passera à la rangée suivante : le
+    /* au-delà du bord droit, l'élément passera à la rangée suivante : le
        cadre fantôme le montre alors depuis la gauche */
-    var depasse=col+t>ACC.cols;
-    f.style.left=(depasse?gl-vr.left:r.left-vr.left)+"px";
+    var depasse=col+accN(t)>ACC.cols;
+    f.style.left=(depasse?pl:q.x)+"px";
     f.style.width=largeur(t)+"px";
     f.innerHTML='<b>'+ACC_FRAC[ACC.mode][t]+'</b>';
   }
   function bouger(e){
     if(e.pointerId!==id) return; e.preventDefault();
-    var voulu=e.clientX-r.left, mieux=t, ec=1e9;
+    var vr=v.getBoundingClientRect(), voulu=e.clientX-(vr.left+v.clientLeft+q.x), mieux=t, ec=1e9;
     p.forEach(function(s){ var dd=Math.abs(largeur(s)-voulu); if(dd<ec){ ec=dd; mieux=s; } });
     if(mieux!==t){ t=mieux; montrer(); }
   }
@@ -36712,12 +36928,13 @@ function accEtirer(ev,k,el){
     if(e&&e.pointerId!==id) return;
     document.removeEventListener("pointermove",bouger,true); document.removeEventListener("pointerup",fin,true); document.removeEventListener("pointercancel",fin,true);
     if(f.parentNode) f.parentNode.removeChild(f);
+    ACC.etire=false;
     if(t!==accTaille(k)){ ACC.t[k]=t; accStyle(); accSauver(); accOutils(false);
-      accAnnoncer("« "+accDef(k).nom+" » : largeur "+ACC_FRAC[ACC.mode][t]+"."); }
+      accAnnoncer("« "+accDef(k).nom+" » : taille "+ACC_FRAC[ACC.mode][t]+"."); }
     accBloqueClic=accMaint();
   }
   montrer();
-  try{ ev.target.setPointerCapture(id); }catch(er){}
+  try{ (g||ev.target).setPointerCapture(id); }catch(er){}
   document.addEventListener("pointermove",bouger,{capture:true, passive:false}); document.addEventListener("pointerup",fin,true); document.addEventListener("pointercancel",fin,true);
 }
 /* LE WIDGET « PLANNING » DE L'ACCUEIL, AU PC (le client, le 04/11/2026) : la
@@ -36738,70 +36955,83 @@ function accInit(){
   var v=document.getElementById("v-horaire");
   if(!v||!window.ResizeObserver||!window.MutationObserver||!(window.CSS&&CSS.supports&&CSS.supports("display","contents"))) return;
   ACC.style=document.createElement("style"); ACC.style.id="accStyle"; ACC.style.setAttribute("data-genere",""); document.head.appendChild(ACC.style);
-  ACC.ro=new ResizeObserver(function(es){ es.forEach(function(e){ accEmpan(e.target); }); });
-  new ResizeObserver(function(){ accForme(); if(ACC.edit) accBas(); }).observe(v);
-  new MutationObserver(function(){ if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); }).observe(v,{childList:true, subtree:true});
+  ACC.ro=new ResizeObserver(function(es){ es.forEach(function(e){ accEmpan(e.target); }); accCalqueBientot(); });
+  new ResizeObserver(function(){ accForme(); if(ACC.edit){ accBas(); accCalqueBientot(); } }).observe(v);
+  new MutationObserver(function(ms){
+    for(var i=0;i<ms.length;i++){ var t=ms[i].target; if(!(ACC.calque&&(t===ACC.calque||ACC.calque.contains(t)))){ if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); return; } }
+  }).observe(v,{childList:true, subtree:true});
   v.classList.add("acc-perso");
   accForme(); accScan(); accPied();
-  /* en mode « Personnaliser », le contenu des widgets ne réagit pas */
+  /* en mode « Modifier », le contenu des éléments ne réagit pas */
   v.addEventListener("click",function(e){
     if(accMaint()-accBloqueClic<350){ e.preventDefault(); e.stopPropagation(); return; }
     var t=e.target;
     if(t.closest("[data-acc-editer]")){ accEditer(true); return; }
     if(!ACC.edit) return;
     var x;
-    if((x=t.closest("[data-acc-tbtn]"))){ var ob=x.closest(".acc-outils"), ouvre=!ob.classList.contains("choix"); accChoixFermer();
-      if(ouvre){ ob.classList.add("choix"); x.setAttribute("aria-expanded","true"); var pr=ob.querySelector('.acc-tailles [aria-pressed="true"]'); if(pr) try{ pr.focus(); }catch(er){} } return; }
-    if((x=t.closest("[data-acc-taille]"))){ var kv=x.getAttribute("data-acc-taille").split(":"); accChoixFermer(); ACC.t[kv[0]]=Number(kv[1]); accStyle(); accSauver(); accOutils(false);
-      accAnnoncer("« "+accDef(kv[0]).nom+" » : largeur "+ACC_FRAC[ACC.mode][Number(kv[1])]+"."); return; }
-    if((x=t.closest("[data-acc-masquer]"))){ var km=x.getAttribute("data-acc-masquer"); ACC.m[km]=true; accStyle(); accSauver(); accPied();
-      accAnnoncer("« "+accDef(km).nom+" » masqué : il est dans « Widgets masqués », au bas de l’Accueil."); return; }
-    if((x=t.closest("[data-acc-montrer]"))){ var kr=x.getAttribute("data-acc-montrer"); delete ACC.m[kr]; accStyle(); accSauver(); accPied(); accOutils(false);
-      accAnnoncer("« "+accDef(kr).nom+" » remis à sa place."); return; }
+    if((x=t.closest("[data-acc-masquer]"))){ accRetirer(x.getAttribute("data-acc-masquer")); return; }
+    if(t.closest("#accAjout")){ accGalerie(); return; }
     if(t.closest("#accOk")){ accEditer(false); return; }
-    if(t.closest("#accRaz")){
-      confirmerPro({titre:"Réinitialiser l’Accueil ?", texte:"La disposition d’origine revient pour cet écran : l’ordre, les largeurs et les widgets masqués.", ok:"Réinitialiser", annuler:"Garder"},function(){
-        try{ localStorage.removeItem("ui/accueil/"+ACC.mode); }catch(er){}
-        accCharger(ACC.mode); accStyle(); accOutils(true); accPied(); accAnnoncer("Disposition d’origine rétablie.");
-      });
-      return;
-    }
-    if(t.closest(".acc-outils,.acc-pied,.acc-barre")) return;
-    accChoixFermer();
+    if(t.closest(".acc-calque button")) return;
     e.preventDefault(); e.stopPropagation();
   },true);
   v.addEventListener("pointerdown",function(e){
     if(!ACC.edit||ACC.drag||(e.button!==undefined&&e.button!==0)) return;
-    var g=e.target.closest("[data-acc-etirer]"), h=e.target.closest("[data-acc-tirer]"), w;
-    if(g){ e.preventDefault(); accEtirer(e,g.getAttribute("data-acc-etirer"),g.parentNode); return; }
-    if(h){ e.preventDefault(); w=h.closest("[data-w]"); if(w) accTirer(e,h.getAttribute("data-acc-tirer"),w,false); return; }
-    /* à la souris, tout le widget se saisit (au doigt, la poignée seule :
-       le reste fait défiler la page) */
-    if(e.pointerType==="mouse"&&!e.target.closest(".acc-outils")&&(w=e.target.closest("[data-w]"))&&accDef(w.getAttribute("data-w"))){ e.preventDefault(); accTirer(e,w.getAttribute("data-w"),w,true); }
+    var g=e.target.closest("[data-acc-etirer]"), bx=e.target.closest(".acc-b"), k, w;
+    if(g){ e.preventDefault(); k=g.getAttribute("data-acc-etirer"); w=accItem(k); if(w) accEtirer(e,k,w,g); return; }
+    if(!bx||e.target.closest(".acc-moins")) return;
+    k=bx.getAttribute("data-acc-pour"); w=accItem(k); if(!w||!accDef(k)) return;
+    /* à la souris, l'élément part dès qu'il glisse */
+    if(e.pointerType==="mouse"){ e.preventDefault(); accTirer(e,k,w,true); return; }
+    /* au doigt, comme l'iPhone : posé un instant, il se soulève ; un
+       glissement immédiat fait défiler la page */
+    var ev0=e, x0=e.clientX, y0=e.clientY;
+    var tm=setTimeout(function(){ net(); if(ACC.edit&&!ACC.drag) accTirer(ev0,k,w,false); },170);
+    function mv(m){ if(m.pointerId===ev0.pointerId&&Math.abs(m.clientX-x0)+Math.abs(m.clientY-y0)>8){ clearTimeout(tm); net(); } }
+    function up(m){ if(m.pointerId===ev0.pointerId){ clearTimeout(tm); net(); } }
+    function net(){ document.removeEventListener("pointermove",mv,true); document.removeEventListener("pointerup",up,true); document.removeEventListener("pointercancel",up,true); }
+    document.addEventListener("pointermove",mv,true); document.addEventListener("pointerup",up,true); document.addEventListener("pointercancel",up,true);
   });
-  /* le clavier : les flèches sur la poignée déplacent d'une place */
+  /* au doigt, un élément soulevé (ou l'arc qu'on tire) ne fait pas défiler la page */
+  v.addEventListener("touchmove",function(e){ if((ACC.drag||ACC.etire)&&e.cancelable) e.preventDefault(); },{passive:false});
+  /* le clavier : les flèches sur « Déplacer » changent la place ; sur
+     l'arc du coin, la taille ; Échap termine */
   v.addEventListener("keydown",function(e){
-    if(ACC.edit&&e.key==="Escape"&&document.querySelector("#v-horaire .acc-outils.choix")){ var ob=e.target.closest&&e.target.closest(".acc-outils"); accChoixFermer();
-      var tb=ob&&ob.querySelector("[data-acc-tbtn]"); if(tb) try{ tb.focus(); }catch(er){} e.preventDefault(); return; }
-    var h=ACC.edit&&e.target.closest&&e.target.closest("[data-acc-tirer]"); if(!h) return;
-    var sens={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[e.key]; if(!sens) return;
-    e.preventDefault();
-    var k=h.getAttribute("data-acc-tirer"), vis=ACC.o.filter(function(x){ return !ACC.m[x]; }), i=vis.indexOf(k), j=i+sens;
-    if(j<0||j>=vis.length) return;
-    var o=ACC.o.filter(function(x){ return x!==k; }), a=o.indexOf(vis[j]); o.splice(sens>0?a+1:a,0,k);
-    ACC.o=o; accStyle(); accSauver();
-    accAnnoncer("« "+accDef(k).nom+" » : position "+(j+1)+" sur "+vis.length+".");
+    if(!ACC.edit) return;
+    if(e.key==="Escape"){ if(!ACC.drag&&!document.querySelector(".cfm-ov,#accGal")){ e.preventDefault(); accEditer(false); } return; }
+    var g=e.target.closest&&e.target.closest("[data-acc-etirer]"), h=e.target.closest&&e.target.closest("[data-acc-tirer]");
+    if(g){
+      var kk=g.getAttribute("data-acc-etirer"), pp=accPermises(kk), ii=pp.indexOf(accTaille(kk)), jj=-1, st={ArrowLeft:-1,ArrowDown:-1,ArrowRight:1,ArrowUp:1}[e.key];
+      if(e.key==="Home") jj=0; else if(e.key==="End") jj=pp.length-1; else if(st) jj=ii+st; else return;
+      e.preventDefault(); if(jj<0||jj>=pp.length||jj===ii) return;
+      ACC.t[kk]=pp[jj]; accStyle(); accSauver(); accOutils(false);
+      accAnnoncer("« "+accDef(kk).nom+" » : taille "+ACC_FRAC[ACC.mode][pp[jj]]+".");
+      return;
+    }
+    if(h){
+      var sens={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[e.key]; if(!sens) return;
+      e.preventDefault();
+      var k=h.getAttribute("data-acc-tirer"), vis=ACC.o.filter(function(x){ return !ACC.m[x]&&accItem(x); }), i=vis.indexOf(k), j=i+sens;
+      if(j<0||j>=vis.length) return;
+      var o=ACC.o.filter(function(x){ return x!==k; }), a=o.indexOf(vis[j]); o.splice(sens>0?a+1:a,0,k);
+      ACC.o=o; accStyle(); accSauver(); accOutils(false);
+      accAnnoncer("« "+accDef(k).nom+" » : position "+(j+1)+" sur "+vis.length+".");
+      return;
+    }
   });
-  window.addEventListener("resize",function(){ if(ACC.edit) accBas(); });
+  window.addEventListener("resize",function(){ if(ACC.edit){ accBas(); accEspaceHaut(true,false); accCalqueBientot(); } });
   /* L'APPUI PROLONGÉ (le client, le 04/11/2026 : « sur mobile, un appui
      prolongé peut permettre de modifier l'accueil, comme c'est le cas pour
      l'accueil de l'iPhone ») : un doigt posé une demi-seconde sur un widget,
-     sans bouger, ouvre « Personnaliser » (une vibration là où le téléphone
-     le permet). Un glissement ou le défilement l'annulent ; un champ de
-     saisie n'en déclenche pas. Le clic du relâcher est arrêté : sinon il
-     toucherait l'outil apparu sous le doigt (« − » masquerait le widget). */
-  var lp=null, lpFait=false;
+     sans bouger, ouvre « Modifier l'Accueil » (une vibration là où le
+     téléphone le permet). Un glissement ou le défilement l'annulent ; un
+     champ de saisie n'en déclenche pas. Le clic du relâcher est arrêté :
+     sinon il toucherait l'outil apparu sous le doigt (« − » retirerait le
+     widget). Comme sur l'iPhone, le doigt qui reste posé tient l'élément :
+     il part dès que le doigt glisse. */
+  var lp=null, lpFait=false, lpPD=null;
   function lpStop(){ if(lp){ clearTimeout(lp.t); lp=null; } }
+  v.addEventListener("pointerdown",function(e){ if(e.pointerType!=="mouse") lpPD=e; },true);
   v.addEventListener("touchstart",function(e){
     lpFait=false;
     if(ACC.edit||ACC.drag||e.touches.length!==1) { lpStop(); return; }
@@ -36812,7 +37042,9 @@ function accInit(){
       lp=null; lpFait=true;
       try{ if(navigator.vibrate) navigator.vibrate(12); }catch(er){}
       try{ var sel=window.getSelection&&getSelection(); if(sel&&sel.removeAllRanges) sel.removeAllRanges(); }catch(er){}
-      accBloqueClic=accMaint(); accEditer(true);
+      accBloqueClic=accMaint(); accEditer("doigt");
+      var w0=lpPD&&lpPD.target&&lpPD.target.closest?lpPD.target.closest("[data-w]"):null, k0=w0&&w0.getAttribute("data-w");
+      if(ACC.edit&&k0&&accDef(k0)&&!ACC.drag) accTirer(lpPD,k0,w0,true);
     },550)};
   },{passive:true});
   v.addEventListener("touchmove",function(e){ if(!lp) return; var q=e.touches[0]; if(Math.abs(q.clientX-lp.x)+Math.abs(q.clientY-lp.y)>10) lpStop(); },{passive:true});

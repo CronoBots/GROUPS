@@ -11978,3 +11978,95 @@ faute ; statique : 0. Garde-fou du dépôt : 0, après une reformulation
 (dans l'infobulle, la province suivie du pays, séparés d'une virgule,
 avait la forme « Nom, Prénom » ; l'infobulle met désormais le pays
 d'abord).
+
+### « Modifier l'Accueil » comme l'iPhone ; chaque accès rapide devient une app (04/11/2026, `nfdm-v1371`)
+
+Le client, capture de son iPhone en mode modification à l'appui :
+« Masquer et modifier un widget doit être comme sur Apple. Il faut aussi
+faire bouger les widgets et icônes comme lors d'une modification sur
+iPhone. Pour les raccourcis rapides, cela doit être des onglets à part
+(1 sur 1) comme des applications d'iPhone. »
+
+**Ce que montre la capture, et ce qui est fait :**
+- en haut, deux pastilles de verre : à gauche « + » (ajouter), à droite
+  « ✓ » (terminer). Elles remplacent la barre « Personnaliser /
+  Réinitialiser / Terminé » du bas. L'Accueil descend d'autant que les
+  pastilles en couvriraient le haut : le « − » du premier widget passait
+  dessous, mesuré ;
+- sur chaque widget et chaque icône, un rond gris « − » au coin
+  haut-gauche (sur l'icône, pour une app). Comme sur l'iPhone, il demande
+  confirmation (« Retirer le widget « Météo » ? », rien n'est effacé) ;
+- au coin bas-droit des widgets qui ont plusieurs tailles, l'arc blanc
+  de l'iPhone : on le tire (cadre fantôme aimanté), ou, au clavier, les
+  flèches, Début et Fin. Il remplace la languette et le menu « ½ ⌄ » ;
+- tout tremble, widgets et icônes, avec des animations du navigateur
+  parties ensemble, chacune décalée. L'angle se réduit pour un grand
+  widget, dont le bord ne bouge que d'un ou deux pixels. Rien ne tremble
+  si l'appareil demande moins de mouvement ;
+- on saisit un élément n'importe où, et non plus par une poignée. À la
+  souris, il part dès qu'il glisse. Au doigt, il se soulève après un
+  instant posé (0,17 s), et un glissement immédiat fait défiler la page.
+  Sa copie, un peu soulevée et ombrée, suit le doigt ; sa place devient
+  un creux ;
+- l'appui prolongé (0,55 s), qui ouvre le mode, enchaîne comme sur
+  l'iPhone : le doigt resté posé tient l'élément, qui part dès qu'il
+  glisse ;
+- « + » ouvre « Ajouter à l'Accueil », la galerie de ce qui a été retiré
+  (widgets puis icônes, chacun avec son icône), avec « Rétablir la
+  disposition d'origine » au pied. Elle remplace « Widgets masqués » du
+  bas de page ;
+- Échap termine ; le bouton du pied de l'Accueil s'appelle « Modifier
+  l'Accueil », comme sur l'iPhone.
+
+**Les commandes sont sur un calque.** Mesuré d'abord : huit cadres
+(profil, usine, calendrier, « Mon rythme », « À faire », « Mon année »,
+« Sur site », « Messages ») coupent ce qui dépasse de leurs bords, pour
+leurs coins arrondis. Le « − » d'Apple, qui déborde du coin, y aurait été
+rogné. Les commandes vivent donc sur un calque posé sur la grille
+(`#accCalque`), une case par élément, calée sur sa place exacte
+(`offsetLeft/Top`, que le tremblement ne fausse pas). Chaque case tremble
+avec son élément : même animation, même instant de départ. Les éléments
+sont inertes (`inert`) tant qu'on modifie, et l'ordre du clavier est
+celui de l'écran.
+
+**Chaque accès rapide est une app.** Le bloc des accès s'efface. Chaque
+icône (contremaître, congé, paie, certificat, et au téléphone les
+sections : demandes, effectifs, recherche, gestion, infos, réglages) est
+un élément de la grille, à sa clé `app:…` lue sur l'icône elle-même. Elle
+se déplace et se retire comme un widget, et garde sa taille :
+- la grille du téléphone passe de 2 à 4 colonnes (« ½ » en prend 2, une
+  icône 1) ;
+- celle des grands écrans passe de 12 à 24 colonnes : les widgets gardent
+  exactement leurs largeurs, une icône en prend 3, et quatre icônes
+  tiennent à côté d'un widget « ½ », comme sur l'iPad. À 12 colonnes, il
+  n'en tenait que trois, mesuré sur la capture ;
+- une icône jamais vue se pose après les autres, ou à la place de
+  l'ancien bloc « acces » ; si ce bloc était masqué, elle l'est aussi.
+
+**Éprouvé** au navigateur, au doigt (événements tactiles, 390 px) et à la
+souris (1 280 px), 45 contrôles, 0 faute :
+- une case par élément, calée à 0,5 px près ;
+- chaque élément et sa case partent au même instant (26 paires au
+  téléphone, 17 au PC) ;
+- chaque « − » entier et cliquable ;
+- retirer la Météo et l'icône « Paie », puis les remettre par la
+  galerie ;
+- au doigt, un glissement immédiat fait défiler, rien ne bouge ;
+- au doigt, posé puis glissé : « Certificat » passe avant le
+  contremaître, la page ne défile pas ;
+- l'appui prolongé enchaîné sur le glisser fait passer la Météo avant le
+  profil ;
+- l'arc au clavier, puis à la souris ;
+- Échap ; la disposition gardée après rechargement.
+
+Deux fautes trouvées par ce test et corrigées avant le commit :
+- Échap ne fermait pas le mode quand le focus était sur l'arc ;
+- la dernière place visée par un doigt arrêté ne s'appliquait pas, car
+  l'attente de 150 ms entre deux changements la sautait. La cible est
+  désormais relue à chaque image.
+
+Matrice des tailles, icônes comprises : 164 mesures, 0 faute, hors un
+écart voulu. Les pastilles de compte de l'icône « Effectifs » dépassent
+de 2 à 6 px de sa case, dans l'écart entre les icônes : elles chevauchent
+le coin de l'icône, comme sur l'iPhone. Parcours : 112 essais, 0 faute ;
+statique : 0.
