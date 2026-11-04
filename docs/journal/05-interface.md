@@ -12386,7 +12386,9 @@ Deux reprises encore, relevées par la matrice de la v1371 :
 - La matrice des hauteurs : 476 mesures par heure, à 7 largeurs (320,
   360, 375, 390, 414, 900 et 1280 px) et à trois heures (15 h 21 ;
   23 h 10, en poste ; 5 h 50, à la relève). 0 coupé, 0 vide, 0
-  chevauchement.
+  chevauchement. **C'était faux avec des données** : la base simulée ne
+  rendait ni demande ni annonce, et « Annonces », « Demandes » et « À
+  faire » n'étaient mesurés que vides (voir la v1377).
 - L'Accueil au repos : 0 mutation en 3 s.
 - La grille : 0 élément hors grille, 0 décalage.
 - Les gestes : 47 contrôles, 0 faute.
@@ -12394,3 +12396,63 @@ Deux reprises encore, relevées par la matrice de la v1371 :
 - La matrice de la v1371 : seuls restent les deux écarts voulus et
   connus (les pastilles d'« Effectifs » ; les repères de « Mon rythme »,
   de 2 à 5 px).
+
+### « Annonces », « Demandes » et « À faire » mesurés avec des données (04/11/2026, `nfdm-v1377`)
+
+**L'erreur de la v1376.** Sa matrice simulait une base sans demande ni
+annonce : trois widgets n'y étaient mesurés que vides (un message centré,
+ou caché). En préparant les photos pour le client, trois annonces
+fictives ont suffi à montrer 183 px vides. Puis, avec des demandes
+simulées telles que la base les rend (une à moi en cours, deux à viser,
+trois traitées), les écarts suivants sont apparus.
+
+| Widget | 1 ligne | 2 lignes |
+|---|---|---|
+| « Annonces » | 59 px vides à ¼ | 68 à 183 px vides |
+| « Demandes » | 86 à 136 px coupés | 88 à 138 px vides |
+| « À faire » | jusqu'à 86 px vides | 228 à 310 px vides |
+
+À 136 px, « À faire » coupait aussi sa première action.
+
+**Corrigé :**
+- **Les listes des widgets neufs se partagent la hauteur** (À retenir,
+  Ma paie, Annonces). Les rangées n'ont plus de plafond de 72 px. Peu de
+  rangées s'étirent, leur contenu au milieu.
+- **« Annonces » à 2 lignes : le début de chaque texte**, sur trois
+  lignes. Une annonce seule prend toute la hauteur, jusqu'à neuf lignes.
+- **« À faire » : les actions se partagent la hauteur.** Étroit, le
+  compte reste dans l'onglet et la flèche s'efface ; à 1 ligne, le titre
+  de chaque action seul.
+- **« Demandes de congé » :**
+  - « + Nouvelle » se pose sur la ligne du titre (« Demandes » seul sous
+    340 px).
+  - À 1 ligne : chaque demande sans ses étapes, au milieu.
+  - À 2 lignes : les étapes, puis « Récemment traitées » (les quatre
+    dernières acceptées ou refusées, une ligne chacune, qui s'ouvrent
+    comme les autres), le lien de l'historique en bas.
+- **L'ajusteur des listes connaît les blocs secondaires**
+  (`data-acc-bloc` : les demandes traitées, « En cours » d'« À faire »).
+  Ils s'ajustent d'abord ; s'il n'y tient pas même une ligne, le bloc
+  s'efface entier, titre compris, avant que la liste principale perde
+  une ligne.
+- **Un titre court dans un titre en `flex`** (« Demandes »,
+  « Effectif ») laissait un double écart : le titre est enveloppé d'un
+  seul `span`.
+
+**Mesuré.**
+- « À faire » et « Demandes », avec 0, 1, 2 et 6 demandes, à 320, 360
+  et 390 px : 0 faute.
+- La matrice entière, avec données (6 demandes, 3 annonces), à 7
+  largeurs et 3 heures : 487 mesures par heure, 0 coupé, 0 vide, 0
+  chevauchement.
+- La même sans données (les états vides), à 4 largeurs : 335 mesures,
+  0 faute.
+- Les gestes : 47 contrôles, 0 faute ; la grille, 0 faute ; l'Accueil
+  au repos, 0 mutation.
+- Le parcours : 112 essais, 0 faute ; statique, 0 faute.
+
+**La règle tirée de l'erreur** : un widget dont le contenu vient de la
+base se mesure aussi avec des données, et pas seulement vide. La base
+simulée du contrôle rend des demandes (en cours, à viser, traitées) et
+des annonces.
+

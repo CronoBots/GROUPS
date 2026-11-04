@@ -8601,8 +8601,10 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:2px 16px 14px}
 .aw-l{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:0; padding:0; list-style:none}
 /* une rangée grandit pour remplir, mais ne rétrécit jamais sous son
-   contenu : ce qui ne tient pas passe dans « + N autres » (accAjuster) */
-.aw-l>li{display:flex; align-items:center; gap:12px; flex:1 0 auto; min-height:42px; max-height:72px; padding:4px 0; box-sizing:border-box; border-bottom:1px solid var(--line2)}
+   contenu : ce qui ne tient pas passe dans « + N autres » (accAjuster) ;
+   peu de rangées se partagent la hauteur, leur contenu au milieu (un
+   plafond de 72 px laissait 59 à 183 px vides sous trois annonces) */
+.aw-l>li{display:flex; align-items:center; gap:12px; flex:1 0 auto; min-height:42px; padding:4px 0; box-sizing:border-box; border-bottom:1px solid var(--line2)}
 .aw-l>li:last-of-type,.aw-l>li:nth-last-child(2):has(+.acc-plus){border-bottom:0}
 .aw-gros{font:300 34px/1.05 Archivo,system-ui,sans-serif; color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:-.01em}
 .aw-masque{letter-spacing:.1em}
@@ -8638,8 +8640,15 @@ html body #v-horaire.acc-perso .card.aw{container:awc / inline-size}
 .aw-pzi{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
 .aw-pzi .pf-pause{display:grid; place-items:center; width:30px; height:20px; border-radius:99px; font-style:normal; font-size:11px; font-weight:700}
 .aw-pzi b{font-size:14px; color:var(--ink)}
-.aw-pres-l{margin-top:10px; border-top:1px solid var(--line2)} .aw-pres-l>li{justify-content:space-between; max-height:none}
+.aw-pres-l{margin-top:10px; border-top:1px solid var(--line2)} .aw-pres-l>li{justify-content:space-between}
 #presCard[data-acc-h="1"] .aw-pres-l{display:none}
+/* Annonces : à 2 lignes, le début de chaque texte (trois lignes ; une
+   annonce seule prend la hauteur), et les rangées se partagent le cadre
+   (à 72 px au plus, trois annonces laissaient 183 px vides) */
+.aw-ex{display:none; font-size:13px; line-height:1.4; color:var(--ink2); overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3}
+#annCard[data-acc-h="2"] .aw-ex{display:-webkit-box; margin-top:3px}
+#annCard[data-acc-h="2"] .aw-ann>li{padding:10px 0}
+#annCard[data-acc-h="2"] .aw-ann>li:only-child .aw-ex{-webkit-line-clamp:9; line-clamp:9}
 #presCard[data-acc-h="1"] .aw-corps{justify-content:center}
 @container awc (max-width:259px){ .aw-pzi small{display:none} .aw-gros{font-size:30px} }
 /* Mon profil : la photo prend ce que le nom lui laisse */
@@ -8736,6 +8745,48 @@ html body #v-horaire.acc-perso #siteCard[data-acc-h="1"] .site-rel{display:none}
 html body #v-horaire.acc-perso #ctlCard>#ctlCorps{flex:1 1 auto; min-height:0; align-content:start}
 html body #v-horaire.acc-perso #ctlCard .ctl-rien{align-self:center; justify-content:center; margin:auto}
 html body #v-horaire.acc-perso #ctlCard>#ctlCorps:has(>.ctl-rien:only-child){display:flex; align-items:center; justify-content:center}
+/* À faire : les actions se partagent la hauteur, chacune au milieu de sa
+   part (deux actions laissaient 249 px vides en deux lignes) */
+html body #v-horaire.acc-perso #ctlCard>#ctlCorps:not(:has(>.ctl-rien:only-child)){display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #ctlCard>#ctlCorps>:is(.ctl-l,.ctl-bloc){flex:1 0 auto}
+html body #v-horaire.acc-perso #ctlCard .ctl-l{display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #ctlCard .ctl-l>.ctl-i{flex:1 0 auto}
+/* étroit (la moitié d'un petit écran) : le compte reste dans l'onglet, la
+   flèche s'efface (toute la ligne se touche) ; en une ligne, le titre de
+   chaque action seul (« 3 nouvelles annonces » prenait six lignes) */
+html body #v-horaire.acc-perso #ctlCard{container:ctlc / inline-size}
+@container ctlc (max-width:169px){
+  html body #v-horaire.acc-perso #ctlCard>header .sub,html body #v-horaire.acc-perso #ctlCard .ctl-i>em{display:none}
+  html body #v-horaire.acc-perso #ctlCard[data-acc-h="1"] .ctl-i small{display:none}
+}
+/* Demandes de congé : en une ligne, chaque demande sans ses étapes, et
+   « + Nouvelle » sur la ligne du titre (il prenait une ligne à lui) ; en
+   deux lignes, les étapes, puis les dernières traitées, le lien en bas
+   (une demande en cours sortait de 86 à 136 px d'une ligne, et en laissait
+   88 à 138 vides en deux) */
+.md-rec{display:none}
+html body #v-horaire.acc-perso #demCard{container:demc / inline-size}
+html body #v-horaire.acc-perso #demCard>header{flex-wrap:nowrap}
+html body #v-horaire.acc-perso #demCard>header .md-nv{margin-left:auto; flex:none}
+@container demc (max-width:439px){ html body #v-horaire.acc-perso #demCard>header #demSub{display:none} }
+@container demc (max-width:339px){ html body #v-horaire.acc-perso #demCard>header .aw-long{display:none} }
+html body #v-horaire.acc-perso #demCard>#demCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #demCard .md-l{flex:none}
+html body #v-horaire.acc-perso #demCard .md-lien{margin-top:auto; align-self:flex-start}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] :is(.dm-circ,.md-lien){display:none}
+/* en une ligne, la demande en cours au milieu */
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"]>#demCorps>.md-l{margin-block:auto}
+html body #v-horaire.acc-perso #demCard[data-acc-h="2"] .md-rec{display:flex; flex-direction:column; flex:1 0 auto; margin-top:14px}
+/* sans dernières traitées, la demande en cours se pose au milieu */
+html body #v-horaire.acc-perso #demCard[data-acc-h="2"]>#demCorps:not(:has(.md-rec:not(.acc-cache)))>.md-l{margin-top:auto}
+.md-rec-t{margin:0 0 2px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.md-rec-l{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:0; padding:0; list-style:none}
+.md-rec-l>li{display:flex; align-items:center; gap:10px; flex:1 0 auto; min-height:42px; padding:4px 0; box-sizing:border-box; border-bottom:1px solid var(--line2); cursor:pointer}
+.md-rec-l>li:last-of-type,.md-rec-l>li:nth-last-child(2):has(+.acc-plus){border-bottom:0}
+.md-rec-l>li:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px; border-radius:8px}
+.md-r-t{flex:none; min-width:34px; padding:2px 7px; border-radius:6px; background:var(--fd-blanc-06); font-size:12px; font-weight:700; color:var(--ink); text-align:center}
+.md-r-d{flex:1 1 auto; min-width:0; font-size:13.5px; color:var(--ink); font-variant-numeric:tabular-nums}
+.md-rec-l .dm-st{flex:none}
 /* Messages : le fil prend la hauteur, la saisie en bas */
 html body #v-horaire.acc-perso #filCard>.fil-l{flex:1 1 auto; min-height:0; max-height:none}
 /* un message garde sa hauteur : le fil défile (sa hauteur minimale de
@@ -9516,7 +9567,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
       <div class="aw-corps" id="annCorps"></div>
     </div>
     <div class="card aw" id="presCard" data-w="presents" data-aller="rh" hidden>
-      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg>Effectif<span class="aw-long"> du jour</span></h2><span class="sub" id="presSub"></span></header>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg><span>Effectif<span class="aw-long"> du jour</span></span></h2><span class="sub" id="presSub"></span></header>
       <div class="aw-corps" id="presCorps"></div>
     </div>
     <div class="card" id="siteCard" data-w="site" hidden>
@@ -9559,7 +9610,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     <!-- MES DEMANDES (le client, le 22/10/2026, « go ») : les demandes de
          congé en cours avec leur avancement. -->
     <div class="card" id="demCard" data-w="demandes" hidden>
-      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/></svg>Demandes de congé</h2><span class="sub" id="demSub"></span></header>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 15l2 2 4-4"/></svg><span>Demandes<span class="aw-long"> de congé</span></span></h2><span class="sub" id="demSub"></span></header>
       <div class="pad" id="demCorps"></div>
     </div>
     <div class="card calframe" id="calCard" data-w="calendrier">
@@ -17747,7 +17798,9 @@ function awAnnonces(){
       nl={}; aideNonLues().forEach(function(x){ nl[x.id]=1; });
   document.getElementById("annSub").textContent=Object.keys(nl).length?Object.keys(nl).length+" non lue"+(Object.keys(nl).length>1?"s":""):"";
   corps.innerHTML=l.length?'<ul class="aw-l aw-ann" data-acc-fit>'+l.map(function(x){
-      return '<li class="aw-r'+(x.epingle?' aw-epingle':'')+'"><span class="aw-t"><b>'+esc(x.titre||"Annonce")+'</b><small>'+(x.epingle?"épinglée · ":"")+"le "+esc(aideDate(x.cree_le))+'</small></span>'
+      return '<li class="aw-r'+(x.epingle?' aw-epingle':'')+'"><span class="aw-t"><b>'+esc(x.titre||"Annonce")+'</b><small>'+(x.epingle?"épinglée · ":"")+"le "+esc(aideDate(x.cree_le))+'</small>'
+        /* le début du texte, montré à 2 lignes (les règles de #annCard) */
+        +(x.corps?'<span class="aw-ex">'+esc(String(x.corps).replace(/\s+/g," ").slice(0,600))+'</span>':'')+'</span>'
         +(nl[x.id]?'<em class="aw-q aw-q-on">Nouveau</em>':'')+'</li>'; }).join("")+'</ul>'
     :'<p class="aw-vide">'+(AIDE&&AIDE.err&&AIDE.liste==null?"Les annonces se liront au retour du réseau.":"Aucune annonce pour l’instant.")+'</p>';
   c.hidden=false;
@@ -26390,6 +26443,16 @@ function mdQuoi(x){
   quoi.push(rps.length?'remplaçant '+rps.map(function(t){ return '<b class="md-rp">'+esc(idLisible(t))+'</b>'; }).join(", "):'sans remplaçant');
   return '<small class="md-quoi">'+quoi.join(' · ')+'</small>';
 }
+/* une demande traitée, en une ligne : ses codes, ses dates, son statut */
+function mdRecente(x){
+  var t=[]; dmLignes(x).forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&t.indexOf(k)<0) t.push(k); }); });
+  var a=dmJour(x.du), b=dmJour(x.au||x.du), un=+a===+b,
+      q=un?a.getDate()+" "+AW_MC[a.getMonth()]:a.getDate()+(a.getMonth()!==b.getMonth()?" "+AW_MC[a.getMonth()]:"")+" → "+b.getDate()+" "+AW_MC[b.getMonth()],
+      ql=un?"le "+numJour(a.getDate())+" "+MOIS[a.getMonth()].toLowerCase():"du "+numJour(a.getDate())+" "+MOIS[a.getMonth()].toLowerCase()+" au "+numJour(b.getDate())+" "+MOIS[b.getMonth()].toLowerCase(),
+      st=x.statut==="acceptee"?"acceptée":"refusée";
+  return '<li class="md-r dm-g-'+dmGenre(x)+'" data-md="ouvrir" data-id="'+x.id+'" tabindex="0" role="button" aria-label="'+esc((t.join(" et ")||"Demande")+", "+ql+", "+st+". Ouvrir la feuille")+'">'
+    +'<b class="md-r-t">'+esc(t.join(" + ")||"—")+'</b><span class="md-r-d">'+esc(q)+'</span>'+dmStatut(x)+'</li>';
+}
 function mdLigne(x){
   var l=dmLignes(x), f=x.formulaire||"courte", types=[];
   l.forEach(function(z){ [z.code,z.code2].forEach(function(k){ if(k&&types.indexOf(k)<0) types.push(k); }); });
@@ -26435,11 +26498,17 @@ function renderMesDemandes(){
        congé » offre déjà. Il se cache ; il revient dès la première
        demande. */
     if(!l.length&&!fait){ c.hidden=true; return; }
+    /* LES DERNIÈRES TRAITÉES (04/11/2026) : le widget en deux lignes les
+       montre sous celles en cours, une ligne chacune (les règles de
+       #demCard) ; elles s'ouvrent comme les autres */
+    var rec=L.filter(function(x){ return x.a_moi&&(x.statut==="acceptee"||x.statut==="refusee"); })
+      .sort(function(a,b){ return new Date(b.rh_le||b.cm_le||b.cree_le)-new Date(a.rh_le||a.cm_le||a.cree_le); }).slice(0,4);
     corps.innerHTML=''
       /* des boutons, et non une liste : un <li role="button"> laissait au
          lecteur d'écran une liste sans éléments (audit du 23/10/2026) */
       +(l.length?'<ul class="md-l" role="presentation">'+l.map(mdLigne).join("")+'</ul>'
         :'<p class="md-vide">Aucune demande en cours.</p>')
+      +(rec.length?'<div class="md-rec" data-acc-bloc><p class="md-rec-t">Récemment traitées</p><ul class="md-rec-l" role="presentation" data-acc-fit>'+rec.map(mdRecente).join("")+'</ul></div>':'')
       +(fait||l.length?'<button type="button" class="md-lien" data-md="voir">'+(fait?'Historique · '+fait+' traitée'+(fait>1?'s':''):'Voir mes demandes')+' ›</button>':'');
     c.hidden=false;
   }
@@ -37267,9 +37336,15 @@ function accAjuster(w){
   /* le fil des messages : sur le dernier, sauf si on lit plus haut */
   var fl=w.querySelector(".fil-l"); if(fl&&!fl.__haut) fl.scrollTop=fl.scrollHeight;
   [].forEach.call(w.querySelectorAll(".ctl-l,.md-l,.site-ps"),function(L){ if(!L.hasAttribute("data-acc-fit")) L.setAttribute("data-acc-fit",""); });
+  [].forEach.call(w.querySelectorAll(".ctl-bloc"),function(B){ if(!B.hasAttribute("data-acc-bloc")) B.setAttribute("data-acc-bloc",""); });
   var ls=w.querySelectorAll("[data-acc-fit]"); if(!ls.length) return;
+  /* un bloc secondaire (data-acc-bloc : les demandes traitées, « En
+     cours ») s'ajuste d'abord, et s'efface entier avant que la liste
+     principale perde une ligne */
+  ls=[].slice.call(ls).sort(function(a,b){ return (b.closest("[data-acc-bloc]")?1:0)-(a.closest("[data-acc-bloc]")?1:0); });
   [].forEach.call(ls,function(L){ [].forEach.call(L.querySelectorAll(".acc-plus"),function(x){ x.parentNode.removeChild(x); });
     [].forEach.call(L.children,function(c){ c.classList.remove("acc-cache"); }); });
+  [].forEach.call(w.querySelectorAll("[data-acc-bloc].acc-cache"),function(b){ b.classList.remove("acc-cache"); });
   if(!w.getClientRects().length) return;
   /* la limite se relit à chaque mesure, avec les lignes : masquer une ligne
      peut faire défiler la page (ancrage du défilement, widget au-dessus de
@@ -37286,6 +37361,9 @@ function accAjuster(w){
     while(trop()&&cache<it.length-1){ it[it.length-1-cache].classList.add("acc-cache"); cache++;
       if(!plus){ plus=document.createElement(L.tagName==="UL"||L.tagName==="OL"?"li":"span"); plus.className="acc-plus"; plus.setAttribute("aria-hidden","true"); L.appendChild(plus); }
       plus.textContent="+ "+cache+" autre"+(cache>1?"s":""); }
+    /* pas même une ligne ne tient : le bloc entier (titre et liste)
+       s'efface, plutôt qu'une ligne coupée (data-acc-bloc) */
+    var bl=L.closest("[data-acc-bloc]"); if(bl&&w.contains(bl)&&trop()) bl.classList.add("acc-cache");
   });
 }
 function accAjusterTous(){ ACC.ajT=0; ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(d&&!d.app) accAjuster(el); }); }
