@@ -8702,11 +8702,13 @@ html body .pf-hero .pf-meteo{container:meteo / inline-size; display:flex; flex-d
   display:flex; justify-content:space-between; align-items:center; pointer-events:none}
 .acc-barre[hidden]{display:none}
 .acc-barre button{pointer-events:auto; display:inline-flex; align-items:center; justify-content:center; min-width:64px; height:40px; padding:0 18px;
-  border:1px solid var(--bd-blanc-45); border-radius:999px; background:var(--fd-blanc-16); -webkit-backdrop-filter:blur(18px) saturate(1.6); backdrop-filter:blur(18px) saturate(1.6);
-  color:var(--tx-blanc); box-shadow:0 6px 18px var(--om-noir-40),inset 0 1px 0 var(--bd-blanc-25); font:inherit; cursor:pointer}
-.acc-barre button svg{width:20px; height:20px}
+  border:1px solid var(--bd-blanc-25); border-radius:999px; background:var(--om-noir-50); -webkit-backdrop-filter:blur(18px) saturate(1.6); backdrop-filter:blur(18px) saturate(1.6);
+  color:var(--tx-blanc); box-shadow:0 6px 18px var(--om-noir-40),inset 0 1px 0 var(--bd-blanc-14); font:inherit; cursor:pointer}
+/* (sur la bannière blanche du profil, l'ancien verre clair rendait le
+   « ✓ » blanc invisible : capture du client, 04/11/2026) */
+.acc-barre button svg{width:20px; height:20px; filter:drop-shadow(0 1px 1px var(--om-noir-60))}
 .acc-barre button:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
-@media (hover:hover){ .acc-barre button:hover{background:var(--fd-blanc-25)} }
+@media (hover:hover){ .acc-barre button:hover{background:var(--om-noir-60)} }
 /* les éléments : inertes, leur contenu ne réagit pas */
 #v-horaire.acc-edit [data-w]{position:relative; -webkit-user-select:none; user-select:none}
 #v-horaire.acc-edit [data-w]>*{pointer-events:none}
@@ -8726,11 +8728,22 @@ html body .pf-hero .pf-meteo{container:meteo / inline-size; display:flex; flex-d
 .acc-moins::after{content:""; position:absolute; inset:-9px}
 .acc-b.app .acc-moins{top:-7px; left:calc(50% - var(--ip-taille,60px) / 2 - 10px)}
 @media (hover:hover){ .acc-moins:hover{background:var(--fd-blanc-92)} }
-/* le coin bas-droit : l'arc blanc de l'iPhone, qu'on tire pour la taille */
-.acc-etirer{position:absolute; z-index:2; right:-9px; bottom:-9px; width:38px; height:38px; padding:0; border:0; background:none; cursor:nwse-resize; touch-action:none}
-.acc-etirer::before{content:""; position:absolute; right:5px; bottom:5px; width:26px; height:26px; box-sizing:border-box; border:4.5px solid transparent;
-  border-right-color:var(--fd-blanc-92); border-bottom-color:var(--fd-blanc-92); border-bottom-right-radius:28px; filter:drop-shadow(0 1px 2px var(--om-noir-50))}
-.acc-moins:focus-visible,.acc-etirer:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
+/* Le coin de repli, comme celui d'Apple (le client, le 04/11/2026, deux
+   captures côte à côte : « j'aimerais que les angles de repli de widget
+   soient les mêmes que sur Apple ») : un quart de cercle gris, épais de
+   5 px, aux bouts arrondis, qui épouse le coin arrondi du widget (rayon
+   --rj, 22 px) à 3 px de son bord ; l'ancien arc blanc, fin, aux bouts
+   effilés, plus courbé que le coin, s'en écartait. La prise fait 56 px ;
+   l'arc est dessiné dans son repère : le coin du widget en (42, 42), le
+   centre de son arrondi en (20, 20), le rayon 22 + 3 + 2,5. Au clavier,
+   l'arc prend la couleur du focus. */
+.acc-etirer{position:absolute; z-index:2; right:-14px; bottom:-14px; width:56px; height:56px; padding:0; border:0; background:none; cursor:nwse-resize; touch-action:none}
+.acc-etirer svg{position:absolute; inset:0; width:56px; height:56px; overflow:visible; pointer-events:none; filter:drop-shadow(0 1px 1.5px var(--om-noir-50))}
+.acc-etirer path{fill:none; stroke:var(--fd-blanc-75); stroke-width:5; stroke-linecap:round}
+@media (hover:hover){ .acc-etirer:hover path{stroke:var(--fd-blanc-92)} }
+.acc-etirer:focus-visible{outline:none}
+.acc-etirer:focus-visible path{stroke:var(--marque-vif)}
+.acc-moins:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
 /* « Déplacer » : pour le clavier seulement (les flèches) ; visible au focus */
 .acc-bouger{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); max-width:calc(100% - 8px); overflow:hidden; text-overflow:ellipsis; padding:6px 12px;
   border:0; border-radius:999px; background:var(--in); color:var(--sur-in); font:inherit; font-size:13px; font-weight:650; white-space:nowrap; opacity:0; pointer-events:none}
@@ -36629,7 +36642,7 @@ function accBoiteHTML(k){
   var d=accDef(k), t=accTaille(k), f=ACC_FRAC[ACC.mode], nom=esc(d.nom);
   return '<button type="button" class="acc-moins" data-acc-masquer="'+k+'" aria-label="Retirer « '+nom+' » de l’Accueil">'+ACC_MOINS+'</button>'
     +'<button type="button" class="acc-bouger" data-acc-tirer="'+k+'" aria-label="Déplacer « '+nom+' » : flèches du clavier">Déplacer · '+nom+'</button>'
-    +(accPermises(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+f[t]+'. Flèches gauche et droite pour la changer" title="Tirer pour changer la taille"></button>':'');
+    +(accPermises(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+f[t]+'. Flèches gauche et droite pour la changer" title="Tirer pour changer la taille"><svg viewBox="0 0 56 56" aria-hidden="true"><path d="M47.5 20A27.5 27.5 0 0 1 20 47.5"/></svg></button>':'');
 }
 function accOutils(tout){
   var v=document.getElementById("v-horaire"); if(!v||!ACC.edit) return;

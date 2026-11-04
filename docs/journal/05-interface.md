@@ -12070,3 +12070,36 @@ Matrice des tailles, icônes comprises : 164 mesures, 0 faute, hors un
 de 2 à 6 px de sa case, dans l'écart entre les icônes : elles chevauchent
 le coin de l'icône, comme sur l'iPhone. Parcours : 112 essais, 0 faute ;
 statique : 0.
+
+### Le coin de repli comme celui d'Apple ; « ✓ » lisible sur la bannière (04/11/2026, `nfdm-v1372`)
+
+Le client, sa capture de l'application à côté de celle de son iPhone :
+« j'aimerais que les angles de repli de widget soient les mêmes que sur
+Apple ».
+
+**Ce qui différait.** L'arc de la v1371 était blanc, fin (4,5 px), aux
+bouts effilés (deux bordures d'une boîte, les deux autres transparentes).
+Il était aussi plus courbé que le coin du widget, et s'en écartait.
+Celui d'Apple est un quart de cercle gris, épais, aux bouts arrondis, qui
+épouse le coin arrondi du widget à quelques pixels de son bord.
+
+**Désormais** :
+- un quart de cercle tracé en SVG, gris (le même que le rond « − »),
+  épais de 5 px, aux bouts arrondis, avec une ombre légère ;
+- il est concentrique au coin du cadre : rayon 22 px (`--rj`) + 3 px de
+  jeu + la moitié de l'épaisseur ;
+- la prise fait 56 px ;
+- au clavier, l'arc prend la couleur du focus, au lieu d'un contour
+  carré.
+
+Mesuré sur les quatre widgets à plusieurs tailles du téléphone (poste,
+météo, « À faire », « Mon année ») : même centre que l'arrondi du cadre,
+au pixel près, et 3 px de jeu.
+
+**Vu en passant sur la même capture** : le « ✓ » blanc, sur un verre clair
+posé sur la bannière blanche du profil (page un peu défilée), ne se voyait
+plus. Les deux pastilles du haut sont maintenant en verre sombre, le
+pictogramme avec une ombre. Rephotographié à l'endroit de la capture du
+client : lisible.
+
+Gestes (45 contrôles, doigt et souris), parcours (112 essais) : 0 faute.
