@@ -8711,6 +8711,12 @@ html body #v-horaire.acc-perso #calCard .mc-sem{flex:1 1 0; min-height:0}
 html body #v-horaire.acc-perso #calCard .mc-sem .mc-j{min-height:0; height:100%}
 html body #v-horaire.acc-perso #calCard .calbilan,html body #v-horaire.acc-perso #calCard .mc-leg{display:none}
 html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .calvue-l{display:none}
+/* en une ligne : la barre du mois plus serrée (le « N » de la semaine
+   était rogné de 5 px sous 350 px) ; la lettre du poste ne se tasse pas */
+html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .calmois{padding-top:2px; padding-bottom:2px}
+html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .calmois .mnav button{height:36px}
+html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .calmois .mlabelwrap{padding-top:0}
+html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .mc-j>.mc-t{flex-shrink:0}
 html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .mc-sem:not(:has(.mc-j.auj)){display:none}
 /* Congés restants : 1 ligne, les tuiles ; 2 lignes, une ligne par congé */
 html body #v-horaire.acc-perso #cgCard>.an-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
@@ -8735,7 +8741,10 @@ html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc>.pf-cgc-b{grid-ar
 html body #v-horaire.acc-perso #anCard>.an-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
 html body #v-horaire.acc-perso #anCard #ryPr{flex:1 1 auto; display:flex; flex-direction:column}
 html body #v-horaire.acc-perso #anCard .pf-pr{flex:1 1 auto; min-height:0}
-html body #v-horaire.acc-perso #anCard .pf-pr-c{flex:1 1 0; min-height:0}
+/* une rangée ne se tasse pas sous son contenu (la pastille du délai y
+   était rognée de 3 à 7 px) : ce qui ne tient pas passe dans « + N
+   autres » (accAjuster) */
+html body #v-horaire.acc-perso #anCard .pf-pr-c{flex:1 0 auto}
 html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-h,html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-c:not(.pf-pr-1){display:none}
 @container anc (max-width:259px){ html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d .pf-pr-q,html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .ry-an-cpt{display:none} }
 /* Sur site : 1 ligne, ceux qui sont là ; 2 lignes, la relève aussi */
@@ -8787,6 +8796,13 @@ html body #v-horaire.acc-perso #demCard[data-acc-h="2"]>#demCorps:not(:has(.md-r
 .md-r-t{flex:none; min-width:34px; padding:2px 7px; border-radius:6px; background:var(--fd-blanc-06); font-size:12px; font-weight:700; color:var(--ink); text-align:center}
 .md-r-d{flex:1 1 auto; min-width:0; font-size:13.5px; color:var(--ink); font-variant-numeric:tabular-nums}
 .md-rec-l .dm-st{flex:none}
+/* « N actions à faire », le renvoi du héros vers la carte « À faire »
+   quand elle tombait sous le premier écran : dans l'Accueil en widgets,
+   « À faire » est un widget à part, posé où l'on veut, et ce renvoi
+   s'ajoutait sous « Heure et poste », dont il coupait le poste (1 ligne)
+   ou vidait la liste des postes suivants (2 lignes) — mesuré le
+   04/11/2026, avec trois actions en attente */
+html body #v-horaire.acc-perso #pfAfaire{display:none!important}
 /* Messages : le fil prend la hauteur, la saisie en bas */
 html body #v-horaire.acc-perso #filCard>.fil-l{flex:1 1 auto; min-height:0; max-height:none}
 /* un message garde sa hauteur : le fil défile (sa hauteur minimale de
@@ -8889,10 +8905,18 @@ html body #v-horaire.acc-perso #paieCard{position:relative}
   /* « Prochaine » ne tient pas à côté de « Reste » : les dates parlent d'elles-mêmes */
   html body #v-horaire.acc-perso #anCard .pf-pr-h>span:nth-child(2){visibility:hidden}
 }
-/* en une ligne, au téléphone : la date courte, et la pastille dessous */
+/* en une ligne, au téléphone : la date courte, et la pastille du délai
+   sur sa ligne (dessous, elle était rognée de 7 px) */
 @container anc (min-width:180px) and (max-width:349px){
   html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d .pf-lg{display:none}
   html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d .pf-ct{display:inline}
+  html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d{flex-direction:row; flex-wrap:wrap; align-items:center; column-gap:8px}
+  html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d .pf-pr-q{margin-top:0; align-self:center}
+}
+/* en deux lignes, étroit (180 à 239 px) : la date courte aussi */
+@container anc (min-width:180px) and (max-width:239px){
+  html body #v-horaire.acc-perso #anCard[data-acc-h="2"] .pf-pr-d .pf-lg{display:none}
+  html body #v-horaire.acc-perso #anCard[data-acc-h="2"] .pf-pr-d .pf-ct{display:inline}
 }
 /* Congés restants, en une ligne : toujours une seule rangée de tuiles
    (la règle d'écran de 360 px en faisait deux, et la seconde était coupée) */
@@ -37195,7 +37219,7 @@ function accScan(){
   l.forEach(function(el){ if(!el.__accObs){ el.__accObs=1; ACC.ro.observe(el); } });
   ACC.items.forEach(function(el){ if(l.indexOf(el)<0){ try{ ACC.ro.unobserve(el); }catch(e){} el.__accObs=0; } });
   ACC.items=l;
-  accMarquer(); accAjusterBientot();
+  accMarquer(); accAjusterMaintenant();
   if(ACC.edit) accOutils(false);
 }
 /* LE MODE « MODIFIER L'ACCUEIL », comme celui de l'iPhone (le client, le
@@ -37338,7 +37362,7 @@ function accTremblerStop(){
 function accAjuster(w){
   /* le fil des messages : sur le dernier, sauf si on lit plus haut */
   var fl=w.querySelector(".fil-l"); if(fl&&!fl.__haut) fl.scrollTop=fl.scrollHeight;
-  [].forEach.call(w.querySelectorAll(".ctl-l,.md-l,.site-ps"),function(L){ if(!L.hasAttribute("data-acc-fit")) L.setAttribute("data-acc-fit",""); });
+  [].forEach.call(w.querySelectorAll(".ctl-l,.md-l,.site-ps,.pf-pr"),function(L){ if(!L.hasAttribute("data-acc-fit")) L.setAttribute("data-acc-fit",""); });
   [].forEach.call(w.querySelectorAll(".ctl-bloc"),function(B){ if(!B.hasAttribute("data-acc-bloc")) B.setAttribute("data-acc-bloc",""); });
   var ls=w.querySelectorAll("[data-acc-fit]"); if(!ls.length) return;
   /* un bloc secondaire (data-acc-bloc : les demandes traitées, « En
@@ -37371,6 +37395,10 @@ function accAjuster(w){
 }
 function accAjusterTous(){ ACC.ajT=0; ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(d&&!d.app) accAjuster(el); }); }
 function accAjusterBientot(){ if(!ACC.ajT) ACC.ajT=requestAnimationFrame(accAjusterTous); }
+/* tout de suite : depuis le relevé (accScan), déjà dans une image, un
+   ajustement remis à l'image suivante laissait peindre une image avec la
+   liste entière, qui débordait */
+function accAjusterMaintenant(){ if(ACC.ajT){ cancelAnimationFrame(ACC.ajT); ACC.ajT=0; } accAjusterTous(); }
 /* le bouton qui ouvre le mode, au pied de l'Accueil */
 function accPied(){
   var p=document.getElementById("accPied"); if(!p) return;

@@ -12462,3 +12462,66 @@ base se mesure aussi avec des données, et pas seulement vide. La base
 simulée du contrôle rend des demandes (en cours, à viser, traitées) et
 des annonces.
 
+### Le texte rogné à l'intérieur d'un widget ; « N actions à faire » hors de « Heure et poste » (04/11/2026, `nfdm-v1379`)
+
+**Vu sur la photo préparée pour le client.** Avec trois actions en
+attente, « Heure et poste » montrait sous lui le renvoi « 3 actions à
+faire » (`#pfAfaire`). Ce renvoi pointe la carte « À faire » quand elle
+tombe sous le premier écran ; il s'ajoutait dans le widget, à hauteur
+fixe :
+- à 1 ligne, le poste était coupé (le « N » de la pause) ;
+- à 2 lignes, l'ajusteur ne gardait qu'un poste suivant, puis un vide.
+
+**Pourquoi le contrôle ne l'avait pas vu.** Il comparait le texte au bas
+du WIDGET. Ce texte-là était coupé par un cadre INTÉRIEUR
+(`overflow:hidden` du billet), et restait donc au-dessus du bas du
+widget.
+
+**Le contrôle apprend « rogné ».** C'est un texte coupé en travers par un
+cadre intérieur qui ne défile pas.
+- Les cadres qui défilent (le fil des messages) et les textes réservés
+  au lecteur d'écran sont écartés.
+- Sur la copie d'avant, il trouve 3 défauts dans « Heure et poste ».
+- Sur toute la matrice, il en trouve 10 de plus, dans deux widgets que
+  le contrôle disait justes.
+
+**Corrigé :**
+- **Le renvoi « N actions à faire » n'est plus dans l'Accueil en
+  widgets.** « À faire » y est un widget à part, posé où l'on veut ; les
+  icônes portent leurs pastilles.
+- **« Mon année » :**
+  - Les rangées ne se tassent plus sous leur contenu : la pastille du
+    délai y était rognée de 3 à 7 px. Ce qui ne tient pas passe dans
+    « + N autres ».
+  - À 1 ligne, de 180 à 349 px : la pastille vient sur la ligne de la
+    date courte.
+  - À 2 lignes, de 180 à 239 px : la date courte.
+- **« Calendrier » à 1 ligne :**
+  - Le « N » de la semaine était rogné de 5 px sous 350 px.
+  - La barre du mois se resserre : boutons de 36 px au lieu de 44, sans
+    les marges de 10 px.
+  - La lettre du poste ne se tasse plus.
+  - À 2 lignes (le mois), cette dernière règle faisait déborder les
+    semaines : elle ne vaut qu'à 1 ligne.
+
+**Une faute isolée, non reproduite.** Dans une matrice, « Sur site » ¾ ·
+1 ligne, à 1280 px et 15 h 21, avait un nom coupé de 8 px. La même
+mesure, seule, donne 0 faute trois fois ; la matrice suivante aussi.
+
+L'hypothèse : la liste, redessinée, serait ajustée une image trop tard.
+- Le code le permettait. Le relevé (`accScan`), déjà dans une image,
+  remettait l'ajustement à l'image suivante.
+- Le contrôle écrit pour le voir n'a pas pu trancher : même avec un
+  ajusteur retardé de 100 ms, il ne voit rien, car le navigateur sans
+  écran ne cadence pas ses images.
+- La cause n'est donc PAS prouvée.
+- L'écart est fermé par précaution : le relevé ajuste dans la même
+  image (`accAjusterMaintenant`).
+
+**Mesuré.**
+- La matrice avec données, avec « rogné », à 7 largeurs et 3 heures :
+  487 mesures par heure, 0 faute.
+- Sans données : 335 mesures, 0 faute.
+- Les gestes (47), la grille, l'Accueil au repos (0 mutation), le
+  parcours (112 essais) et statique : 0 faute.
+
