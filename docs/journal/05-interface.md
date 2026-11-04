@@ -10930,6 +10930,10 @@ Parcours 112 essais, 0 faute (contraste compris).
 
 ### Le décompte de la pointeuse (03/11/2026, `nfdm-v1335`)
 
+**Retiré le 04/11/2026 (`nfdm-v1367`)**, à la demande du client : « suppression
+du widget qui ne sert strictement à rien ». Le récit ci-dessous reste
+pour l'histoire ; le code n'existe plus (entrée « La pointeuse retirée »).
+
 Le client : « crée-moi un décompte pointeuse, c'est-à-dire un vrai décompte
 quelques minutes avant la fin de notre pause travaillée, afin de savoir
 quand la pointeuse passera à l'heure exacte pour la sortie de l'usine ».
@@ -11749,3 +11753,36 @@ Parcours : 112 essais, 0 faute (le contraste des textes du prochain poste
 compris, sur leur fond nouveau). Garde-fou du dépôt : 0, après une
 reformulation (deux mots en capitales séparés d'une virgule, dans un
 commentaire).
+
+### La pointeuse retirée (04/11/2026, `nfdm-v1367`)
+
+Le client : « suppression du widget .h qui ne sert strictement à rien ». Le
+nom « .h » ne désignait aucun widget, et aucun texte de l'Accueil n'était
+« .h » : relevé au navigateur, chaque « h » suivait un nombre. Question à
+choix posée, et réponse : « Pointeuse ».
+
+**Retiré, tout ce qui ne servait qu'à elle :**
+- le widget du héros (`pointeHTML`, `#pfPointe`) et sa ligne dans `ACC_W` et
+  `ACC_ORDRE_TEL` ;
+- le décompte : `pointeTic`, ses variables, son branchement sur l'horloge
+  de la page (`meteoTic`, `meteoDemarrer`), et la fin de poste retenue
+  pour lui dans le profil (`pointeFin`) ;
+- son réglage, l'avance ou le retard de la pointeuse, dans « Réglages ›
+  Mon compte », et le réglage gardé sur l'appareil (`pointeuse/ecart`),
+  effacé au démarrage ;
+- ses styles (`.pf-pointe`, `.pp-*`, `ppPouls`, `.pt-reg`), et la règle
+  qui taisait « Encore … » pendant le décompte.
+
+Une disposition de l'Accueil déjà réglée qui la nommait encore se charge
+sans elle : une clé inconnue est ignorée.
+
+**Éprouvé au navigateur** (1280 et 390 px, à 5 h 50, dans le dernier quart
+d'heure du poste de nuit, là où le décompte paraissait) :
+- aucun décompte, et « Encore … » se lit de nouveau dans « En poste » ;
+- en mode « Personnaliser », ni cadre fantôme « Pointeuse », ni place
+  dans la réserve ;
+- Réglages n'a plus la ligne ;
+- le réglage est effacé, et la disposition d'avant se charge ;
+- aucune erreur.
+
+Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0.
