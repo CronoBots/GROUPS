@@ -11724,3 +11724,28 @@ prochain poste glissée vers la gauche fait paraître le cadre fantôme
 chevauche plus aucune barre d'outils.
 
 Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0.
+
+### Un seul fond pour les cadres de l'Accueil, celui de l'horloge (04/11/2026, `nfdm-v1366`)
+
+Le client : « j'aimerais également que le background des cadres soit le
+même que celui de l'horloge. Par exemple, le background de prochain poste
+est un gris plus clair. Je ne veux plus voir ce gris plus clair. »
+
+**Mesuré** : tous les cadres de l'Accueil étaient sur `--surface`
+(rgb 33, 39, 55, bordure 57, 64, 82), sauf le prochain poste. Une règle lui
+donnait une teinte claire, du cyan mêlé au fond à 10 % (validée le
+03/11/2026, v1332, pour qu'il ressorte). Cette règle est retirée.
+
+Après, le prochain poste a le fond et la bordure de l'horloge, « En
+poste » la nuit (04:30) comme « Prochain poste » le jour (10:10). Ce sont
+aussi ceux du profil, du cycle et des cartes.
+
+**Gardé** : l'ambre puis le vert de la pointeuse, dans le dernier quart
+d'heure du poste. C'est un signal, et non un gris. « Accès rapides » n'a
+pas de cadre : ses icônes sont posées sur le fond de la page, comme sur
+l'iPhone.
+
+Parcours : 112 essais, 0 faute (le contraste des textes du prochain poste
+compris, sur leur fond nouveau). Garde-fou du dépôt : 0, après une
+reformulation (deux mots en capitales séparés d'une virgule, dans un
+commentaire).
