@@ -5389,6 +5389,11 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
 .compop.cdp .eqn.app{border-style:dashed; border-color:#F2994A}
 .compop.cdp .eqn.form b{color:var(--at-jaune)}
 .compop.cdp .cdp-de{flex:1 1 auto; font-size:12px; color:var(--ink2)}
+/* ses heures, quand il n'est là qu'une partie de la pause, ou celles de sa
+   proposition : un seul horaire, comme sur son badge (04/11/2026) */
+.compop.cdp .cdp-h{margin-left:4px; font:600 12px/1 "IBM Plex Mono",monospace; color:var(--ink); white-space:nowrap}
+.compop.cdp .cdp-reste{display:block; margin:2px 0 6px; font-size:12.5px; color:var(--ink2)}
+.compop.cdp .cdp-reste b{font:600 12.5px/1.3 "IBM Plex Mono",monospace; color:var(--ink)}
 .compop.cdp em{font-style:normal; font-size:11px; font-weight:600; white-space:nowrap}
 .compop.cdp .cdp-pr{color:#F2994A} .compop.cdp .cdp-su{color:var(--good)}
 .compop.cdp .cdp-vide{font-size:12px; color:var(--muted)}
@@ -27908,7 +27913,18 @@ function renderEquipe(){
        que l'agenda et l'Accueil (lectureAgenda : plage de la cellule,
        arrivée, départ, plage collée à la pause) ; rien quand la personne
        fait sa pause telle quelle. */
-    function horaireModifie(x,k){
+    function horaireModifie(x,k,Pc){
+      /* les heures que son commentaire écrit à ce poste (ATR le 08/11 :
+         « 13-14 », et non « 10-14 », 04/11/2026) */
+      if(Pc && !x.horPart && vp[k] && vp[k].vue){ try{
+        var ec=x.propose&&x.proposeH?heuresEcritesAuPoste(db,x,k,Pc.k,vp[k].vue,annee,mois,jour):null, pr=heuresAuPoste(db,x,k,annee,mois,jour);
+        /* … seulement quand on le propose ailleurs HORS de ces heures : le
+           reste, il est libre. Sinon ses heures de présence : JBI, le 08/02,
+           « distil., remplace QBY de 20h à 22h », est en distillation tout
+           l'après-midi (25 cas de l'année relus, 04/11/2026) */
+        if(ec && (ec[1]<=x.proposeH[0]+0.01 || ec[0]>=x.proposeH[1]-0.01) && (ec[0]>pr[0]+0.01 || ec[1]<pr[1]-0.01)){ var hz=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
+          return '<small class="eqhd">'+hz(Math.max(ec[0],pr[0]))+"-"+hz(Math.min(ec[1],pr[1]))+"</small>"; }
+      }catch(e){} }
       if(x.horPart){ var hq=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+"h"+pad2(mn):String(e); };
         return '<small class="eqhd">'+hq(x.horPart[0])+"-"+hq(x.horPart[1])+"</small>"; }
       var pm=plageModifiee(x,k); if(!pm) return "";
@@ -28014,7 +28030,7 @@ function renderEquipe(){
            le 20/10/2026 : « pourquoi ne voit-on pas l'horaire presté par
            FLI, étant donné qu'il est en D ? ». */
         +(nu&&(g.k==="D"||x.consign||x.remplCons||x.apprMeun||x.renfortD||x.deD||celluleD(x))&&(!sansHoraire||x.deD)?horaireEcritD(x)
-          :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k):""))
+          :(nu&&!sansHoraire&&!x.consign?horaireModifie(x,g.k,posteCourant):""))
         /* UN SEUL HORAIRE PAR CASE, LE VRAI (le client, le 04/11/2026, sur
            SKS « 06-10 → 06-10 » le 13/11 et ATR « 10-14 → 10-13 » le 08/11 :
            « l'horaire indiqué doit être le bon, le vrai et un seul ») : la
@@ -31249,6 +31265,9 @@ function raisonTexte(r){
                       : r.note.charAt(0).toLowerCase()+r.note.slice(1);
 }
 function texteTransfert(x,t,raison){
+  if(x.rouelibre && t.h){ var hr=function(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return mn?e+" h "+pad2(mn):e+" h"; };
+    return "En roue libre de "+hr(t.h[0])+" à "+hr(t.h[1])+" : proposé par l'application en "+nomPosteApp(t.vers)+" à ces heures"
+      +(raison?", "+raison:"")+". À confirmer avec "+idLisible(x.p.id)+"."; }
   if(x.arriere) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
     +" ; le poste "+nomPosteApp(t.de)+" reste tenu sans lui (fermentation, terrain arrière et distillation se comblent entre eux).";
   if(x.surplus) return "Placé par l'application : "+nomPosteApp(t.de)+" → "+nomPosteApp(t.vers)
@@ -31276,8 +31295,45 @@ function texteTransfert(x,t,raison){
    changement) ; un candidat qui laisserait son poste sous l'effectif
    n'est plus cité, sauf la proposition de l'application elle-même (le
    pointillé du Planning) ; « en formation » s'écrit en jaune. */
+/* LES HEURES QUE SON COMMENTAIRE ÉCRIT À CE POSTE (le client, le
+   04/11/2026, sur le 08/11 au matin : « ATR n'est pas en fermentation de 10
+   à 13, seulement de 13 à 14, il est en roue libre (disponible de 10 à
+   13) »). ATR : « Ferm. », « 1/2VA », « remplace GDT de 13h à 14h00' …
+   arrivée à 10h00' remplace en fermentation de 13h à 14h00' ». Les clauses
+   « remplace X de A à B » (X tient le poste Pk dans cette pause) et
+   « remplace en <poste> de A à B » (le poste écrit), dans la pause gk, au
+   poste Pk : [début, fin] de leur union, ou null quand rien n'est écrit.
+   Le reste de sa présence, il est libre. */
+function heuresEcritesAuPoste(db,x,gk,Pk,vue,an,mo,jo){
+  var raw=(x.p.d||{})[pad2(mo)+pad2(jo)]||[], c=String(raw[2]||""), rx=rxRelaisEcrit(), m, a=null, b=null;
+  var t0=PF_DEB[gk], t1=PF_FIN[gk]; if(t0==null) return null;
+  while((m=rx.exec(c))){
+    var u=Number(m[3])+Number(m[4]||0)/60, v=Number(m[5])+Number(m[6]||0)/60; if(v<=u) v+=24; if(u<t0-12){ u+=24; v+=24; }
+    if(u<t0-0.01 || v>t1+0.01) continue;
+    var kn=null;
+    if(m[2]) kn=/^arri/i.test(m[2])?"terr":posteDepuisNom(m[2]);
+    else if(m[1]){ var t=m[1].toUpperCase(); (vue&&vue.postes||[]).forEach(function(o){ if(!kn && o.gens.some(function(y){ return !y.partage && idLisible(y.p.id)===t; })) kn=o.P.k; }); }
+    if(kn!==Pk) continue;
+    a=(a==null)?u:Math.min(a,u); b=(b==null)?v:Math.max(b,v);
+  }
+  return a==null?null:[a,b];
+}
 function candidatsPlace(vue,P,gk,jour,oP,aP,par){
   var c=[], r=[];
+  /* SES HEURES, UN SEUL HORAIRE (le client, le 04/11/2026, sur le 08/11 au
+     matin : « et ça propose toujours des gens qui ne sont pas là » — ATR,
+     « 1/2VA, arrivée à 10h00' », apparaissait « proposé » sous les
+     chaudières vides dès 6 h, sans heure). Le proposé : les heures de sa
+     proposition ; un autre qui n'est là qu'une partie de la pause : ses
+     heures de présence (heuresAuPoste) ; là toute la pause : rien. */
+  var dbJ=null; try{ dbJ=horaireDe(Math.floor(jour/10000)); }catch(e){}
+  function hhC(u){ function f(n){ n=((n%24)+24)%24; var e=Math.floor(n+1e-6), mn=Math.round((n-e)*60); return pad2(e)+(mn?"h"+pad2(mn):""); } return f(u[0])+"-"+f(u[1]); }
+  function heuresC(x){
+    if(x.propose===P.k && x.proposeH) return hhC(x.proposeH);
+    if(!dbJ) return "";
+    try{ var h=heuresAuPoste(dbJ,x,gk,Math.floor(jour/10000),Math.floor(jour/100)%100,jour%100);
+      return (h[0]>PF_DEB[gk]+0.01 || h[1]<PF_FIN[gk]-0.01)?hhC(h):""; }catch(e){ return ""; }
+  }
   /* … et ce que la case de l'absent dit de son remplaçant (« remplacé par
      KDN et FLN », « remplacé par PBL », « de 14h à 18h ») : quand
      l'application n'a pas pu le placer, la bulle le montre */
@@ -31297,14 +31353,22 @@ function candidatsPlace(vue,P,gk,jour,oP,aP,par){
     var eff=(o.tenu||0)-o.gens.filter(function(y){ return !y.partage && y.propose && y.propose!==P.k && compteAuPoste(y,o.P,jour); }).length,
         surn=o.attendu?eff>o.attendu:true;
     o.gens.forEach(function(x){
-      if(x.deD || x.depuisD || x.partage) return;
+      if(x.deD || x.depuisD || (x.partage && !(x.rouelibre && x.propose===P.k))) return;
+      /* une seule fois par personne : l'adjoint en roue libre figure par sa
+         copie (« disponible »), pas encore à son poste */
+      if(!x.partage && (vue.postes||[]).some(function(q){ return q.gens.some(function(y){ return y.rouelibre && y.p.id===x.p.id; }); })) return;
       if(x.propose && x.propose!==P.k) return;
       /* le trou de quelques heures : les mêmes que relaisCourtsPause() */
       if(oP && oP.trouCourt && (x.horPart || x.relaisCourt) && x.propose!==P.k) return;
       if(!peutTenir(x.p,P,jour) || !compteAuPoste(x,P,jour)) return;
       var pr=x.propose===P.k;
       if(!pr && o.attendu && eff-(compteAuPoste(x,o.P,jour)?1:0)<o.attendu) return;
-      c.push({id:idLisible(x.p.id), de:o.P.t, s:!!surn, pr:pr, f:enFormation(x.p,jour)});
+      var deTxt=x.rouelibre?"disponible":o.P.t;
+      if(pr && x.proposeH && dbJ){ try{
+        var ec=heuresEcritesAuPoste(dbJ,x,gk,o.P.k,vue,Math.floor(jour/10000),Math.floor(jour/100)%100,jour%100);
+        if(ec && (ec[1]<=x.proposeH[0]+0.01 || ec[0]>=x.proposeH[1]-0.01)) deTxt="disponible";
+      }catch(e){} }
+      c.push({id:idLisible(x.p.id), de:deTxt, s:!!surn, pr:pr, f:enFormation(x.p,jour), h:heuresC(x)});
     });
   });
   (vue.inconnus||[]).forEach(function(x){
@@ -31321,7 +31385,29 @@ function candidatsPlace(vue,P,gk,jour,oP,aP,par){
       if(!x.depuisD && posteAttitreLe(x.p,jour)===P.k) r.push({id:idLisible(x.p.id), m:"présent, en "+o.P.t}); }); });
     if(!r.length) r.push({id:"", m:"Personne de l'équipe n'est prévu à cette place"});
   }
-  return {t:P.t+" · "+gk+" · "+oP.tenu+"/"+aP, l:c, r:r};
+  /* CE QUI RESTE À COMBLER (le client, le 04/11/2026 : « l'horaire indiqué
+     doit être le bon, le vrai et un seul ») : les heures où la place reste
+     sous son effectif, une fois comptés ceux qui la tiennent
+     (tenuAuxHeures) et les propositions à leurs heures. Le 08/11 au matin,
+     ATR proposé de 10 h à 13 h : il reste 06-10 et 13-14. */
+  var reste=null;
+  if(dbJ && oP){ try{
+    var an1=Math.floor(jour/10000), mo1=Math.floor(jour/100)%100, jo1=jour%100;
+    var trous=tenuAuxHeures(dbJ,oP,oP.gens.filter(function(y){ return !y.propose; }),gk,an1,mo1,jo1,PF_DEB[gk],PF_FIN[gk],[]).trous||[];
+    var couv=[];
+    (vue.postes||[]).forEach(function(o){ o.gens.forEach(function(y){ if(y.propose===P.k) couv.push(y.proposeH||[PF_DEB[gk],PF_FIN[gk]]); }); });
+    reste=[];
+    trous.forEach(function(t){
+      var u=t[0], run=null;
+      for(;u<t[1]-0.01;u+=0.5){
+        var pris=couv.some(function(cv){ var a=cv[0], b=cv[1]; if(b<=a) b+=24; if(a<PF_DEB[gk]-12){ a+=24; b+=24; } return a<=u+0.01 && b>=u+0.49; });
+        if(pris){ run=null; continue; }
+        if(run && Math.abs(run[1]-u)<0.01) run[1]=u+0.5; else { run=[u,u+0.5]; reste.push(run); }
+      }
+    });
+    reste=reste.map(hhC);
+  }catch(e){ reste=null; } }
+  return {t:P.t+" · "+gk+" · "+oP.tenu+"/"+aP, l:c, r:r, reste:reste};
 }
 /* LA BULLE D'UNE PLACE VIDE mise en forme (le client, le 20/10/2026 :
    « supprime les mots place vide et optimise le rendu des propositions »).
@@ -31331,13 +31417,14 @@ function candidatsPlace(vue,P,gk,jour,oP,aP,par){
    Plus de liste en phrase où le proposé revenait deux fois. */
 function bulleCandidatsHTML(d){
   var h='<b class="cdp-t">'+esc(d.t)+'</b>';
+  if(d.reste) h+='<span class="cdp-reste">'+(d.reste.length?'Reste à combler : <b>'+esc(d.reste.join(" · "))+'</b>':'Couvert par la proposition, à confirmer')+'</span>';
   if(d.r&&d.r.length) h+='<span class="cdp-s">À remplacer</span><ul class="cdp-l">'+d.r.map(function(x){
     if(!x.id) return '<li><span class="cdp-de cdp-sans">'+esc(x.m)+'</span></li>';
     return '<li><span class="eqn cdp-abs"><b>'+esc(x.id)+'</b></span><span class="cdp-de">'+esc(x.m)+(x.n?'<small class="cdp-nm">« '+esc(x.n)+' »</small>':'')+'</span></li>'; }).join("")+'</ul>';
   if(!d.l.length) return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<span class="cdp-vide">Personne de la pause ne peut le prendre sans laisser son poste en sous-effectif.</span>';
   return h+(d.r&&d.r.length?'<span class="cdp-s">Peut prendre le poste</span>':'')+'<ul class="cdp-l">'+d.l.map(function(x){
     return '<li><span class="eqn'+(x.pr?' app':'')+(x.f?' form':'')+'"><b>'+esc(x.id)+'</b></span>'
-      +'<span class="cdp-de">'+esc(x.de)+'</span>'
+      +'<span class="cdp-de">'+esc(x.de)+(x.h?' <small class="cdp-h">'+esc(x.h)+'</small>':'')+'</span>'
       /* les mentions à droite, toutes de la même taille (le client, le
          22/10/2026 : « uniformiser la taille des explications de couleur
          ainsi que l'alignement à droite ») */
@@ -31569,6 +31656,35 @@ function planningDuJour(db,annee,mois,jour,par){
   ORD.forEach(function(gk){ if(vp[gk]) relaisPartielsPause(vp[gk].vue,gk,mmdd,jourCalc); });
   /* une proposition n'ouvre pas de trou là où elle prend, relais comptés */
   ORD.forEach(function(gk){ if(vp[gk]) propositionsAuxHeures(vp[gk].vue,gk,mmdd,jourCalc,db); });
+  /* L'ADJOINT EN ROUE LIBRE (le client, le 04/11/2026, sur ATR le 08/11 au
+     matin : « il est proposé aux chaudières ces heures-là, mais doit
+     apparaître dans la ligne adjoint, disponible, avec son horaire de roue
+     libre »). Un adjoint proposé ailleurs HORS des heures que son
+     commentaire écrit à son poste (ATR : « remplace en fermentation de 13h
+     à 14h », « arrivée à 10h00' ») reste à son poste à ces heures-là
+     (13-14) ; ses heures libres (10-13) vont dans la ligne Adjoint, sur
+     une copie qui porte la proposition. Un seul horaire par case. */
+  ORD.forEach(function(gk){
+    if(!vp[gk]) return;
+    var v=vp[gk].vue, oA=null, PA=null;
+    v.postes.forEach(function(o){ if(o.P.k==="adj") oA=o; });
+    POSTES_TRAVAIL.forEach(function(Q){ if(Q.k==="adj") PA=Q; });
+    v.postes.slice().forEach(function(o){
+      if(o.P.k==="adj" || o.P.cm) return;
+      o.gens.slice().forEach(function(x){
+        if(!x.propose || !x.proposeH || x.partage || x.horPart || !estCadre(x.p) || estContremaitre(x.p)) return;
+        var ec=null, pr=null;
+        try{ ec=heuresEcritesAuPoste(db,x,gk,o.P.k,v,annee,mois,jour); pr=heuresAuPoste(db,x,gk,annee,mois,jour); }catch(e){ return; }
+        if(!ec || !pr || !(ec[1]<=x.proposeH[0]+0.01 || ec[0]>=x.proposeH[1]-0.01)) return;
+        var libre=(ec[0]>=x.proposeH[1]-0.01)?[pr[0],ec[0]]:[ec[1],pr[1]];
+        if(libre[1]-libre[0]<0.5 || !PA) return;
+        if(!oA){ oA={P:PA, gens:[], tenu:0, attendu:0, detail:"", relais:[], manque:false, creux:0}; v.postes.push(oA); }
+        oA.gens.push({p:x.p, r:x.r, horPart:libre, partage:true, rouelibre:true, propose:x.propose, proposeH:x.proposeH, proposeDe:"adj"});
+        x.horPart=[Math.max(ec[0],pr[0]),Math.min(ec[1],pr[1])];
+        delete x.propose; delete x.proposeH; delete x.proposeDe;
+      });
+    });
+  });
   /* EN FORMATION À SES HEURES ÉCRITES, et non à celles de sa case (le
      client, le 02/11/2026 : « pourquoi JBS n'est pas dans la ligne
      formation ? ») : JBS le 06/11, 08h30-12h30, et non 6h-14h ; AAI le
@@ -31608,9 +31724,19 @@ function propositionsAuxHeures(v,gk,mmdd,jourCalc,db){
       h=heuresAuPoste(db,x,gk,an0,mo0,jo0);
     }catch(e){ return; }
     function dans(l,u){ return l.some(function(t){ return t[0]<=u+0.01 && t[1]>=u+0.49; }); }
+    /* SES HEURES DÉJÀ PRISES (le client, le 04/11/2026 : « ça propose
+       toujours des gens qui ne sont pas là ») : une clause « remplace X de A
+       à B » ou « remplace en <poste> de A à B » de son commentaire, dans
+       cette pause, l'engage à ces heures. QBY, le 27/05 au matin,
+       « remplace PAM de 09h à 11h30 », était proposé au gluten toute la
+       matinée. */
+    var engage=[];
+    try{ var cE=String(((x.p.d||{})[String(mmdd)]||[])[2]||""), rxE=rxRelaisEcrit(), mE;
+      while((mE=rxE.exec(cE))){ var uE=Number(mE[3])+Number(mE[4]||0)/60, vE=Number(mE[5])+Number(mE[6]||0)/60; if(vE<=uE) vE+=24; if(uE<PF_DEB[gk]-12){ uE+=24; vE+=24; }
+        if(vE>PF_DEB[gk]+0.01 && uE<PF_FIN[gk]-0.01) engage.push([uE,vE]); } }catch(e){}
     var run=null, best=null, ouvre=false;
     for(var u=Math.max(h[0],PF_DEB[gk]); u<Math.min(h[1],PF_FIN[gk])-0.01; u+=0.5){
-      var trou=dans(sans,u) && !dans(avec,u);
+      var trou=(dans(sans,u) && !dans(avec,u)) || dans(engage,u);
       if(trou){ ouvre=true; run=null; continue; }
       if(run && Math.abs(run[1]-u)<0.01) run[1]=u+0.5; else run=[u,u+0.5];
       if(!best || run[1]-run[0]>best[1]-best[0]) best=[run[0],run[1]];

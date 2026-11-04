@@ -5012,3 +5012,45 @@ l'effet de la date).
   112 essais, 0 faute.
 - Une note d'agenda change : GDT le 21/04, « remplace SMA de 10h à 14h »,
   en fermentation, la place de SMA ce jour-là (SMA « remplace LCI »).
+
+### Qui est vraiment là, et à quelles heures : la bulle, la roue libre (04/11/2026, `nfdm-v1353`)
+
+Le client, le 04/11/2026, sur le 08/11 au matin, en trois messages :
+- « Et ça propose toujours des gens qui ne sont pas là » ;
+- « Pour le 08/11, ATR n'est pas en fermentation de 10 à 13, seulement de 13
+  à 14, il est en roue libre (disponible de 10 à 13) » ;
+- « Il est proposé aux chaudières ces heures-là, mais doit apparaître dans
+  la ligne adjoint, disponible, avec son horaire de roue libre ».
+
+ATR : `["Ferm.","1/2VA","remplace GDT de 13h à 14h00' … arrivée à 10h00'
+remplace en fermentation de 13h à 14h00'"]`.
+
+**Corrigé.**
+- **La bulle du « ? ».** Elle dit ce qui reste à combler (« Reste à
+  combler : 06-10 · 13-14 »). Chaque candidat n'y a qu'un horaire : celui de
+  la proposition (« ATR · disponible 10-13 · proposé »), ou ses heures de
+  présence s'il n'est là qu'une partie de la pause. Une même personne n'y
+  figure qu'une fois.
+- **La roue libre.** Un adjoint proposé ailleurs hors des heures que son
+  commentaire écrit à son poste (`heuresEcritesAuPoste`) y reste à ces
+  heures : ATR, fermentation 13-14. Ses heures libres vont dans la ligne
+  Adjoint, sur une copie qui porte la proposition (ATR 10-13, pointillé
+  orange). L'infobulle de la copie dit : « En roue libre de 10 h à 13 h :
+  proposé par l'application en Chaudières à ces heures. »
+  - Un seul cas sur l'année.
+  - La règle ne vaut que si l'adjoint est proposé : sur les 25 cas où un
+    commentaire écrit des heures plus étroites que la présence, la plupart
+    ne disent pas que la personne est libre. JBI, le 08/02, « distil.,
+    remplace QBY de 20h à 22h », est en distillation tout l'après-midi.
+- **Une proposition évite les heures que le commentaire engage** (« remplace
+  X de A à B ») :
+  - QBY, le 27/05, « remplace PAM de 09h à 11h30 », était proposé au gluten
+    toute la matinée ; il l'est désormais de 6 h à 9 h ;
+  - JBI, le 20/05, « remplace FLI de 10h30 à 11h30 » : de 6 h à 10 h 30.
+
+**Contrôles.**
+- Calendrier, manques, polyvalence, compteurs, places vides commentées :
+  identiques à l'octet.
+- Cohérence du Planning : 0 faute. Elle contrôle que « À prévenir » égale
+  le Planning, et que la proposition reste dans les heures de la copie.
+- Recherche : 0. Parcours : 112 essais, 0 faute. Agendas inchangés.
