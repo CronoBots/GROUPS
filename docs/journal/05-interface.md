@@ -11641,3 +11641,58 @@ couché) :
 - aucune erreur de page.
 
 Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0.
+
+### Le Planning, widget de l'Accueil au PC (04/11/2026, `nfdm-v1364`)
+
+Le client : « sur PC le planning doit être un widget de l'accueil ».
+
+**Un seul exemplaire, déplacé.** La carte de l'onglet Planning (`#jourCard` :
+la barre de date, le tableau du jour, la légende) n'est pas recopiée.
+`accPlanningPlacer()` la pose dans l'Accueil, dans l'enveloppe
+`#accPlanning` (`data-w="planning"`), quand l'Accueil s'affiche sur un écran
+de PC (1 100 px et plus). Elle retourne dans l'onglet Planning dès qu'on
+l'ouvre (`setView`).
+- Le rendu (`renderEquipe`) écrit dans `#jourCorps` où qu'il soit.
+- Ses écouteurs suivent la carte : les flèches, la date, les bulles, et le
+  geste du doigt, désormais attaché par `getElementById("jourCard")`.
+- Le menu garde son entrée « Planning » : rien n'a été demandé à son sujet.
+
+**Ses styles la suivent sans rien changer à l'onglet.** Chacun des 37
+sélecteurs « `#v-jour …` » a reçu son double « `#accPlanning …` ».
+- C'est fait par un script qui lit les feuilles (commentaires, chaînes,
+  @-règles), et non à la main ; ni la priorité d'aucune règle ni le
+  nombre de règles ne changent.
+- `:is()` aurait été plus court, mais les vieux navigateurs jettent une
+  règle entière pour un sélecteur inconnu.
+- Les règles de hauteur, écrites `body[data-view="jour"] #v-jour .card`, ne
+  jouent pas dans l'Accueil : le widget garde sa hauteur naturelle.
+
+**Prouvé :** les styles calculés des 252 éléments de la carte, dans
+l'onglet, sont identiques avant et après, au PC (1280) comme au téléphone
+(390), avec 0 différence. Épreuve : une bordure sabotée d'un pixel dans la
+copie d'avant donne 90 différences.
+
+**Dans l'Accueil :**
+- un en-tête « Planning » (`.jour-acc-t`, caché dans l'onglet) ;
+- pleine largeur par défaut, après le cycle et avant l'usine ; ⅔ au moins
+  (628 px à 1280 : rien ne déborde) ;
+- au téléphone et sur tablette (moins de 1 100 px), pas de widget, et pas
+  de cadre fantôme ni de place dans la réserve des masqués (`pc:true`) ;
+- le Planning se refait avec l'Accueil (`accRefaire` : jour nouveau,
+  horaire relu).
+
+**Un widget nouveau dans une disposition déjà réglée** se pose désormais à
+sa place d'origine, après son voisin, et non à la fin (`accCharger`) : la
+disposition que le client a pu régler depuis la v1363 garde tout le reste.
+
+**Éprouvé au navigateur** :
+- 1280 : le widget, le jour suivant par sa flèche ;
+- l'onglet Planning : la carte y est, en pleine hauteur (860 px), puis
+  revient dans l'Accueil ;
+- largeur ⅔ ;
+- 390 et 900 : la carte reste dans son onglet ;
+- aucune erreur.
+
+Parcours : 112 essais, 0 faute. `coherence-planning.js` : 0. Garde-fou du
+dépôt : 0, après une reformulation (deux mots en capitales séparés d'une
+virgule, dans un commentaire, avaient la forme « NOM, PRÉNOM »).

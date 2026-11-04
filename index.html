@@ -4653,7 +4653,7 @@ html .mqmois:not(.ouvert)>.mqmc{display:none !important}
 #v-jour{gap:0}
 /* Desktop / tablette : le cadre garde le flux normal, 16 px de marge. */
 body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
-#v-jour .card{display:flex; flex-direction:column; position:relative}
+#v-jour .card,#accPlanning .card{display:flex; flex-direction:column; position:relative}
 /* TABLETTE ET TÉLÉPHONE EN PAYSAGE (761 à 1099 px) : la carte ne dépasse
    plus le bas de la fenêtre. Plus haute qu'elle (598 px dans 390 à
    844 × 390), elle défilait avec la page et AM · PM · N sortaient de
@@ -4661,7 +4661,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    en-têtes collés, comme au téléphone et au PC. Une carte qui tient garde
    sa hauteur (audit du 23/10/2026). */
 @media (min-width:761px) and (max-width:1099px) and (min-height:500.01px), (min-width:761px) and (max-width:1099px) and (orientation:portrait){
-  body[data-view="jour"] #v-jour .card{min-height:240px;
+  body[data-view="jour"] #v-jour .card,body[data-view="jour"] #accPlanning .card{min-height:240px;
     max-height:calc(100vh - var(--jtop,116px) - 16px);
     max-height:calc(100dvh - var(--jtop,116px) - 16px)}
 }
@@ -4708,7 +4708,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    par ce séparateur — est d'un seul et même gris, continu avec le bord gauche de
    la colonne Poste (à gauche de « Auj. »). Coins hauts = ceux de la carte
    (overflow:hidden). */
-#v-jour .card>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
+#v-jour .card>.toolbar.eqnav,#accPlanning .card>.toolbar.eqnav{flex:0 0 auto; background:var(--surface2);
   border:0; border-bottom:1px solid var(--cadre); border-radius:0;
   flex-direction:column; align-items:center; gap:3px}
 /* ⭐ CADRE PRO — UN SEUL ÉLÉMENT (refonte le 05/10/2026 : le client « repars de
@@ -4733,43 +4733,43 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    brillance… le bord gauche qui devient gris sur la droite »). On retire le dégradé
    « métal lustré » (ex-::after masqué) au profit d'un simple 1 px --cadre sur les 4
    côtés. Le halo/relief (box-shadow) reste. */
-#v-jour .card{border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden}
+#v-jour .card,#accPlanning .card{border:1px solid var(--cadre); border-radius:var(--rj); overflow:hidden}
 /* Les flèches sont ANCRÉES aux bords de la cellule (écart fixe, = le padding),
    et le jour est centré entre elles (flex:1). Ainsi les flèches ne bougent plus
    selon la longueur de la date (le client, le 03/10/2026). */
-#v-jour .jourline{display:flex; width:100%; align-items:center}
-#v-jour .jourline .eqjour{flex:1 1 auto; min-width:0; text-align:center;
+#v-jour .jourline,#accPlanning .jourline{display:flex; width:100%; align-items:center}
+#v-jour .jourline .eqjour,#accPlanning .jourline .eqjour{flex:1 1 auto; min-width:0; text-align:center;
   font-size:17.5px; font-weight:650; white-space:nowrap}
 /* Les flèches rentrent d'un écart fixe depuis le bord (le client, le 03/10/2026 :
    « plus écartées du bord »), sans bouger selon la date. */
-#v-jour .jourline>button{margin:0 26px}
-#v-jour .jl-court{display:none}
+#v-jour .jourline>button,#accPlanning .jourline>button{margin:0 26px}
+#v-jour .jl-court,#accPlanning .jl-court{display:none}
 /* 44 px de toucher autour des flèches du mois et de la roue (audit du 10/10/2026) */
 .calnav button,.pf-roue{position:relative}
 .calnav button::after{content:""; position:absolute; inset:-7px}
 .pf-roue::after{content:""; position:absolute; inset:-3px; border-radius:50%}
 /* Zone de toucher de 44 px autour des flèches de 30 px. */
-#v-jour .jourline>button{position:relative}
-#v-jour .jourline>button::after{content:""; position:absolute; inset:-7px}
+#v-jour .jourline>button,#accPlanning .jourline>button{position:relative}
+#v-jour .jourline>button::after,#accPlanning .jourline>button::after{content:""; position:absolute; inset:-7px}
 @media (max-width:380px){
-  #v-jour .jourline>button{margin:0 10px}
-  #v-jour .jl-long{display:none} #v-jour .jl-court{display:inline}
-  #v-jour .jourline .eqjour{overflow:hidden; text-overflow:ellipsis}
+  #v-jour .jourline>button,#accPlanning .jourline>button{margin:0 10px}
+  #v-jour .jl-long,#accPlanning .jl-long{display:none} #v-jour .jl-court,#accPlanning .jl-court{display:inline}
+  #v-jour .jourline .eqjour,#accPlanning .jourline .eqjour{overflow:hidden; text-overflow:ellipsis}
 }
 /* DE 381 À 440 PX, LA DATE SE COUPAIT : « Vendredi 23 octobre » finissait en
    « oct… » à 390, et l'année de 2027 (le client, le 20/10/2026) tombait.
    Les flèches s'y écartent du bord comme celles du mois du Calendrier
    (12 px) ; et partout, une date qui ne tient pas prend sa forme courte
    (ajusterDateJour) au lieu de se couper (audit du 23/10/2026). */
-@media (min-width:381px) and (max-width:440px){ #v-jour .jourline>button{margin:0 12px} }
-#v-jour #jourLabel.court .jl-long{display:none}
-#v-jour #jourLabel.court .jl-court{display:inline}
+@media (min-width:381px) and (max-width:440px){ #v-jour .jourline>button,#accPlanning .jourline>button{margin:0 12px} }
+#v-jour #jourLabel.court .jl-long,#accPlanning #jourLabel.court .jl-long{display:none}
+#v-jour #jourLabel.court .jl-court,#accPlanning #jourLabel.court .jl-court{display:inline}
 /* Les flèches, maintenant dans .jourline (plus enfants directs de .eqnav),
    reprennent leur style : carré de 30 px bordé. */
-#v-jour .jourline button{width:30px; height:30px; display:grid; place-items:center;
+#v-jour .jourline button,#accPlanning .jourline button{width:30px; height:30px; display:grid; place-items:center;
   border-radius:9px; border:1px solid var(--line); background:var(--surface);
   color:var(--muted); font-size:16px; line-height:1}
-@media (hover:hover){ #v-jour .jourline button:hover{color:var(--ink); border-color:var(--in2)} }
+@media (hover:hover){ #v-jour .jourline button:hover,#accPlanning .jourline button:hover{color:var(--ink); border-color:var(--in2)} }
 /* « Aujourd'hui » n'est plus un bouton de la barre : il occupe l'espace libre
    de la cellule « Poste » (le client, le 02/10/2026). Voir .posteauj. */
 /* touch-action:pan-y : sur l'onglet Horaire, le doigt ne sert qu'au défilement
@@ -4782,7 +4782,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
 /* le cadre sans horaire : une phrase au milieu, pas un vide (audit du 23/10/2026) */
 #jourCorps .jourvide{margin:auto; padding:32px 24px; max-width:32ch; text-align:center;
   font-size:14px; line-height:1.5; color:var(--muted); text-wrap:balance}
-#v-jour .jourline button:disabled{opacity:.35; cursor:default}
+#v-jour .jourline button:disabled,#accPlanning .jourline button:disabled{opacity:.35; cursor:default}
 /* Le tableau remplit le cadre (height:100 %) ; les jours assez chargés pour
    dépasser la hauteur disponible — surtout en page web, où la barre du
    navigateur rogne l'écran ; ça passe en PWA — se FEUILLETTENT verticalement
@@ -4842,7 +4842,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    sans teinter le trait du cadre lui-même (qui reste gris neutre, pour laisser les
    liserés d'atelier être les seules vraies couleurs) ; (3) deux ombres portées qui
    détachent la carte du fond. Calibré bas (l'écran du téléphone sature plus). */
-#v-jour .card{box-shadow:
+#v-jour .card,#accPlanning .card{box-shadow:
   inset 0 1px 0 rgba(255,255,255,.07),
   var(--ombre-cadre)}
 /* (Plus d'overlay de cadre pendant le feuilletage : inutile depuis le CADRE PRO.
@@ -4888,7 +4888,7 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
     display:flex; flex-direction:column;
   }
   #v-jour{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
-  #v-jour .card{flex:1 1 auto; min-height:0}
+  #v-jour .card,#accPlanning .card{flex:1 1 auto; min-height:0}
 }
 /* LA VUE PAR POSTE : les postes en lignes, les trois pauses en colonnes.
    Le nom du poste ne se coupe jamais — le client l'a demandé — et son
@@ -5243,19 +5243,19 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
    feuilletage. On ne garde que le clip de la grille pour le défilement. */
 /* La barre du jour, plus fine : 34 → 30 px de boutons, 12 → 7 px de marge,
    et « Aujourd'hui » en petit. */
-#v-jour .toolbar.eqnav{padding:7px 12px}
+#v-jour .toolbar.eqnav,#accPlanning .toolbar.eqnav{padding:7px 12px}
 /* LES FLÈCHES À LA MÊME DISTANCE DU HAUT ET DU CÔTÉ (le client, le
    25/10/2026 : « décale les boutons pour que l'écart du haut soit le même
    à gauche et à droite vers le bord ») : 8 px du haut, 23 à 25 px du côté
    au téléphone (12 au PC, 39 du côté). Plus de marge latérale : la barre
    porte le même retrait des quatre côtés. */
-#v-jour .card>.toolbar.eqnav .jourline>button{margin:0}
-#v-jour .card>.toolbar.eqnav{padding-left:var(--nav-ret,7px); padding-right:var(--nav-ret,7px)}
+#v-jour .card>.toolbar.eqnav .jourline>button,#accPlanning .card>.toolbar.eqnav .jourline>button{margin:0}
+#v-jour .card>.toolbar.eqnav,#accPlanning .card>.toolbar.eqnav{padding-left:var(--nav-ret,7px); padding-right:var(--nav-ret,7px)}
 /* le retrait latéral suit la taille des flèches : 44 px au téléphone (haut
    8), 30 px de 700 à 1099 px (haut 15), 36 px au-delà (haut 12) ; retrait
    = écart du haut moins la bordure de 1 px */
-@media (min-width:700px){ #v-jour .card>.toolbar.eqnav{--nav-ret:14px} }
-@media (min-width:1100px){ #v-jour .card>.toolbar.eqnav{--nav-ret:11px} }
+@media (min-width:700px){ #v-jour .card>.toolbar.eqnav,#accPlanning .card>.toolbar.eqnav{--nav-ret:14px} }
+@media (min-width:1100px){ #v-jour .card>.toolbar.eqnav,#accPlanning .card>.toolbar.eqnav{--nav-ret:11px} }
 /* LES FLÈCHES TAILLÉES SUR LE TABLEAU (le client, le 25/10/2026 :
    « optimise ces boutons pour que leur style fonctionne à 100 % avec le
    tableau ») :
@@ -5266,7 +5266,7 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
    - au téléphone, la largeur de la colonne des postes (64 px) moins les
      deux retraits : la flèche de gauche tombe pile au-dessus de « Auj. »,
      dans l'axe de la colonne, celle de droite lui répond. */
-#v-jour .card>.toolbar.eqnav .jourline>button{background:var(--surface); border-color:var(--trait);
+#v-jour .card>.toolbar.eqnav .jourline>button,#accPlanning .card>.toolbar.eqnav .jourline>button{background:var(--surface); border-color:var(--trait);
   border-radius:calc(var(--rj,22px) - var(--nav-ret,7px) - 1px)}
 /* PLUS PETITES (le client, le 25/10/2026 : « flèches plus petites ou pas ?
    100 % pro ») : 50 × 44 au téléphone pesaient autant que la date. Une
@@ -5274,10 +5274,10 @@ td.fusion.bande .eqfus+.eqfus{margin-top:4px}
    4 px tout autour). Au téléphone, centrée dans la colonne des postes
    (64 px : 14 px de chaque côté), et la barre prend la hauteur qui donne
    le même écart en haut (36 + 2 × 14). */
-#v-jour .card>.toolbar.eqnav .jourline>button{width:36px; height:36px}
-#v-jour .card>.toolbar.eqnav .jourline>button::after{inset:-4px}
-@media (max-width:699px){ #v-jour .card>.toolbar.eqnav{--nav-ret:14px; padding-top:10px; padding-bottom:10px} }
-@media (min-width:700px){ #v-jour .card>.toolbar.eqnav{--nav-ret:11px} }
+#v-jour .card>.toolbar.eqnav .jourline>button,#accPlanning .card>.toolbar.eqnav .jourline>button{width:36px; height:36px}
+#v-jour .card>.toolbar.eqnav .jourline>button::after,#accPlanning .card>.toolbar.eqnav .jourline>button::after{inset:-4px}
+@media (max-width:699px){ #v-jour .card>.toolbar.eqnav,#accPlanning .card>.toolbar.eqnav{--nav-ret:14px; padding-top:10px; padding-bottom:10px} }
+@media (min-width:700px){ #v-jour .card>.toolbar.eqnav,#accPlanning .card>.toolbar.eqnav{--nav-ret:11px} }
 /* « Aujourd'hui » de l'Accueil dit s'il sert. Ailleurs qu'au jour courant :
    accent doux qui appelle à y revenir. Sur le jour courant (.estauj) : il
    s'éteint. (L'onglet Horaire a son propre lien discret, plus haut.) */
@@ -6685,7 +6685,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   /* LE PLANNING REMPLIT L'ÉCRAN. La carte va du bas de la barre au bas de
      la fenêtre (--jtop, mesuré par ajusterHauteurJour) ; ajusterLignesJour
      partage la hauteur gagnée entre les lignes, comme sur téléphone. */
-  body[data-view="jour"] #v-jour .card{height:calc(100vh - var(--jtop,96px) - 24px); min-height:460px}
+  body[data-view="jour"] #v-jour .card,body[data-view="jour"] #accPlanning .card{height:calc(100vh - var(--jtop,96px) - 24px); min-height:460px}
   #jourCorps .eqp2 thead th b{font-size:16px}
   #jourCorps .eqp2 thead th em{font-size:12px; margin-top:2px}
   #jourCorps .eqp2 thead th{padding-top:9px; padding-bottom:10px}
@@ -6694,8 +6694,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   #jourCorps.eqhote .eqp2 tbody td .eqn{padding:3px 8px; margin:2px 3px; border-radius:7px; line-height:17px}
   #jourCorps.eqhote .eqp2 tbody td .eqn b{font-size:13.5px}
   #jourCorps.eqhote .eqp2 td .eqn .eqhd{font-size:11px; line-height:17px}
-  #v-jour .jourline .eqjour{font-size:19px}
-  #v-jour .jourline button{width:36px; height:36px}
+  #v-jour .jourline .eqjour,#accPlanning .jourline .eqjour{font-size:19px}
+  #v-jour .jourline button,#accPlanning .jourline button{width:36px; height:36px}
 
   /* LES SOUS-EFFECTIFS SUR DEUX COLONNES. Une fiche de 660 px laissait la
      moitié droite du cadre vide ; deux fiches par rangée, le mois en travers. */
@@ -6982,7 +6982,7 @@ html .pvt td.pvzero{color:var(--faint)}
   html .btn.sm,html .ws-lien,html .ws-filtres input,html .ws-filtres select{min-height:44px}
   html .calvue button{min-height:40px}
   html .calauj{min-width:44px; min-height:44px}
-  html .mnav button,html .calmois .mnav button,html #v-jour .jourline button{width:44px; height:44px}
+  html .mnav button,html .calmois .mnav button,html #v-jour .jourline button,html #accPlanning .jourline button{width:44px; height:44px}
   html .pf-pr-c{min-height:48px}
   html .grille.ws .ws-menu button{min-height:44px; min-width:44px}
   html .grille.ws .ws-x-tel{width:44px; height:44px}
@@ -7155,7 +7155,7 @@ html .eqleg-souris{display:none}
    un poste à ses trigrammes. Les pastilles gardent la taille du PC. */
 @media (min-width:1100px){
   html .eqleg{display:none}
-  html body[data-view="jour"] #v-jour .card{max-width:1000px; width:100%; margin-left:auto; margin-right:auto}
+  html body[data-view="jour"] #v-jour .card,html body[data-view="jour"] #accPlanning .card{max-width:1000px; width:100%; margin-left:auto; margin-right:auto}
   html #jourCorps .eqp2 th.eqposte{width:150px}
 }
 /* UN FILET SOUS LA BARRE DE TITRE (le client, le 22/10/2026) : au PC, le
@@ -8614,6 +8614,12 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
    court. — */
 .pf-pw{display:flex; flex-direction:column; gap:var(--ip-ecart); min-width:0}
 .pf-pw>*{margin:0; width:auto}
+/* le Planning dans l'Accueil (au PC) : l'en-tête « Planning » des autres
+   widgets ; dans son onglet, la barre de date suffit */
+#jourCard>.jour-acc-t{display:none}
+#accPlanning #jourCard>.jour-acc-t{display:flex}
+#accPlanning #jourCard>header{--ic:var(--ip-planning)}
+.acc-planning{min-width:0}
 /* les polyvalences sont un bouton : leur widget l'enveloppe, pour que les
    outils du mode « Personnaliser » ne soient pas des boutons dans un bouton */
 .pf-pvw{min-width:0}
@@ -8982,7 +8988,9 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          04/10/2026 : « la ligne de date doit faire partie du tableau »).
          Un seul élément encadré contient la barre de date PUIS le tableau :
          plus deux blocs collés qu'on faisait coïncider, mais un vrai bloc. -->
-    <div class="card">
+    <div class="card" id="jourCard">
+      <!-- l'en-tête du widget « Planning » de l'Accueil (au PC) : caché dans l'onglet -->
+      <header class="jour-acc-t"><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15.5" rx="2.2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg>Planning</h2></header>
       <div class="toolbar eqnav">
         <div class="jourline">
           <button type="button" id="jourPrev" aria-label="Jour précédent"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -9081,6 +9089,11 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
       <div class="us-corps" id="usineCorps"></div>
     </div>
     <div class="acc-main" id="accMain">
+    <!-- LE WIDGET « PLANNING » DE L'ACCUEIL, AU PC (le client, le 04/11/2026 : « sur
+         PC, le planning doit être un widget de l'accueil ») : la carte de
+         l'onglet Planning (#jourCard) vient s'y poser, un seul exemplaire
+         (accPlanningPlacer) ; elle retourne à son onglet quand on l'ouvre. -->
+    <div class="acc-planning" id="accPlanning" data-w="planning" hidden></div>
     <!-- MES DEMANDES (le client, le 22/10/2026, « go ») : les demandes de
          congé en cours avec leur avancement. -->
     <div class="card" id="demCard" data-w="demandes" hidden>
@@ -13517,6 +13530,7 @@ function setView(v,keepScroll){
      « Mon rythme ». */
   /* l'onglet Équipes porte « Absents, congés et repos » (v1305), que
      renderEquipe écrit */
+  try{ accPlanningPlacer(v); }catch(e){}
   if(v==="jour"||v==="rh"||v==="equipe") renderEquipe();
   if(v==="horaire") renderRythme();
   /* Les équipes se peignent d'abord ; la polyvalence (premier calcul ≈1,4 s
@@ -24815,6 +24829,7 @@ function accCle(){ var n=new Date(); return n.toDateString()+"|"+jourPerso(st.pe
 function accJourVu(){ var cle=accCle(); if(_accCle!==null&&cle!==_accCle&&st.ready) try{ refresh(); }catch(e){} _accCle=cle; }
 function accProgrammer(){ clearTimeout(_accT); _accT=setTimeout(function(){ try{ accueilTic(); }catch(e){} accProgrammer(); },60500-Date.now()%60000); }
 function accRefaire(){
+  var cpl=document.getElementById("jourCard"); if(cpl&&cpl.parentNode&&cpl.parentNode.id==="accPlanning") try{ renderEquipe(); }catch(e){}
   var v=document.getElementById("v-horaire"), a=document.activeElement, dans=a&&a!==document.body&&v&&v.contains(a),
       proch=dans&&a.classList.contains("pf-proch"), sel=dans?reperer(a):null;
   try{ renderRythme(); }catch(e){}
@@ -32685,7 +32700,7 @@ function jourNavActive(on){
    côté, auquel cas le geste lui appartient. */
 /* Tout le cadre du jour écoute, barre de la date comprise (audit du
    10/10/2026 : seul le tableau répondait), sauf les deux flèches. */
-[document.querySelector("#v-jour .card")].forEach(function(c){
+[document.getElementById("jourCard")].forEach(function(c){
   if(!c) return;
   var x0=null, y0=0, t0=0;
   c.addEventListener("touchstart",function(e){
@@ -36330,6 +36345,8 @@ var ACC_W=[
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
   {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:4, tmin:2},
   {k:"polyvalences", nom:"Polyvalences",        l:6,  lmin:3, tmin:1},
+  /* au PC seulement (pc) : la carte de l'onglet Planning (accPlanningPlacer) */
+  {k:"planning",     nom:"Planning",            l:12, lmin:8, tmin:2, pc:true},
   {k:"usine",        nom:"L’usine en direct",   l:12, lmin:6, tmin:2},
   {k:"demandes",     nom:"Demandes de congé",   l:8,  lmin:4, tmin:2},
   {k:"afaire",       nom:"À faire",             l:6,  lmin:3, tmin:1},
@@ -36341,7 +36358,7 @@ var ACC_W=[
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
    les demandes et le calendrier */
-var ACC_ORDRE_TEL=["profil","heure","pointeuse","poste","acces","cycle","polyvalences","afaire","conges","site","messages","usine","demandes","calendrier","rythme"];
+var ACC_ORDRE_TEL=["profil","heure","pointeuse","poste","acces","cycle","polyvalences","planning","afaire","conges","site","messages","usine","demandes","calendrier","rythme"];
 var ACC_TAILLES={large:[3,4,6,8,9,12], tel:[1,2]};
 var ACC_FRAC={large:{3:"¼",4:"⅓",6:"½",8:"⅔",9:"¾",12:"1"}, tel:{1:"½",2:"1"}};
 var ACC={mode:"", cols:2, o:[], t:{}, m:{}, edit:false, gap:16, style:null, ro:null, items:[], scanT:0, drag:null, etire:null};
@@ -36354,7 +36371,10 @@ function accCharger(mode){
   var sv=lsGet("ui/accueil/"+mode)||{}, connus=ACC_W.map(function(d){ return d.k; });
   var base=mode==="tel"?ACC_ORDRE_TEL.slice():connus.slice();
   var o=(sv.o&&sv.o.length?sv.o:base).filter(function(k){ return connus.indexOf(k)>=0; });
-  base.forEach(function(k){ if(o.indexOf(k)<0) o.push(k); });
+  /* un widget nouveau (le Planning, le 04/11/2026) se pose à sa place
+     d'origine, après son voisin dans l'ordre d'origine, et non à la fin
+     d'une disposition déjà réglée */
+  base.forEach(function(k,i){ if(o.indexOf(k)>=0) return; var av=-1; for(var j=i-1;j>=0;j--){ av=o.indexOf(base[j]); if(av>=0) break; } o.splice(av+1,0,k); });
   ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{};
 }
 function accSauver(){ lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m}); }
@@ -36437,14 +36457,16 @@ function accOutils(tout){
   var vus={};
   ACC.items.forEach(function(el){ el.classList.remove("acc-vide"); });
   ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(k&&!el.hidden&&getComputedStyle(el).display!=="none") vus[k]=1; });
-  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(!k||vus[k]||ACC.m[k]||!accDef(k)) return; vus[k]=1;
+  var pc=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
+  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(!k||vus[k]||ACC.m[k]||!accDef(k)||(accDef(k).pc&&!pc)) return; vus[k]=1;
     el.classList.add("acc-vide"); el.setAttribute("data-acc-vide",accDef(k).nom+" · rien à montrer pour l’instant"); });
 }
 function accPied(){
   var p=document.getElementById("accPied"); if(!p) return;
   p.hidden=false;
   if(!ACC.edit){ p.innerHTML='<button type="button" class="acc-perso-btn" data-acc-editer><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/></svg>Personnaliser l’Accueil</button>'; return; }
-  var mq=ACC.o.filter(function(k){ return ACC.m[k]; });
+  var pcR=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
+  var mq=ACC.o.filter(function(k){ return ACC.m[k]&&(!accDef(k).pc||pcR); });
   p.innerHTML='<div class="acc-reserve"><b>Widgets masqués</b>'+(mq.length?'<div class="acc-reserve-l">'+mq.map(function(k){
       return '<button type="button" data-acc-montrer="'+k+'" aria-label="Remettre « '+esc(accDef(k).nom)+' »"><i aria-hidden="true">+</i>'+esc(accDef(k).nom)+'</button>'; }).join("")+'</div>'
     :'<p>Aucun : le bouton « − » d’un widget le range ici.</p>')+'</div>';
@@ -36578,6 +36600,20 @@ function accEtirer(ev,k,el){
   try{ ev.target.setPointerCapture(id); }catch(er){}
   document.addEventListener("pointermove",bouger,{capture:true, passive:false}); document.addEventListener("pointerup",fin,true); document.addEventListener("pointercancel",fin,true);
 }
+/* LE WIDGET « PLANNING » DE L'ACCUEIL, AU PC (le client, le 04/11/2026) : la
+   carte de l'onglet Planning, un seul exemplaire, se pose dans l'Accueil
+   (#accPlanning) quand l'Accueil s'affiche sur un écran de PC (1 100 px
+   et plus), et retourne dans son onglet dès qu'on l'ouvre (setView). Ses
+   écouteurs (flèches, date, bulles) la suivent, ses styles aussi (chaque
+   sélecteur « #v-jour … » a son double « #accPlanning … »). */
+function accPlanningPlacer(v){
+  var c=document.getElementById("jourCard"), vj=document.getElementById("v-jour"), w=document.getElementById("accPlanning"); if(!c||!vj||!w) return;
+  var ici=(v||st.view)==="horaire"&&!!ACC.style&&!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
+  if(ici){
+    if(c.parentNode!==w){ w.appendChild(c); w.hidden=false;
+      (window.requestIdleCallback||function(f){ setTimeout(f,40); })(function(){ try{ renderEquipe(); }catch(e){} }); }
+  } else { if(c.parentNode!==vj) vj.appendChild(c); w.hidden=true; }
+}
 function accInit(){
   var v=document.getElementById("v-horaire");
   if(!v||!window.ResizeObserver||!window.MutationObserver||!(window.CSS&&CSS.supports&&CSS.supports("display","contents"))) return;
@@ -36637,6 +36673,9 @@ function accInit(){
     accAnnoncer("« "+accDef(k).nom+" » : position "+(j+1)+" sur "+vis.length+".");
   });
   window.addEventListener("resize",function(){ if(ACC.edit) accBas(); });
+  var mq11=window.matchMedia&&matchMedia("(min-width:1100px)");
+  if(mq11){ var suivre=function(){ accPlanningPlacer(); }; if(mq11.addEventListener) mq11.addEventListener("change",suivre); else if(mq11.addListener) mq11.addListener(suivre); }
+  accPlanningPlacer();
 }
 
 function deconnecterCompte(){
