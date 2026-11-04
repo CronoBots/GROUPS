@@ -11923,3 +11923,58 @@ nuit (« Prochain poste · aujourd'hui · dans 11 h 20 »), 21 h 30 en poste
 Parcours : 112 essais, 0 faute ; statique, 0. Garde-fou du dépôt : 0,
 après une reformulation (deux mots en capitales séparés d'une virgule,
 dans un commentaire, une fois de plus).
+
+### La météo de Wanze, en Belgique, et rien d'autre ; « Mon année » réduite (04/11/2026, `nfdm-v1370`)
+
+Le client : « oui, et la météo doit être uniquement celle de Wanze en
+Belgique. » Le « oui » répondait à la proposition de la v1369 : une
+version réduite de « Mon année » pour le quart au PC et la demi-largeur du
+téléphone, plutôt que de retirer ces tailles.
+
+**La météo : Wanze, en Belgique, ou rien.** Le répertoire géographique
+d'Open-Meteo (GeoNames) connaît un autre Wanze, dans le Shanxi, en Chine.
+L'application n'a jamais demandé la météo par un nom de lieu ni par la
+position du téléphone : elle donnait des coordonnées arrondies
+(50,54 · 5,23), qui étaient déjà à Wanze. Désormais :
+- les coordonnées de Wanze, province de Liège, celles de GeoNames
+  (n° 2784092 : 50,5391 · 5,2085), et le fuseau de Bruxelles ;
+- la réponse n'est gardée que si elle parle de ce point (à moins de 0,1°)
+  et du fuseau de Bruxelles. Open-Meteo répond pour la case de sa grille
+  la plus proche, 50,548 · 5,22, mesuré le 04/11/2026 ;
+- une copie gardée sans ce point (celles d'avant cette version) est
+  ignorée, et la suivante est redemandée ;
+- le widget écrit « Wanze · Belgique ». La flèche de localisation, qui
+  sur l'iPhone veut dire « ma position », est retirée ;
+- l'infobulle et la page « Vos données » disent « Wanze, en Belgique
+  (province de Liège) ».
+
+Éprouvé au navigateur, la réponse imitée trois fois :
+- le point de Wanze en Belgique : affiché ;
+- le point de Wanze en Chine : rien n'est gardé, le widget reste caché ;
+- le bon point avec un autre fuseau : rien n'est gardé non plus.
+
+**« Mon année » réduite**, sous 260 px de cadre (un quart au PC, la moitié
+du téléphone) :
+- les cinq tuiles des congés en trois puis deux ;
+- la ligne d'avancement va à la ligne entre ses deux moitiés (« 135
+  journées prestées » · « 34 à venir »), jamais au milieu ;
+- le tableau des pauses perd « Total », qui n'est que la somme des deux
+  autres colonnes ;
+- sous 200 px : deux tuiles par rangée, et seule la colonne « Reste »
+  reste à côté de la date ;
+- les titres de colonne, à 11 px (rien de plus petit à l'Accueil), passent
+  en minuscules sans espacement, pour tenir ;
+- le détail entier reste dans l'étiquette lue à voix haute de chaque
+  ligne.
+
+Une erreur commise en route : les petites légendes des tuiles étaient
+d'abord passées à 10,5 px, sous le minimum de 11 px de l'Accueil (la
+règle des libellés porteurs, plus haut dans ce journal). Retiré avant le
+commit.
+
+Mesures, chaque widget à chaque taille qu'il propose : 148, 0 faute
+(67 à 1280 px, 64 à 900, 17 au téléphone). Parcours : 112 essais, 0
+faute ; statique : 0. Garde-fou du dépôt : 0, après une reformulation
+(dans l'infobulle, la province suivie du pays, séparés d'une virgule,
+avait la forme « Nom, Prénom » ; l'infobulle met désormais le pays
+d'abord).

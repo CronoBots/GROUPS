@@ -8614,6 +8614,43 @@ html body .pf-hero .pf-hor .pf-mt-hh i{width:6px; height:18px; margin:0 3px; bac
   html body .pf-hero .pf-bloc>.pf-hor{grid-column:1; grid-row:1 / span 9; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px;
     padding:16px 20px; border-bottom:0; border-right:1px solid var(--line2)}
 }
+/* — « MON ANNÉE » RÉDUITE (le client, le 04/11/2026, « oui » à la version
+   réduite proposée) : un quart au PC, une moitié au téléphone. Sous 260 px
+   de cadre, les cinq tuiles des congés passent en trois puis deux, la
+   ligne d'avancement va à la ligne, et le tableau des pauses perd sa
+   colonne « Total » (la somme des deux autres) ; sous 200 px, deux tuiles
+   par rangée, et le tableau ne garde que « Reste » à côté de la date. Le
+   détail entier reste dans l'étiquette lue à voix haute de chaque ligne. — */
+html body #v-horaire.acc-perso #anCard{container:anc / inline-size}
+@container anc (max-width:259px){
+  html body #v-horaire #anCard .an-corps{padding-left:12px; padding-right:12px}
+  html body #v-horaire #anCard .pf-cgs{grid-template-columns:repeat(6,minmax(0,1fr)); gap:4px}
+  html body #v-horaire #anCard .pf-cgc{grid-column:span 2; padding:7px 5px 8px}
+  html body #v-horaire #anCard .pf-cgs>.pf-cgc:nth-child(n+4):nth-last-child(-n+2){grid-column:span 3}
+  html body #v-horaire #anCard .pf-cgc>b{font-size:14.5px}
+  html body #v-horaire #anCard .pf-cgc>em{letter-spacing:-.01em}
+  html body #v-horaire #anCard .ry-an-cpt{white-space:normal}
+  html body #v-horaire #anCard .ry-an-cpt>span{white-space:nowrap}
+  html body #v-horaire #anCard .ry-an-t{flex-wrap:wrap; row-gap:2px}
+  html body #v-horaire #anCard :is(.pf-pr-tab,.pf-pr-h){grid-template-columns:30px minmax(0,1fr) 30px 30px; column-gap:8px; padding-left:0; padding-right:0}
+  html body #v-horaire #anCard .pf-pr-t,html body #v-horaire #anCard .pf-pr-h>span:nth-child(5),html body #v-horaire #anCard .pf-pr-hm{display:none}
+  html body #v-horaire #anCard .pf-pr-c .pf-pause{width:30px}
+  html body #v-horaire #anCard :is(.pf-pr-f,.pf-pr-r){font-size:14px}
+  /* les titres de colonne restent à 11 px (la plus petite taille de
+     l'Accueil) mais en minuscules, sans espacement : « Prochaine »,
+     « Faites », « Reste » tiennent ; calés à droite, ils débordent au
+     besoin vers la gauche, dans l'écart, et non hors du cadre */
+  html body #v-horaire #anCard .pf-pr-h span{letter-spacing:0; text-transform:none}
+  html body #v-horaire #anCard .pf-pr-h span:is(:nth-child(3),:nth-child(4)){display:flex; justify-content:flex-end; white-space:nowrap}
+  html body #v-horaire #anCard .pf-pr-h span:nth-child(2)::first-letter{text-transform:uppercase}
+}
+@container anc (max-width:199px){
+  html body #v-horaire #anCard .pf-cgs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body #v-horaire #anCard .pf-cgc,html body #v-horaire #anCard .pf-cgs>.pf-cgc:nth-child(n+4):nth-last-child(-n+2){grid-column:auto}
+  html body #v-horaire #anCard .pf-cgs>.pf-cgc:last-child:nth-child(odd){grid-column:span 2}
+  html body #v-horaire #anCard :is(.pf-pr-tab,.pf-pr-h){grid-template-columns:30px minmax(0,1fr) 30px}
+  html body #v-horaire #anCard .pf-pr-f,html body #v-horaire #anCard .pf-pr-h>span:nth-child(3){display:none}
+}
 /* le pourcentage, au bout de la ligne « Encore … » */
 html body .pf-hero .pf-reste{width:100%}
 html body .pf-hero .pf-reste .pf-pct{margin-left:auto; font-size:13.5px; font-weight:700; line-height:1; color:var(--marque-vif); font-variant-numeric:tabular-nums; white-space:nowrap}
@@ -8626,8 +8663,8 @@ html body .pf-hero .pf-reste .pf-pct{margin-left:auto; font-size:13.5px; font-we
 html body .pf-hero .pf-meteo{container:meteo / inline-size; display:flex; flex-direction:column; gap:12px; padding:14px 16px; color:var(--ink)}
 .pm-haut{display:flex; justify-content:space-between; align-items:flex-start; gap:12px}
 .pm-g{display:flex; flex-direction:column; gap:2px; min-width:0}
-.pm-lieu{display:inline-flex; align-items:center; gap:5px; font-size:13.5px; font-weight:650; color:var(--ink)}
-.pm-lieu svg{width:11px; height:11px; color:var(--ink2)}
+.pm-lieu{display:inline-flex; align-items:baseline; gap:5px; font-size:13.5px; font-weight:650; color:var(--ink)}
+.pm-lieu small{font-size:12.5px; font-weight:500; color:var(--ink2)}
 .pm-c{font:300 46px/1 Archivo,system-ui,sans-serif; letter-spacing:-.02em; font-variant-numeric:tabular-nums; color:var(--ink)}
 .pm-d{display:flex; flex-direction:column; align-items:flex-end; gap:4px; text-align:right; min-width:0}
 .pm-ico{width:30px; height:30px; color:var(--ink)}
@@ -9862,7 +9899,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 <li>un historique des modifications : avant, après, auteur et heure.</li>
 </ul>
 <p><b>Publié avec l’application</b> : l’horaire d’équipe et les agendas à s’abonner, où chacun n’est désigné que par son trigramme, jamais par son nom.</p>
-<p><b>La météo de l’Accueil</b> vient d’Open-Meteo (open-meteo.com), interrogé pour Wanze seulement : ni votre nom, ni votre trigramme, ni votre position ne lui sont envoyés.</p>
+<p><b>La météo de l’Accueil</b> vient d’Open-Meteo (open-meteo.com), interrogé pour Wanze, en Belgique (province de Liège), seulement : ni votre nom, ni votre trigramme, ni votre position ne lui sont envoyés.</p>
 </div></details>
 <details class="aide-sec"><summary>Pourquoi</summary><div class="aide-sec-c">
 <ul>
@@ -17146,7 +17183,18 @@ function _pfCom(p,d){
    et les heures à venir (deux jours) : le widget en montre d'autant plus
    qu'il est large, et la température au début du poste (à sa fin pendant
    le poste). */
-var METEO_URL="https://api.open-meteo.com/v1/forecast?latitude=50.54&longitude=5.23&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&forecast_days=2&timezone=Europe%2FBrussels";
+/* WANZE, EN BELGIQUE, ET RIEN D'AUTRE (le client, le 04/11/2026 : « la
+   météo doit être uniquement celle de Wanze en Belgique ») : il existe un
+   autre Wanze (en Chine, province du Shanxi). La demande ne passe jamais
+   par un nom de lieu, ni par la position du téléphone : elle donne les
+   coordonnées de Wanze (province de Liège), celles du répertoire
+   géographique GeoNames (n° 2784092) qu'utilise Open-Meteo, et le fuseau
+   de Bruxelles. La réponse n'est gardée que si elle parle bien de ce
+   point (meteoAWanze) ; une copie plus ancienne, sans ce point, est
+   ignorée. */
+var METEO_LAT=50.5391, METEO_LON=5.2085;
+function meteoAWanze(lat,lon,tz){ return typeof lat==="number"&&typeof lon==="number"&&Math.abs(lat-METEO_LAT)<0.1&&Math.abs(lon-METEO_LON)<0.1&&(tz===undefined||tz==="Europe/Brussels"); }
+var METEO_URL="https://api.open-meteo.com/v1/forecast?latitude="+METEO_LAT+"&longitude="+METEO_LON+"&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&forecast_days=2&timezone=Europe%2FBrussels";
 /* le poste dont la météo dit l'heure de début (ou de fin, pendant le
    poste) : posé par _pfHead */
 var METEO_POSTE=null;
@@ -17192,7 +17240,7 @@ function meteoTemps(c,jour){
 function meteoDate(d){ return METEO_JOURS[d.getDay()]+" "+numJour(d.getDate())+" "+MOIS[d.getMonth()].toLowerCase()+" "+d.getFullYear(); }
 function meteoChiffres(d){ return '<b>'+pad2(d.getHours())+'</b><i></i><b>'+pad2(d.getMinutes())+'</b><i></i><b>'+pad2(d.getSeconds())+'</b>'; }
 /* la dernière météo lue, si elle a moins d'une heure */
-function meteoFraiche(){ var o=lsGet(METEO_CLE); return o&&typeof o.t==="number"&&typeof o.temp==="number"&&Date.now()-o.t<METEO_VIEUX&&Date.now()>=o.t-60000?o:null; }
+function meteoFraiche(){ var o=lsGet(METEO_CLE); return o&&typeof o.t==="number"&&typeof o.temp==="number"&&o.ll&&meteoAWanze(o.ll[0],o.ll[1])&&Date.now()-o.t<METEO_VIEUX&&Date.now()>=o.t-60000?o:null; }
 /* « 21 h 30 », « 6 h » */
 function meteoHeure(d){ return d.getHours()+"\u00a0h"+(d.getMinutes()?"\u00a0"+pad2(d.getMinutes()):""); }
 function meteoDeg(v){ var g=Math.round(v); if(g===0) g=0; return (g<0?"\u2212"+Math.abs(g):g)+"°"; }
@@ -17216,7 +17264,9 @@ function meteoCorpsHTML(o){
     if(x&&cible>n-36e5){ var tx=meteoTemps(x[2],x[3]!==false);
       pos='<p class="pm-poste">'+(METEO_POSTE.en?"À la fin de votre poste":"Au début de votre poste")+' ('+meteoHeure(new Date(cible))+')\u00a0: <b>'+meteoDeg(x[1])+'</b>'+(tx[1]?", "+tx[1]:"")+'</p>'; }
   }
-  return '<div class="pm-haut"><div class="pm-g"><span class="pm-lieu">Wanze<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 3 3 10.5l7.6 2.9L13.5 21z"/></svg></span>'
+  /* le lieu en clair, « Wanze · Belgique » ; pas de flèche de localisation :
+     sur l'iPhone, elle veut dire « ma position », et ce n'en est pas une */
+  return '<div class="pm-haut"><div class="pm-g"><span class="pm-lieu">Wanze<small> · Belgique</small></span>'
     +'<span class="pm-c" aria-label="'+(Math.round(o.temp)<0?"moins ":"")+Math.abs(Math.round(o.temp))+' degrés">'+meteoDeg(o.temp)+'</span></div>'
     +'<div class="pm-d">'+meteoIco(o.code,o.jour,"pm-ico")+(t[1]?'<span class="pm-ciel">'+t[1]+'</span>':'')
     +(typeof o.max==="number"?'<span class="pm-mm">Max.\u00a0'+meteoDeg(o.max)+' · Min.\u00a0'+meteoDeg(o.min)+'</span>':'')+'</div></div>'
@@ -17224,7 +17274,7 @@ function meteoCorpsHTML(o){
 }
 function meteoWidgetHTML(){
   var o=meteoFraiche();
-  return '<div class="pf-meteo" id="pfMeteo" data-w="meteo" role="group" aria-label="Météo à Wanze" title="Météo à Wanze · Open-Meteo.com"'+(o?'':' hidden')+'>'+meteoCorpsHTML(o)+'</div>';
+  return '<div class="pf-meteo" id="pfMeteo" data-w="meteo" role="group" aria-label="Météo à Wanze, en Belgique" title="Météo à Wanze, en Belgique (province de Liège) · Open-Meteo.com"'+(o?'':' hidden')+'>'+meteoCorpsHTML(o)+'</div>';
 }
 /* l'heure, en tête du cadre du poste (le client, le 04/11/2026 : « penses-tu
    de combiner le cadre heure et météo avec prochain poste ? ») ; les mêmes
@@ -17240,11 +17290,13 @@ function meteoLire(){
   meteoEnCours=n; meteoProchain=n+120000; /* deux minutes après un échec */
   fetch(METEO_URL,{cache:"no-store"}).then(function(r){ return r.ok?r.json():null; }).then(function(j){
     var c=j&&j.current; if(!c||typeof c.temperature_2m!=="number") return;
+    /* Wanze, en Belgique, ou rien */
+    if(!meteoAWanze(j.latitude,j.longitude,j.timezone)) return;
     /* les heures à venir : [instant, température, code, jour] ; le maximum
        et le minimum du jour */
     var hr=j.hourly||{}, H=[], dl=j.daily||{};
     (hr.time||[]).forEach(function(tt,i){ var d=new Date(tt); if(!isNaN(d)&&typeof (hr.temperature_2m||[])[i]==="number") H.push([d.getTime(),hr.temperature_2m[i],+(hr.weather_code||[])[i],(hr.is_day||[])[i]!==0]); });
-    lsSet(METEO_CLE,{t:Date.now(), temp:c.temperature_2m, code:+c.weather_code, jour:c.is_day!==0, h:H,
+    lsSet(METEO_CLE,{t:Date.now(), ll:[j.latitude,j.longitude], temp:c.temperature_2m, code:+c.weather_code, jour:c.is_day!==0, h:H,
       max:(dl.temperature_2m_max||[])[0], min:(dl.temperature_2m_min||[])[0]});
     meteoProchain=Date.now()+900000; /* un quart d'heure */
     meteoPeindre();
@@ -24585,7 +24637,9 @@ function ryBarre(titre,sous,o,lib){
       +ks.map(function(k){ var t=o.F[k]+o.A[k]; return '<i data-p="'+k+'" style="flex-grow:'+t+'"><i style="width:'+(o.F[k]*100/t).toFixed(1)+'%"></i></i>'; }).join("")+'</div>'
     :'<div class="ry-an-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="'+esc(lib)+'"><i style="width:'+pct+'%"></i></div>';
   return '<div class="ry-an-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">'+titre+'</span>'
-    +'<span class="ry-an-cpt">'+(ks.length?'<i class="pf-pr-lg-f"></i>':'')+'<b>'+o.fait+'</b> journée'+(o.fait>1?'s':'')+' prestée'+(o.fait>1?'s':'')+' · '+(ks.length?'<i class="pf-pr-lg-r"></i>':'')+'<b>'+o.avenir+'</b> à venir</span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
+    /* deux moitiés insécables : étroit, la ligne se coupe entre elles, pas
+       dans « à venir » (04/11/2026) */
+    +'<span class="ry-an-cpt"><span>'+(ks.length?'<i class="pf-pr-lg-f"></i>':'')+'<b>'+o.fait+'</b> journée'+(o.fait>1?'s':'')+' prestée'+(o.fait>1?'s':'')+'</span> · <span>'+(ks.length?'<i class="pf-pr-lg-r"></i>':'')+'<b>'+o.avenir+'</b> à venir</span></span></div>'+(sous?'<div class="ry-an-sous">'+sous+'</div>':'')
     +'<div class="cy-prog ry-an-prog">'+barre+'<b>'+pct+'\u00a0%<small> fait</small></b></div>';
 }
 /* LE CYCLE EN COURS (le client, le 17/10/2026 : « sous mon année avec sa
@@ -36411,11 +36465,9 @@ var ACC_W=[
   {k:"calendrier",   nom:"Calendrier",          l:8,  lmin:6, tmin:2},
   {k:"site",         nom:"Sur site",            l:4,  lmin:4, tmin:2},
   {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2},
-  /* le tableau des pauses (quatre colonnes) ne tient pas sous un tiers ni
-     dans une moitié de téléphone : ces tailles ne sont pas proposées
-     (mesuré le 04/11/2026), comme l'iPhone n'offre à un widget que les
-     tailles où il tient */
-  {k:"conges",       nom:"Mon année",           l:4,  lmin:4, tmin:2},
+  /* un quart au PC, une moitié au téléphone : la mise en page réduite
+     (requête de conteneur « anc », 04/11/2026) */
+  {k:"conges",       nom:"Mon année",           l:4,  lmin:3, tmin:1},
   {k:"rythme",       nom:"Mon rythme",          l:8,  lmin:6, tmin:2}
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
