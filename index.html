@@ -8578,6 +8578,285 @@ html body .pf-hero .pf-pvw>.pf-pv{margin:0; width:100%}
    contenu en haut ; un cadre intérieur (le poste, les polyvalences, le
    Planning) s'étire avec son enveloppe */
 #v-horaire.acc-perso [data-w]{align-content:start}
+/* un widget (pas une icône) a exactement la hauteur choisie : il s'étire
+   sur ses rangées, sans minimum tiré de son contenu */
+#v-horaire.acc-perso [data-w]:not([data-w^="app:"]){align-self:stretch!important; min-height:0}
+/* — CHAQUE WIDGET REMPLIT LA HAUTEUR CHOISIE (le client, le 04/11/2026 :
+   « le contenu doit être adapté à la taille qu'on lui donne, 100 % pro, et
+   pas avec des espaces vides si on agrandit »). Une carte se range en
+   colonne : son en-tête, puis son corps, qui prend le reste ; à 1 ligne,
+   l'essentiel ; à 2 lignes, la suite (les jours de la météo, les postes
+   suivants, le cycle entier…), les lignes s'étirant pour remplir. — */
+html body #v-horaire.acc-perso .card[data-w]{display:flex; flex-direction:column; overflow:hidden}
+html body #v-horaire.acc-perso .card[data-w]>header{flex:none}
+.acc-plus{display:block; list-style:none; padding:6px 2px 0; font-size:12.5px; font-weight:600; color:var(--muted)}
+/* « + N autres » n'est pas une rangée : il ne prend ni la grille, ni la
+   hauteur minimale, ni le filet des lignes de sa liste (à 136 px, il en
+   héritait 46 px et sortait du cadre) */
+html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none!important; min-height:0!important; max-height:none!important; border:0!important; padding:6px 2px 0!important; grid-template-columns:none!important}
+.acc-cache{display:none!important}
+/* — LES WIDGETS TIRÉS DES AUTRES ONGLETS (04/11/2026) — */
+#paieCard>header{--ic:var(--ip-salaire)} #retCard>header{--ic:var(--ip-planning)} #annCard>header{--ic:var(--ip-aide)} #presCard>header{--ic:var(--ip-effectifs)}
+.aw{cursor:pointer}
+.aw-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:2px 16px 14px}
+.aw-l{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:0; padding:0; list-style:none}
+/* une rangée grandit pour remplir, mais ne rétrécit jamais sous son
+   contenu : ce qui ne tient pas passe dans « + N autres » (accAjuster) */
+.aw-l>li{display:flex; align-items:center; gap:12px; flex:1 0 auto; min-height:42px; max-height:72px; padding:4px 0; box-sizing:border-box; border-bottom:1px solid var(--line2)}
+.aw-l>li:last-of-type,.aw-l>li:nth-last-child(2):has(+.acc-plus){border-bottom:0}
+.aw-gros{font:300 34px/1.05 Archivo,system-ui,sans-serif; color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:-.01em}
+.aw-masque{letter-spacing:.1em}
+.aw-lbl{font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--muted)}
+.aw-note{margin:8px 0 0; font-size:12.5px; line-height:1.35; color:var(--ink2)}
+.aw-vide{margin:auto; font-size:13.5px; color:var(--muted); text-align:center}
+.aw-oeil{display:grid; place-items:center; flex:none; width:34px; height:34px; margin-left:auto; padding:0; border:0; border-radius:50%; background:var(--surface3); color:var(--ink2); cursor:pointer}
+.aw-oeil:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
+/* Ma paie : 1 ligne, le net et le prochain versement ; 2 lignes, le détail */
+.aw-paie-tete{display:flex; flex-direction:column; gap:3px}
+.aw-ev{font-size:12.5px; font-weight:600} .aw-ev.plus{color:var(--good)} .aw-ev.moins{color:var(--tx-rouge-vif2)}
+.aw-paie-l{margin-top:10px; border-top:1px solid var(--line2)}
+.aw-paie-l>li{justify-content:space-between}
+.aw-paie-l span,.aw-pres-l span{font-size:13.5px; color:var(--ink2)} .aw-paie-l b,.aw-pres-l b{font-size:14px; font-weight:650; color:var(--ink); font-variant-numeric:tabular-nums}
+#paieCard[data-acc-h="1"] .aw-paie-l{display:none}
+#paieCard[data-acc-h="1"] .aw-corps{justify-content:space-between}
+/* À retenir, Annonces : une rangée par date ou par annonce */
+.aw-d{display:grid; place-items:center; align-content:center; flex:none; width:40px; height:40px; border-radius:10px; background:var(--fd-blanc-06); line-height:1.05}
+.aw-d b{font-size:16px; font-weight:700; color:var(--ink)} .aw-d small{font-size:11px; color:var(--muted)}
+.aw-r-paie .aw-d{background:color-mix(in srgb,var(--ip-salaire) 26%,transparent)}
+.aw-r-ferie .aw-d{background:color-mix(in srgb,var(--ip-planning) 26%,transparent)}
+.aw-r-ecole .aw-d{background:color-mix(in srgb,var(--ip-aide) 26%,transparent)}
+.aw-t{display:flex; flex-direction:column; gap:2px; flex:1 1 auto; min-width:0}
+.aw-t b{font-size:14px; font-weight:650; line-height:1.25; color:var(--ink)}
+.aw-t small{font-size:12px; line-height:1.25; color:var(--muted)}
+.aw-q{flex:none; font-style:normal; font-size:12px; font-weight:650; color:var(--ink2); padding:2px 9px; border:1px solid var(--line); border-radius:99px; white-space:nowrap}
+.aw-q-on{color:var(--marque-vif); border-color:color-mix(in srgb,var(--marque-vif) 50%,transparent)}
+@container awc (max-width:259px){ .aw-q:not(.aw-q-on){display:none} .aw-d{width:36px; height:36px} .aw-dates .aw-t small{display:none} .aw-l>li{gap:10px} }
+html body #v-horaire.acc-perso .card.aw{container:awc / inline-size}
+/* Effectif du jour : le total et les pauses ; 2 lignes, les absences */
+.aw-pres-tete{display:flex; align-items:baseline; gap:8px} .aw-pres-tete span{font-size:13px; color:var(--ink2)}
+.aw-pz{display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:8px}
+.aw-pzi{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
+.aw-pzi .pf-pause{display:grid; place-items:center; width:30px; height:20px; border-radius:99px; font-style:normal; font-size:11px; font-weight:700}
+.aw-pzi b{font-size:14px; color:var(--ink)}
+.aw-pres-l{margin-top:10px; border-top:1px solid var(--line2)} .aw-pres-l>li{justify-content:space-between; max-height:none}
+#presCard[data-acc-h="1"] .aw-pres-l{display:none}
+#presCard[data-acc-h="1"] .aw-corps{justify-content:center}
+@container awc (max-width:259px){ .aw-pzi small{display:none} .aw-gros{font-size:30px} }
+/* Mon profil : la photo prend ce que le nom lui laisse */
+html body #v-horaire.acc-perso .pf-wprof{display:flex; flex-direction:column}
+html body #v-horaire.acc-perso .pf-wprof .pf-couv{flex:1 1 auto; aspect-ratio:auto!important; height:auto!important; min-height:40px}
+/* en 2 lignes, la bannière haute montre l'usine, et non le logo grossi */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-h="2"] .pf-couv{background-position:28% 50%}
+html body #v-horaire.acc-perso.acc-large .pf-wprof{display:grid; grid-template-rows:minmax(0,1fr) auto}
+@container wprof (max-width:399px){ html body #v-horaire.acc-perso.acc-large .pf-wprof{grid-template-rows:minmax(0,1fr) auto auto} }
+/* Heure et poste : 1 ligne, l'heure et le poste ; 2 lignes, les postes suivants */
+html body #v-horaire.acc-perso .pf-pw>.pf-bloc{display:flex; flex-direction:column}
+.pf-avenir{display:none}
+html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-bloc>.pf-proch{flex:1 1 auto; justify-content:center}
+html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="2"] .pf-avenir{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; padding:4px 16px 12px; border-top:1px solid var(--line2)}
+.pf-av-t{margin:8px 0 4px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.pf-av-l{display:flex; flex-direction:column; flex:1 1 auto; margin:0; padding:0; list-style:none}
+.pf-av-l>li{display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:10px; flex:1 1 0; min-height:36px; max-height:56px; border-bottom:1px solid var(--line2)}
+.pf-av-l>li:last-of-type{border-bottom:0}
+.pf-av-j{display:flex; align-items:baseline; gap:6px; min-width:0; white-space:nowrap}
+.pf-av-j b{font-size:14px; color:var(--ink)} .pf-av-j small{font-size:12.5px; color:var(--muted)}
+.pf-av-l .pf-pause{width:34px; height:22px; border-radius:99px; font-size:11px; font-weight:700; display:grid; place-items:center}
+.pf-av-h{font-size:13px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+.pf-av-h i{font-style:normal; color:var(--muted)}
+@container pposte (max-width:279px){ .pf-av-j small{display:none} .pf-av-h{font-size:12px} .pf-av-l>li{gap:6px} }
+@container pposte (max-width:279px){
+  html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-proch-com{display:none}
+  html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-mt-d{display:none}
+}
+/* Météo : 2 lignes, les jours */
+.pm-jours{display:none}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-h="2"] .pm-jours{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:0; padding:4px 0 0; list-style:none; border-top:1px solid var(--line2)}
+.pm-jours>li{display:grid; grid-template-columns:44px 24px 34px minmax(0,1fr) 34px; align-items:center; gap:8px; flex:1 1 0; min-height:28px; max-height:46px; font-size:13.5px; color:var(--ink)}
+.pm-jours>li+li{border-top:1px solid var(--line2)}
+.pm-jours b{font-weight:650}
+.pm-ji{width:20px; height:20px}
+.pm-jmin{color:var(--ink2); text-align:right; font-variant-numeric:tabular-nums} .pm-jmax{font-weight:650; font-variant-numeric:tabular-nums}
+.pm-jb{position:relative; height:5px; border-radius:99px; background:var(--fd-blanc-08)}
+.pm-jb i{position:absolute; top:0; bottom:0; border-radius:99px; background:linear-gradient(90deg,var(--marque-vif),var(--at-jaune,#e8b24a))}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-h="2"] .pm-heures{flex:none}
+@container meteo (min-width:260px){ html body #v-horaire.acc-perso [data-w="meteo"][data-acc-h="1"] .pm-poste{display:none} }
+/* étroit, en 1 ligne : la température en haut, le poste en bas */
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-h="1"]{justify-content:space-between}
+@container meteo (max-width:259px){
+  html body #v-horaire.acc-perso [data-w="meteo"][data-acc-h="2"] .pm-heures{display:none}
+  .pm-jours>li{grid-template-columns:38px 22px minmax(0,1fr) 30px; gap:6px} .pm-jours .pm-jb{display:none}
+}
+/* Mon cycle : 1 ligne, la semaine en cours et la suivante ; 2 lignes, le
+   cycle entier ; les semaines se partagent la hauteur */
+html body #v-horaire.acc-perso #ryAn{display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #ryAn>.mc-grille{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #ryAn .mc-sem{flex:1 1 0; min-height:0; margin-bottom:2px}
+html body #v-horaire.acc-perso #ryAn .mc-sem .mc-j{min-height:0; height:100%}
+html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-sem:not(:has(.mc-j.auj)){display:none}
+html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-sem:has(.mc-j.auj)+.mc-sem{display:grid}
+/* Calendrier : 1 ligne, le mois et la semaine en cours ; 2 lignes, le mois
+   entier ; le bilan du mois et la légende restent dans l'onglet */
+html body #v-horaire.acc-perso #calCard>#moisCal{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #calCard .mc-grille{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #calCard .mc-sem{flex:1 1 0; min-height:0}
+html body #v-horaire.acc-perso #calCard .mc-sem .mc-j{min-height:0; height:100%}
+html body #v-horaire.acc-perso #calCard .calbilan,html body #v-horaire.acc-perso #calCard .mc-leg{display:none}
+html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .calvue-l{display:none}
+html body #v-horaire.acc-perso #calCard[data-acc-h="1"] .mc-sem:not(:has(.mc-j.auj)){display:none}
+/* Congés restants : 1 ligne, les tuiles ; 2 lignes, une ligne par congé */
+html body #v-horaire.acc-perso #cgCard>.an-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #cgCard #ryCg{flex:1 1 auto; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #cgCard .pf-cgs{flex:1 1 auto; margin-bottom:0; grid-auto-rows:1fr}
+html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc{justify-content:space-between}
+html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgs{grid-template-columns:1fr; grid-auto-rows:1fr; gap:6px}
+html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc{display:grid; grid-template-columns:44px auto minmax(0,1fr) auto; grid-template-areas:"k v b e"; align-items:center; column-gap:12px; grid-column:auto!important}
+html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc>span{grid-area:k} html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc>b{grid-area:v}
+html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc>.pf-cgc-b{grid-area:b} html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc>em{grid-area:e; text-align:right}
+@container anc (max-width:199px){
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs{gap:4px}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc{flex-direction:row; align-items:baseline; justify-content:space-between; padding:4px 7px}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>b{font-size:13.5px}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cg-t{display:none}
+}
+@container anc (max-width:259px){
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>em,html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc-b{display:none}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc{grid-template-columns:40px auto minmax(0,1fr); grid-template-areas:"k v e"} html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgc-b{display:none}
+}
+/* Mon année : 1 ligne, l'avancement et la pause qui vient ; 2 lignes, le tableau */
+html body #v-horaire.acc-perso #anCard>.an-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #anCard #ryPr{flex:1 1 auto; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #anCard .pf-pr{flex:1 1 auto; min-height:0}
+html body #v-horaire.acc-perso #anCard .pf-pr-c{flex:1 1 0; min-height:0}
+html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-h,html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-c:not(.pf-pr-1){display:none}
+@container anc (max-width:259px){ html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d .pf-pr-q,html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .ry-an-cpt{display:none} }
+/* Sur site : 1 ligne, ceux qui sont là ; 2 lignes, la relève aussi */
+html body #v-horaire.acc-perso #siteCard>#siteCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; justify-content:space-between}
+html body #v-horaire.acc-perso #siteCard[data-acc-h="1"] .site-rel{display:none}
+/* À faire, Demandes : la liste à la hauteur (accAjuster) ; vide, au milieu */
+html body #v-horaire.acc-perso #ctlCard>#ctlCorps{flex:1 1 auto; min-height:0; align-content:start}
+html body #v-horaire.acc-perso #ctlCard .ctl-rien{align-self:center; justify-content:center; margin:auto}
+html body #v-horaire.acc-perso #ctlCard>#ctlCorps:has(>.ctl-rien:only-child){display:flex; align-items:center; justify-content:center}
+/* Messages : le fil prend la hauteur, la saisie en bas */
+html body #v-horaire.acc-perso #filCard>.fil-l{flex:1 1 auto; min-height:0; max-height:none}
+/* un message garde sa hauteur : le fil défile (sa hauteur minimale de
+   40 px le laissait se tasser sous son texte, et le suivant le couvrait) */
+html body #v-horaire.acc-perso #filCard>.fil-l>*{flex-shrink:0}
+html body #v-horaire.acc-perso #filCard>.fil-l:has(>.fil-vide:only-child){display:flex; align-items:center; justify-content:center}
+html body #v-horaire.acc-perso #filCard>.fil-f{flex:none}
+/* Mon rythme : 1 ligne, les quatre derniers mois ; 2 lignes, l'année */
+html body #v-horaire.acc-perso #rythmeCard>#rythmeCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #rythmeCard .ry-hm-box{flex:1 1 auto; min-height:0}
+html body #v-horaire.acc-perso #rythmeCard .ry-hm-l:not(.ry-hm-tete){flex:1 1 0; min-height:0}
+html body #v-horaire.acc-perso #rythmeCard .ry-hm-l .ry-hm{height:100%; align-items:stretch}
+html body #v-horaire.acc-perso #rythmeCard .ry-hm-c{aspect-ratio:auto; max-height:none; min-height:6px}
+html body #v-horaire.acc-perso #rythmeCard .ry-hm-box{max-width:none}
+html body #v-horaire.acc-perso #rythmeCard[data-acc-h="1"] .ry-hm-l:not(.ry-hm-tete):not(.ry-hm-rec),html body #v-horaire.acc-perso #rythmeCard[data-acc-h="1"] .ry-legs,html body #v-horaire.acc-perso #rythmeCard[data-acc-h="1"] .ry-chart-t{display:none}
+/* Planning : le tableau prend toute la hauteur */
+html body #v-horaire.acc-perso #accPlanning #jourCard>#jourCorps{flex:1 1 auto; min-height:0}
+html body #v-horaire.acc-perso #accPlanning .eqgrille{height:100%}
+html body #v-horaire.acc-perso #accPlanning .eqgrille>table{height:100%}
+/* trois lignes : des rangées plus serrées */
+html body #v-horaire.acc-perso #accPlanning[data-acc-h="3"] .eqp2 td,html body #v-horaire.acc-perso #accPlanning[data-acc-h="3"] .eqp2 th{padding-top:2px; padding-bottom:2px}
+html body #v-horaire.acc-perso #accPlanning[data-acc-h="3"] .toolbar.eqnav{padding-top:4px; padding-bottom:4px}
+/* L'usine en direct : la photo entière, à la hauteur choisie ; à côté, la
+   même photo floutée plutôt qu'un vide */
+html body #v-horaire.acc-perso #usineCard>#usineCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #usineCard .us-plan{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+html body #v-horaire.acc-perso #usineCard .usp{flex:1 1 auto; min-height:0; isolation:isolate}
+/* la photo floutée déborde de 24 px (sans bord pâle) : « clip » la coupe
+   sans faire du cadre une zone qui défile (« hidden » se laissait décaler
+   de 24 px par un focus à l'intérieur) ; « hidden » reste en repli */
+@supports (overflow:clip){ html body #v-horaire.acc-perso #usineCard .usp{overflow:clip} }
+html body #v-horaire.acc-perso #usineCard .usp::before{content:""; position:absolute; inset:-24px; z-index:-1; background:url(usine-photo.jpg) center/cover; filter:blur(16px) brightness(.5)}
+html body #v-horaire.acc-perso #usineCard .usp-defil{height:100%; container-type:size; display:flex; align-items:center; justify-content:center; overflow:hidden}
+html body #v-horaire.acc-perso #usineCard .usp-cadre{flex:none; width:min(100cqw,calc(100cqh * 1600 / 840)); height:auto}
+/* — LES WIDGETS ÉTROITS (04/11/2026) : la moitié d'un écran de 320 px
+   laisse 136 px à un widget (156 à 360 px, 163 à 375 px, 171 à 390 px).
+   Les règles écrites pour la largeur de l'ÉCRAN (@media) ne valent pas
+   pour un widget : seule sa largeur compte (requêtes de conteneur).
+   Mesuré par le contrôle des hauteurs, chevauchements compris : rien de
+   coupé, aucun texte sur un autre, de 320 à 1280 px. — */
+/* Heure et poste, EN POSTE et en une ligne : le titre, la barre, le temps
+   restant et le pourcentage ; l'échelle des heures, les quarts d'heure et
+   le commentaire attendent les deux lignes (mesuré le 04/11/2026 à 23 h 10 :
+   25 à 58 px coupés à toutes les largeurs) */
+html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] :is(.pf-axe,.pf-quarts,.pf-trait~.pf-proch-com){display:none}
+/* étroit, en une ligne : l'heure du poste passe sous son nom (et non plus
+   par-dessus) ; le libellé « Prochain · aujourd'hui » cède sa place, le
+   titre (« Ce soir ») et le décompte le disent */
+@container pposte (max-width:279px){
+  html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-proch-tete>small{display:none}
+  html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-proch-tete.sans-rel{display:none}
+}
+/* en poste, en une ligne : un peu moins de marge (4 px manquaient au PC) */
+html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-proch:has(.pf-trait){padding-top:8px; padding-bottom:8px}
+/* très étroit : « Encore » s'efface devant la durée, et l'échelle des
+   heures (sept heures en 100 px) devant la barre */
+@container pposte (max-width:169px){
+  html body #v-horaire.acc-perso [data-w="poste"] :is(.pf-encore,.pf-axe){display:none}
+}
+/* étroit : les postes suivants sur deux lignes, le jour, puis la pause et
+   les heures dessous (« Demain » touchait la pause à 171 px) */
+@container pposte (max-width:229px){
+  html body #v-horaire.acc-perso [data-w="poste"] .pf-av-l>li{grid-template-columns:auto minmax(0,1fr); grid-template-areas:"j j" "p h"; row-gap:3px; column-gap:8px; flex:1 0 auto; min-height:46px; max-height:none; padding:4px 0}
+  html body #v-horaire.acc-perso [data-w="poste"] .pf-av-l>li>.pf-av-j{grid-area:j}
+  html body #v-horaire.acc-perso [data-w="poste"] .pf-av-l>li>.pf-pause{grid-area:p}
+  html body #v-horaire.acc-perso [data-w="poste"] .pf-av-l>li>.pf-av-h{grid-area:h}
+  html body #v-horaire.acc-perso [data-w="poste"] .pf-av-j small{display:inline}
+}
+/* Météo : « Wanze » seul ; les jours sans le minimum (celui du jour reste en tête) */
+@container meteo (max-width:169px){
+  html body #v-horaire.acc-perso [data-w="meteo"] .pm-lieu small{display:none}
+  html body #v-horaire.acc-perso [data-w="meteo"] .pm-jours>li{grid-template-columns:minmax(0,1fr) 22px 30px; gap:6px}
+  html body #v-horaire.acc-perso [data-w="meteo"] .pm-jours .pm-jmin{display:none}
+}
+/* Ma paie : le mois dans l'onglet, l'œil dans le coin ; Effectif : son
+   titre court, la date dans l'onglet, les pauses en trois colonnes */
+@container awc (max-width:169px){
+  html body #v-horaire.acc-perso #paieCard>header .sub,html body #v-horaire.acc-perso #presCard>header .sub,.aw-long{display:none}
+  html body #v-horaire.acc-perso #paieCard .aw-oeil{position:absolute; top:12px; right:6px; width:26px; height:26px}
+  html body #v-horaire.acc-perso #paieCard .aw-oeil svg{width:16px; height:16px}
+  html body #v-horaire.acc-perso .aw-pz{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px}
+  html body #v-horaire.acc-perso .aw-pzi{flex-direction:column; gap:3px}
+  html body #v-horaire.acc-perso .aw-pres-tete{flex-wrap:wrap; row-gap:0}
+}
+html body #v-horaire.acc-perso #paieCard{position:relative}
+/* Mon année : la date courte, en deux lignes (« Mer. » sur « 4 nov. ») ;
+   sans la pastille du délai ; le compte des journées à la ligne */
+@container anc (max-width:179px){
+  html body #v-horaire.acc-perso #anCard .an-corps{padding-left:10px; padding-right:10px}
+  html body #v-horaire.acc-perso #anCard :is(.pf-pr-tab,.pf-pr-h){grid-template-columns:26px minmax(0,1fr) 30px; column-gap:5px}
+  html body #v-horaire.acc-perso #anCard .pf-pr-c .pf-pause{width:26px}
+  html body #v-horaire.acc-perso #anCard .pf-pr-d .pf-lg,html body #v-horaire.acc-perso #anCard .pf-pr-d .pf-pr-q{display:none}
+  html body #v-horaire.acc-perso #anCard .pf-pr-d .pf-ct{display:block}
+  html body #v-horaire.acc-perso #anCard .pf-pr-d .pf-ct>span{display:block; white-space:nowrap}
+  html body #v-horaire.acc-perso #anCard .pf-pr-d .pf-ct>span:first-child{font-size:12px; font-weight:500; color:var(--muted)}
+  html body #v-horaire.acc-perso #anCard .ry-an-cpt>span{white-space:normal}
+  /* « Prochaine » ne tient pas à côté de « Reste » : les dates parlent d'elles-mêmes */
+  html body #v-horaire.acc-perso #anCard .pf-pr-h>span:nth-child(2){visibility:hidden}
+}
+/* en une ligne, au téléphone : la date courte, et la pastille dessous */
+@container anc (min-width:180px) and (max-width:349px){
+  html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d .pf-lg{display:none}
+  html body #v-horaire.acc-perso #anCard[data-acc-h="1"] .pf-pr-d .pf-ct{display:inline}
+}
+/* Congés restants, en une ligne : toujours une seule rangée de tuiles
+   (la règle d'écran de 360 px en faisait deux, et la seconde était coupée) */
+@container anc (min-width:200px){
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs>.pf-cgc{grid-column:auto!important}
+}
+@container anc (min-width:200px) and (max-width:319px){ html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>em{display:none} }
+/* Sur site, en une ligne et étroit : le compte est déjà à droite du poste */
+html body #v-horaire.acc-perso #siteCard{container:sitec / inline-size}
+@container sitec (max-width:319px){ html body #v-horaire.acc-perso #siteCard[data-acc-h="1"]>header .sub{display:none} }
+/* à la relève (deux postes sur site, mesuré à 5 h 50) : en une ligne, si
+   les deux postes ne tiennent pas côte à côte (moins de 750 px), le poste
+   en cours seul, la relève attend les deux lignes (80 à 119 px coupés) ;
+   en deux lignes, l'un au-dessus de l'autre, sur toute la hauteur (au PC,
+   côte à côte, ils laissaient 182 px vides) */
+@container sitec (max-width:749px){ html body #v-horaire.acc-perso #siteCard[data-acc-h="1"] .site-salon~.site-salon{display:none} }
+html body #v-horaire.acc-perso #siteCard[data-acc-h="2"] .site-salons:has(>.site-salon~.site-salon){display:flex; flex-direction:column; justify-content:space-between; align-items:stretch; flex:1 1 auto; min-height:0}
 #v-horaire.acc-perso .pf-pw>.pf-bloc{flex:1 1 auto}
 #v-horaire.acc-perso .pf-pvw{display:flex; flex-direction:column}
 #v-horaire.acc-perso .pf-pvw>.pf-pv{flex:1 1 auto}
@@ -9215,6 +9494,31 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     </div>
     <!-- SUR SITE EN CE MOMENT (le client, le 23/10/2026) : la carte du
          tableau de bord de l'espace RH, pour tout le monde -->
+    <!-- LES WIDGETS TIRÉS DES AUTRES ONGLETS (le client, le 04/11/2026 :
+         « regarde les autres fonctionnalités de l'app sur les autres onglets
+         afin de voir s'il est possible d'ajouter des widgets professionnels
+         et intuitifs en plus sur l'accueil, pour une immersion complète de
+         l'utilisateur ») : la paie (onglet Salaire), les dates à retenir
+         (Infos et aide, congés scolaires), les annonces (Infos et aide),
+         l'effectif du jour (Direction, pour les contremaîtres et la RH).
+         Chacun se dessine à 1 et à 2 lignes (awMaj). -->
+    <div class="card aw" id="paieCard" data-w="paie" data-aller="salaire" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="13" rx="2.5"/><path d="M2.5 10.5h19M6.5 15h3"/></svg>Ma paie</h2><span class="sub" id="paieSub"></span>
+        <button type="button" class="aw-oeil" id="paieOeil" aria-pressed="false" aria-label="Afficher les montants"></button></header>
+      <div class="aw-corps" id="paieCorps"></div>
+    </div>
+    <div class="card aw" id="retCard" data-w="dates" data-aller="aide" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m12 12.6.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2-1.45-1.4 2-.3z"/></svg>À retenir</h2></header>
+      <div class="aw-corps" id="retCorps"></div>
+    </div>
+    <div class="card aw" id="annCard" data-w="annonces" data-aller="aide" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4a1 1 0 0 0 1 1h2l5 4V5L7 9H5a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>Annonces</h2><span class="sub" id="annSub"></span></header>
+      <div class="aw-corps" id="annCorps"></div>
+    </div>
+    <div class="card aw" id="presCard" data-w="presents" data-aller="rh" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg>Effectif<span class="aw-long"> du jour</span></h2><span class="sub" id="presSub"></span></header>
+      <div class="aw-corps" id="presCorps"></div>
+    </div>
     <div class="card" id="siteCard" data-w="site" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.3.2 4.2 1.8 4.9 4.8"/></svg>Sur site<span class="site-live" aria-hidden="true"></span><span class="site-quand" id="siteQuand"></span></h2><span class="sub" id="siteSub"></span></header>
       <div class="pad" id="siteCorps"></div>
@@ -12930,6 +13234,7 @@ function refresh(){
   renderRota();
   renderTotals(C); renderSlip(C); renderChk(C); renderResume(C); renderReleve(C);
   dernierCalc=C; poserIndices();
+  try{ awPaie(); }catch(e){}
 }
 
 /* ===================== champs ===================== */
@@ -16640,7 +16945,10 @@ function ryHeatmap(s){
       /* « 1er août — Nuit », le mois en minuscule comme partout (audit du 23/10/2026) */
       cells+='<span class="ry-hm-c '+cls+auj+we+fut+'" title="'+esc(numJour(d)+" "+MOIS[m].toLowerCase()+" — "+ryTypeLabel(t))+'"></span>';
     }
-    rows+='<div class="ry-hm-l"><i>'+RY_MC[m]+'</i><div class="ry-hm">'+cells+'</div></div>';
+    /* en 1 ligne de widget, les quatre derniers mois (ou les quatre derniers
+       de l'année montrée) */
+    var dm=(y===ju.getFullYear()?ju.getMonth():11)-m;
+    rows+='<div class="ry-hm-l'+(dm>=0&&dm<4?' ry-hm-rec':'')+'"><i>'+RY_MC[m]+'</i><div class="ry-hm">'+cells+'</div></div>';
   }
   /* Les codes et l'ordre des autres légendes (AM, PM, N, D) ; le congé ou
      la maladie en contour neutre, comme au calendrier du mois : en orange,
@@ -17129,7 +17437,7 @@ function _pfRel(pr){
   var n=Date.now();
   if(pr.enCours){
     var mn=Math.max(1,Math.ceil((pr.tFin-n)/6e4)), h0=Math.floor(mn/60), m0=mn%60;
-    return "Encore "+(h0?h0+' <span class="unite">h</span>':"")+(m0?(h0?" ":"")+m0+' <span class="unite">min</span>':"");
+    return '<span class="pf-encore">Encore </span>'+(h0?h0+' <span class="unite">h</span>':"")+(m0?(h0?" ":"")+m0+' <span class="unite">min</span>':"");
   }
   var dm=(pr.tDeb-n)/6e4;
   return dm<60?"dans "+Math.max(1,Math.round(dm))+' <span class="unite">min</span>'
@@ -17248,7 +17556,7 @@ function _pfCom(p,d){
    ignorée. */
 var METEO_LAT=50.5391, METEO_LON=5.2085;
 function meteoAWanze(lat,lon,tz){ return typeof lat==="number"&&typeof lon==="number"&&Math.abs(lat-METEO_LAT)<0.1&&Math.abs(lon-METEO_LON)<0.1&&(tz===undefined||tz==="Europe/Brussels"); }
-var METEO_URL="https://api.open-meteo.com/v1/forecast?latitude="+METEO_LAT+"&longitude="+METEO_LON+"&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&forecast_days=2&timezone=Europe%2FBrussels";
+var METEO_URL="https://api.open-meteo.com/v1/forecast?latitude="+METEO_LAT+"&longitude="+METEO_LON+"&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=7&timezone=Europe%2FBrussels";
 /* le poste dont la météo dit l'heure de début (ou de fin, pendant le
    poste) : posé par _pfHead */
 var METEO_POSTE=null;
@@ -17324,7 +17632,17 @@ function meteoCorpsHTML(o){
     +'<span class="pm-c" aria-label="'+(Math.round(o.temp)<0?"moins ":"")+Math.abs(Math.round(o.temp))+' degrés">'+meteoDeg(o.temp)+'</span></div>'
     +'<div class="pm-d">'+meteoIco(o.code,o.jour,"pm-ico")+(t[1]?'<span class="pm-ciel">'+t[1]+'</span>':'')
     +(typeof o.max==="number"?'<span class="pm-mm">Max.\u00a0'+meteoDeg(o.max)+' · Min.\u00a0'+meteoDeg(o.min)+'</span>':'')+'</div></div>'
-    +(hs.length>1?'<div class="pm-heures">'+hs.join("")+'</div>':'')+pos;
+    +(hs.length>1?'<div class="pm-heures">'+hs.join("")+'</div>':'')+meteoJoursHTML(o)+pos;
+}
+/* les jours qui viennent, comme le grand widget Météo de l'iPhone : le jour,
+   le ciel, le minimum, une barre de l'écart sur la semaine, le maximum */
+function meteoJoursHTML(o){
+  var J=(o&&o.j||[]).slice(0,6); if(J.length<2) return "";
+  var lo=Math.min.apply(null,J.map(function(x){ return x[2]; })), hi=Math.max.apply(null,J.map(function(x){ return x[1]; })), et=Math.max(1,hi-lo),
+      JC=["Dim.","Lun.","Mar.","Mer.","Jeu.","Ven.","Sam."], n=new Date(), a=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
+  return '<ul class="pm-jours">'+J.map(function(x){ var d=new Date(x[0]), g=(x[2]-lo)/et*100, w=Math.max(6,(x[1]-x[2])/et*100);
+    return '<li><b>'+(x[0]===a?"Auj.":JC[d.getDay()])+'</b>'+meteoIco(x[3],true,"pm-ji")+'<span class="pm-jmin">'+meteoDeg(x[2])+'</span>'
+      +'<span class="pm-jb" aria-hidden="true"><i style="left:'+g.toFixed(1)+'%;width:'+Math.min(100-g,w).toFixed(1)+'%"></i></span><span class="pm-jmax">'+meteoDeg(x[1])+'</span></li>'; }).join("")+'</ul>';
 }
 function meteoWidgetHTML(){
   var o=meteoFraiche();
@@ -17350,7 +17668,9 @@ function meteoLire(){
        et le minimum du jour */
     var hr=j.hourly||{}, H=[], dl=j.daily||{};
     (hr.time||[]).forEach(function(tt,i){ var d=new Date(tt); if(!isNaN(d)&&typeof (hr.temperature_2m||[])[i]==="number") H.push([d.getTime(),hr.temperature_2m[i],+(hr.weather_code||[])[i],(hr.is_day||[])[i]!==0]); });
-    lsSet(METEO_CLE,{t:Date.now(), ll:[j.latitude,j.longitude], temp:c.temperature_2m, code:+c.weather_code, jour:c.is_day!==0, h:H,
+    /* les jours (2 lignes) : [date, max, min, code] */
+    var J=[]; (dl.time||[]).forEach(function(tt,i){ var q=String(tt).split("-"); if(q.length===3&&typeof (dl.temperature_2m_max||[])[i]==="number") J.push([new Date(+q[0],+q[1]-1,+q[2]).getTime(),dl.temperature_2m_max[i],dl.temperature_2m_min[i],+(dl.weather_code||[])[i]]); });
+    lsSet(METEO_CLE,{t:Date.now(), ll:[j.latitude,j.longitude], temp:c.temperature_2m, code:+c.weather_code, jour:c.is_day!==0, h:H, j:J,
       max:(dl.temperature_2m_max||[])[0], min:(dl.temperature_2m_min||[])[0]});
     meteoProchain=Date.now()+900000; /* un quart d'heure */
     meteoPeindre();
@@ -17370,6 +17690,103 @@ function meteoTic(){
 function meteoDemarrer(){
   if(!meteoMinuteur) meteoMinuteur=setTimeout(meteoTic,1000-Date.now()%1000+15);
   meteoLire();
+}
+/* LES WIDGETS TIRÉS DES AUTRES ONGLETS (04/11/2026). Ils se refont avec
+   l'Accueil (renderRythme), après le calcul de la paie (refresh) et quand
+   les annonces arrivent (aideMaj). Ils lisent ce que l'application calcule
+   déjà : rien de nouveau ne quitte l'appareil. */
+var AW_MC=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+function awJour(d){ var n=jourUsine(), a=new Date(n.getFullYear(),n.getMonth(),n.getDate()), b=new Date(d.getFullYear(),d.getMonth(),d.getDate()), e=Math.round((b-a)/864e5);
+  return e<=0?"aujourd’hui":e===1?"demain":"dans "+e+" j"; }
+/* Ma paie : le net estimé du mois que montre le calendrier ; les montants
+   masqués tant qu'on ne touche pas l'œil (on regarde l'Accueil devant les
+   collègues) ; en 2 lignes, ce qui le compose */
+function awPaie(){
+  var c=document.getElementById("paieCard"), corps=document.getElementById("paieCorps"), C=dernierCalc; if(!c||!corps) return;
+  if(!C||!st.ready){ c.hidden=true; return; }
+  var voir=!!lsGet("ui/paie/voir"), ex=valeurExemple(), mo=MOIS[st.m].toLowerCase()+" "+st.y;
+  function m(v){ return voir?eur(v):"••• €"; }
+  var eq=sumLines(C,/^Suppl\. Équipe/), we=R(sumLines(C,/^Supplément weekend/)+sumLines(C,/^Supplément jour férié presté/)+sumLines(C,/^Déduction travail weekend/)),
+      rap=R(C.acc.rapMt.J+C.acc.rapMt.J2+C.acc.rapMt.MP), P=voir?precDe(C):null, vs=aideVersements()[0];
+  var o=document.getElementById("paieOeil");
+  if(o){ o.setAttribute("aria-pressed",voir?"true":"false"); o.setAttribute("aria-label",voir?"Masquer les montants":"Afficher les montants");
+    o.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>'+(voir?'':'<path d="M4 4l16 16"/>')+'</svg>'; }
+  document.getElementById("paieSub").textContent=mo;
+  corps.innerHTML='<div class="aw-paie-tete"><span class="aw-lbl">'+(ex?"Net d’exemple":"Net estimé")+'</span>'
+      +'<b class="aw-gros'+(voir?'':' aw-masque')+'"'+(voir?'':' aria-label="montant masqué"')+'>'+m(C.net)+'</b>'
+      +(P&&Math.abs(P.d)>=0.01?'<span class="aw-ev '+(P.d>0?'plus':'moins')+'">'+(P.d>0?"+":"−")+esc(eur(Math.abs(P.d)))+' par rapport à '+esc(P.mois)+'</span>':'')+'</div>'
+    +'<ul class="aw-l aw-paie-l" data-acc-fit>'+[["Brut",m(C.A)],["Primes d’équipe",m(eq)],["Suppl. week-end",m(we)],["Primes de rappel",m(rap||0)],["Chèques-repas",String(C.crNb)]].map(function(r){
+        return '<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>'; }).join("")+'</ul>'
+    +'<p class="aw-note">'+(ex?"Montants d’exemple : votre contrat se règle dans Réglages.":(vs?esc(vs.t)+" le "+vs.d.getDate()+" "+AW_MC[vs.d.getMonth()]+" · "+awJour(vs.d):""))+'</p>';
+  c.hidden=false;
+}
+/* À retenir : les deux prochains versements, les jours fériés et les congés
+   scolaires (Fédération Wallonie-Bruxelles), dans l'ordre */
+function awDates(){
+  var c=document.getElementById("retCard"), corps=document.getElementById("retCorps"); if(!c||!corps) return;
+  var n=jourUsine(), auj=new Date(n.getFullYear(),n.getMonth(),n.getDate()), L=[], vu={};
+  try{ aideVersements().forEach(function(x){ L.push({d:x.d, t:x.t, k:"paie", s:"Versement"}); }); }catch(e){}
+  [auj.getFullYear(),auj.getFullYear()+1].forEach(function(y){ aideFeries(y).forEach(function(x){ if(x.d>=auj) L.push({d:x.d, t:x.t, k:"ferie", s:"Jour férié"}); }); });
+  var A=auj.getMonth()>=7?auj.getFullYear():auj.getFullYear()-1;
+  [A,A+1].forEach(function(an){ try{ (fwbAn(an).periodes||[]).forEach(function(z){ var f=new Date(z.d.getFullYear(),z.d.getMonth(),z.d.getDate()+13);
+    if(f>=auj) L.push({d:z.d, f:f, t:z.t, k:"ecole", s:"Congés scolaires"}); }); }catch(e){} });
+  L=L.filter(function(x){ var cle=x.k+"|"+(+x.d); if(vu[cle]) return false; vu[cle]=1; return true; }).sort(function(a,b){ return a.d-b.d; }).slice(0,8);
+  if(!L.length){ c.hidden=true; return; }
+  corps.innerHTML='<ul class="aw-l aw-dates" data-acc-fit>'+L.map(function(x){
+    var cours=x.f&&x.d<=auj, q=cours?"en cours":awJour(x.d);
+    return '<li class="aw-r aw-r-'+x.k+'"><span class="aw-d" aria-hidden="true"><b>'+x.d.getDate()+'</b><small>'+AW_MC[x.d.getMonth()]+'</small></span>'
+      +'<span class="aw-t"><b>'+esc(x.t)+'</b><small>'+x.s+(x.f?' · jusqu’au '+x.f.getDate()+' '+AW_MC[x.f.getMonth()]:'')+'</small></span><em class="aw-q'+(cours?' aw-q-on':'')+'">'+q+'</em></li>'; }).join("")+'</ul>';
+  c.hidden=false;
+}
+/* Annonces : l'épinglée d'abord, puis les plus récentes ; « Nouveau » sur
+   celles qu'on n'a pas lues */
+function awAnnonces(){
+  var c=document.getElementById("annCard"), corps=document.getElementById("annCorps"); if(!c||!corps) return;
+  if(!compteBase()){ c.hidden=true; return; }
+  var l=aideAnnonces().slice().sort(function(a,b){ return (b.epingle?1:0)-(a.epingle?1:0)||(new Date(b.cree_le)-new Date(a.cree_le)); }),
+      nl={}; aideNonLues().forEach(function(x){ nl[x.id]=1; });
+  document.getElementById("annSub").textContent=Object.keys(nl).length?Object.keys(nl).length+" non lue"+(Object.keys(nl).length>1?"s":""):"";
+  corps.innerHTML=l.length?'<ul class="aw-l aw-ann" data-acc-fit>'+l.map(function(x){
+      return '<li class="aw-r'+(x.epingle?' aw-epingle':'')+'"><span class="aw-t"><b>'+esc(x.titre||"Annonce")+'</b><small>'+(x.epingle?"épinglée · ":"")+"le "+esc(aideDate(x.cree_le))+'</small></span>'
+        +(nl[x.id]?'<em class="aw-q aw-q-on">Nouveau</em>':'')+'</li>'; }).join("")+'</ul>'
+    :'<p class="aw-vide">'+(AIDE&&AIDE.err&&AIDE.liste==null?"Les annonces se liront au retour du réseau.":"Aucune annonce pour l’instant.")+'</p>';
+  c.hidden=false;
+}
+/* Effectif du jour (contremaîtres et RH) : les présents, par pause, puis les
+   absents par motif ; des nombres seulement, aucun nom */
+function awPresents(){
+  var c=document.getElementById("presCard"), corps=document.getElementById("presCorps"); if(!c||!corps) return;
+  var n=jourUsine(), db=(typeof horaireDe==="function"&&horaireDe(n.getFullYear()))||HORAIRE_DB;
+  if(!peutSaisir()||!db){ c.hidden=true; return; }
+  var C=null; try{ C=dirCentre(db,n.getFullYear(),n.getMonth()+1,n.getDate()); }catch(e){}
+  if(!C){ c.hidden=true; return; }
+  document.getElementById("presSub").textContent=JOURS_LONGS[(n.getDay()+6)%7].toLowerCase()+" "+n.getDate()+" "+AW_MC[n.getMonth()];
+  var PZ=[["AM","matin"],["PM","après-midi"],["N","nuit"],["D","jour"]].filter(function(x){ return C.pauses[x[0]]; });
+  corps.innerHTML='<div class="aw-pres-tete"><b class="aw-gros">'+C.n.present+'</b><span>présents sur '+C.total+'</span></div>'
+    +'<div class="aw-pz">'+PZ.map(function(x){ return '<span class="aw-pzi"><i class="pf-pause" data-p="'+x[0]+'">'+x[0]+'</i><b>'+C.pauses[x[0]]+'</b><small>'+x[1]+'</small></span>'; }).join("")+'</div>'
+    +'<ul class="aw-l aw-pres-l">'+[["Malades",C.n.malade],["En congé",C.n.conge],["En formation",C.n.formation],["Au repos",C.n.repos]].map(function(r){
+        return '<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>'; }).join("")+'</ul>';
+  c.hidden=false;
+}
+function awMaj(){ [awPaie,awDates,awAnnonces,awPresents].forEach(function(f){ try{ f(); }catch(e){ if(window.console) console.warn("Widget de l’Accueil :",e); } }); }
+function awCacher(){ ["paieCard","retCard","annCard","presCard"].forEach(function(id){ var e=document.getElementById(id); if(e) e.hidden=true; }); }
+document.addEventListener("click",function(e){
+  var t=e.target; if(!t.closest) return;
+  if(t.closest("#paieOeil")){ lsSet("ui/paie/voir",!lsGet("ui/paie/voir")); awPaie(); return; }
+  var w=t.closest("#v-horaire .aw[data-aller]"); if(w&&!(ACC&&ACC.edit)) accVers(w.getAttribute("data-aller"));
+});
+/* LES POSTES SUIVANTS (« Heure et poste » en 2 lignes, 04/11/2026) : les six
+   journées travaillées après le prochain poste, dans les quarante jours */
+function pfAVenirHTML(p,inf){
+  var pr=inf&&inf.prochain; if(!pr) return "";
+  var l=[], b0=pr.d, n=new Date(), cal0=new Date(n.getFullYear(),n.getMonth(),n.getDate()), k, d, x;
+  for(k=1;k<=40&&l.length<6;k++){ d=new Date(b0.getFullYear(),b0.getMonth(),b0.getDate()+k); x=_pfJour(p.id,d); if(x&&x.presente&&PF_HEURES[x.pv]) l.push({d:d, pv:x.pv, h:pfHeures(x)}); }
+  if(!l.length) return "";
+  var JC=["dim.","lun.","mar.","mer.","jeu.","ven.","sam."], MC=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  return '<div class="pf-avenir"><p class="pf-av-t">Ensuite</p><ul class="pf-av-l" data-acc-fit>'+l.map(function(o){
+      var e=Math.round((o.d-cal0)/864e5), jn=e===1?"Demain":(JC[o.d.getDay()].charAt(0).toUpperCase()+JC[o.d.getDay()].slice(1)), hh=String(o.h||"").split("-");
+      return '<li><span class="pf-av-j"><b>'+esc(jn)+'</b><small>'+o.d.getDate()+' '+MC[o.d.getMonth()]+'</small></span><span class="pf-pause" data-p="'+esc(o.pv)+'">'+esc(o.pv)+'</span>'
+        +'<span class="pf-av-h">'+esc(hh[0]||"")+(hh[1]?' <i>–</i> '+esc(hh[1]):'')+'</span></li>'; }).join("")+'</ul></div>';
 }
 function _pfHead(db,p){
   var tri=idLisible(p.id);
@@ -17519,7 +17936,8 @@ function _pfHead(db,p){
      de droite. */
   /* (Le week-end libre et le prochain congé, qui avaient pris leur propre
      cadre sous celui-ci, sont retirés le 22/10/2026.) */
-  h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,function(t,a,b){ return '<div class="pf-bloc">'+horlogeHTML()+a+'</div>'+b; });
+  var avH=pfAVenirHTML(p,inf);
+  h=h.replace(/^([\s\S]*?)(<div class="pf-app")/,function(t,a,b){ return '<div class="pf-bloc">'+horlogeHTML()+a+avH+'</div>'+b; });
   /* LES POLYVALENCES D'UN OPÉRATEUR OU D'UN ADJOINT (le client, le
      18/10/2026 : « pour les opérateurs/adjoints, dans le héros, indiquer les
      polyvalences »). Les ateliers acquis, un point à la couleur de leur zone ;
@@ -22629,6 +23047,8 @@ function filInit(){
   var f=document.getElementById("filForm"), t=document.getElementById("filTexte"), l=document.getElementById("filListe");
   if(!f || f.__init) return; f.__init=1;
   f.addEventListener("submit",function(ev){ ev.preventDefault(); filEnvoyer(); });
+  /* lu plus haut que le dernier message : l'Accueil ne le ramène pas en bas (accAjuster) */
+  if(l) l.addEventListener("scroll",function(){ l.__haut=l.scrollHeight-l.scrollTop-l.clientHeight>40; },{passive:true});
   /* Entrée envoie, Maj+Entrée va à la ligne ; le champ grandit jusqu'à 5 lignes */
   t.addEventListener("keydown",function(ev){ if(ev.key==="Enter" && !ev.shiftKey && !ev.isComposing){ ev.preventDefault(); filEnvoyer(); } });
   t.addEventListener("input",function(){ t.style.height="auto"; t.style.height=Math.min(120,t.scrollHeight)+"px"; filChamp(); });
@@ -24838,7 +25258,7 @@ function ryProchainesHTML(p,y){
         +(o?' ; '+o.F[k]+' faites, '+o.A[k]+' restantes, '+(Number(o.F[k]||0)+Number(o.A[k]||0))+' en '+y:'')+'">'
         +'<i class="pf-pause" data-p="'+k+'">'+k+'</i>'
         /* la date en entier, comme le prochain poste (le client, le 22/10/2026) */
-        +'<span class="pf-pr-d">'+(v?'<b><span class="pf-lg"><span>'+esc(JOURS_LONGS[(v.d.getDay()+6)%7])+'</span> <span>'+esc(numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase())+'</span></span><span class="pf-ct">'+esc(JOURS_LONGS[(v.d.getDay()+6)%7].slice(0,3)+". "+v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</span></b><em class="pf-pr-q">'+esc(quand)+'</em>':'<span>rien de prévu</span>')+'</span>'
+        +'<span class="pf-pr-d">'+(v?'<b><span class="pf-lg"><span>'+esc(JOURS_LONGS[(v.d.getDay()+6)%7])+'</span> <span>'+esc(numJour(v.d.getDate())+" "+MOIS[v.d.getMonth()].toLowerCase())+'</span></span><span class="pf-ct"><span>'+esc(JOURS_LONGS[(v.d.getDay()+6)%7].slice(0,3)+".")+'</span> <span>'+esc(v.d.getDate()+" "+MOIS_BREF[v.d.getMonth()])+'</span></span></b><em class="pf-pr-q">'+esc(quand)+'</em>':'<span>rien de prévu</span>')+'</span>'
         +(o?'<b class="pf-pr-f">'+o.F[k]+'</b><b class="pf-pr-r">'+o.A[k]+'</b><b class="pf-pr-t">'+(Number(o.F[k]||0)+Number(o.A[k]||0))+'</b>':'')+'</button>';
     }).join("")
     +'</div>';
@@ -24913,7 +25333,7 @@ function renderRythme(){
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
   var vide=document.getElementById("resumeVide");
   var ag=document.getElementById("agendaCard");
-  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; var cgc=document.getElementById("cgCard"); if(cgc) cgc.hidden=true; renderNotif(null,null); return; }
+  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; var cgc=document.getElementById("cgCard"); if(cgc) cgc.hidden=true; awCacher(); renderNotif(null,null); return; }
   card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
   if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} meteoDemarrer(); }
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
@@ -24963,6 +25383,7 @@ function renderRythme(){
     if(an) an.hidden=!(pz&&pz.innerHTML);
     if(cc) cc.hidden=!(cg&&cg.innerHTML);
     try{ recyclageHeros(db,person); }catch(e){}
+    try{ awMaj(); }catch(e){}
     /* le héros a sa hauteur finale : la ligne « à faire » se remesure */
     try{ pfAfaireVoir(); }catch(e){}
   });
@@ -36118,6 +36539,7 @@ function aideCharger(force){
 /* les pastilles (menu du PC, feuille « Plus »), « À faire », et la page si elle est ouverte */
 function aideMaj(){
   var n=aideNonLues().length, nb=document.getElementById("sideAideNb");
+  try{ awAnnonces(); }catch(e){}
   if(nb){ nb.hidden=!n; nb.textContent=n||""; }
   try{ renderCentre(); }catch(e){}
   if(st.view==="aide") aideRendre();
@@ -36506,30 +36928,39 @@ function confirmerPro(o, surOui){
    la ligne du profil, l'heure). Limite connue : l'ordre du clavier (Tab)
    reste celui de la page, et non celui de l'écran. */
 var ACC_W=[
-  {k:"poste",        nom:"Heure et poste",      l:6,  lmin:3, tmin:1},
-  {k:"profil",       nom:"Mon profil",          l:6,  lmin:3, tmin:2},
-  {k:"meteo",        nom:"Météo",               l:6,  lmin:3, tmin:1},
+  /* hs : les hauteurs permises (en lignes de widget : 1 ligne = deux rangées
+     d'icônes) ; h : celle d'origine */
+  {k:"poste",        nom:"Heure et poste",      l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
+  {k:"profil",       nom:"Mon profil",          l:6,  lmin:3, tmin:2, hs:[1,2], h:1},
+  {k:"meteo",        nom:"Météo",               l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
-  {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:6, tmin:2},
-  {k:"polyvalences", nom:"Polyvalences",        l:6,  lmin:3, tmin:1},
-  /* au PC seulement (pc) : la carte de l'onglet Planning (accPlanningPlacer) */
-  {k:"planning",     nom:"Planning",            l:12, lmin:9, tmin:2, pc:true},
-  {k:"usine",        nom:"L’usine en direct",   l:12, lmin:6, tmin:2},
+  {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:6, tmin:2, hs:[1,2], h:2},
+  {k:"polyvalences", nom:"Polyvalences",        l:6,  lmin:3, tmin:1, hs:[1], h:1},
+  /* tirés des autres onglets (04/11/2026) ; si : à qui ils s'adressent */
+  {k:"paie",         nom:"Ma paie",             l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
+  {k:"dates",        nom:"À retenir",           l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
+  /* au PC seulement (pc) : la carte de l'onglet Planning (accPlanningPlacer) ;
+     son tableau (dix postes, trois pauses) demande trois lignes au moins */
+  {k:"planning",     nom:"Planning",            l:12, lmin:9, tmin:2, pc:true, hs:[3,4], hsw:{9:[4]}, h:3},
+  /* en ½, la photo (440 px) est trop petite pour ses étiquettes : ¾ et 1 */
+  {k:"usine",        nom:"L’usine en direct",   l:12, lmin:9, tmin:2, hs:[2,3], hst:[3], h:2},
   /* rangés par paires qui remplissent une rangée (¾ + ¼, ½ + ½) */
-  {k:"calendrier",   nom:"Calendrier",          l:9,  lmin:6, tmin:2},
-  {k:"soldes",       nom:"Congés restants",     l:3,  lmin:3, tmin:1},
-  {k:"demandes",     nom:"Demandes de congé",   l:6,  lmin:6, tmin:2},
-  {k:"afaire",       nom:"À faire",             l:6,  lmin:3, tmin:1},
-  {k:"site",         nom:"Sur site",            l:6,  lmin:6, tmin:2},
-  {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2},
+  {k:"calendrier",   nom:"Calendrier",          l:9,  lmin:6, tmin:2, hs:[1,2], h:2},
+  {k:"soldes",       nom:"Congés restants",     l:3,  lmin:3, tmin:1, hs:[1,2], h:2},
+  {k:"demandes",     nom:"Demandes de congé",   l:6,  lmin:6, tmin:2, hs:[1,2], h:1},
+  {k:"afaire",       nom:"À faire",             l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
+  {k:"annonces",     nom:"Annonces",            l:6,  lmin:3, tmin:2, hs:[1,2], h:1, si:"compte"},
+  {k:"presents",     nom:"Effectif du jour",    l:6,  lmin:3, tmin:1, hs:[1,2], h:1, si:"saisie"},
+  {k:"site",         nom:"Sur site",            l:6,  lmin:6, tmin:2, hs:[1,2], h:2},
+  {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2, hs:[1,2], h:1},
   /* un quart au PC, une moitié au téléphone : la mise en page réduite
      (requête de conteneur « anc », 04/11/2026) */
-  {k:"conges",       nom:"Mon année",           l:6,  lmin:3, tmin:1},
-  {k:"rythme",       nom:"Mon rythme",          l:6,  lmin:6, tmin:2}
+  {k:"conges",       nom:"Mon année",           l:6,  lmin:3, tmin:1, hs:[1,2], h:2},
+  {k:"rythme",       nom:"Mon rythme",          l:6,  lmin:6, tmin:2, hs:[1,2], h:2}
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
    les demandes et le calendrier */
-var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","planning","afaire","soldes","conges","site","messages","usine","demandes","calendrier","rythme"];
+var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","paie","dates","planning","afaire","annonces","presents","soldes","conges","site","messages","usine","demandes","calendrier","rythme"];
 /* LES LARGEURS, DES MULTIPLES D'UNE ICÔNE (04/11/2026) : au PC, une icône
    fait un huitième ; ¼, ½, ¾ et 1 tombent sur ses colonnes, ⅓ et ⅔ non
    (2,67 et 5,33 icônes) : ils sont retirés, comme l'iPad n'offre que des
@@ -36537,7 +36968,7 @@ var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","plan
    avait gardée revient à la taille d'origine du widget (accTaille). */
 var ACC_TAILLES={large:[3,6,9,12], tel:[1,2]};
 var ACC_FRAC={large:{3:"¼",4:"⅓",6:"½",8:"⅔",9:"¾",12:"1"}, tel:{1:"½",2:"1"}};
-var ACC={mode:"", cols:4, o:[], t:{}, m:{}, edit:false, gap:16, rg:16, p:96, style:null, ro:null, items:[], scanT:0, drag:null, etire:false,
+var ACC={mode:"", cols:4, o:[], t:{}, m:{}, hh:{}, edit:false, gap:16, rg:16, p:96, style:null, ro:null, items:[], scanT:0, drag:null, etire:false,
   calque:null, anims:[], t0:0, jig:{}, placeT:0};
 /* CHAQUE ACCÈS RAPIDE EST UNE APP (le client, le 04/11/2026 : « pour les
    raccourcis rapides, cela doit être des onglets à part, 1 sur 1, comme
@@ -36555,6 +36986,7 @@ function accAppCle(el){
   return "";
 }
 function accAppNom(el){ var t=(el.getAttribute("title")||"").split(" · ")[0]; if(!t){ var sp=el.querySelector("span"); t=sp?sp.textContent:""; } return t.replace(/\s+/g," ").trim()||"Icône"; }
+function accDispo(d){ return !d||!d.si||(d.si==="compte"?compteBase():d.si==="saisie"?peutSaisir():true); }
 function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return ACC_W[i];
   if(k&&k.indexOf("app:")===0) return {k:k, nom:ACC_APPN[k]||"Icône", app:true, l:2, lmin:2, tmin:1}; return null; }
 function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; if(!d||d.app) return []; return ACC_TAILLES[m].filter(function(s){ return m==="tel"?s>=d.tmin:s>=d.lmin; }); }
@@ -36562,6 +36994,25 @@ function accTaille(k){ var p=accPermises(k), t=ACC.t[k], d=accDef(k);
   if(!p.length) return 0;
   if(p.indexOf(t)>=0) return t;
   var def=ACC.mode==="large"?d.l:2; if(p.indexOf(def)>=0) return def; return p[p.length-1]; }
+/* LES HAUTEURS CHOISIES (le client, le 04/11/2026 : « les widgets peuvent
+   faire des hauteurs différentes, 1 ou 2 lignes de hauteur ; le contenu doit
+   être adapté à la taille qu'on lui donne, 100 % pro, et pas avec des
+   espaces vides si on agrandit ») : comme les widgets de l'iPhone, une
+   ligne de widget fait deux rangées d'icônes (208 px), deux lignes en font
+   quatre (432 px). Chaque widget a ses hauteurs permises (hs) et celle
+   d'origine (h) ; la hauteur choisie (ACC.hh) se garde par écran, comme la
+   largeur. Le widget a exactement cette hauteur (accStyle), son contenu la
+   remplit (data-acc-h, et les règles de chaque widget). */
+var ACC_LIGNES={1:"1 ligne",2:"2 lignes",3:"3 lignes",4:"4 lignes"};
+/* les hauteurs permises peuvent dépendre de la largeur (hsw, par taille) ou
+   de l'écran (hst, au téléphone) : le Planning à ¾ demande 4 lignes */
+function accHautsPour(k,t){ var d=accDef(k); if(!d||d.app) return []; return ((d.hsw&&d.hsw[t])||(ACC.mode==="tel"&&d.hst)||d.hs||[1,2]).slice(); }
+function accHauts(k){ return accHautsPour(k,accTaille(k)); }
+function accHaut(k){ var p=accHauts(k), h=ACC.hh[k], d=accDef(k); if(!p.length) return 0; if(p.indexOf(h)>=0) return h; return p.indexOf(d.h)>=0?d.h:p[0]; }
+function accLignesPx(h){ return 2*h*ACC.p+(2*h-1)*ACC.rg; }
+function accTailleTexte(k,t,h){ return ACC_FRAC[ACC.mode][t===undefined?accTaille(k):t]+" · "+ACC_LIGNES[h===undefined?accHaut(k):h]; }
+/* la hauteur posée sur chaque widget, pour ses règles (data-acc-h) */
+function accMarquer(){ ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app) return; var h=String(accHaut(k)); if(el.getAttribute("data-acc-h")!==h) el.setAttribute("data-acc-h",h); }); }
 /* les colonnes d'une taille : la grille en a le double des tailles (4 au
    téléphone, où « ½ » en prend 2 ; 24 sur un grand écran, où « ¼ » en prend
    6), pour qu'une icône d'app y tienne : une colonne sur quatre au
@@ -36585,9 +37036,9 @@ function accCharger(mode){
   /* « Congés restants », sorti de « Mon année » (04/11/2026) : juste avant
      elle, où qu'elle ait été placée */
   if(neufs.indexOf("soldes")>=0&&o.indexOf("conges")>=0){ o.splice(o.indexOf("soldes"),1); o.splice(o.indexOf("conges"),0,"soldes"); }
-  ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{};
+  ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{}; ACC.hh=sv.h&&typeof sv.h==="object"?sv.h:{};
 }
-function accSauver(){ lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m}); }
+function accSauver(){ lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh}); }
 function accAnnoncer(t){ var a=document.getElementById("accAnnonce"); if(a){ a.textContent=""; setTimeout(function(){ a.textContent=t; },30); } }
 /* la feuille de la disposition : l'ordre, la largeur, les masqués */
 function accStyle(){
@@ -36595,12 +37046,13 @@ function accStyle(){
   var c=["#v-horaire.acc-perso{--acc-cols:"+ACC.cols+"; --acc-p:"+ACC.p+"px}"];
   ACC.o.forEach(function(k,i){
     var sel='#v-horaire.acc-perso [data-w="'+k+'"]';
-    c.push(sel+"{order:"+((i+1)*10)+"!important; grid-column:span "+accSpan(k)+"!important}");
+    var hk=accHaut(k);
+    c.push(sel+"{order:"+((i+1)*10)+"!important; grid-column:span "+accSpan(k)+"!important"+(hk?"; grid-row:span "+(2*hk)+"!important":"")+"}");
     if(ACC.m[k]) c.push(sel+"{display:none!important}");
   });
   c.push("#v-horaire.acc-perso #resumeVide{order:0!important} #v-horaire.acc-perso #installCard{order:9000!important} #v-horaire.acc-perso #accPied{order:9990!important}");
   ACC.style.textContent=c.join("\n");
-  accCalqueBientot();
+  accMarquer(); accCalqueBientot(); accAjusterBientot();
 }
 /* La grille fixe, comme l'iPhone (le client, le 04/11/2026, capture à
    l'appui : « les largeurs et hauteurs doivent respecter des tailles fixes
@@ -36616,6 +37068,9 @@ function accStyle(){
    pour tous : l'observateur repasse une fois au plus). */
 function accEmpanTous(els){
   var P=ACC.p, G=ACC.rg;
+  /* un widget a sa hauteur choisie (accStyle) : rien à mesurer */
+  els=els.filter(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k);
+    if(d&&!d.app){ if(el.style.minHeight) el.style.minHeight=""; if(el.style.gridRowEnd) el.style.gridRowEnd=""; return false; } return true; });
   els.forEach(function(el){ if(el.style.minHeight) el.style.minHeight=""; });
   var hs=els.map(function(el){ return el.offsetHeight; });
   els.forEach(function(el,i){
@@ -36668,6 +37123,7 @@ function accScan(){
   l.forEach(function(el){ if(!el.__accObs){ el.__accObs=1; ACC.ro.observe(el); } });
   ACC.items.forEach(function(el){ if(l.indexOf(el)<0){ try{ ACC.ro.unobserve(el); }catch(e){} el.__accObs=0; } });
   ACC.items=l;
+  accMarquer(); accAjusterBientot();
   if(ACC.edit) accOutils(false);
 }
 /* LE MODE « MODIFIER L'ACCUEIL », comme celui de l'iPhone (le client, le
@@ -36703,7 +37159,7 @@ function accBoiteHTML(k){
   var d=accDef(k), t=accTaille(k), f=ACC_FRAC[ACC.mode], nom=esc(d.nom);
   return '<button type="button" class="acc-moins" data-acc-masquer="'+k+'" aria-label="Retirer « '+nom+' » de l’Accueil">'+ACC_MOINS+'</button>'
     +'<button type="button" class="acc-bouger" data-acc-tirer="'+k+'" aria-label="Déplacer « '+nom+' » : flèches du clavier">Déplacer · '+nom+'</button>'
-    +(accPermises(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+f[t]+'. Flèches gauche et droite pour la changer" title="Tirer pour changer la taille"><svg viewBox="0 0 56 56" aria-hidden="true"><path d="'+accArc(22)+'"/></svg></button>':'');
+    +(accPermises(k).length>1||accHauts(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+accTailleTexte(k)+'. Flèches gauche et droite : la largeur ; haut et bas : la hauteur" title="Tirer pour changer la taille"><svg viewBox="0 0 56 56" aria-hidden="true"><path d="'+accArc(22)+'"/></svg></button>':'');
 }
 function accOutils(tout){
   var v=document.getElementById("v-horaire"); if(!v||!ACC.edit) return;
@@ -36715,7 +37171,7 @@ function accOutils(tout){
   var pc=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches), apps=!!v.querySelector('[data-w^="app:"]'), vus={};
   ACC.items.forEach(function(el){ el.classList.remove("acc-vide"); });
   ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"); if(k&&!el.hidden&&getComputedStyle(el).display!=="none") vus[k]=1; });
-  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||vus[k]||ACC.m[k]||d.app||(d.pc&&!pc)||(k==="acces"&&apps)) return; vus[k]=1;
+  ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||vus[k]||ACC.m[k]||d.app||(d.pc&&!pc)||(k==="acces"&&apps)||!accDispo(d)) return; vus[k]=1;
     el.classList.add("acc-vide"); el.setAttribute("data-acc-vide",d.nom+" · rien à montrer pour l’instant"); });
   /* une case par élément visible, dans l'ordre de l'Accueil (celui du clavier) */
   var actif=document.activeElement, garde={}, i=0;
@@ -36728,7 +37184,7 @@ function accOutils(tout){
     if(!b){ b=document.createElement("div"); b.className="acc-b"; b.setAttribute("data-acc-pour",k); }
     if(c.children[i]!==b) c.insertBefore(b,c.children[i]||null);
     i++;
-    var sig=ACC.mode+"|"+accTaille(k)+"|"+d.nom;
+    var sig=ACC.mode+"|"+accTaille(k)+"|"+accHaut(k)+"|"+d.nom;
     if((tout||b.__sig!==sig)&&ACC.etire!==k){
       var fc=actif&&b.contains(actif)?String(actif.className).split(" ")[0]:"";
       b.innerHTML=accBoiteHTML(k); b.__sig=sig;
@@ -36803,6 +37259,37 @@ function accTremblerStop(){
   [].forEach.call(document.querySelectorAll("#v-horaire [data-w]"),function(x){ x.__accAnim=null; });
   if(ACC.calque) [].forEach.call(ACC.calque.children,function(b){ b.__accAnim=null; });
 }
+/* LES LISTES À LA HAUTEUR DU WIDGET (04/11/2026) : une liste marquée
+   data-acc-fit montre autant de lignes que la hauteur choisie en laisse, la
+   dernière ligne disant ce qui reste (« + 3 autres ») ; rien n'est coupé
+   en deux. Les listes connues des widgets d'avant reçoivent la marque ici. */
+function accAjuster(w){
+  /* le fil des messages : sur le dernier, sauf si on lit plus haut */
+  var fl=w.querySelector(".fil-l"); if(fl&&!fl.__haut) fl.scrollTop=fl.scrollHeight;
+  [].forEach.call(w.querySelectorAll(".ctl-l,.md-l,.site-ps"),function(L){ if(!L.hasAttribute("data-acc-fit")) L.setAttribute("data-acc-fit",""); });
+  var ls=w.querySelectorAll("[data-acc-fit]"); if(!ls.length) return;
+  [].forEach.call(ls,function(L){ [].forEach.call(L.querySelectorAll(".acc-plus"),function(x){ x.parentNode.removeChild(x); });
+    [].forEach.call(L.children,function(c){ c.classList.remove("acc-cache"); }); });
+  if(!w.getClientRects().length) return;
+  /* la limite se relit à chaque mesure, avec les lignes : masquer une ligne
+     peut faire défiler la page (ancrage du défilement, widget au-dessus de
+     l'écran), et une limite lue une fois pour toutes en masquait trop */
+  var cs=getComputedStyle(w), pb=Math.max(8,parseFloat(cs.paddingBottom)||0);
+  /* -Infinity, et non 0 : un widget au-dessus de l'écran a des coordonnées
+     négatives, et un 0 les dépassait toutes (une seule ligne gardée) */
+  function bas(L){ var b=-Infinity, n=L; while(n&&n!==w){ var sib=n.nextElementSibling; while(sib){ if(sib.getClientRects().length) b=Math.max(b,sib.getBoundingClientRect().bottom); sib=sib.nextElementSibling; } n=n.parentElement; } return b; }
+  [].forEach.call(ls,function(L){
+    var it=[].filter.call(L.children,function(c){ return c.getClientRects().length; }), cache=0, plus=null;
+    function trop(){ var v=it.filter(function(c){ return !c.classList.contains("acc-cache"); }), d=v[v.length-1];
+      if(!d) return false; var lim=w.getBoundingClientRect().bottom-pb;
+      return Math.max(d.getBoundingClientRect().bottom,plus?plus.getBoundingClientRect().bottom:0,bas(L))>lim+0.5; }
+    while(trop()&&cache<it.length-1){ it[it.length-1-cache].classList.add("acc-cache"); cache++;
+      if(!plus){ plus=document.createElement(L.tagName==="UL"||L.tagName==="OL"?"li":"span"); plus.className="acc-plus"; plus.setAttribute("aria-hidden","true"); L.appendChild(plus); }
+      plus.textContent="+ "+cache+" autre"+(cache>1?"s":""); }
+  });
+}
+function accAjusterTous(){ ACC.ajT=0; ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(d&&!d.app) accAjuster(el); }); }
+function accAjusterBientot(){ if(!ACC.ajT) ACC.ajT=requestAnimationFrame(accAjusterTous); }
 /* le bouton qui ouvre le mode, au pied de l'Accueil */
 function accPied(){
   var p=document.getElementById("accPied"); if(!p) return;
@@ -36883,11 +37370,11 @@ function accGalClavier(e){
 function accGalerie(){
   accGalerieFermer();
   var pcR=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches), apps=!!document.querySelector('#v-horaire [data-w^="app:"]');
-  var mq=ACC.o.filter(function(k){ var d=accDef(k); return ACC.m[k]&&d&&(!d.pc||pcR)&&!(k==="acces"&&apps)&&document.querySelector('#v-horaire [data-w="'+k+'"]'); });
+  var mq=ACC.o.filter(function(k){ var d=accDef(k); return ACC.m[k]&&d&&(!d.pc||pcR)&&!(k==="acces"&&apps)&&accDispo(d)&&document.querySelector('#v-horaire [data-w="'+k+'"]'); });
   var wid=mq.filter(function(k){ return !accDef(k).app; }), ics=mq.filter(function(k){ return accDef(k).app; });
   function ligne(k){ var d=accDef(k), ic=accIcone(k);
     return '<button type="button" class="acc-gal-i" data-acc-montrer="'+k+'"><i class="acc-gal-ico" aria-hidden="true"'+(ic.c?' style="--ic:'+esc(ic.c)+'"':'')+'>'+ic.svg+'</i>'
-      +'<span><b>'+esc(d.nom)+'</b><small>'+(d.app?"Icône":"Widget · largeur "+ACC_FRAC[ACC.mode][accTaille(k)])+'</small></span><span class="acc-gal-plus" aria-hidden="true">+</span></button>'; }
+      +'<span><b>'+esc(d.nom)+'</b><small>'+(d.app?"Icône":"Widget · "+accTailleTexte(k))+'</small></span><span class="acc-gal-plus" aria-hidden="true">+</span></button>'; }
   var o=document.createElement("div"); o.className="acc-gal-ov"; o.id="accGal";
   o.innerHTML='<div class="acc-gal" role="dialog" aria-modal="true" aria-labelledby="accGalT">'
     +'<div class="acc-gal-tete"><h2 id="accGalT">Ajouter à l’Accueil</h2><button type="button" class="acc-gal-x" aria-label="Fermer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'
@@ -37008,19 +37495,22 @@ function accMaint(){ return window.performance&&performance.now?performance.now(
    widget ne se voyait pas. */
 function accEtirer(ev,k,el,g){
   var v=document.getElementById("v-horaire"), cs=getComputedStyle(v), pl=parseFloat(cs.paddingLeft)||0,
-      gw=v.clientWidth-pl-(parseFloat(cs.paddingRight)||0), cw=(gw-(ACC.cols-1)*ACC.gap)/ACC.cols, q=accPos(el);
-  var p=accPermises(k).filter(function(s){ return accN(s)<=ACC.cols; }), t0=accTaille(k), t=t0, id=ev.pointerId,
-      avant=Object.prototype.hasOwnProperty.call(ACC.t,k)?ACC.t[k]:undefined, x0=v.getBoundingClientRect().left+v.clientLeft+q.x;
+      gw=v.clientWidth-pl-(parseFloat(cs.paddingRight)||0), cw=(gw-(ACC.cols-1)*ACC.gap)/ACC.cols, q=accPos(el), vr=v.getBoundingClientRect();
+  var p=accPermises(k).filter(function(s){ return accN(s)<=ACC.cols; }), t0=accTaille(k), t=t0, hs=accHauts(k), h0=accHaut(k), h=h0, id=ev.pointerId,
+      has=function(o){ return Object.prototype.hasOwnProperty.call(o,k); }, avant=has(ACC.t)?ACC.t[k]:undefined, avantH=has(ACC.hh)?ACC.hh[k]:undefined,
+      x0=vr.left+v.clientLeft+q.x, y0=vr.top+v.clientTop+q.y+scrollY;
   ACC.etire=k;
   var bx=ACC.calque&&ACC.calque.querySelector('.acc-b[data-acc-pour="'+k+'"]'), bu=document.createElement("b");
-  bu.className="acc-bulle"; bu.setAttribute("aria-hidden","true"); bu.textContent=ACC_FRAC[ACC.mode][t];
+  bu.className="acc-bulle"; bu.setAttribute("aria-hidden","true"); bu.textContent=accTailleTexte(k,t,h);
   if(bx){ bx.classList.add("acc-etire"); bx.appendChild(bu); }
   function largeur(s){ var n=accN(s); return n*cw+(n-1)*ACC.gap; }
   function bouger(e){
     if(e.pointerId!==id) return; e.preventDefault();
-    var voulu=e.clientX-x0, mieux=t, ec=1e9;
+    var voulu=e.clientX-x0, vouluH=e.clientY+scrollY-y0, mieux=t, ec=1e9, mh=h, eh=1e9;
     p.forEach(function(s){ var dd=Math.abs(largeur(s)-voulu); if(dd<ec){ ec=dd; mieux=s; } });
-    if(mieux!==t){ t=mieux; ACC.t[k]=t; accStyle(); bu.textContent=ACC_FRAC[ACC.mode][t]; accTrembler(); }
+    hs=accHautsPour(k,mieux);
+    hs.forEach(function(x){ var dd=Math.abs(accLignesPx(x)-vouluH); if(dd<eh){ eh=dd; mh=x; } });
+    if(mieux!==t||mh!==h){ t=mieux; h=mh; if(p.length) ACC.t[k]=t; if(hs.length) ACC.hh[k]=h; accStyle(); bu.textContent=accTailleTexte(k,t,h); accTrembler(); }
   }
   function fin(e,annule){
     if(e&&e.pointerId!==undefined&&e.pointerId!==id) return;
@@ -37028,8 +37518,8 @@ function accEtirer(ev,k,el,g){
     document.removeEventListener("pointercancel",fin,true); document.removeEventListener("keydown",esc_,true);
     ACC.etire=false;
     if(bu.parentNode) bu.parentNode.removeChild(bu); if(bx) bx.classList.remove("acc-etire");
-    if(annule){ if(avant===undefined) delete ACC.t[k]; else ACC.t[k]=avant; accStyle(); }
-    else if(t!==t0){ accSauver(); accAnnoncer("« "+accDef(k).nom+" » : taille "+ACC_FRAC[ACC.mode][t]+"."); }
+    if(annule){ if(avant===undefined) delete ACC.t[k]; else ACC.t[k]=avant; if(avantH===undefined) delete ACC.hh[k]; else ACC.hh[k]=avantH; accStyle(); }
+    else if(t!==t0||h!==h0){ accSauver(); accAnnoncer("« "+accDef(k).nom+" » : "+accTailleTexte(k,t,h)+"."); }
     accOutils(false); accTrembler(); accBloqueClic=accMaint();
   }
   function esc_(e){ if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); fin(null,true); } }
@@ -37055,11 +37545,19 @@ function accInit(){
   var v=document.getElementById("v-horaire");
   if(!v||!window.ResizeObserver||!window.MutationObserver||!(window.CSS&&CSS.supports&&CSS.supports("display","contents"))) return;
   ACC.style=document.createElement("style"); ACC.style.id="accStyle"; ACC.style.setAttribute("data-genere",""); document.head.appendChild(ACC.style);
-  ACC.ro=new ResizeObserver(function(es){ accEmpanTous(es.map(function(e){ return e.target; })); accCalqueBientot(); });
+  ACC.ro=new ResizeObserver(function(es){ accEmpanTous(es.map(function(e){ return e.target; })); accCalqueBientot(); accAjusterBientot(); });
   new ResizeObserver(function(){ accForme(); if(ACC.edit){ accBas(); accCalqueBientot(); } }).observe(v);
   new MutationObserver(function(ms){
     /* ni le calque, ni l'horloge (chaque seconde) ne changent les éléments */
-    for(var i=0;i<ms.length;i++){ var t=ms[i].target; if(!(ACC.calque&&(t===ACC.calque||ACC.calque.contains(t)))&&!(t.id==="pfMtH"||(t.closest&&t.closest("#pfMtH")))){ if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); return; } }
+    for(var i=0;i<ms.length;i++){ var t=ms[i].target;
+      if(ACC.calque&&(t===ACC.calque||ACC.calque.contains(t))) continue;
+      if(t.id==="pfMtH"||(t.closest&&t.closest("#pfMtH"))) continue;
+      /* le « + N autres » posé par accAjuster, et son texte (sans quoi
+         l'ajustement relançait le relevé, qui relançait l'ajustement, à
+         chaque image) */
+      if(t.classList&&t.classList.contains("acc-plus")) continue;
+      if([].every.call(ms[i].addedNodes,function(n){ return n.classList&&n.classList.contains("acc-plus"); })&&[].every.call(ms[i].removedNodes,function(n){ return n.classList&&n.classList.contains("acc-plus"); })) continue;
+      if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); return; }
   }).observe(v,{childList:true, subtree:true});
   v.classList.add("acc-perso");
   accForme(); accScan(); accPied();
@@ -37102,11 +37600,14 @@ function accInit(){
     if(e.key==="Escape"){ if(!ACC.drag&&!document.querySelector(".cfm-ov,#accGal")){ e.preventDefault(); accEditer(false); } return; }
     var g=e.target.closest&&e.target.closest("[data-acc-etirer]"), h=e.target.closest&&e.target.closest("[data-acc-tirer]");
     if(g){
-      var kk=g.getAttribute("data-acc-etirer"), pp=accPermises(kk), ii=pp.indexOf(accTaille(kk)), jj=-1, st={ArrowLeft:-1,ArrowDown:-1,ArrowRight:1,ArrowUp:1}[e.key];
+      var kk=g.getAttribute("data-acc-etirer"), vert=e.key==="ArrowUp"||e.key==="ArrowDown",
+          pp=vert?accHauts(kk):accPermises(kk), ii=pp.indexOf(vert?accHaut(kk):accTaille(kk)), jj=-1,
+          st={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[e.key];
       if(e.key==="Home") jj=0; else if(e.key==="End") jj=pp.length-1; else if(st) jj=ii+st; else return;
       e.preventDefault(); if(jj<0||jj>=pp.length||jj===ii) return;
-      ACC.t[kk]=pp[jj]; accStyle(); accSauver(); accOutils(false);
-      accAnnoncer("« "+accDef(kk).nom+" » : taille "+ACC_FRAC[ACC.mode][pp[jj]]+".");
+      if(vert) ACC.hh[kk]=pp[jj]; else ACC.t[kk]=pp[jj];
+      accStyle(); accSauver(); accOutils(false);
+      accAnnoncer("« "+accDef(kk).nom+" » : "+accTailleTexte(kk)+".");
       return;
     }
     if(h){

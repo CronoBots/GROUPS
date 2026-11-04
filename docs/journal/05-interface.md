@@ -12251,3 +12251,146 @@ Matrice des tailles aux deux heures : 0 faute, hors les deux écarts
 voulus et connus (les pastilles d'« Effectifs » ; les repères de « Mon
 rythme », de 2 à 5 px). Gestes (47 contrôles), parcours (112 essais),
 statique : 0 faute.
+
+### Les hauteurs choisies (1 ou 2 lignes), un contenu qui les remplit ; quatre widgets tirés des autres onglets (04/11/2026, `nfdm-v1376`)
+
+Deux demandes du client, le même jour :
+- « Regarde tout le contenu de l'accueil et les autres fonctionnalités de
+  l'app sur les autres onglets, afin de voir s'il est possible d'ajouter
+  des widgets professionnels et intuitifs en plus sur l'accueil, pour une
+  immersion complète de l'utilisateur. »
+- « Les widgets peuvent faire des hauteurs différentes (1 ou 2 lignes de
+  hauteur) ; le contenu doit être adapté à la taille qu'on lui donne, mais
+  ça doit faire 100 % pro, et pas avec des espaces vides si on agrandit. »
+
+**Les hauteurs.** Comme sur l'iPhone, une ligne de widget fait deux rangées
+d'icônes : 208 px pour une ligne, 432 px pour deux.
+- Chaque widget a ses hauteurs permises et celle d'origine. Elles sont
+  gardées par écran, comme la largeur (`ui/accueil/…`, champ `h`).
+- Le Planning prend 3 ou 4 lignes, l'usine 2 ou 3, les polyvalences 1.
+- Le widget a exactement sa hauteur, sans minimum tiré du contenu. Le
+  vide de la v1375 sous un widget trop court disparaît.
+- Le coin de repli se tire dans les deux sens. Au clavier : gauche et
+  droite pour la largeur, haut et bas pour la hauteur. La bulle dit
+  « ½ · 2 lignes ».
+
+**Le contenu remplit la hauteur.** À 1 ligne, l'essentiel ; à 2 lignes, la
+suite.
+- Heure et poste : les six postes suivants.
+- Météo : six jours (minimum, ciel, barre, maximum).
+- Mon cycle : la semaine en cours et la suivante, puis le cycle entier.
+- Calendrier : la semaine en cours, puis le mois.
+- Congés restants : les tuiles, puis une ligne par congé.
+- Mon année : l'avancement et la pause qui vient, puis le tableau.
+- Sur site : ceux qui sont là, puis la relève.
+- Mon rythme : quatre mois, puis l'année.
+
+Les lignes s'étirent pour remplir. Une liste trop longue montre les lignes
+qui tiennent entières, puis « + N autres » (`data-acc-fit`, `accAjuster`) :
+« À faire », « Demandes », « Sur site », « À retenir », « Ma paie », les
+postes suivants.
+
+**Quatre widgets tirés des autres onglets** (galerie « + »). Toucher le
+widget ouvre l'onglet d'où il vient, hors du mode Modifier.
+- **Ma paie** (Salaire). Le net du mois est masqué (« ••• € ») tant que
+  l'œil ne l'a pas montré. Le choix est gardé sur l'appareil, car un
+  écran d'Accueil se voit par-dessus l'épaule. À 2 lignes : brut, primes
+  d'équipe, suppléments du week-end, primes de rappel, chèques-repas. Au
+  pied : le prochain versement, ou « montants d'exemple » sans contrat
+  réglé.
+- **À retenir** (Infos et aide). Les versements, les jours fériés et les
+  congés scolaires, triés, les huit prochains, avec « demain », « dans
+  7 j » ou « en cours ».
+- **Annonces** (Infos et aide). Il faut un compte. L'épinglée vient
+  d'abord, les non lues portent « Nouveau ».
+- **Effectif du jour** (Direction). Pour les contremaîtres et la RH
+  seulement (`si:"saisie"`). Le nombre de présents sur l'effectif, par
+  pause ; à 2 lignes : malades, en congé, en formation, au repos. La
+  galerie ne le propose pas aux autres.
+
+Le « sous-effectif à venir » (Effectifs) reste à faire : son calcul est
+celui de l'onglet (tout l'horaire, jour par jour), qu'il faut d'abord
+séparer de l'onglet pour qu'il serve à l'Accueil sans le ralentir.
+
+**Le contrôle : chaque widget, à chaque largeur et à chaque hauteur**
+(script de session, au navigateur, par le clavier du coin de repli).
+- Il relève ce qui sort du cadre (« coupé ») et le vide sous le dernier
+  texte (plus de 40 px, sauf un contenu centré).
+- Il relève aussi deux textes l'un sur l'autre (« chevauche » : plus de
+  3 px dans les deux sens, la part rognée par un ancêtre écartée).
+- Les barres comptent comme contenu.
+
+**Ce qu'il a trouvé, et que la première passe disait juste :**
+- **Une liste au-dessus de l'écran ne gardait qu'une ligne.** La mesure
+  du bas (`bas()`) partait de 0, et non de −∞ ; un widget défilé
+  au-dessus de l'écran a des coordonnées négatives, que ce 0 dépassait
+  toujours. C'est « À retenir » à 900 px, après d'autres widgets
+  redimensionnés. **Erreur commise** : la première fois, ce défaut a été
+  pris pour un aléa de minutage, parce qu'il ne se reproduisait pas avec
+  le widget seul (seul, il reste à l'écran).
+- **L'ajustement tournait à chaque image, sans fin.** Le texte de
+  « + N autres » réveillait le relevé des widgets, qui relançait
+  l'ajustement. Compté, l'Accueil au repos : 6 048 mutations en 3 s
+  (téléphone) et 4 233 (PC) ; après : 0 et 0.
+- **Le fil des messages se tassait.** Un message avait une hauteur
+  minimale de 40 px, et le suivant couvrait son texte. Désormais, un
+  message garde sa hauteur et le fil défile, sur le dernier message,
+  sauf si on lit plus haut.
+- **En poste, « Heure et poste » à 1 ligne était coupé de 25 à 58 px à
+  toutes les largeurs.** La matrice de l'après-midi ne le voyait pas ;
+  celle de 23 h 10 l'a montré. À 1 ligne en poste : le titre, la barre,
+  le temps restant et le pourcentage. L'échelle des heures, les quarts
+  d'heure et le commentaire passent à 2 lignes.
+- **À la relève (5 h 50), « Sur site » montre deux postes.**
+  - À 1 ligne, ils étaient coupés de 80 à 119 px. Si les deux ne tiennent
+    pas côte à côte, le poste en cours est seul et la relève attend les
+    2 lignes.
+  - À 2 lignes, au PC, ils laissaient 182 px vides. Ils se posent
+    désormais l'un sur l'autre, sur toute la largeur et toute la hauteur.
+- **À la moitié d'un petit écran** (136 px à 320, 156 à 360, 171 à 390),
+  14 chevauchements et coupures : l'heure du poste sur son nom, le
+  minimum sur le maximum de la météo, la date de l'Effectif sur le
+  nombre, les dates de « Mon année » sur les comptes, etc. Leur cause :
+  des règles écrites pour la largeur de l'ÉCRAN (`@media`) valent aussi
+  pour un widget, dont seule la largeur compte. Les corrections sont des
+  requêtes de conteneur (moins de 170, 180, 230, 280 ou 320 px selon le
+  widget).
+  - « Mer. » au-dessus de « 4 nov. ».
+  - « Effectif » sans « du jour ».
+  - Les pauses en trois colonnes.
+  - L'œil de la paie dans le coin.
+  - « Wanze » sans « Belgique ».
+  - Les jours de la météo sans le minimum (celui du jour reste en tête).
+  - Les postes suivants sur deux lignes.
+  - « Encore » effacé devant la durée.
+- **« Congés restants » à 1 ligne, à 320 px, avait deux rangées de
+  tuiles.** La règle d'écran de 360 px en faisait deux, et la seconde
+  était coupée.
+- **« + N autres » héritait de la grille et des 46 px d'une ligne.** À
+  136 px, il sortait du cadre.
+
+**Preuve que le contrôle mord.**
+- Sur le code d'avant, il trouve les 14 défauts ci-dessus.
+- Le comptage des mutations donne 6 048 sur la copie d'avant le
+  correctif, et 0 après.
+
+Deux reprises encore, relevées par la matrice de la v1371 :
+- la photo floutée de l'usine déborde de 24 px de son cadre ; en
+  `overflow:hidden`, ce cadre restait une zone qui défile, qu'un focus
+  pouvait décaler. Il passe en `overflow:clip`, qui coupe sans faire
+  défiler ;
+- « Reste », dans « Mon année » étroit, dépassait sa colonne de 4 px :
+  la colonne passe de 26 à 30 px.
+
+**Mesuré.**
+- La matrice des hauteurs : 476 mesures par heure, à 7 largeurs (320,
+  360, 375, 390, 414, 900 et 1280 px) et à trois heures (15 h 21 ;
+  23 h 10, en poste ; 5 h 50, à la relève). 0 coupé, 0 vide, 0
+  chevauchement.
+- L'Accueil au repos : 0 mutation en 3 s.
+- La grille : 0 élément hors grille, 0 décalage.
+- Les gestes : 47 contrôles, 0 faute.
+- Le parcours : 112 essais, 0 faute ; statique, 0 faute.
+- La matrice de la v1371 : seuls restent les deux écarts voulus et
+  connus (les pastilles d'« Effectifs » ; les repères de « Mon rythme »,
+  de 2 à 5 px).
