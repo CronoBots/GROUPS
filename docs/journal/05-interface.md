@@ -12195,3 +12195,59 @@ repères « 10, 15, 20… » de « Mon rythme » en ½ débordent de 2 px de leu
 case étroite, sur des cases voisines sans repère.
 
 Gestes (47 contrôles), parcours (112 essais), statique : 0 faute.
+
+### La grille fixe, comme l'iPhone : hauteurs en cases entières, largeurs multiples d'une icône (04/11/2026, `nfdm-v1375`)
+
+Le client, capture de son téléphone : « Heure et poste » et la Météo en
+½, puis les icônes. CM et Congé s'y posaient sous la météo, Paie et
+Certificat sous le poste, à 90 px de décalage les unes des autres. « Les
+largeurs/hauteurs doivent respecter des tailles fixes pour rester alignées
+l'une l'autre selon le redimensionnement. »
+
+**La cause.** La grille avait des rangées de 1 px : chaque élément y
+prenait sa hauteur au pixel près (la maçonnerie de la v1363). Deux widgets
+voisins de hauteurs différentes laissaient sous eux des trous de hauteurs
+quelconques, et les icônes qui les comblaient tombaient à des hauteurs
+différentes d'une colonne à l'autre.
+
+**Désormais, une grille d'iPhone :**
+- une rangée a la hauteur d'une icône d'app, 96 px, plus l'écart (16 px) ;
+- chaque élément en prend un nombre entier, et son cadre s'étire jusqu'à
+  la ligne (`min-height`), le contenu restant en haut ;
+- un cadre intérieur s'étire avec son enveloppe : le poste (`.pf-bloc`),
+  les polyvalences, le Planning ;
+- tous les bords tombent sur les mêmes lignes, et une rangée d'icônes est
+  à la même hauteur dans toutes les colonnes ;
+- la hauteur naturelle se relit sans l'étirement (retiré, lu, remis, d'un
+  coup pour tous), à chaque changement de taille.
+
+**Les largeurs, des multiples d'une icône.** Une icône fait ¼ au
+téléphone et ⅛ au PC. Au PC, ⅓ et ⅔ tombaient entre deux colonnes
+d'icônes (2,67 et 5,33 icônes) : ils sont retirés, comme l'iPad n'offre
+que des widgets de 2, 4 ou 8 icônes de large. Restent ¼, ½, ¾ et 1.
+- Une taille retirée qu'un appareil avait gardée revient à la taille
+  d'origine du widget.
+- Les tailles d'origine forment des rangées pleines : Calendrier ¾ et
+  « Congés restants » ¼ ; puis, deux par deux en ½, demandes et « À
+  faire », « Sur site » et messages, « Mon année » et « Mon rythme ».
+
+**Mesuré** (disposition de la capture au téléphone, et disposition
+d'origine au téléphone, à la tablette et au PC) :
+- chaque élément commence et finit sur une ligne ;
+- rien ne se chevauche ;
+- le cadre du poste descend jusqu'en bas de son élément ;
+- aucune paire d'icônes n'est décalée de moins d'une rangée : les 14
+  icônes du téléphone tiennent sur 4 rangées.
+
+**Preuve que le contrôle mord** : sur la v1374, la disposition de la
+capture donne 14 icônes sur 7 hauteurs, avec 6 décalages de moins d'une
+rangée ; la disposition d'origine de la tablette, 2 décalages.
+
+Ce que coûte la grille : un cadre s'étire en moyenne de 26 à 49 px selon
+l'écran, au plus d'une rangée (107 px). C'est un vide en bas du widget,
+comme sur l'iPhone.
+
+Matrice des tailles aux deux heures : 0 faute, hors les deux écarts
+voulus et connus (les pastilles d'« Effectifs » ; les repères de « Mon
+rythme », de 2 à 5 px). Gestes (47 contrôles), parcours (112 essais),
+statique : 0 faute.

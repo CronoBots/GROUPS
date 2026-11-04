@@ -8552,15 +8552,14 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
 /* — L'ACCUEIL PERSONNALISABLE (le client, le 04/11/2026 : « j'aimerais que
    l'accueil soit complètement personnalisable, comme des widgets, avec un
    cadre fantôme qui définirait la largeur et le nombre d'éléments, la
-   disposition de son contenu, etc. »). Une seule grille : 12 colonnes dès
-   700 px de large, 2 au téléphone. Les enveloppes d'avant (le héros, ses
+   disposition de son contenu, etc. »). Une seule grille : 24 colonnes dès
+   700 px de large, 4 au téléphone, des rangées d'une icône (accEmpanTous). Les enveloppes d'avant (le héros, ses
    colonnes, le tableau de bord) s'effacent (display:contents) : chaque
    widget (data-w) est une case, à la largeur, à l'ordre et à l'affichage
-   que l'appareil a retenus (accStyle). Rangées de 1 px : chaque widget en
-   prend autant que sa hauteur plus l'écart (accEmpan : 16 px exacts entre
-   deux widgets ; des rangées de 4 px les faisaient varier de 16 à 19), et
-   « dense » remplit les trous — une maçonnerie, sans vide sous un widget
-   court. — */
+   que l'appareil a retenus (accStyle). Depuis le 04/11/2026, des rangées
+   d'une icône d'app (96 px) : chaque élément en prend un nombre entier, son
+   cadre étiré jusqu'à la ligne (accEmpanTous), et « dense » remplit les
+   trous d'icônes, comme l'écran d'accueil de l'iPhone. — */
 .pf-pw{display:flex; flex-direction:column; gap:var(--ip-ecart); min-width:0}
 .pf-pw>*{margin:0; width:auto}
 /* le Planning dans l'Accueil (au PC) : l'en-tête « Planning » des autres
@@ -8573,8 +8572,17 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
    de la grille qui ne soit pas lui-même un bouton) */
 .pf-pvw{min-width:0}
 html body .pf-hero .pf-pvw>.pf-pv{margin:0; width:100%}
-#v-horaire.acc-perso{display:grid; grid-template-columns:repeat(var(--acc-cols,4),minmax(0,1fr)); grid-auto-rows:1px; grid-auto-flow:row dense;
-  column-gap:var(--ip-ecart); row-gap:0; align-items:start; position:relative}
+#v-horaire.acc-perso{display:grid; grid-template-columns:repeat(var(--acc-cols,4),minmax(0,1fr)); grid-auto-rows:var(--acc-p,96px); grid-auto-flow:row dense;
+  column-gap:var(--ip-ecart); row-gap:var(--ip-ecart); align-items:start; position:relative}
+/* la grille fixe (accEmpanTous) : un élément étiré jusqu'à sa ligne garde son
+   contenu en haut ; un cadre intérieur (le poste, les polyvalences, le
+   Planning) s'étire avec son enveloppe */
+#v-horaire.acc-perso [data-w]{align-content:start}
+#v-horaire.acc-perso .pf-pw>.pf-bloc{flex:1 1 auto}
+#v-horaire.acc-perso .pf-pvw{display:flex; flex-direction:column}
+#v-horaire.acc-perso .pf-pvw>.pf-pv{flex:1 1 auto}
+#v-horaire.acc-perso #accPlanning:not([hidden]){display:flex; flex-direction:column}
+#v-horaire.acc-perso #accPlanning>#jourCard{flex:1 1 auto}
 #v-horaire.acc-perso #rythmeTete,#v-horaire.acc-perso .pf-hero,#v-horaire.acc-perso .pf-corps,#v-horaire.acc-perso .pf-gauche,
 #v-horaire.acc-perso .acc-grille,#v-horaire.acc-perso .acc-cote,#v-horaire.acc-perso .acc-main{display:contents}
 #v-horaire.acc-perso [data-w],#v-horaire.acc-perso [data-acc-plein]{min-width:0; box-sizing:border-box; margin:0!important; width:auto!important; max-width:none!important;
@@ -36502,28 +36510,34 @@ var ACC_W=[
   {k:"profil",       nom:"Mon profil",          l:6,  lmin:3, tmin:2},
   {k:"meteo",        nom:"Météo",               l:6,  lmin:3, tmin:1},
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
-  {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:4, tmin:2},
+  {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:6, tmin:2},
   {k:"polyvalences", nom:"Polyvalences",        l:6,  lmin:3, tmin:1},
   /* au PC seulement (pc) : la carte de l'onglet Planning (accPlanningPlacer) */
-  {k:"planning",     nom:"Planning",            l:12, lmin:8, tmin:2, pc:true},
+  {k:"planning",     nom:"Planning",            l:12, lmin:9, tmin:2, pc:true},
   {k:"usine",        nom:"L’usine en direct",   l:12, lmin:6, tmin:2},
-  {k:"demandes",     nom:"Demandes de congé",   l:8,  lmin:4, tmin:2},
+  /* rangés par paires qui remplissent une rangée (¾ + ¼, ½ + ½) */
+  {k:"calendrier",   nom:"Calendrier",          l:9,  lmin:6, tmin:2},
+  {k:"soldes",       nom:"Congés restants",     l:3,  lmin:3, tmin:1},
+  {k:"demandes",     nom:"Demandes de congé",   l:6,  lmin:6, tmin:2},
   {k:"afaire",       nom:"À faire",             l:6,  lmin:3, tmin:1},
-  {k:"calendrier",   nom:"Calendrier",          l:8,  lmin:6, tmin:2},
-  {k:"site",         nom:"Sur site",            l:4,  lmin:4, tmin:2},
+  {k:"site",         nom:"Sur site",            l:6,  lmin:6, tmin:2},
   {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2},
   /* un quart au PC, une moitié au téléphone : la mise en page réduite
      (requête de conteneur « anc », 04/11/2026) */
-  {k:"soldes",       nom:"Congés restants",     l:4,  lmin:3, tmin:1},
-  {k:"conges",       nom:"Mon année",           l:4,  lmin:3, tmin:1},
-  {k:"rythme",       nom:"Mon rythme",          l:8,  lmin:6, tmin:2}
+  {k:"conges",       nom:"Mon année",           l:6,  lmin:3, tmin:1},
+  {k:"rythme",       nom:"Mon rythme",          l:6,  lmin:6, tmin:2}
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
    les demandes et le calendrier */
 var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","planning","afaire","soldes","conges","site","messages","usine","demandes","calendrier","rythme"];
-var ACC_TAILLES={large:[3,4,6,8,9,12], tel:[1,2]};
+/* LES LARGEURS, DES MULTIPLES D'UNE ICÔNE (04/11/2026) : au PC, une icône
+   fait un huitième ; ¼, ½, ¾ et 1 tombent sur ses colonnes, ⅓ et ⅔ non
+   (2,67 et 5,33 icônes) : ils sont retirés, comme l'iPad n'offre que des
+   widgets de 2, 4 ou 8 icônes de large. Une taille retirée qu'un appareil
+   avait gardée revient à la taille d'origine du widget (accTaille). */
+var ACC_TAILLES={large:[3,6,9,12], tel:[1,2]};
 var ACC_FRAC={large:{3:"¼",4:"⅓",6:"½",8:"⅔",9:"¾",12:"1"}, tel:{1:"½",2:"1"}};
-var ACC={mode:"", cols:4, o:[], t:{}, m:{}, edit:false, gap:16, style:null, ro:null, items:[], scanT:0, drag:null, etire:false,
+var ACC={mode:"", cols:4, o:[], t:{}, m:{}, edit:false, gap:16, rg:16, p:96, style:null, ro:null, items:[], scanT:0, drag:null, etire:false,
   calque:null, anims:[], t0:0, jig:{}, placeT:0};
 /* CHAQUE ACCÈS RAPIDE EST UNE APP (le client, le 04/11/2026 : « pour les
    raccourcis rapides, cela doit être des onglets à part, 1 sur 1, comme
@@ -36578,7 +36592,7 @@ function accAnnoncer(t){ var a=document.getElementById("accAnnonce"); if(a){ a.t
 /* la feuille de la disposition : l'ordre, la largeur, les masqués */
 function accStyle(){
   if(!ACC.style) return;
-  var c=["#v-horaire.acc-perso{--acc-cols:"+ACC.cols+"}"];
+  var c=["#v-horaire.acc-perso{--acc-cols:"+ACC.cols+"; --acc-p:"+ACC.p+"px}"];
   ACC.o.forEach(function(k,i){
     var sel='#v-horaire.acc-perso [data-w="'+k+'"]';
     c.push(sel+"{order:"+((i+1)*10)+"!important; grid-column:span "+accSpan(k)+"!important}");
@@ -36588,20 +36602,36 @@ function accStyle(){
   ACC.style.textContent=c.join("\n");
   accCalqueBientot();
 }
-/* la maçonnerie : chaque case prend autant de rangées de 1 px que sa
-   hauteur, plus l'écart */
-function accEmpan(el){
-  var h=el.getBoundingClientRect().height;
-  if(!h){ if(el.style.gridRowEnd) el.style.gridRowEnd=""; return; }
-  var v="span "+Math.max(1,Math.ceil(h+ACC.gap));
-  if(el.style.gridRowEnd!==v) el.style.gridRowEnd=v;
+/* La grille fixe, comme l'iPhone (le client, le 04/11/2026, capture à
+   l'appui : « les largeurs et hauteurs doivent respecter des tailles fixes
+   pour rester alignées l'une l'autre selon le redimensionnement »). Avant,
+   des rangées de 1 px : chaque élément prenait sa hauteur au pixel près, et
+   les icônes posées sous deux widgets de hauteurs voisines tombaient à des
+   hauteurs différentes d'une colonne à l'autre. Désormais une rangée a la
+   hauteur d'une icône d'app (ACC.p, 96 px), plus l'écart ; chaque élément
+   en prend un nombre entier, et son cadre s'étire jusqu'à la ligne
+   (min-height) : tous les bords tombent sur les mêmes lignes, et une
+   rangée d'icônes est à la même hauteur dans toutes les colonnes. La
+   hauteur naturelle se lit sans l'étirement (retiré, lu, remis, d'un coup
+   pour tous : l'observateur repasse une fois au plus). */
+function accEmpanTous(els){
+  var P=ACC.p, G=ACC.rg;
+  els.forEach(function(el){ if(el.style.minHeight) el.style.minHeight=""; });
+  var hs=els.map(function(el){ return el.offsetHeight; });
+  els.forEach(function(el,i){
+    var h=hs[i];
+    if(!h){ if(el.style.gridRowEnd) el.style.gridRowEnd=""; return; }
+    var n=Math.max(1,Math.ceil((h+G-0.5)/(P+G))), v="span "+n;
+    if(el.style.gridRowEnd!==v) el.style.gridRowEnd=v;
+    if(el.hasAttribute("data-w")){ var mh=(n*P+(n-1)*G)+"px"; if(el.style.minHeight!==mh) el.style.minHeight=mh; }
+  });
 }
 /* la forme d'écran : « large » dès 700 px pour l'Accueil lui-même */
 function accForme(){
   var v=document.getElementById("v-horaire"); if(!v) return;
   var w=v.clientWidth; if(!w) return;
   var mode=w>=700?"large":"tel";
-  ACC.gap=parseFloat(getComputedStyle(v).columnGap)||16;
+  var vcs=getComputedStyle(v); ACC.gap=parseFloat(vcs.columnGap)||16; ACC.rg=parseFloat(vcs.rowGap)||ACC.gap;
   if(mode===ACC.mode) return;
   ACC.mode=mode; ACC.cols=mode==="large"?24:4;
   v.classList.toggle("acc-large",mode==="large"); v.classList.toggle("acc-tel",mode==="tel");
@@ -37025,7 +37055,7 @@ function accInit(){
   var v=document.getElementById("v-horaire");
   if(!v||!window.ResizeObserver||!window.MutationObserver||!(window.CSS&&CSS.supports&&CSS.supports("display","contents"))) return;
   ACC.style=document.createElement("style"); ACC.style.id="accStyle"; ACC.style.setAttribute("data-genere",""); document.head.appendChild(ACC.style);
-  ACC.ro=new ResizeObserver(function(es){ es.forEach(function(e){ accEmpan(e.target); }); accCalqueBientot(); });
+  ACC.ro=new ResizeObserver(function(es){ accEmpanTous(es.map(function(e){ return e.target; })); accCalqueBientot(); });
   new ResizeObserver(function(){ accForme(); if(ACC.edit){ accBas(); accCalqueBientot(); } }).observe(v);
   new MutationObserver(function(ms){
     /* ni le calque, ni l'horloge (chaque seconde) ne changent les éléments */
