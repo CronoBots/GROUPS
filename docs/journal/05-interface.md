@@ -12971,7 +12971,8 @@ icône et la boîte du widget, comparés à ses mesures.
 **Ce que l'iPhone a, et l'application non** : sous chaque widget, son nom
 (« Calendrier »), comme sous une icône. Les widgets de l'application
 n'ont plus de titre depuis la demande du client (v1381) ; ce nom-là
-n'est pas ajouté.
+n'est pas ajouté. (Ajouté en v1386, à la demande du client, le soir
+même.)
 
 **Mesuré.**
 - **La matrice** : chaque widget à chaque format, à 7 largeurs (320,
@@ -12985,5 +12986,86 @@ n'est pas ajouté.
   162,7 à 393, 168 à 414, 172 à 430.
 - **Les icônes**, à 8 largeurs : l'icône et son nom tiennent dans le pas
   des rangées (86 points pour 98,7 à 393), sans toucher un widget.
+- La grille, les gestes (47), le repos (0 mutation), la fiche de
+  l'usine, le parcours (112 essais) et statique : 0 faute.
+
+### Le nom sous chaque widget ; au PC, les proportions de l'iPhone (04/11/2026, `nfdm-v1386`)
+
+Le client, deux demandes le même soir :
+- capture de son iPhone à 22 h 15 : « … sur Apple, les widgets portent un
+  nom sous celui-ci. Voir que mettre pour les nôtres, ça peut être bien. »
+- capture de son PC à 22 h 22 (la v1385) : « Sur mobile, les écarts sont
+  bons entre les widgets maintenant. Mais sur PC ils sont toujours trop
+  grands. »
+
+**Le nom sous chaque widget.** Comme « Calendrier » sous le widget de
+l'iPhone :
+- **le texte** : le nom du widget dans la galerie « Ajouter à
+  l'Accueil » (« Heure et poste », « Météo », « Calendrier », « Ma
+  paie »…). Un seul nom par widget partout. Le plus long fait
+  17 caractères et tient sur une ligne, même sous un petit widget à
+  320 px (132 px de large) ;
+- **la place** : centré, 6 px sous le widget, dans le style de
+  l'étiquette d'une icône (12 px, 11 sous 360 px d'écran). Sur la
+  capture de l'iPhone, le milieu du nom est 13,3 points sous le widget ;
+  ici, 13,2 ;
+- **la construction** : une couche posée sur la grille (`#accNoms`,
+  `accNoms()`), comme le calque du mode Modifier, car les cadres coupent
+  ce qui dépasse d'eux. Elle suit la grille : formats, largeur, mode
+  Modifier, geste. Un widget qu'on tire, ou un cadre fantôme (son nom
+  est déjà dedans), n'en a pas ;
+- **les titres dans les widgets restent retirés** (v1381) : ce nom-ci
+  est dessous, comme chez Apple.
+
+**Au PC, les proportions de l'iPhone.** Sur la capture du PC (une
+fenêtre d'environ 1920 px), 123 px séparent deux widgets, en largeur
+comme en hauteur. L'icône restait à 60 px quand la case grandissait avec
+la fenêtre (181 px).
+- **Désormais**, huit icônes de front :
+  - l'icône aux 64/90,7 du pas des colonnes ;
+  - la rangée aux 98,7/90,7 du même pas ;
+  - le widget débordant de (rangée − colonne) / 2, comme au téléphone.
+- Le pas grandit avec la fenêtre jusqu'à 136 px (une icône de 96 px),
+  puis la grille se centre.
+
+| Fenêtre | Icône | Écart en largeur / en hauteur | Météo (moyen) | Marge |
+|---|---|---|---|---|
+| 1024 | 88,9 | 26 / 48,2 | 478 × 226 | 0 |
+| 1280 | 86,1 | 25,2 / 46,7 | 463 × 219 | 0 |
+| 1440 | 96 | 28 / 52 | 516 × 244 | 24 |
+| 1920 | 96 | 28 / 52 | 516 × 244 | 188 |
+| 1920, en v1385 | 60 | 123 / 123 | 609 × 243 | 0 |
+
+**Un défaut révélé en chemin.** Le calque du mode Modifier et la couche
+des noms prenaient toute la largeur de la grille, par une règle générale
+du PC (`#v-horaire>*{grid-column:1/-1}`, dès 1100 px). Leur origine
+était donc le bord du contenu, et non le bord intérieur où l'on calcule
+leurs positions.
+- Sans conséquence tant que la grille n'avait pas de marge.
+- Avec la grille centrée : 188 px de décalage à 1920 px. Vu à la photo ;
+  ni le contrôle des noms ni celui du calque ne tournaient à cette
+  largeur.
+- **Corrigé** : les deux couches ne se placent plus dans la grille.
+- Les deux contrôles tournent désormais à 1440 et 1920 px. Sur une copie
+  sans la correction, ils crient : 188 px.
+
+**Mesuré.**
+- **La matrice** : chaque widget à chaque format, à 7 largeurs (320,
+  360, 393, 414, 760, 1280 et 1920) et 5 états. 4 × 287 mesures avec
+  données et 280 sans, 0 faute.
+- **Les noms**, à 9 largeurs et 5 états :
+  - les états : au repos, en mode Modifier, la météo au plus grand puis
+    au plus petit, sorti du mode ;
+  - un nom par widget visible, centré, 6 px sous lui, entier, sans
+    toucher un widget, une icône ni un autre nom : 45 états, 0 faute ;
+  - sur la v1385 (aucun nom) et sur une copie au nom collé au widget, le
+    contrôle crie.
+- **Le calque** sur ses éléments, à 393, 1280, 1440 et 1920 : écart
+  maximal 0,5 px. Sur la copie sans la correction : 188 px.
+- **L'alignement** : 147 widgets à 9 largeurs, 0 hors de la grille ou de
+  leur taille.
+- **L'épreuve de l'iPhone** : 0 écart sur 9.
+- **Les icônes**, à 10 largeurs : l'icône et son nom dans le pas des
+  rangées (118 px pour 148 au PC à 1920).
 - La grille, les gestes (47), le repos (0 mutation), la fiche de
   l'usine, le parcours (112 essais) et statique : 0 faute.

@@ -9383,6 +9383,20 @@ html body #v-horaire.acc-perso.acc-tel #usineCard :is(#uspEt,#uspTraits){display
 #v-horaire.acc-edit [data-w]>*{pointer-events:none}
 /* le calque des commandes (accOutils), une case par élément */
 .acc-calque{position:absolute; inset:0; z-index:20; pointer-events:none}
+/* le nom sous chaque widget (accNoms) : le style de l'étiquette d'une icône */
+.acc-noms{position:absolute; inset:0; z-index:2; pointer-events:none}
+/* les deux couches posées sur la grille (le calque du mode Modifier, les
+   noms) gardent pour origine le bord intérieur de l'Accueil, celui des
+   positions qu'on leur donne (accPos) : une règle générale leur donnait
+   toute la largeur de la grille (grid-column:1/-1, au PC), et donc pour
+   origine le bord du contenu ; tant que la grille n'avait pas de marge,
+   c'était la même chose, plus depuis la v1386 (la grille centrée au PC :
+   188 px de décalage à 1920) */
+html body #v-horaire.acc-perso>:is(.acc-calque,.acc-noms){grid-column:auto!important; grid-row:auto!important}
+#v-horaire:not(.acc-perso) .acc-noms{display:none}
+.acc-nom{position:absolute; display:block; margin-top:6px; box-sizing:border-box; padding:0 2px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  color:var(--tx-blanc); font-size:12px; font-weight:500; line-height:1.2; letter-spacing:-.005em; text-shadow:0 1px 2px var(--om-noir-40)}
+@media (max-width:360px){ .acc-nom{font-size:11px} }
 #v-horaire:not(.acc-edit) .acc-calque{display:none}
 .acc-b{position:absolute; box-sizing:border-box; pointer-events:auto; border-radius:var(--rj); cursor:grab; -webkit-tap-highlight-color:transparent;
   -webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
@@ -37524,7 +37538,7 @@ function accStyle(){
   });
   c.push("#v-horaire.acc-perso #resumeVide{order:0!important} #v-horaire.acc-perso #installCard{order:9000!important} #v-horaire.acc-perso #accPied{order:9990!important}");
   ACC.style.textContent=c.join("\n");
-  accMarquer(); accCalqueBientot(); accAjusterBientot();
+  accMarquer(); accCalqueBientot(); accAjusterBientot(); accNomsBientot();
 }
 /* La grille fixe, comme l'iPhone (le client, le 04/11/2026, capture à
    l'appui : « les largeurs et hauteurs doivent respecter des tailles fixes
@@ -37597,14 +37611,20 @@ function accAligner(v,mode){
     if(rac) rac.style.setProperty("--ip-taille",s.toFixed(2)+"px");
     P=Math.round((R-rg)*100)/100; ix=(C-g-s)/2-o;
   } else {
-    /* au PC, les cases carrées (v1384) : une rangée aussi haute qu'une case
-       d'icône est large, le widget sur les bords des icônes */
-    if(v.style.paddingLeft){ v.style.paddingLeft=""; v.style.paddingRight=""; }
-    if(rac&&rac.style.getPropertyValue("--ip-taille")) rac.style.removeProperty("--ip-taille");
-    var c2=getComputedStyle(v), pl=parseFloat(c2.paddingLeft)||0, pr=parseFloat(c2.paddingRight)||0,
-        cw=(v.clientWidth-pl-pr-23*g)/24, cell=3*cw+2*g;
-    s=rac?parseFloat(getComputedStyle(rac).getPropertyValue("--ip-taille")):NaN; if(!(s>0)) s=cell>=66?60:54;
-    P=Math.round(cell*100)/100; ix=Math.max(0,(cell-s)/2);
+    /* AU PC, LES PROPORTIONS DE L'IPHONE (le client, le 04/11/2026 : « sur
+       mobile, les écarts sont bons entre les widgets maintenant, mais sur
+       PC ils sont toujours trop grands ») : l'icône restait à 60 px quand
+       la case grandissait avec la fenêtre — 181 px à 1920 px de large, et
+       137 px entre deux widgets, en largeur comme en hauteur. Désormais,
+       huit icônes de front, l'icône aux 64/90,7 du pas des colonnes, la
+       rangée aux 98,7/90,7, le widget débordant de (rangée − colonne) / 2,
+       comme au téléphone ; le pas grandit avec la fenêtre jusqu'à 136 px
+       (une icône de 96), puis la grille se centre. */
+    var vw2=v.clientWidth, C2=Math.min((vw2+g)/8,136), R2=C2*98.7/90.7, pad2=Math.max(0,(vw2-(8*C2-g))/2);
+    s=C2*64/90.7;
+    v.style.paddingLeft=v.style.paddingRight=pad2.toFixed(2)+"px";
+    if(rac) rac.style.setProperty("--ip-taille",s.toFixed(2)+"px");
+    P=Math.round((R2-rg)*100)/100; ix=(C2-g-s)/2-(R2-C2)/2;
   }
   if(P>0&&P!==ACC.p){ ACC.p=P; v.style.setProperty("--acc-p",P+"px"); }
   var ib=Math.max(0,ACC.p-t-s);
@@ -37654,7 +37674,7 @@ function accScan(){
   l.forEach(function(el){ if(!el.__accObs){ el.__accObs=1; ACC.ro.observe(el); } });
   ACC.items.forEach(function(el){ if(l.indexOf(el)<0){ try{ ACC.ro.unobserve(el); }catch(e){} el.__accObs=0; } });
   ACC.items=l;
-  accMarquer(); accAjusterMaintenant();
+  accMarquer(); accAjusterMaintenant(); accNomsBientot();
   if(ACC.edit) accOutils(false);
 }
 /* LE MODE « MODIFIER L'ACCUEIL », comme celui de l'iPhone (le client, le
@@ -37727,7 +37747,7 @@ function accOutils(tout){
   });
   [].slice.call(c.children).forEach(function(b){ if(!garde[b.getAttribute("data-acc-pour")]) c.removeChild(b); });
   if(actif&&c.contains(actif)&&document.activeElement!==actif) try{ actif.focus({preventScroll:true}); }catch(e){}
-  accCalquePlacer(); accTrembler();
+  accCalquePlacer(); accTrembler(); accNomsBientot();
 }
 /* LE COIN DU CADRE VISIBLE (le client, le 04/11/2026 : « le coin de repli
    doit suivre le coin du cadre ») : l'élément lui-même s'il est arrondi,
@@ -37764,6 +37784,32 @@ function accCalquePlacer(){
   });
 }
 function accCalqueBientot(){ if(ACC.edit&&!ACC.placeT) ACC.placeT=requestAnimationFrame(accCalquePlacer); }
+/* LE NOM SOUS CHAQUE WIDGET (le client, le 04/11/2026, capture de son
+   iPhone à l'appui : « sur Apple, les widgets portent un nom sous
+   celui-ci ; voir que mettre pour les nôtres ») : comme sous le widget
+   Calendrier de l'iPhone, le nom du widget — celui de la galerie
+   « Ajouter à l'Accueil » —, centré, 6 px sous son bas, à la place et
+   dans le style d'une étiquette d'icône (mesuré sur la capture : le
+   milieu du nom 13,3 points sous le widget). Une couche à part, posée
+   sur la grille comme le calque du mode Modifier : les cadres coupent ce
+   qui dépasse d'eux. Un widget qu'on tire, ou un cadre fantôme (rien à
+   montrer, son nom est déjà dedans), n'en a pas. */
+function accNoms(){
+  ACC.nomsT=0;
+  var v=document.getElementById("v-horaire"); if(!v||!v.classList.contains("acc-perso")) return;
+  var c=ACC.noms;
+  if(!c){ c=ACC.noms=document.createElement("div"); c.className="acc-noms"; c.id="accNoms"; c.setAttribute("aria-hidden","true"); }
+  if(c.parentNode!==v) v.insertBefore(c,document.getElementById("accPied"));
+  var h=[];
+  ACC.items.forEach(function(el){
+    var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!el.offsetWidth||!el.getClientRects().length) return;
+    if(el.classList.contains("acc-vide")||(ACC.drag&&ACC.drag.parti&&ACC.drag.k===k)) return;
+    var q=accPos(el);
+    h.push('<span class="acc-nom" data-acc-nom-pour="'+k+'" style="left:'+q.x.toFixed(2)+'px;top:'+(q.y+el.offsetHeight).toFixed(2)+'px;width:'+el.offsetWidth+'px">'+esc(d.nom)+'</span>');
+  });
+  var t=h.join(""); if(c.__t!==t){ c.innerHTML=t; c.__t=t; }
+}
+function accNomsBientot(){ if(!ACC.nomsT) ACC.nomsT=requestAnimationFrame(accNoms); }
 /* le tremblement : l'élément et sa case, même animation, même départ ;
    l'angle se réduit pour un grand widget (le bord ne bouge que d'un ou
    deux pixels) */
@@ -37874,6 +37920,7 @@ function accEditer(on){
     accGalerieFermer(); accTremblerStop();
     if(ACC.calque){ ACC.calque.innerHTML=""; if(ACC.calque.parentNode) ACC.calque.parentNode.removeChild(ACC.calque); }
     [].forEach.call(v.querySelectorAll("[data-w]"),function(x){ if(x.inert) x.inert=false; x.classList.remove("acc-vide","acc-tire"); });
+    accNomsBientot();
   }
   accPied();
   if(ACC.edit){ var f=document.getElementById("accOk"); if(f&&on!=="doigt") try{ f.focus({preventScroll:true}); }catch(e){} }
@@ -37957,7 +38004,7 @@ function accTirer(ev,k,el,attendre){
   ACC.drag=d;
   function boite(){ return ACC.calque?ACC.calque.querySelector('.acc-b[data-acc-pour="'+k+'"]'):null; }
   function partir(){
-    d.parti=true;
+    d.parti=true; accNomsBientot();
     var w=el.offsetWidth||r.width, h=el.offsetHeight||r.height, cl=el.cloneNode(true), bx=boite();
     d.s=Math.min(1.05,innerWidth*0.8/w,innerHeight*0.5/h);
     d.dx=Math.max(0,Math.min(d.dx,w)); d.dy=Math.max(0,Math.min(d.dy,h));
@@ -38010,7 +38057,7 @@ function accTirer(ev,k,el,attendre){
     document.removeEventListener("pointercancel",fin,true); document.removeEventListener("keydown",esc_,true);
     cancelAnimationFrame(d.raf); if(d.vol&&d.vol.parentNode) d.vol.parentNode.removeChild(d.vol);
     el.classList.remove("acc-tire"); var bx=boite(); if(bx) bx.classList.remove("acc-tire");
-    ACC.drag=null;
+    ACC.drag=null; accNomsBientot();
     if(!d.parti) return;
     if(annule){ ACC.o=d.avant; accStyle(); }
     else {
@@ -38090,12 +38137,13 @@ function accInit(){
   var v=document.getElementById("v-horaire");
   if(!v||!window.ResizeObserver||!window.MutationObserver||!(window.CSS&&CSS.supports&&CSS.supports("display","contents"))) return;
   ACC.style=document.createElement("style"); ACC.style.id="accStyle"; ACC.style.setAttribute("data-genere",""); document.head.appendChild(ACC.style);
-  ACC.ro=new ResizeObserver(function(es){ accEmpanTous(es.map(function(e){ return e.target; })); accCalqueBientot(); accAjusterBientot(); });
-  new ResizeObserver(function(){ accForme(); if(ACC.edit){ accBas(); accCalqueBientot(); } }).observe(v);
+  ACC.ro=new ResizeObserver(function(es){ accEmpanTous(es.map(function(e){ return e.target; })); accCalqueBientot(); accAjusterBientot(); accNomsBientot(); });
+  new ResizeObserver(function(){ accForme(); accNomsBientot(); if(ACC.edit){ accBas(); accCalqueBientot(); } }).observe(v);
   new MutationObserver(function(ms){
     /* ni le calque, ni l'horloge (chaque seconde) ne changent les éléments */
     for(var i=0;i<ms.length;i++){ var t=ms[i].target;
       if(ACC.calque&&(t===ACC.calque||ACC.calque.contains(t))) continue;
+      if(ACC.noms&&(t===ACC.noms||ACC.noms.contains(t))) continue;
       if(t.id==="pfMtH"||(t.closest&&t.closest("#pfMtH"))) continue;
       /* le « + N autres » posé par accAjuster, et son texte (sans quoi
          l'ajustement relançait le relevé, qui relançait l'ajustement, à
