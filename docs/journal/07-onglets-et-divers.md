@@ -625,6 +625,14 @@ pas : le fichier est donné au client pour l'éditeur SQL du projet. Tant
 qu'il n'est pas passé, la fonction est absente (404) et le cadre reste
 caché.
 
+**Passé par le client le 04/11/2026, vérifié en base le même jour.**
+- La table `biowanze.messages` existe, sous la sécurité au niveau des
+  lignes ; ni `authenticated` ni `anon` ne la lisent directement.
+- Les trois fonctions sont en `security definer`, exécutables par
+  `authenticated` et pas par `anon`. Elle compte 0 message.
+- Appelée sans compte validé, `biowanze_messages` refuse : « compte non
+  validé ». Le garde mord.
+
 **Le cadre « Fil de l'usine ».** Il se place après « Sur site » ; au PC,
 dans la colonne de droite.
 - Des bulles de messagerie : les miennes à droite, à la couleur de la
