@@ -12451,6 +12451,12 @@ trois traitées), les écarts suivants sont apparus.
   au repos, 0 mutation.
 - Le parcours : 112 essais, 0 faute ; statique, 0 faute.
 
+**Puis, sur la photo préparée pour le client (`nfdm-v1378`)** : dans
+« Effectif » étroit, la quatrième pause (D) restait seule sous les trois
+autres. Les pauses se posent côte à côte quand elles tiennent (dès
+164 px, l'écart entre colonnes passant de 6 à 4 px : il manquait 1 px à
+390), et deux sur deux en dessous.
+
 **La règle tirée de l'erreur** : un widget dont le contenu vient de la
 base se mesure aussi avec des données, et pas seulement vide. La base
 simulée du contrôle rend des demandes (en cours, à viser, traitées) et
