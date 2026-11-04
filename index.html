@@ -8620,7 +8620,7 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-paie-l>li{justify-content:space-between}
 .aw-paie-l span,.aw-pres-l span{font-size:13.5px; color:var(--ink2)} .aw-paie-l b,.aw-pres-l b{font-size:14px; font-weight:650; color:var(--ink); font-variant-numeric:tabular-nums}
 #paieCard[data-acc-h="1"] .aw-paie-l{display:none}
-#paieCard[data-acc-h="1"] .aw-corps{justify-content:space-between}
+#paieCard[data-acc-h="1"] .aw-corps{justify-content:center}
 /* À retenir, Annonces : une rangée par date ou par annonce */
 .aw-d{display:grid; place-items:center; align-content:center; flex:none; width:40px; height:40px; border-radius:10px; background:var(--fd-blanc-06); line-height:1.05}
 .aw-d b{font-size:16px; font-weight:700; color:var(--ink)} .aw-d small{font-size:11px; color:var(--muted)}
@@ -8781,7 +8781,7 @@ html body #v-horaire.acc-perso #demCard>header .md-nv{margin-left:auto; flex:non
 @container demc (max-width:339px){ html body #v-horaire.acc-perso #demCard>header .aw-long{display:none} }
 html body #v-horaire.acc-perso #demCard>#demCorps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
 html body #v-horaire.acc-perso #demCard .md-l{flex:none}
-html body #v-horaire.acc-perso #demCard .md-lien{margin-top:auto; align-self:flex-start}
+html body #v-horaire.acc-perso #demCard .md-lien{margin-top:0}
 html body #v-horaire.acc-perso #demCard[data-acc-h="1"] :is(.dm-circ,.md-lien){display:none}
 /* en une ligne, la demande en cours au milieu */
 html body #v-horaire.acc-perso #demCard[data-acc-h="1"]>#demCorps>.md-l{margin-block:auto}
@@ -8803,6 +8803,70 @@ html body #v-horaire.acc-perso #demCard[data-acc-h="2"]>#demCorps:not(:has(.md-r
    ou vidait la liste des postes suivants (2 lignes) — mesuré le
    04/11/2026, avec trois actions en attente */
 html body #v-horaire.acc-perso #pfAfaire{display:none!important}
+/* — LES WIDGETS SANS TITRE (le client, le 04/11/2026 : « je ne pense pas
+   que les widgets doivent afficher leur titre, cela est compréhensible en
+   voyant les infos affichées, et ça fera plus professionnel »). L'en-tête
+   ne prend plus de place : son titre reste pour le lecteur d'écran (le
+   widget garde son nom), ses comptes (« 3 non lues », « 1 en cours »)
+   s'effacent, le contenu les dit ; ce qui sert est déplacé : l'œil de
+   « Ma paie » dans le coin, le mois dans son étiquette, « + Nouvelle » au
+   pied de « Demandes ». — */
+html body #v-horaire.acc-perso .card[data-w]{position:relative}
+html body #v-horaire.acc-perso .card[data-w]>header{position:absolute; top:0; left:0; right:0; height:0; min-height:0; padding:0; margin:0; border:0; overflow:visible; z-index:2; pointer-events:none}
+html body #v-horaire.acc-perso .card[data-w]>header>h2{position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important}
+html body #v-horaire.acc-perso .card[data-w]>header>:not(h2){display:none!important}
+/* le Planning (la carte de l'onglet, posée dans l'Accueil au PC) : son
+   titre s'efface aussi, sa barre de dates reste */
+html body #v-horaire.acc-perso #accPlanning #jourCard>header.jour-acc-t{position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important}
+/* les titres intérieurs aussi (« Mon cycle », « Avancement », « Jour par
+   jour ») : ils restent des titres pour le lecteur d'écran */
+html body #v-horaire.acc-perso [data-w] .ry-chart-t{position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important}
+html body #v-horaire.acc-perso #paieCard>header>.aw-oeil{display:grid!important; position:absolute!important; top:12px!important; right:12px!important; width:30px!important; height:30px!important; pointer-events:auto}
+html body #v-horaire.acc-perso :is(#paieCorps,#retCorps,#annCorps,#presCorps){padding-top:14px}
+html body #v-horaire.acc-perso #paieCorps .aw-paie-tete{padding-right:36px}
+html body #v-horaire.acc-perso #demCorps{padding-top:14px}
+html body #v-horaire.acc-perso #filListe{padding-top:8px}
+/* « + Nouvelle » : au pied, à deux lignes (à une ligne, l'icône « Demander
+   un congé » le fait) ; hors des widgets, il reste dans l'en-tête */
+.md-pied{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.md-nv-pied{display:none}
+html body #v-horaire.acc-perso #demCard[data-acc-h="2"] .md-nv-pied{display:inline-flex}
+html body #v-horaire.acc-perso #demCard .md-pied{margin-top:auto}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-pied{display:none}
+/* Polyvalences, sans son titre : le degré, puis chaque polyvalence en
+   pastille, au milieu du widget (une pastille seule restait en haut d'un
+   cadre de 208 px ; à la moitié d'un téléphone, la ligne du titre
+   l'écrasait jusqu'à n'en laisser que la pastille de couleur) */
+html body #v-horaire.acc-perso .pf-pvw>.pf-pv{display:flex; flex-direction:column; justify-content:center; align-items:stretch; gap:10px; padding:14px 16px}
+html body #v-horaire.acc-perso .pf-pv-t{font-size:0; letter-spacing:0}
+html body #v-horaire.acc-perso .pf-pv-t em{display:block; margin:0; font-size:12.5px; font-weight:650; color:var(--muted)}
+html body #v-horaire.acc-perso .pf-pv-t em::first-letter{text-transform:uppercase}
+html body #v-horaire.acc-perso .pf-pv>.pf-fl{position:absolute; top:12px; right:14px}
+html body #v-horaire.acc-perso .pf-pvw{position:relative}
+html body #v-horaire.acc-perso .pf-pv-l{display:flex; flex-wrap:wrap; gap:8px}
+html body #v-horaire.acc-perso .pf-pv-l span{flex:1 1 auto; padding:9px 12px; font-size:13.5px; border-radius:10px}
+html body #v-horaire.acc-perso .pf-pv-l em[data-c]{font-size:inherit}
+html body #v-horaire.acc-perso .pf-pv-l em[data-c]::after{content:none}
+/* Calendrier : le mois, sans le choix Semaine / Mois / Année (il reste dans
+   l'onglet), et la barre du mois serrée, à toutes les hauteurs (à 2 lignes,
+   les lettres des postes de six semaines étaient écrasées à 3 px) */
+html body #v-horaire.acc-perso #calCard .calvue-l{display:none}
+html body #v-horaire.acc-perso #calCard .calmois{padding-top:6px; padding-bottom:2px}
+html body #v-horaire.acc-perso #calCard .calmois .mnav button{height:36px}
+html body #v-horaire.acc-perso #calCard .calmois .mlabelwrap{padding-top:0}
+/* Effectif du jour, à 2 lignes : malades, en congé, en formation, au
+   repos, en quatre tuiles à grand chiffre (en rangées, elles laissaient
+   45 px vides sous la dernière) */
+html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:1fr; gap:8px; border-top:0; margin-top:12px}
+html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li{display:flex; flex-direction:column-reverse; align-items:flex-start; justify-content:center; gap:2px; min-height:0; padding:8px 12px; border:0; border-radius:12px; background:var(--fd-blanc-06)}
+html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li b{font:300 26px/1.1 Archivo,system-ui,sans-serif; color:var(--ink)}
+html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li span{font-size:12.5px; color:var(--muted)}
+/* Sur site, à 1 ligne : le poste en cours au milieu (la relève attend les
+   2 lignes) */
+html body #v-horaire.acc-perso #siteCard[data-acc-h="1"]>#siteCorps{justify-content:center}
+/* Congés restants, à la moitié d'un téléphone : le total revient (sans
+   l'en-tête, il tient au-dessus des cinq compteurs) */
+@container anc (max-width:199px){ html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cg-t{display:flex!important; margin-bottom:2px} }
 /* Messages : le fil prend la hauteur, la saisie en bas */
 html body #v-horaire.acc-perso #filCard>.fil-l{flex:1 1 auto; min-height:0; max-height:none}
 /* un message garde sa hauteur : le fil défile (sa hauteur minimale de
@@ -17819,7 +17883,8 @@ function awPaie(){
   if(o){ o.setAttribute("aria-pressed",voir?"true":"false"); o.setAttribute("aria-label",voir?"Masquer les montants":"Afficher les montants");
     o.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>'+(voir?'':'<path d="M4 4l16 16"/>')+'</svg>'; }
   document.getElementById("paieSub").textContent=mo;
-  corps.innerHTML='<div class="aw-paie-tete"><span class="aw-lbl">'+(ex?"Net d’exemple":"Net estimé")+'</span>'
+  /* le mois dans l'étiquette : le widget n'a plus d'en-tête (04/11/2026) */
+  corps.innerHTML='<div class="aw-paie-tete"><span class="aw-lbl">'+(ex?"Net d’exemple":"Net estimé")+' · '+AW_MC[st.m]+'</span>'
       +'<b class="aw-gros'+(voir?'':' aw-masque')+'"'+(voir?'':' aria-label="montant masqué"')+'>'+m(C.net)+'</b>'
       +(P&&Math.abs(P.d)>=0.01?'<span class="aw-ev '+(P.d>0?'plus':'moins')+'">'+(P.d>0?"+":"−")+esc(eur(Math.abs(P.d)))+' par rapport à '+esc(P.mois)+'</span>':'')+'</div>'
     +'<ul class="aw-l aw-paie-l" data-acc-fit>'+[["Brut",m(C.A)],["Primes d’équipe",m(eq)],["Suppl. week-end",m(we)],["Primes de rappel",m(rap||0)],["Chèques-repas",String(C.crNb)]].map(function(r){
@@ -26573,7 +26638,10 @@ function renderMesDemandes(){
       +(l.length?'<ul class="md-l" role="presentation">'+l.map(mdLigne).join("")+'</ul>'
         :'<p class="md-vide">Aucune demande en cours.</p>')
       +(rec.length?'<div class="md-rec" data-acc-bloc><p class="md-rec-t">Récemment traitées</p><ul class="md-rec-l" role="presentation" data-acc-fit>'+rec.map(mdRecente).join("")+'</ul></div>':'')
-      +(fait||l.length?'<button type="button" class="md-lien" data-md="voir">'+(fait?'Historique · '+fait+' traitée'+(fait>1?'s':''):'Voir mes demandes')+' ›</button>':'');
+      /* au pied, le lien de l'historique et, dans l'Accueil en widgets
+         (sans en-tête), « + Nouvelle » (les règles de #demCard) */
+      +'<div class="md-pied">'+(fait||l.length?'<button type="button" class="md-lien" data-md="voir">'+(fait?'Historique · '+fait+' traitée'+(fait>1?'s':''):'Voir mes demandes')+' ›</button>':'')
+      +'<button type="button" class="btn ss-ok md-nv md-nv-pied" data-md="nouvelle" aria-label="Nouvelle demande de congé">+ Nouvelle</button></div>';
     c.hidden=false;
   }
   var h=c.querySelector("header"); if(h&&!h.querySelector("[data-md]")) h.insertAdjacentHTML("beforeend",'<button type="button" class="btn ss-ok md-nv" data-md="nouvelle" aria-label="Nouvelle demande de congé">+ Nouvelle</button>');
@@ -37061,35 +37129,53 @@ function confirmerPro(o, surOui){
    la ligne du profil, l'heure). Limite connue : l'ordre du clavier (Tab)
    reste celui de la page, et non celui de l'écran. */
 var ACC_W=[
-  /* hs : les hauteurs permises (en lignes de widget : 1 ligne = deux rangées
-     d'icônes) ; h : celle d'origine */
-  {k:"poste",        nom:"Heure et poste",      l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
-  {k:"profil",       nom:"Mon profil",          l:6,  lmin:3, tmin:2, hs:[1,2], h:1},
-  {k:"meteo",        nom:"Météo",               l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
+  /* LES TAILLES UTILES DE CHAQUE WIDGET (le client, le 04/11/2026 : « tu
+     dois juger les widgets qui sont utiles d'être redimensionnés, et si
+     possible ou non »). Jugé sur la photo de chacun à chaque taille : une
+     taille n'est offerte que si elle montre plus, ou mieux ; au-delà, le
+     même contenu s'étire sur 700 à 960 px (« pas d'espaces vides si on
+     agrandit »). lt : les largeurs au PC, tt : au téléphone (¼ = 3, ½ = 6,
+     ¾ = 9, 1 = 12 ; au téléphone ½ = 1, 1 = 2) ; hs : les hauteurs, en
+     lignes de widget (1 ligne = deux rangées d'icônes) ; h : celle
+     d'origine. Une seule taille permise : pas de coin de repli. */
+  /* une heure et un poste, une ligne de météo : petits ; à 2 lignes, les
+     postes suivants, la semaine */
+  {k:"poste",        nom:"Heure et poste",      l:6,  lt:[3,6],      tt:[1,2], hs:[1,2], h:1},
+  /* la photo remplit toute largeur ; 2 lignes ne montraient qu'une photo
+     plus haute */
+  {k:"profil",       nom:"Mon profil",          l:6,  lt:[6,9,12],   tt:[2],   hs:[1],   h:1},
+  {k:"meteo",        nom:"Météo",               l:6,  lt:[3,6],      tt:[1,2], hs:[1,2], h:1},
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
-  {k:"cycle",        nom:"Mon cycle",           l:6,  lmin:6, tmin:2, hs:[1,2], h:2},
-  {k:"polyvalences", nom:"Polyvalences",        l:6,  lmin:3, tmin:1, hs:[1], h:1},
+  /* une grille de sept jours : de la moitié à la pleine largeur */
+  {k:"cycle",        nom:"Mon cycle",           l:6,  lt:[6,9,12],   tt:[2],   hs:[1,2], h:2},
+  /* quelques pastilles : petit, une ligne */
+  {k:"polyvalences", nom:"Polyvalences",        l:3,  lt:[3],        tt:[1],   hs:[1],   h:1},
   /* tirés des autres onglets (04/11/2026) ; si : à qui ils s'adressent */
-  {k:"paie",         nom:"Ma paie",             l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
-  {k:"dates",        nom:"À retenir",           l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
+  {k:"paie",         nom:"Ma paie",             l:6,  lt:[3,6],      tt:[1,2], hs:[1,2], h:1},
+  {k:"dates",        nom:"À retenir",           l:6,  lt:[3,6],      tt:[1,2], hs:[1,2], h:1},
   /* au PC seulement (pc) : la carte de l'onglet Planning (accPlanningPlacer) ;
      son tableau (dix postes, trois pauses) demande trois lignes au moins */
-  {k:"planning",     nom:"Planning",            l:12, lmin:9, tmin:2, pc:true, hs:[3,4], hsw:{9:[4]}, h:3},
+  {k:"planning",     nom:"Planning",            l:12, lt:[9,12], tmin:2, pc:true, hs:[3,4], hsw:{9:[4]}, h:3},
   /* en ½, la photo (440 px) est trop petite pour ses étiquettes : ¾ et 1 */
-  {k:"usine",        nom:"L’usine en direct",   l:12, lmin:9, tmin:2, hs:[2,3], hst:[3], h:2},
+  {k:"usine",        nom:"L’usine en direct",   l:12, lt:[9,12],     tt:[2],   hs:[2,3], hst:[3], h:2},
   /* rangés par paires qui remplissent une rangée (¾ + ¼, ½ + ½) */
-  {k:"calendrier",   nom:"Calendrier",          l:9,  lmin:6, tmin:2, hs:[1,2], h:2},
-  {k:"soldes",       nom:"Congés restants",     l:3,  lmin:3, tmin:1, hs:[1,2], h:2},
-  {k:"demandes",     nom:"Demandes de congé",   l:6,  lmin:6, tmin:2, hs:[1,2], h:1},
-  {k:"afaire",       nom:"À faire",             l:6,  lmin:3, tmin:1, hs:[1,2], h:1},
-  {k:"annonces",     nom:"Annonces",            l:6,  lmin:3, tmin:2, hs:[1,2], h:1, si:"compte"},
-  {k:"presents",     nom:"Effectif du jour",    l:6,  lmin:3, tmin:1, hs:[1,2], h:1, si:"saisie"},
-  {k:"site",         nom:"Sur site",            l:6,  lmin:6, tmin:2, hs:[1,2], h:2},
-  {k:"messages",     nom:"Messages",            l:6,  lmin:3, tmin:2, hs:[1,2], h:1},
+  {k:"calendrier",   nom:"Calendrier",          l:9,  lt:[6,9,12],   tt:[2],   hs:[1,2], h:2},
+  /* une ligne montre tous les compteurs, leurs jours et le total ; deux
+     lignes n'étiraient que leurs barres */
+  {k:"soldes",       nom:"Congés restants",     l:3,  lt:[3,6],      tt:[1,2], hs:[1],   h:1},
+  /* une demande et ses étapes : la moitié ; plus large, le vide */
+  {k:"demandes",     nom:"Demandes de congé",   l:6,  lt:[6],        tt:[2],   hs:[1,2], h:1},
+  {k:"afaire",       nom:"À faire",             l:6,  lt:[3,6],      tt:[1,2], hs:[1,2], h:1},
+  /* des titres et le début de leur texte : jusqu'aux trois quarts */
+  {k:"annonces",     nom:"Annonces",            l:6,  lt:[6,9],      tt:[2],   hs:[1,2], h:1, si:"compte"},
+  {k:"presents",     nom:"Effectif du jour",    l:6,  lt:[3,6],      tt:[1,2], hs:[1,2], h:1, si:"saisie"},
+  /* des pastilles en grille : toute largeur les remplit */
+  {k:"site",         nom:"Sur site",            l:6,  lt:[6,9,12],   tt:[2],   hs:[1,2], h:2},
+  {k:"messages",     nom:"Messages",            l:6,  lt:[6,9],      tt:[2],   hs:[1,2], h:1},
   /* un quart au PC, une moitié au téléphone : la mise en page réduite
      (requête de conteneur « anc », 04/11/2026) */
-  {k:"conges",       nom:"Mon année",           l:6,  lmin:3, tmin:1, hs:[1,2], h:2},
-  {k:"rythme",       nom:"Mon rythme",          l:6,  lmin:6, tmin:2, hs:[1,2], h:2}
+  {k:"conges",       nom:"Mon année",           l:6,  lt:[3,6],      tt:[1,2], hs:[1,2], h:2},
+  {k:"rythme",       nom:"Mon rythme",          l:6,  lt:[6,9,12],   tt:[2],   hs:[1,2], h:2}
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
    les demandes et le calendrier */
@@ -37122,7 +37208,10 @@ function accAppNom(el){ var t=(el.getAttribute("title")||"").split(" · ")[0]; i
 function accDispo(d){ return !d||!d.si||(d.si==="compte"?compteBase():d.si==="saisie"?peutSaisir():true); }
 function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return ACC_W[i];
   if(k&&k.indexOf("app:")===0) return {k:k, nom:ACC_APPN[k]||"Icône", app:true, l:2, lmin:2, tmin:1}; return null; }
-function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; if(!d||d.app) return []; return ACC_TAILLES[m].filter(function(s){ return m==="tel"?s>=d.tmin:s>=d.lmin; }); }
+function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; if(!d||d.app) return [];
+  /* la liste jugée (lt, tt), sinon toutes les tailles depuis le minimum */
+  var l=m==="tel"?d.tt:d.lt; if(l) return l.slice();
+  return ACC_TAILLES[m].filter(function(s){ return m==="tel"?s>=d.tmin:s>=d.lmin; }); }
 function accTaille(k){ var p=accPermises(k), t=ACC.t[k], d=accDef(k);
   if(!p.length) return 0;
   if(p.indexOf(t)>=0) return t;

@@ -12557,3 +12557,77 @@ heures à placer ».
 - La matrice entière avec données : 487 mesures, 0 faute.
 - Les gestes (47), le parcours (112) et statique : 0 faute.
 
+### Les widgets sans titre ; les tailles utiles de chacun (04/11/2026, `nfdm-v1381`)
+
+Le client, deux demandes :
+- « Tu dois juger les widgets qui sont utiles d'être redimensionnés,
+  et/ou si possible ou non. »
+- « Je ne pense pas que les widgets doivent afficher leur titre, cela est
+  compréhensible en voyant les infos affichées, et ça fera plus
+  professionnel. »
+
+**Les titres.**
+- **L'en-tête des widgets ne prend plus de place.** Son titre reste pour
+  le lecteur d'écran (le widget garde son nom), visible pour personne.
+- **Ses comptes s'effacent** (« 3 non lues », « 1 en cours »,
+  « 2026 ») : le contenu les dit.
+- **Ce qui sert est déplacé :**
+  - l'œil de « Ma paie » dans le coin, et le mois dans son étiquette
+    (« Net estimé · nov. ») ;
+  - « + Nouvelle » au pied de « Demandes », à côté de l'historique, à
+    2 lignes. À 1 ligne, l'icône « Demander un congé » le fait.
+- **Les titres intérieurs s'effacent aussi** (`.ry-chart-t` : « Mon
+  cycle », « Avancement », « Jour par jour »), ainsi que celui du
+  Planning et la ligne « Polyvalences ».
+- Chaque widget gagne environ 50 px.
+
+**Les tailles.** Chaque widget a été photographié à chaque largeur et à
+chaque hauteur. Une taille n'est plus offerte que si elle montre plus, ou
+mieux. Au-delà de ½ au PC, la plupart étiraient le même contenu sur 700
+à 960 px. Les listes vont dans `ACC_W` (`lt` au PC, `tt` au téléphone).
+Une taille enregistrée qui n'y est plus revient à celle d'origine. Une
+seule taille permise : pas de coin de repli.
+
+| Widget | PC | Téléphone | Lignes |
+|---|---|---|---|
+| Heure et poste · Météo · Ma paie · À retenir · À faire · Effectif du jour · Mon année | ¼, ½ | ½, 1 | 1, 2 |
+| Congés restants | ¼, ½ | ½, 1 | 1 |
+| Polyvalences | ¼ | ½ | 1 |
+| Mon profil | ½, ¾, 1 | 1 | 1 |
+| Mon cycle · Calendrier · Sur site · Mon rythme | ½, ¾, 1 | 1 | 1, 2 |
+| Annonces · Messages | ½, ¾ | 1 | 1, 2 |
+| Demandes de congé | ½ | 1 | 1, 2 |
+| Planning (PC) | ¾, 1 | — | 3, 4 |
+| L'usine en direct | ¾, 1 | 1 | 2, 3 |
+
+Pourquoi certains n'ont qu'une hauteur :
+- **Congés restants :** 1 ligne montre tous les compteurs, leurs jours et
+  le total ; 2 lignes n'étiraient que leurs barres.
+- **Mon profil :** 2 lignes n'y ajoutaient qu'une photo plus haute.
+- **Polyvalences :** quelques pastilles.
+
+**Ce que le contenu devient sans en-tête :**
+- **Polyvalences :** le degré, puis chaque polyvalence en grande pastille,
+  au milieu. Une pastille seule restait en haut de 208 px ; à la moitié
+  d'un téléphone, elle était écrasée.
+- **Calendrier :** le choix Semaine / Mois / Année reste dans l'onglet.
+  La barre du mois se resserre ; à 2 lignes, les lettres des postes de
+  six semaines étaient écrasées à 3 px.
+- **Effectif du jour, 2 lignes :** quatre tuiles à grand chiffre
+  (malades, en congé, en formation, au repos).
+- **Sur site, 1 ligne :** le poste en cours, au milieu.
+- **Congés restants, ½ téléphone :** le total revient au-dessus des
+  compteurs.
+- **Ma paie, 1 ligne :** le montant et sa note, au milieu.
+
+**Le contrôle** compte désormais une surface visible (une tuile, une
+case) comme du contenu. Preuve qu'il crie encore : sans le centrage de
+« Sur site », il relève 3 vides.
+
+**Mesuré.**
+- Avec données, à 7 largeurs et 3 heures : 365 mesures par heure,
+  0 faute.
+- Sans données : 229 mesures, 0 faute.
+- Les gestes (47), la grille, le repos (0 mutation), le parcours
+  (112 essais) et statique : 0 faute.
+
