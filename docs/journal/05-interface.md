@@ -12525,3 +12525,35 @@ L'hypothèse : la liste, redessinée, serait ajustée une image trop tard.
 - Les gestes (47), la grille, l'Accueil au repos (0 mutation), le
   parcours (112 essais) et statique : 0 faute.
 
+### « Congés restants » : l'équivalent en jours partout ; le flex time compte dans les heures à placer (04/11/2026, `nfdm-v1380`)
+
+Le client, sur une capture du widget à 1 ligne : « pour ceci on peut
+ajouter l'équivalent en jours, et les FT doivent compter aussi pour des
+heures à placer ».
+
+**Le flex time dans le total.**
+- « 12 h à placer · ≈ 1,5 j » ne comptait que VA, RTT, DTT et RJF ; avec
+  un flex time de +2 h, il dit désormais « 14 h à placer · ≈ 1,8 j ».
+- Un solde négatif (des heures dues, jusqu'à −8 h selon la note du
+  18/09/2024) ne retire rien. C'est la règle des autres compteurs, que le
+  total compte chacun à partir de zéro (`Math.max(0, …)`). Ce cas, que
+  la demande ne tranchait pas, est dit au client.
+
+**L'équivalent en jours, partout.** Chaque tuile le portait déjà
+(« ≈ 1,5 j », « tout placé ») ; les règles d'une ligne le cachaient sous
+320 px. Désormais :
+- **tuiles de moins de 350 px**, et 2 lignes sous 200 px : la forme
+  courte, « 1,5 j », « 0 j », « +0,3 j ». « ≈ » et « tout placé » n'y
+  tenaient pas : « tout placé » débordait de 12 px à 136 px ;
+- **sous 260 px** (la moitié d'un téléphone, le quart au PC), à 1 ligne :
+  une ligne par compteur, « RTT · 12 h · 1,5 j ». Les tuiles de deux
+  colonnes n'y laissaient ni les jours ni le total ;
+- **le titre** devient « Congés » sous 200 px (il prenait deux lignes) ;
+- **les jours** passent à 11 px (10,5 px sous 420 px d'écran).
+
+**Mesuré.**
+- « Congés restants » et « Mon année » (même conteneur), à 7 largeurs et
+  2 hauteurs : 72 mesures, 0 faute.
+- La matrice entière avec données : 487 mesures, 0 faute.
+- Les gestes (47), le parcours (112) et statique : 0 faute.
+

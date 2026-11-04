@@ -8924,7 +8924,36 @@ html body #v-horaire.acc-perso #paieCard{position:relative}
   html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
   html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs>.pf-cgc{grid-column:auto!important}
 }
-@container anc (min-width:200px) and (max-width:319px){ html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>em{display:none} }
+/* L'ÉQUIVALENT EN JOURS PARTOUT (le client, le 04/11/2026, sur une
+   capture où il manquait) : en tuiles étroites (moins de 350 px), et en
+   deux lignes sous 200 px, sa forme courte, « 1,5 j » et « 0 j » (« tout
+   placé » débordait de 12 px à 136 px) ; sous 260 px, une ligne par
+   compteur, « RTT · 12 h · 1,5 j » (les tuiles n'y laissaient ni les
+   jours ni le total) */
+.pf-cg-court{display:none}
+html body #v-horaire.acc-perso #cgCard .pf-cgc>em{font-size:11px; letter-spacing:0}
+@container anc (min-width:260px) and (max-width:349px){
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>em{display:block!important; white-space:nowrap}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] :is(.pf-cg-env,.pf-cg-long){display:none}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cg-court{display:inline}
+}
+@container anc (max-width:259px){
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs{display:flex!important; flex-direction:column; gap:0; margin:0}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs>.pf-cgc{display:grid!important; grid-template-columns:auto minmax(0,1fr) auto; grid-template-areas:"k v e"; align-items:center; column-gap:10px; flex:1 1 0; min-height:0; padding:0 2px!important; border:0; border-bottom:1px solid var(--line2); border-radius:0; background:none; box-shadow:none; grid-column:auto!important}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgs>.pf-cgc:last-child{border-bottom:0}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>span{grid-area:k}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>b{grid-area:v; justify-self:end; font-size:14px}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc>em{grid-area:e; display:block!important; min-width:34px; text-align:right; white-space:nowrap}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc-b{display:none!important}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] :is(.pf-cg-env,.pf-cg-long){display:none}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cg-court{display:inline}
+}
+@container anc (max-width:199px){
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] :is(.pf-cg-env,.pf-cg-long){display:none}
+  html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cg-court{display:inline}
+}
+/* étroit : « Congés » seul dans le titre (il prenait deux lignes) */
+@container anc (max-width:199px){ html body #v-horaire.acc-perso #cgCard>header .aw-long{display:none} }
 /* Sur site, en une ligne et étroit : le compte est déjà à droite du poste */
 html body #v-horaire.acc-perso #siteCard{container:sitec / inline-size}
 @container sitec (max-width:319px){ html body #v-horaire.acc-perso #siteCard[data-acc-h="1"]>header .sub{display:none} }
@@ -9563,7 +9592,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          « les compteurs de congés restants doivent être un widget à part ») :
          les tuiles VA, RTT, DTT, RJF, FT, sorties de « Mon année » -->
     <div class="card" id="cgCard" data-w="soldes" hidden>
-      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/></svg>Congés restants</h2></header>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/></svg><span>Congés<span class="aw-long"> restants</span></span></h2></header>
       <div class="pad an-corps"><div class="ry-an pf-an" id="ryCg"></div></div>
     </div>
     <div class="card" id="anCard" data-w="conges" hidden>
@@ -25386,7 +25415,10 @@ function mesCongesHTML(db,person){
     return '<div class="pf-cgc'+(rs>0?'':' vide')+'" role="group" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(R(rs/hj,1)>=2?'s':'')+' sur '+num(o.tot)+' h')+'">'
       +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small> h</small></b>'
       +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
-      +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></div>';
+      /* l'équivalent en jours, partout (le client, le 04/11/2026) : la
+         forme courte (« 1,5 j », « 0 j ») là où « ≈ » et « tout placé »
+         ne tiennent pas (les règles de #cgCard) */
+      +'<em>'+(rs>0?'<span class="pf-cg-env">≈ </span>'+jr(rs)+' j':'<span class="pf-cg-long">tout placé</span><span class="pf-cg-court">0 j</span>')+'</em></div>';
   });
   /* Le solde du flex time, sans les bornes (le client, le 22/10/2026) : la
      case « Total » du pied du classeur, comme « Mes compteurs », sans la
@@ -25400,7 +25432,12 @@ function mesCongesHTML(db,person){
       /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
          plafond de 104 h de la note de service, sans écrire les bornes */
       +'<i class="pf-cgc-b" aria-hidden="true"><i style="width:'+R(Math.max(0,Math.min(100,ft/104*100)),1)+'%"></i></i>'
-      +'<em>'+(ft?'≈ '+sg+jr(Math.abs(ft))+' j':'à zéro')+'</em></div>');
+      +'<em>'+(ft?'<span class="pf-cg-env">≈ </span>'+sg+jr(Math.abs(ft))+' j':'<span class="pf-cg-long">à zéro</span><span class="pf-cg-court">0 j</span>')+'</em></div>');
+    /* LE FLEX TIME COMPTE DANS LES HEURES À PLACER (le client, le
+       04/11/2026 : « les FT doivent compter aussi pour des heures à
+       placer ») ; un solde négatif (des heures dues, jusqu'à −8 h) ne
+       retire rien, comme un compteur de congé ne compte jamais sous zéro */
+    if(ft>0) tot+=ft;
   }
   return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot,2))+' h</b> à placer · ≈ '+jr(tot)+' j</span></div>'
     +'<div class="pf-cgs">'+cases.join("")+'</div>';
