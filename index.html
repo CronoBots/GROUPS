@@ -8730,13 +8730,11 @@ html body .pf-hero .pf-meteo{container:meteo / inline-size; display:flex; flex-d
 @media (hover:hover){ .acc-moins:hover{background:var(--fd-blanc-92)} }
 /* Le coin de repli, comme celui d'Apple (le client, le 04/11/2026, deux
    captures côte à côte : « j'aimerais que les angles de repli de widget
-   soient les mêmes que sur Apple ») : un quart de cercle gris, épais de
-   5 px, aux bouts arrondis, qui épouse le coin arrondi du widget (rayon
-   --rj, 22 px) à 3 px de son bord ; l'ancien arc blanc, fin, aux bouts
-   effilés, plus courbé que le coin, s'en écartait. La prise fait 56 px ;
-   l'arc est dessiné dans son repère : le coin du widget en (42, 42), le
-   centre de son arrondi en (20, 20), le rayon 22 + 3 + 2,5. Au clavier,
-   l'arc prend la couleur du focus. */
+   soient les mêmes que sur Apple », puis « le coin de repli doit suivre
+   le coin du cadre ») : un quart de cercle gris, épais de 5 px, aux bouts
+   arrondis, posé SUR le coin arrondi du cadre visible (accCadre, accArc :
+   même centre, même courbe, le trait couvrant le bord). La prise fait
+   56 px. Au clavier, l'arc prend la couleur du focus. */
 .acc-etirer{position:absolute; z-index:2; right:-14px; bottom:-14px; width:56px; height:56px; padding:0; border:0; background:none; cursor:nwse-resize; touch-action:none}
 .acc-etirer svg{position:absolute; inset:0; width:56px; height:56px; overflow:visible; pointer-events:none; filter:drop-shadow(0 1px 1.5px var(--om-noir-50))}
 .acc-etirer path{fill:none; stroke:var(--fd-blanc-75); stroke-width:5; stroke-linecap:round}
@@ -36642,7 +36640,7 @@ function accBoiteHTML(k){
   var d=accDef(k), t=accTaille(k), f=ACC_FRAC[ACC.mode], nom=esc(d.nom);
   return '<button type="button" class="acc-moins" data-acc-masquer="'+k+'" aria-label="Retirer « '+nom+' » de l’Accueil">'+ACC_MOINS+'</button>'
     +'<button type="button" class="acc-bouger" data-acc-tirer="'+k+'" aria-label="Déplacer « '+nom+' » : flèches du clavier">Déplacer · '+nom+'</button>'
-    +(accPermises(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+f[t]+'. Flèches gauche et droite pour la changer" title="Tirer pour changer la taille"><svg viewBox="0 0 56 56" aria-hidden="true"><path d="M47.5 20A27.5 27.5 0 0 1 20 47.5"/></svg></button>':'');
+    +(accPermises(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+f[t]+'. Flèches gauche et droite pour la changer" title="Tirer pour changer la taille"><svg viewBox="0 0 56 56" aria-hidden="true"><path d="'+accArc(22)+'"/></svg></button>':'');
 }
 function accOutils(tout){
   var v=document.getElementById("v-horaire"); if(!v||!ACC.edit) return;
@@ -36681,6 +36679,28 @@ function accOutils(tout){
   if(actif&&c.contains(actif)&&document.activeElement!==actif) try{ actif.focus({preventScroll:true}); }catch(e){}
   accCalquePlacer(); accTrembler();
 }
+/* LE COIN DU CADRE VISIBLE (le client, le 04/11/2026 : « le coin de repli
+   doit suivre le coin du cadre ») : l'élément lui-même s'il est arrondi,
+   sinon un enfant ou petit-enfant arrondi calé sur son coin bas-droit (le
+   poste : .pf-bloc ; les polyvalences : .pf-pv) ; son rayon et son retrait */
+function accCadre(el){
+  var r=parseFloat(getComputedStyle(el).borderBottomRightRadius)||0; if(r>=6) return {r:r, dx:0, dy:0};
+  var er=el.getBoundingClientRect(), niv=[].slice.call(el.children), prof=0, i, ch, cr, q, suiv;
+  while(niv.length&&prof<2){
+    suiv=[];
+    for(i=0;i<niv.length;i++){ ch=niv[i]; if(!ch.getClientRects().length) continue;
+      cr=parseFloat(getComputedStyle(ch).borderBottomRightRadius)||0; q=ch.getBoundingClientRect();
+      if(cr>=6&&Math.abs(q.right-er.right)<3&&Math.abs(q.bottom-er.bottom)<3) return {r:cr, dx:Math.round(er.right-q.right), dy:Math.round(er.bottom-q.bottom)};
+      suiv=suiv.concat([].slice.call(ch.children)); }
+    niv=suiv; prof++;
+  }
+  return {r:22, dx:0, dy:0};
+}
+/* l'arc de repli posé SUR le coin du cadre : même centre que son arrondi,
+   le trait de 5 px couvrant le bord (son bord intérieur à 0,5 px dans le
+   cadre) ; dans le repère de la prise (56 px), le coin du cadre est en
+   (42, 42) */
+function accArc(R){ var c=42-R, rr=R+2; return "M"+(c+rr)+" "+c+"A"+rr+" "+rr+" 0 0 1 "+c+" "+(c+rr); }
 function accCalquePlacer(){
   ACC.placeT=0;
   var c=ACC.calque; if(!c||!ACC.edit) return;
@@ -36688,6 +36708,9 @@ function accCalquePlacer(){
     var el=accItem(b.getAttribute("data-acc-pour")); if(!el){ b.style.display="none"; return; }
     var q=accPos(el);
     b.style.display=""; b.style.left=q.x+"px"; b.style.top=q.y+"px"; b.style.width=el.offsetWidth+"px"; b.style.height=el.offsetHeight+"px";
+    var g=b.querySelector(".acc-etirer"), pa=g&&g.querySelector("path");
+    if(pa){ var cd=accCadre(el), sg=cd.r+"|"+cd.dx+"|"+cd.dy;
+      if(g.__cd!==sg){ g.__cd=sg; g.style.right=(cd.dx-14)+"px"; g.style.bottom=(cd.dy-14)+"px"; pa.setAttribute("d",accArc(cd.r)); } }
   });
 }
 function accCalqueBientot(){ if(ACC.edit&&!ACC.placeT) ACC.placeT=requestAnimationFrame(accCalquePlacer); }

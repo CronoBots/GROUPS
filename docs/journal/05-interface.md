@@ -12103,3 +12103,29 @@ pictogramme avec une ombre. Rephotographié à l'endroit de la capture du
 client : lisible.
 
 Gestes (45 contrôles, doigt et souris), parcours (112 essais) : 0 faute.
+
+### Le coin de repli posé sur le coin du cadre (04/11/2026, `nfdm-v1373`)
+
+Le client, après la v1372 : « le coin de repli doit suivre le coin du
+cadre ».
+
+**Ce qui n'allait pas.** L'arc de la v1372 avait bien le centre de
+l'arrondi du cadre, mais il passait 3 px au large. Sur la photo de près,
+un filet sombre le séparait du cadre : il semblait flotter à côté du coin
+au lieu de le suivre. Il était aussi calé sur la boîte de l'élément, et
+non sur le cadre qu'on voit.
+
+**Désormais** :
+- l'arc est posé sur le coin : même centre, même courbe, et son trait de
+  5 px couvre le bord du cadre (son bord intérieur à 0,5 px dans le
+  cadre) ;
+- il suit le cadre réellement visible (`accCadre`) : l'élément s'il est
+  arrondi, sinon l'enfant ou le petit-enfant arrondi calé sur son coin
+  bas-droit, comme le `.pf-bloc` du poste. Le rayon et le retrait sont lus
+  sur ce cadre, et l'arc est tracé pour ce rayon (`accArc`), à chaque
+  placement du calque.
+
+Mesuré sur tous les arcs, téléphone 4, tablette 12, PC 13 : chacun a le
+centre de l'arrondi de son cadre à moins de 0,6 px, et son bord intérieur
+à 0,5 px dans le cadre. Gestes (45 contrôles), parcours (112 essais) :
+0 faute.
