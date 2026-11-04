@@ -11343,3 +11343,23 @@ enchaînait les jours sans attendre la fin du rendu. Les mêmes jours, relevés
 seuls, en donnent 0, et la photo du 08/01 n'en montre aucune.
 
 Parcours : 112 essais, 0 faute. Cohérence du Planning : 0.
+
+### Mes congés : « 80h / 10 j » sur une ligne, centré (04/11/2026, `nfdm-v1354`)
+
+Le client, le 04/11/2026 : « dans les compteurs de l'onglet horaire, les
+heures et jours affichés comme ceci "80h / 8 j", et centré ».
+- **Avant.** Chaque case de « Mes congés » (VA, RTT, DTT, RJF, FT) disait
+  « 80 h » en grand, puis « ≈ 10 j » dessous.
+- **Maintenant.** Une seule ligne, centrée : « 80h / 10 j », les jours à
+  la journée de l'onglet Barèmes. Le flex time suit le même format :
+  « +2h / +0,3 j ». « Tout placé » (ou « à zéro ») ne s'écrit plus que
+  quand il ne reste rien.
+
+**Mesuré à 320, 390, 844 (couché) et 1280 px.** Cinq cases sur un rang en
+faisaient 62 px à 390 px, et le flex time était coupé. Elles passent à trois
+par rangée, la dernière rangée s'étirant : 104 et 159 px à 390. Aucune
+valeur ne se coupe. Parcours : 112 essais, 0 faute (contraste compris).
+
+Les compteurs du mois sous le calendrier (« Prestées », « Jours ») restent
+deux cases distinctes : ce sont deux quantités différentes, et non une même
+quantité en deux unités.

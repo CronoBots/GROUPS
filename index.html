@@ -6066,7 +6066,7 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .pf-cg-t{border-top:1px solid var(--bd-blanc-07); margin-top:2px}
 .pf-cg-t .pf-pr-l b{color:var(--tx-blanc); font-weight:700}
 .pf-cgs{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:6px; margin:4px 0 14px}
-.pf-cgc{display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; padding:8px 10px 9px; border-radius:11px;
+.pf-cgc{display:flex; flex-direction:column; align-items:center; text-align:center; gap:3px; min-width:0; padding:8px 10px 9px; border-radius:11px;
   border:1px solid var(--bd-blanc-08); background:var(--fd-blanc-04); color:var(--tx-blanc); font:inherit; text-align:left}
 .pf-cgc>span{font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--tx-menthe)}
 .pf-cgc>b{font-size:18px; font-weight:700; line-height:1.1; white-space:nowrap; font-variant-numeric:tabular-nums}
@@ -8510,6 +8510,13 @@ html body .pf-hero .pf-ps,html body .pf-hero .pf-fl{color:var(--tx-blanc-62)}
    la petite icône de leur app en tête — */
 html body #v-horaire .card>header{border-bottom-color:transparent}
 html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; height:24px; padding:4px; border-radius:6px; stroke-width:2.1; box-shadow:var(--ip-relief-petit)}
+
+/* — MES CONGÉS : « 80h / 10 j » SUR UNE LIGNE ET CENTRÉ (le client, le
+   04/11/2026). Cinq cases sur un rang en faisaient 62 px à 390 px : le flex
+   time (« +2h / +0,3 j ») était coupé. Trois par rangée, la dernière
+   rangée s'étire, à toute largeur. — */
+html body .pf-cgs,html body #v-horaire .pf-cgs{display:flex; flex-wrap:wrap; gap:6px}
+html body .pf-cgs>.pf-cgc,html body #v-horaire .pf-cgs>.pf-cgc{flex:1 1 calc(33.333% - 6px); grid-column:auto; min-width:0; padding-left:6px; padding-right:6px}
 
 /* — LES SÉLECTEURS À SEGMENTS DE L'IPHONE (le client, le
    03/11/2026 : « applique le même style iPhone aux autres onglets ») : une
@@ -24374,9 +24381,13 @@ function mesCongesHTML(db,person){
        role="group" : l'aria-label d'un div sans rôle n'est pas lu (audit
        du 23/10/2026) ; de même pour le flex time */
     return '<div class="pf-cgc'+(rs>0?'':' vide')+'" role="group" title="'+esc(lib)+'" aria-label="'+esc(lib+' : '+num(rs)+' h à placer, soit '+jr(rs)+' jour'+(R(rs/hj,1)>=2?'s':'')+' sur '+num(o.tot)+' h')+'">'
-      +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small> h</small></b>'
+      /* « 80h / 10 j », sur une ligne et centré (le client, le 04/11/2026 :
+         « les heures et jours affichés comme ceci "80h / 8 j" et centré ») :
+         les heures du classeur et leur équivalent en jours, à la journée de
+         l'onglet Barèmes ; « tout placé » seulement quand il ne reste rien */
+      +'<span>'+esc(o.k)+'</span><b>'+num(rs)+'<small>h</small> / '+jr(rs)+'<small>\u00a0j</small></b>'
       +'<i class="pf-cgc-b"><i style="width:'+R(pct,1)+'%"></i></i>'
-      +'<em>'+(rs>0?'≈ '+jr(rs)+' j':'tout placé')+'</em></div>';
+      +(rs>0?'':'<em>tout placé</em>')+'</div>';
   });
   /* Le solde du flex time, sans les bornes (le client, le 22/10/2026) : la
      case « Total » du pied du classeur, comme « Mes compteurs », sans la
@@ -24386,11 +24397,11 @@ function mesCongesHTML(db,person){
     var ft=soldeFTClasseur(f), sg=ft>0?"+":(ft<0?"−":"");
     /* à zéro, la case pâlit comme un congé tout placé (audit du 23/10/2026) */
     cases.push('<div class="pf-cgc ft'+(ft<0?' neg':ft?'':' vide')+'" role="group" title="Flex time" aria-label="'+esc('Flex time : solde '+num(ft)+' h, soit '+jr(ft)+' jour'+(Math.abs(R(ft/hj,1))>=2?'s':''))+'">'
-      +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small> h</small></b>'
+      +'<span>FT</span><b>'+sg+num(Math.abs(ft))+'<small>h</small> / '+sg+jr(Math.abs(ft))+'<small>\u00a0j</small></b>'
       /* sa barre aussi (le client, le 22/10/2026) : le solde rapporté au
          plafond de 104 h de la note de service, sans écrire les bornes */
       +'<i class="pf-cgc-b" aria-hidden="true"><i style="width:'+R(Math.max(0,Math.min(100,ft/104*100)),1)+'%"></i></i>'
-      +'<em>'+(ft?'≈ '+sg+jr(Math.abs(ft))+' j':'à zéro')+'</em></div>');
+      +(ft?'':'<em>à zéro</em>')+'</div>');
   }
   return '<div class="ry-an-t pf-cg-t"><span class="ry-chart-t ry-h2" role="heading" aria-level="3">Mes congés</span><span class="pf-pr-l"><b>'+num(R(tot,2))+' h</b> à placer · ≈ '+jr(tot)+' j</span></div>'
     +'<div class="pf-cgs">'+cases.join("")+'</div>';
