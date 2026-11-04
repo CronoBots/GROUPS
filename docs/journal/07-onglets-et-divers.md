@@ -786,11 +786,40 @@ plus dans une petite barre flottante : ils suivent le texte, alignés à
 droite (`float:right`).
 - Ligne courte : sur la même ligne (« Troisième. ··· 03:10 Effacer »). La
   ligne passe de 25 à 27 px.
-- Ligne pleine : juste en dessous, toujours à droite (25 à 48 px). C'est
-  la place que prend une fin de ligne, et le client l'a demandée ainsi.
+- Ligne pleine : juste en dessous, toujours à droite (25 à 48 px).
+
+  **Faux, corrigé à la v1361.** J'avais écrit que cette hauteur était le
+  prix d'une fin de ligne, et donc acceptable. Le client l'a vue tout de
+  suite : « survoler les messages agrandit le cadre ». Le réglage est dans
+  l'entrée suivante.
 
 **Éprouvé au navigateur** (390 px, base simulée) :
 - un message effacé envoyé par la base n'apparaît pas : cinq lignes sur six ;
 - « Effacer » se place sur la ligne ou dessous, toujours à droite.
+
+Parcours : 112 essais, 0 faute. Garde-fou : 0.
+
+### Survoler un message n'agrandit plus le cadre ; la base vérifiée (04/11/2026, `nfdm-v1361`)
+
+Le client : « Supabase ok », puis « survoler les messages agrandit le
+cadre ».
+
+**La base, vérifiée après `base/37`.**
+- 4 messages vivants, 0 effacé (il en restait 2, texte compris).
+- `biowanze_effacer_message` supprime la ligne, et `biowanze_messages` ne
+  lit que les messages vivants.
+- Les deux fonctions restent `security definer`, refusées à `anon` et
+  permises à `authenticated`.
+
+**L'heure et « Effacer », posés sur la fin de ligne.** Ils restent en fin
+de ligne, sans bulle, mais ne suivent plus le texte : ils sont posés au bout
+de la dernière ligne (`position:absolute`, à droite, en bas), sur le fond de
+la ligne survolée, avec un fondu à leur gauche. Si le texte va jusqu'au
+bord, le fondu en couvre la fin, le temps du survol.
+
+**Mesuré au navigateur**, sur 5 lignes, l'une de quatre lignes de texte, au
+PC (survol) et au téléphone (toucher) : la hauteur du cadre et celle de
+chaque ligne restent identiques au pixel. 0 ligne sur 5 ne bouge, contre 1
+à la v1360 (25 → 48 px).
 
 Parcours : 112 essais, 0 faute. Garde-fou : 0.

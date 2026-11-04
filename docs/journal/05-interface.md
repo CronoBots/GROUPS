@@ -11450,3 +11450,33 @@ aussi. La marque reste au téléphone et à la tablette.
 - aucune erreur de page.
 
 Parcours : 112 essais, 0 faute.
+
+### Le profil du menu, retravaillé : la bannière entière (04/11/2026, `nfdm-v1361`)
+
+Le client, capture de son PC à l'appui : « la bannière doit être complète
+sur la gauche, il faut optimiser également ce cadre sur PC ».
+
+**Ce que montrait la v1360, mesuré sur sa capture.** La couverture était
+rognée à 96 px de haut et calée à droite : on ne voyait que la marque
+(« ce … ze »). Le cercle de 68 px, à cheval, en cachait le milieu. Et la
+cloche et la roue étaient posées dessus.
+
+**Le nouveau cadre**, une grille d'une colonne :
+- la bannière entière, à ses proportions (2170 × 540, soit 198 × 49 px),
+  avec rien posé dessus : l'usine à gauche, la marque à droite ;
+- dessous, une ligne : le cercle (44 px), puis le poste, le statut et le
+  binôme, alignés à gauche ;
+- la cloche sur sa propre ligne, nommée « Horaire modifié », le nombre au
+  bout ;
+- la roue se retire : le menu a déjà « Réglages » en pied.
+
+**Un défaut mesuré et corrigé avant le commit.** Au bout de la ligne du
+nom, la cloche ne laissait que 57 px au poste : « Contremaître » débordait.
+Sur sa propre ligne, elle laisse 120 px au poste, et plus rien ne déborde.
+
+Le pouls de la cloche (`::after`, `inset:0`) exige qu'elle reste en
+`position:relative`. En `static`, il aurait couvert tout le cadre.
+
+**Mesuré** à 1100 et 1280 px, avec une cloche simulée (« 18 ») : cadre de
+200 × 183 px, aucun débordement, aucune erreur. Parcours : 112 essais,
+0 faute.

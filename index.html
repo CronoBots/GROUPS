@@ -8455,15 +8455,31 @@ html body .pf-hero .pf-wprof .pf-prof,html body #sideProf .pf-wprof .pf-prof{fle
   html .top.a-prof .brand{display:none}
   html .top.a-prof>.top-in{padding-bottom:12px}
   html body #sideProf{margin:0; flex:1 1 100%; width:100%; min-width:0; box-sizing:border-box}
-  html body #sideProf .pf-couv{aspect-ratio:auto; height:96px; min-height:0; background-position:100% 100%}
-  html body #sideProf .pf-roue{top:8px; right:8px; width:34px; height:34px}
-  html body #sideProf .pf-roue svg{width:18px; height:18px}
-  html body #sideProf .pf-notif{top:8px; left:8px; height:34px}
-  html body #sideProf .pf-prof{flex-direction:column; align-items:center; gap:6px; padding:0 10px; margin-top:-34px; text-align:center}
-  html body #sideProf .pf-av{width:68px; height:68px; font-size:21px}
-  html body #sideProf .pf-prof .pf-hmeta{padding-top:0; align-items:center; max-width:100%}
-  html body #sideProf .pf-prof .pf-poste{justify-content:center; flex-wrap:wrap; font-size:16px}
-  html body #sideProf .pf-wprof{padding-bottom:12px}
+  /* la bannière ENTIÈRE, rien posé dessus (le client, le 04/11/2026 : « la
+     bannière doit être complète sur la gauche, il faut optimiser également
+     ce cadre sur PC ») : à ses proportions (2170 × 540), elle n'est plus
+     rognée sur la marque, et le cercle ne la cache plus. Dessous, une
+     ligne : le cercle, le poste et le statut, la cloche au bout. La roue
+     se retire : le menu a déjà « Réglages » en pied. */
+  html body #sideProf .pf-wprof{display:grid; grid-template-columns:minmax(0,1fr); grid-template-areas:"couv" "prof" "notif"; padding:0 0 12px}
+  html body #sideProf .pf-couv{grid-area:couv; aspect-ratio:2170/540; height:auto; min-height:0; background-size:cover; background-position:50% 50%}
+  html body #sideProf .pf-roue{display:none}
+  html body #sideProf .pf-prof{grid-area:prof; flex-direction:row; align-items:center; gap:10px; padding:0 12px; margin:12px 0 0; text-align:left}
+  html body #sideProf .pf-av{width:44px; height:44px; font-size:14px; border-width:2px; box-shadow:0 0 0 1.5px var(--marque-vif)}
+  html body #sideProf .pf-prof .pf-hmeta{flex:1 1 auto; min-width:0; padding-top:0; gap:3px; align-items:flex-start}
+  html body #sideProf .pf-prof .pf-poste{justify-content:flex-start; flex-wrap:wrap; gap:4px 6px; font-size:15px}
+  html body #sideProf .pf-prof .pf-poste .pf-statut{margin-left:0}
+  html body #sideProf .pf-ou{font-size:12px}
+  /* la cloche, sur sa ligne et nommée : au bout de la ligne du nom, elle
+     ne laissait que 57 px à « Contremaître » (mesuré le 04/11/2026). Elle
+     reste « relative » : son pouls (::after, inset 0) couvrirait sinon
+     tout le cadre. */
+  html body #sideProf .pf-notif{grid-area:notif; position:relative; top:auto; left:auto; margin:10px 12px 0; height:34px; padding:0 6px 0 10px; gap:8px; border-radius:10px;
+    background:var(--surface3); color:var(--ink); font-size:13px; font-weight:600}
+  html body #sideProf .pf-notif::before{content:"Horaire modifié"; order:1}
+  html body #sideProf .pf-notif svg{order:0; flex:none; width:16px; height:16px}
+  html body #sideProf .pf-notif b{order:2; margin-left:auto; min-width:22px; height:22px}
+  html body #sideProf .pf-notif:hover{filter:brightness(1.15)}
   /* l'Accueil sans le profil : sa place dans la grille se referme (un vide
      de 100 px restait au-dessus de l'heure, mesuré le 04/11/2026) */
   html body #rythmeTete .pf-hero.sans-prof{grid-template-areas:"mt cyc" "gau cyc" "pv cyc"}
@@ -8559,13 +8575,18 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
 #filCard .fil-t{display:flex; align-items:baseline; gap:8px; margin-bottom:1px}
 #filCard .fil-n{font:700 13px/1.3 "IBM Plex Mono",monospace; color:var(--ink)}
 #filCard .fil-t time,#filCard .fil-o time{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
-#filCard .fil-b{display:flow-root; color:var(--ink); font-size:15px; line-height:1.4; white-space:pre-wrap; overflow-wrap:anywhere}
-/* l'heure et « Effacer » d'une ligne : en FIN DE LIGNE, à la suite du
-   texte, sans bulle à part (le client, le 04/11/2026 : « l'effacer ne doit
-   pas être dans une bulle à part, mais en fin de ligne »). Le survol
-   n'existe qu'à la souris : au téléphone, Chrome prenait le second toucher
-   pour un survol et ne refermait pas la ligne (mesuré le 04/11/2026). */
-#filCard .fil-o{display:none; float:right; align-items:baseline; gap:8px; margin:3px 0 0 12px; white-space:nowrap; font-style:normal; line-height:1.4}
+#filCard .fil-b{display:block; color:var(--ink); font-size:15px; line-height:1.4; white-space:pre-wrap; overflow-wrap:anywhere}
+/* l'heure et « Effacer » d'une ligne : en FIN DE LIGNE, sans bulle à part
+   (le client, le 04/11/2026 : « l'effacer ne doit pas être dans une bulle à
+   part, mais en fin de ligne »), et POSÉS sur la ligne, sans la pousser
+   (le même jour : « survoler les messages agrandit le cadre » — à la suite
+   du texte, une ligne pleine les renvoyait dessous). Au bout de la dernière
+   ligne, sur le fond de la ligne survolée, un fondu à leur gauche. Le
+   survol n'existe qu'à la souris : au téléphone, Chrome prenait le second
+   toucher pour un survol et ne refermait pas la ligne (mesuré le
+   04/11/2026). */
+#filCard .fil-o{display:none; position:absolute; right:0; bottom:2px; height:21px; align-items:center; gap:8px; padding:0 14px 0 30px; white-space:nowrap; font-style:normal;
+  background:linear-gradient(90deg,transparent,var(--surface2) 26px)}
 #filCard .fil-m.ouvert .fil-o,#filCard .fil-m:focus-within .fil-o{display:flex}
 @media (hover:hover){
   #filCard .fil-m:hover{background:var(--surface2)}
