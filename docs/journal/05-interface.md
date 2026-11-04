@@ -11848,3 +11848,78 @@ Parcours : 112 essais, 0 faute (contraste des numéros, posés désormais sur
 le fond du cadre, compris). Garde-fou du dépôt : 0, après une
 reformulation (deux mots en capitales séparés d'une virgule, dans un
 commentaire).
+
+### L'heure rejoint le prochain poste ; la météo, un widget à part ; le pourcentage (04/11/2026, `nfdm-v1369`)
+
+Le client : « penses-tu de combiner le cadre heure et météo avec prochain
+poste ? Et pour le prochain poste, au lieu de mettre la date pour des
+jours comme aujourd'hui, demain, on peut mettre aujourd'hui, demain, à la
+place de la date. Fais-moi quelque chose de professionnel. Et j'aimerais
+que la barre d'avancement possède aussi un pourcentage. À toi de voir si
+la météo a sa place dans ce cadre-là […] il faut évidemment que
+l'affichage des widgets soit optimisé pour chaque taille que
+l'utilisateur lui demande. »
+
+**Le choix, dit au client avant de coder** : l'heure et le poste parlent
+du même temps (quelle heure il est, combien avant ou combien encore) ;
+ils font un seul widget, « Heure et poste ». La météo n'a rien à voir avec
+le poste : elle devient un widget à elle, comme la Météo de l'iPhone, que
+chacun place, élargit ou masque.
+
+**Heure et poste :**
+- l'heure en tête du cadre, la date à côté (en dessous quand c'est
+  étroit) ; dès 640 px de cadre, l'heure à gauche en colonne et le billet
+  à droite, plutôt qu'un axe des heures étiré sur 1 000 px ;
+- l'en-tête dit « aujourd'hui », « demain », ou « depuis hier » pour une
+  nuit commencée la veille, à la place de la date ; la date reste pour
+  les autres jours. Au changement de jour, l'Accueil se refait déjà
+  (`accCle`) : « aujourd'hui » devient « depuis hier » à minuit ;
+- la pastille ne dit plus « Demain » (l'en-tête le dit) : « dans 19 h 30 »
+  jusqu'à 48 h, puis « dans N j » ;
+- le pourcentage au bout de la ligne « Encore … », mis à jour chaque
+  minute avec la barre ;
+- étroit (¼ au PC, ½ au téléphone) : la pastille de la pause s'efface (le
+  titre et les heures la disent), l'en-tête, le titre et le commentaire
+  passent à la ligne au lieu d'être coupés, plus d'axe des heures.
+
+**Météo :**
+- la même demande à Open-Meteo, toujours aux seules coordonnées de
+  l'usine, rapporte aussi les heures à venir et le maximum et le minimum
+  du jour ;
+- Wanze et la température en grand, l'icône et le ciel, « Max. · Min. » ;
+- les heures à venir : quatre, six ou huit selon la largeur du widget
+  (moins de 290 px, jusqu'à 400, au-delà) ; étroit, en colonne et sans les
+  heures ;
+- dessous, la température au début du poste (à sa fin pendant le poste) :
+  « À la fin de votre poste (6 h) : 3°, pluie » ;
+- caché tant qu'aucune mesure n'est arrivée (« rien à montrer » en mode
+  Personnaliser). L'heure et la météo tournent chacune même si l'autre est
+  masquée : la minuterie attendait jusque-là que l'horloge soit visible.
+
+**Une disposition déjà réglée** : « Heure et poste » prend la place de
+l'ancienne tuile « heure », et la Météo se pose après le profil. Éprouvé
+sur une disposition d'avant enregistrée.
+
+**Chaque widget à chaque taille, mesuré** (1280 et 900 px au PC, 390 au
+téléphone ; ce qui sort du widget, ce qui est coupé, ce qui est tronqué) :
+- avant : « Heure et poste » en ½ au téléphone (heure coupée de 14 px,
+  en-tête, titre et commentaire tronqués) et « Mon année » en ¼ et en ½
+  (le tableau des pauses à quatre colonnes se chevauchait, les compteurs
+  sortaient de 5 à 60 px) ;
+- « Mon année » ne propose plus ces deux tailles : sous 270 px, ce
+  tableau ne peut pas tenir lisiblement, et l'iPhone n'offre à un widget
+  que les tailles où il tient. Une disposition qui les avait reprend la
+  taille d'origine ;
+- après : 0 faute sur les 145 mesures (chaque widget à chaque taille
+  qu'il propose : 66 à 1280 px, 63 à 900, 16 au téléphone). Le premier
+  compte en oubliait : un widget à une seule taille n'a pas de bouton de
+  taille, et n'était pas mesuré ; il l'est désormais.
+
+Quatre moments éprouvés au navigateur (horloge fixée) : 10 h 10 avant une
+nuit (« Prochain poste · aujourd'hui · dans 11 h 20 »), 21 h 30 en poste
+(« En poste · aujourd'hui », 0 %), 2 h (« En poste · depuis hier »,
+53 %), le lendemain matin (« Reprise · demain · dans 19 h 30 »).
+
+Parcours : 112 essais, 0 faute ; statique, 0. Garde-fou du dépôt : 0,
+après une reformulation (deux mots en capitales séparés d'une virgule,
+dans un commentaire, une fois de plus).
