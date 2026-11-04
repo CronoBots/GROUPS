@@ -12631,3 +12631,88 @@ case) comme du contenu. Preuve qu'il crie encore : sans le centrage de
 - Les gestes (47), la grille, le repos (0 mutation), le parcours
   (112 essais) et statique : 0 faute.
 
+### Le widget posé sur les icônes, comme sur l'iPhone ; les hauteurs en rangées d'icônes (04/11/2026, `nfdm-v1382`)
+
+Le client, avec une capture de l'écran d'accueil de son iPhone et deux de
+l'application :
+- « Les widgets doivent avoir la même grille que les icônes d'onglet,
+  c'est-à-dire être alignés aux hauteurs et largeurs selon la taille du
+  widget, pour être dans le prolongement des icônes comme c'est le cas du
+  widget sur ce screen Apple. »
+- « Ce widget météo de mon app est sur 3 lignes et pas moyen de passer à
+  2 de hauteur. »
+
+**Ce que montre l'iPhone.** Un widget tombe sur les carrés des icônes :
+- son bord gauche est celui de la première icône de sa colonne, son bord
+  droit celui de la dernière ;
+- son haut est le haut des icônes de sa rangée ;
+- son bas est le bas des icônes de sa dernière rangée ; l'étiquette vient
+  dessous, comme sous une icône.
+
+Dans l'application, le widget prenait toute sa case : 9 à 23 px de plus
+de chaque côté selon l'écran, et 34 px de plus en bas, dans la place des
+étiquettes.
+
+**Désormais.**
+- `accAligner()` donne au widget des marges dans sa case, recalculées à
+  chaque largeur. Elles se tirent de la taille réelle d'une icône
+  (`--ip-taille` : 60 px, 54 px sous 360 px d'écran) et de sa place dans
+  sa case.
+- Un widget de 2 rangées fait 172 px de haut (au lieu de 208), un de
+  4 rangées 396 px.
+- Contrôle neuf : les 4 bords de chaque widget tombent sur les icônes.
+  Les colonnes d'icônes sont calculées depuis la grille (4 au téléphone,
+  8 au PC), chaque icône réelle vérifiée dessus.
+  - Avant : 97 widgets sur 97 hors des icônes (haut 2 px, bas 34 px,
+    côtés 9 à 23 px).
+  - Après : 0 sur 96, à 6 largeurs.
+
+**Les hauteurs se disent en rangées d'icônes**, comme le client les
+compte : « 2 lignes » ou « 4 lignes » (le Planning 6 ou 8, l'usine 4
+ou 6). Ce sont les tailles de la v1376, l'étiquette seule change.
+
+**Les « 3 lignes ».** Sur la capture, la bulle de taille ne montre que
+« 1 », celle de la v1375 ou d'avant : la hauteur y suivait le contenu
+(trois rangées pour la météo) et ne se choisissait pas. Depuis la v1376,
+elle se choisit. L'application du client n'avait pas encore pris les
+dernières versions.
+
+**Ce que les cadres plus petits ont demandé.** La matrice a relevé
+53 fautes à la première mesure.
+- **Météo, 2 rangées :**
+  - large : la température en 40 px, le ciel dit par les heures, la
+    rangée des heures serrée ;
+  - sous 200 px : sans la ligne du poste ;
+  - de 200 à 260 px : cette ligne reste, elle remplit le cadre.
+- **Météo, 4 rangées :** les jours cèdent leur place (une liste « net »,
+  sans « + N autres »), plutôt que de passer sous la ligne du poste.
+- **Heure et poste, 2 rangées :** sans le commentaire ni le libellé
+  (« Ce soir » et le décompte le disent), des marges plus serrées. Sous
+  170 px : sans les quarts d'heure.
+- **Heure et poste, 4 rangées :** « Ensuite » est un bloc secondaire, qui
+  s'efface entier si pas même un poste n'y tient.
+- **Mon cycle, Calendrier, 4 rangées :** des cases plus serrées (la
+  lettre du poste était rognée de 3 à 4 px).
+- **Les listes des widgets ne se tassent plus** sous leurs lignes : elles
+  en cèdent (« Chèques-repas » passait sur la note).
+
+**L'usine en direct, trois défauts trouvés en chemin :**
+- **les trigrammes ne se replaçaient pas** quand le widget changeait de
+  taille, seulement quand la fenêtre bougeait. Un `ResizeObserver` sur la
+  photo les replace ;
+- **la bande d'état n'était pas évitée** : sur deux rangs quand la photo
+  est étroite, elle couvrait un trigramme. Les étiquettes restent
+  au-dessus ;
+- **l'évitement oscillait** (au-dessus de l'obstacle, sinon dessous) et
+  s'arrêtait sur la pastille « En direct ». Il cherche maintenant la place
+  libre la plus proche parmi les bords des étiquettes déjà posées.
+
+**Mesuré.**
+- Avec données, à 7 largeurs et 3 heures : 365 mesures par heure,
+  0 faute.
+- Sans données : 229 mesures, 0 faute.
+- L'alignement : 96 widgets, 0 hors des icônes.
+- La grille (règle mise à jour : la case d'un widget, ses marges
+  comprises), les gestes (47), le repos (0 mutation), le parcours
+  (112 essais) et statique : 0 faute.
+
