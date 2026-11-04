@@ -6676,6 +6676,13 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   .wrap{max-width:1480px}
   .top{--lw:1480px}
 }
+/* L'ACCUEIL, LUI, PREND TOUTE LA LARGEUR (le client, le 04/11/2026 : « une
+   grille plus large pour la largeur écran ») : sa grille compte ses
+   colonnes à la largeur (accForme). Plafonnée comme les autres onglets,
+   elle laissait 92 px vides de chaque côté à 1920 px. */
+@media (min-width:1100px){
+  body[data-view="horaire"] .wrap{max-width:none}
+}
 @media (min-width:1100px) and (max-width:1399px){ .top{--lw:1180px} }
 @media (min-width:1400px) and (max-width:1599px){ .top{--lw:1340px} }
 /* DES BADGES DE MÊME LARGEUR, L'HORAIRE DEDANS (le client, le 20/10/2026 :
@@ -8584,6 +8591,44 @@ html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps.eqhote .e
 html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps.eqhote .eqp2 td .eqn .eqhd{padding:0!important}
 html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 th.eqposte{width:124px!important; white-space:normal; line-height:1.15}
 html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 tbody td{padding-left:4px!important; padding-right:4px!important}
+/* LE PLANNING ÉTROIT (moins de 940 px de large : de 1100 à 1270 px de
+   fenêtre, et de 1564 à 1720 avec douze colonnes ; le 04/11/2026). Le
+   poste prend son nom court (« CM », « Meun. »), comme au téléphone, et
+   les badges se serrent : 34 px au lieu de 44, 73 avec l'horaire au lieu
+   de 86. Les textes gardent leur taille (13,5 et 11 px). À 818 px, trois
+   badges dont deux avec l'horaire passaient sur deux lignes. */
+@container accw (max-width:940px){
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 .orgl1{display:none!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 .orgl2{display:inline!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 th.eqposte{width:64px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 td .eqc{gap:4px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps.eqhote .eqp2 tbody td .eqn{min-width:calc(3ch + 8px)!important; margin:1px!important; column-gap:2px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps.eqhote .eqp2 tbody td .eqn:has(.eqhd){padding-right:5px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps.eqhote .eqp2 tbody td .eqn>b{width:calc(3ch + 8px)!important}
+}
+/* LE PLANNING BAS (moins de 450 px de haut : 395 à 1100 px de fenêtre,
+   417 à 1564) : la barre de date (51 px, son libellé en prenait 44) et
+   l'en-tête des pauses (44 px pour une ligne de 17) se serrent à 35 et
+   30 px, les badges à 22 px. Sur 120 jours, à 1100 px, plus aucun jour ne
+   passe sous le bord (le 18 novembre, onze rangées, sans aucune case sur
+   deux lignes, le dépassait encore de 25 px), et le « +N » ne sert plus
+   que 6 jours au lieu de 27. */
+@container accw (max-height:450px){
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] .card>.toolbar.eqnav{padding-top:2px!important; padding-bottom:2px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] .card>.toolbar.eqnav .jourline,html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] .card>.toolbar.eqnav .jourline .eqjour{min-height:0!important; height:auto!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] .card>.toolbar.eqnav .jourline .eqjour{line-height:30px!important; font-size:17px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] .card>.toolbar.eqnav .jourline>button{width:28px!important; height:28px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 thead tr{height:30px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps .eqp2 thead th{padding-top:2px!important; padding-bottom:2px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps.eqhote .eqp2 tbody td .eqn{height:22px!important}
+  html body #v-horaire.acc-perso #accPlanning[data-acc-h="2"] #jourCorps.eqhote .eqp2 tbody td .eqn>b{height:20px!important; line-height:18px!important}
+  html body #v-horaire.acc-perso #accPlanning #jourCorps .eqp2 td .acc-plus.pl-plus{height:22px!important}
+}
+/* le « +N » d'une case trop chargée (accPlanningAjuster) : un badge en
+   pointillé, de la hauteur des autres, qui ouvre l'onglet Planning */
+html body #v-horaire.acc-perso #accPlanning #jourCorps .eqp2 td .acc-plus.pl-plus{display:inline-flex!important; align-items:center; justify-content:center; box-sizing:border-box; flex:none!important; height:24px; min-width:30px; margin:1px 2px; padding:0 6px!important; vertical-align:top; border:1px dashed var(--trait-fort); border-radius:7px; background:none; color:var(--ink); font:600 12px/1 "IBM Plex Mono",monospace; cursor:pointer}
+@media (hover:hover){ html body #v-horaire.acc-perso #accPlanning #jourCorps .eqp2 td .acc-plus.pl-plus:hover{border-style:solid; border-color:var(--in2)} }
+html body #v-horaire.acc-perso #accPlanning #jourCorps .eqp2 td .acc-plus.pl-plus:focus-visible{outline:2px solid var(--in); outline-offset:1px}
 #accPlanning #jourCard>header{--ic:var(--ip-planning)}
 .acc-planning{min-width:0}
 /* les polyvalences sont un bouton : leur widget l'enveloppe (un élément
@@ -8721,6 +8766,18 @@ html body #v-horaire.acc-perso #ryAn .mc-sem{flex:1 1 0; min-height:0; margin-bo
 html body #v-horaire.acc-perso #ryAn .mc-sem .mc-j{min-height:0; height:100%}
 html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-sem:not(:has(.mc-j.auj)){display:none}
 html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-sem:has(.mc-j.auj)+.mc-sem{display:grid}
+/* MON CYCLE EN MOYEN (deux semaines) AU PC (le 04/11/2026) : sous 215 px
+   de haut, la période cède sa ligne et les jours se serrent ; sous 185,
+   la date aussi. La pastille du poste tombait à 4 px (398 × 188, à 1564 px
+   de fenêtre), à rien sous 180 : les dates restaient, sans le poste. La
+   requête lit la boîte sans ses marges (26 px). */
+@container accw (max-height:188px){
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .ry-an-t>.pf-pr-l:not(.mc-stat){display:none!important}
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-j{padding:2px 1px 3px!important; row-gap:2px!important}
+}
+@container accw (max-height:158px){
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-n{height:20px!important; line-height:20px!important}
+}
 /* Calendrier : 1 ligne, le mois et la semaine en cours ; 2 lignes, le mois
    entier ; le bilan du mois et la légende restent dans l'onglet */
 html body #v-horaire.acc-perso #calCard>#moisCal{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
@@ -9359,6 +9416,37 @@ html body #v-horaire.acc-perso.acc-tel #usineCard :is(#uspEt,#uspTraits){display
    d'écran (la requête lit le contenu) */
 @container accw (min-height:270px) and (max-height:299px){ html body #v-horaire.acc-perso #ryAn[data-acc-h="2"] .mc-j{padding-top:0!important; padding-bottom:0!important}
   html body #v-horaire.acc-perso #ryAn[data-acc-h="2"] .mc-n{line-height:17px} }
+/* AU TÉLÉPHONE DE 320 PX, LE POSTE NE DISPARAÎT PLUS (le 04/11/2026 ; la
+   faute « écrasé » de la matrice, neuve, les a trouvés, présents depuis
+   les formats d'Apple) :
+   - Mon cycle en grand (280 × 293, 267 px de contenu) : six semaines, la
+     pastille du poste à 1,4 px. La période cède sa ligne, la date passe à
+     20 px : pastille de 12,5 ;
+   - le Calendrier en grand (280 × 293) : la pastille à 1,6 px. La barre
+     du mois se serre (45 → 31 px), la date passe à 20 px : pastille de 12 ;
+   - Mon cycle en moyen : à 360 px (315 × 149), le « N » rogné de 3 px —
+     les jours perdent leurs marges, pastille de 15 ; à 320 (280 × 132),
+     écrasé à 0 — deux semaines n'y tiennent pas : la semaine en cours seule,
+     pastille de 18. */
+@container accw (max-height:128px){
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-j{padding-top:0!important; padding-bottom:0!important; row-gap:0!important}
+}
+@container accw (max-height:110px){
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-sem:has(.mc-j.auj)+.mc-sem{display:none!important}
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="1"] .mc-n{height:24px!important; line-height:24px!important}
+}
+@container accw (max-height:269px){
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="2"] .ry-an-t>.pf-pr-l:not(.mc-stat){display:none!important}
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="2"] .mc-j{padding-top:0!important; padding-bottom:0!important; row-gap:0!important}
+  html body #v-horaire.acc-perso #ryAn[data-acc-h="2"] .mc-n{height:20px!important; line-height:20px!important}
+}
+@container accw (max-height:299px){
+  html body #v-horaire.acc-perso #calCard[data-acc-h="2"] .calmois{padding-top:2px!important; padding-bottom:0!important}
+  html body #v-horaire.acc-perso #calCard[data-acc-h="2"] .calmois .mnav button{width:28px!important; height:28px!important}
+  html body #v-horaire.acc-perso #calCard[data-acc-h="2"] .calmois .mlabelwrap{padding-bottom:0!important}
+  html body #v-horaire.acc-perso #calCard[data-acc-h="2"] .mc-j{padding-top:0!important; padding-bottom:0!important; row-gap:0!important}
+  html body #v-horaire.acc-perso #calCard[data-acc-h="2"] .mc-n{height:20px!important; line-height:20px!important}
+}
 /* le bouton qui ouvre le mode, au pied de l'Accueil */
 .acc-pied{display:flex; flex-direction:column; align-items:center; gap:12px; padding:8px 0 4px}
 .acc-perso-btn{display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 16px; border:1px solid var(--line); border-radius:999px;
@@ -9383,6 +9471,30 @@ html body #v-horaire.acc-perso.acc-tel #usineCard :is(#uspEt,#uspTraits){display
 #v-horaire.acc-edit [data-w]>*{pointer-events:none}
 /* le calque des commandes (accOutils), une case par élément */
 .acc-calque{position:absolute; inset:0; z-index:20; pointer-events:none}
+/* « MON PROFIL » EN BANDEAU (4 × 1, la hauteur d'une icône) ET EN PETIT
+   (2 × 2) — le client, le 04/11/2026 : « sur mobile, j'aimerais pouvoir
+   mettre le premier cadre sur une ligne (1 × 4 ou en 2 × 2) ».
+   Le bandeau : l'avatar, le nom et le binôme, la roue ; sans la photo. */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"]{display:flex!important; flex-direction:row; align-items:center; gap:10px; padding:0 8px!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-couv{display:none!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-prof{order:0; flex:1 1 auto; min-width:0; margin:0!important; padding:0!important; gap:10px; align-items:center}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-av{width:calc(100cqh - 14px)!important; height:calc(100cqh - 14px)!important; font-size:calc((100cqh - 14px) * .3)!important; flex:none}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-hmeta{padding-top:0!important; gap:2px; justify-content:center; min-width:0}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-poste{font-size:16px!important; flex-wrap:nowrap!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-notif{order:1; position:relative!important; top:auto!important; left:auto!important; margin:0!important; flex:none}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-roue{order:2; position:relative!important; top:auto!important; right:auto!important; left:auto!important; margin:0!important; flex:none; width:34px; height:34px}
+@container (max-width:299px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-statut{display:none} }
+/* le petit : la photo en haut, l'avatar qui la chevauche, le nom et le
+   binôme dessous ; la roue sur la photo */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"]{display:flex!important; flex-direction:column; align-items:stretch!important; padding:0 0 10px!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-couv{flex:1 1 40%!important; min-height:0!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-prof{flex-direction:column; align-items:flex-start; gap:4px; margin:-24px 0 0!important; padding:0 12px!important; min-width:0}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-av{width:48px!important; height:48px!important; font-size:15px!important; flex:none}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-hmeta{padding-top:0!important; gap:1px; width:100%; min-width:0}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste{font-size:15px!important; flex-wrap:nowrap!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-statut{display:none}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-roue{position:absolute!important; top:8px!important; right:8px!important; left:auto!important; width:30px; height:30px; margin:0!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-notif{position:absolute!important; top:8px!important; left:8px!important; right:auto!important; margin:0!important}
 /* le nom sous chaque widget (accNoms) : le style de l'étiquette d'une icône */
 .acc-noms{position:absolute; inset:0; z-index:2; pointer-events:none}
 /* les deux couches posées sur la grille (le calque du mode Modifier, les
@@ -37374,7 +37486,7 @@ var ACC_W=[
   {k:"poste",        nom:"Heure et poste",      l:6,  f:["S","M","L"], h:1},
   /* la photo remplit toute largeur ; 2 lignes ne montraient qu'une photo
      plus haute */
-  {k:"profil",       nom:"Mon profil",          l:6,  f:["M"], h:1},
+  {k:"profil",       nom:"Mon profil",          l:6,  f:["B","S","M"], h:1},
   {k:"meteo",        nom:"Météo",               l:6,  f:["S","M","L"], h:1},
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
   /* une grille de sept jours : moyen (la semaine), grand et très grand
@@ -37449,8 +37561,12 @@ function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return AC
    PC) et en lignes de widget (h : une ligne couvre deux rangées d'icônes).
    Chaque widget choisit les siens (f), au téléphone et au PC, ou
    {tel:[…], large:[…]} ; un format absent de l'écran est ignoré. */
-var ACC_FORMATS={tel:{S:[1,1], M:[2,1], L:[2,2]}, large:{S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
-var ACC_FORMAT_NOM={S:"Petit", M:"Moyen", L:"Grand", XL:"Très grand"};
+/* et un format qu'Apple n'a pas, à la demande du client pour « Mon
+   profil » (le 04/11/2026 : « mettre le premier cadre sur une ligne ») :
+   le bandeau, 4 icônes de large sur une seule rangée (h : une demi-ligne
+   de widget) */
+var ACC_FORMATS={tel:{B:[2,0.5], S:[1,1], M:[2,1], L:[2,2]}, large:{B:[6,0.5], S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
+var ACC_FORMAT_NOM={B:"Bandeau", S:"Petit", M:"Moyen", L:"Grand", XL:"Très grand"};
 function accFormats(k){ var d=accDef(k), m=ACC.mode||"tel", F=ACC_FORMATS[m], f=d&&!d.app&&d.f; if(!f) return null; if(!(f instanceof Array)) f=f[m]||[];
   return f.filter(function(x){ return F[x]; }).map(function(x){ return {n:x, t:F[x][0], h:F[x][1]}; }); }
 function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; if(!d||d.app) return [];
@@ -37618,9 +37734,12 @@ function accAligner(v,mode){
        137 px entre deux widgets, en largeur comme en hauteur. Désormais,
        huit icônes de front, l'icône aux 64/90,7 du pas des colonnes, la
        rangée aux 98,7/90,7, le widget débordant de (rangée − colonne) / 2,
-       comme au téléphone ; le pas grandit avec la fenêtre jusqu'à 136 px
-       (une icône de 96), puis la grille se centre. */
-    var vw2=v.clientWidth, C2=Math.min((vw2+g)/8,136), R2=C2*98.7/90.7, pad2=Math.max(0,(vw2-(8*C2-g))/2);
+       comme au téléphone. Le nombre de colonnes suit la largeur, par
+       paquets de quatre (accForme) : le pas va de 105 à 157 px, la grille
+       couvre toute la largeur (la v1386 la plafonnait à huit colonnes de
+       136 px, centrée : 188 px de marge de chaque côté à 1920, trop
+       étroite pour le client). */
+    var N2=Math.max(8,Math.round((ACC.cols||24)/3)), vw2=v.clientWidth, C2=(vw2+g)/N2, R2=C2*98.7/90.7, pad2=Math.max(0,(vw2-(N2*C2-g))/2);
     s=C2*64/90.7;
     v.style.paddingLeft=v.style.paddingRight=pad2.toFixed(2)+"px";
     if(rac) rac.style.setProperty("--ip-taille",s.toFixed(2)+"px");
@@ -37637,9 +37756,20 @@ function accForme(){
   var w=v.clientWidth; if(!w) return;
   var mode=w>=700?"large":"tel";
   var vcs=getComputedStyle(v); ACC.gap=parseFloat(vcs.columnGap)||16; ACC.rg=parseFloat(vcs.rowGap)||ACC.gap;
-  var neuf=accAligner(v,mode);
+  /* AU PC, UNE GRILLE AUSSI LARGE QUE L'ÉCRAN (le client, le 04/11/2026 :
+     « sur PC, il faut adapter une grille plus large pour la largeur
+     écran ») : les colonnes d'icônes vont par quatre, la largeur d'un
+     widget moyen ; une tous les 105 px au moins, huit au moins (le très
+     grand en couvre huit). Chacune en fait trois de la grille. Avec 9,
+     10 ou 11 colonnes, les widgets de quatre ne tombaient pas juste : une
+     bande vide courait à droite sur toute la hauteur (photos à 1440 et
+     1600 px). 8 colonnes jusqu'à 1560 px de fenêtre, 12 jusqu'à 1980,
+     16 au-delà. */
+  var cols=mode==="large"?3*Math.max(8,4*Math.floor((w+ACC.gap)/420)):4, colsNeuves=cols!==ACC.cols;
+  ACC.cols=cols;
+  var neuf=accAligner(v,mode)||colsNeuves;
   if(mode===ACC.mode){ if(neuf) accStyle(); return; }
-  ACC.mode=mode; ACC.cols=mode==="large"?24:4;
+  ACC.mode=mode;
   v.classList.toggle("acc-large",mode==="large"); v.classList.toggle("acc-tel",mode==="tel");
   accCharger(mode); accStyle();
   if(ACC.edit){ accOutils(true); accPied(); }
@@ -37699,13 +37829,24 @@ function accScan(){
    éléments, eux, sont inertes tant qu'on modifie. */
 var ACC_MOINS='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
 function accItem(k){ var l=document.querySelectorAll('#v-horaire [data-w="'+k+'"]'); for(var i=0;i<l.length;i++) if(l[i].getClientRects().length) return l[i]; return null; }
-/* la place d'un élément dans la grille, sans le tremblement (offset*) */
-function accPos(el){
-  var v=document.getElementById("v-horaire"), x=0, y=0, n=el;
-  while(n&&n!==v){ x+=n.offsetLeft; y+=n.offsetTop; n=n.offsetParent; }
-  if(n!==v){ var r=el.getBoundingClientRect(), vr=v.getBoundingClientRect(); x=r.left-vr.left-v.clientLeft; y=r.top-vr.top-v.clientTop; }
-  return {x:x, y:y};
+/* LA PLACE D'UN ÉLÉMENT MESURÉE À L'ÉCRAN (le 04/11/2026, le client :
+   « centrage du nom des widgets ») : par le milieu de sa boîte — que le
+   tremblement, une rotation autour du milieu, ne déplace pas — et sa
+   taille sans transformation, par rapport au bord intérieur de l'Accueil
+   (accPos) ou d'une couche posée dessus (accDans : son propre coin,
+   mesuré lui aussi). Avant, par offsetLeft et offsetParent, un calcul
+   qui suppose que le repère est l'Accueil ; or les trois premiers
+   widgets sont rangés dans une enveloppe positionnée mais sans boîte
+   (.pf-hero, display:contents). Juste dans Chromium ; dans Safari, pas
+   éprouvé (WebKit n'est pas installé ici), et rien n'y prouve un
+   décalage. La mesure à l'écran ne dépend d'aucun repère. L'animation
+   d'entrée de l'onglet, une translation, ne la fausse pas : le widget et
+   la couche bougent ensemble. */
+function accDans(el,repere){
+  var r=el.getBoundingClientRect(), c=repere.getBoundingClientRect();
+  return {x:(r.left+r.right)/2-c.left-(repere.clientLeft||0)-el.offsetWidth/2, y:(r.top+r.bottom)/2-c.top-(repere.clientTop||0)-el.offsetHeight/2};
 }
+function accPos(el){ return accDans(el,document.getElementById("v-horaire")); }
 function accBoiteHTML(k){
   var d=accDef(k), nom=esc(d.nom);
   return '<button type="button" class="acc-moins" data-acc-masquer="'+k+'" aria-label="Retirer « '+nom+' » de l’Accueil">'+ACC_MOINS+'</button>'
@@ -37776,7 +37917,7 @@ function accCalquePlacer(){
   var c=ACC.calque; if(!c||!ACC.edit) return;
   [].forEach.call(c.children,function(b){
     var el=accItem(b.getAttribute("data-acc-pour")); if(!el){ b.style.display="none"; return; }
-    var q=accPos(el);
+    var q=accDans(el,c);
     b.style.display=""; b.style.left=q.x+"px"; b.style.top=q.y+"px"; b.style.width=el.offsetWidth+"px"; b.style.height=el.offsetHeight+"px";
     var g=b.querySelector(".acc-etirer"), pa=g&&g.querySelector("path");
     if(pa){ var cd=accCadre(el), sg=cd.r+"|"+cd.dx+"|"+cd.dy;
@@ -37804,7 +37945,7 @@ function accNoms(){
   ACC.items.forEach(function(el){
     var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!el.offsetWidth||!el.getClientRects().length) return;
     if(el.classList.contains("acc-vide")||(ACC.drag&&ACC.drag.parti&&ACC.drag.k===k)) return;
-    var q=accPos(el);
+    var q=accDans(el,c);
     h.push('<span class="acc-nom" data-acc-nom-pour="'+k+'" style="left:'+q.x.toFixed(2)+'px;top:'+(q.y+el.offsetHeight).toFixed(2)+'px;width:'+el.offsetWidth+'px">'+esc(d.nom)+'</span>');
   });
   var t=h.join(""); if(c.__t!==t){ c.innerHTML=t; c.__t=t; }
@@ -37841,6 +37982,7 @@ function accTremblerStop(){
    dernière ligne disant ce qui reste (« + 3 autres ») ; rien n'est coupé
    en deux. Les listes connues des widgets d'avant reçoivent la marque ici. */
 function accAjuster(w){
+  if(w.id==="accPlanning"){ accPlanningAjuster(w); return; }
   /* le fil des messages : sur le dernier, sauf si on lit plus haut */
   var fl=w.querySelector(".fil-l"); if(fl&&!fl.__haut) fl.scrollTop=fl.scrollHeight;
   [].forEach.call(w.querySelectorAll(".ctl-l,.md-l,.site-ps,.pf-pr"),function(L){ if(!L.hasAttribute("data-acc-fit")) L.setAttribute("data-acc-fit",""); });
@@ -37874,6 +38016,48 @@ function accAjuster(w){
        s'efface, plutôt qu'une ligne coupée (data-acc-bloc) */
     var bl=L.closest("[data-acc-bloc]"); if(bl&&w.contains(bl)&&trop()) bl.classList.add("acc-cache");
   });
+}
+/* LE PLANNING DE L'ACCUEIL TIENT DANS SON CADRE QUEL QUE SOIT LE JOUR
+   (le 04/11/2026). Son format est fixe (8 × 4 icônes) ; un jour chargé
+   (une dizaine de personnes en formation, quatre badges dans une case)
+   passait sous son bord : 2 jours sur 120 à 1280 px de fenêtre, et la
+   plupart à 1100. Tant que le tableau dépasse, la case qui tient le plus
+   de lignes (la Formation d'abord, à égalité) cède sa dernière personne à
+   un « +N » : il les nomme (infobulle, lecteur d'écran) et ouvre l'onglet
+   Planning, où rien n'est jamais caché. Un jour où tout tient, rien ne
+   change. Pendant le glissement d'un jour à l'autre (deux calques), on
+   attend : la fin du glissement refait le tableau, et l'observateur de
+   l'Accueil relance l'ajustement. */
+function accPlanningNet(c){ if(!c) return;
+  [].forEach.call(c.querySelectorAll(".pl-plus"),function(x){ x.parentNode.removeChild(x); });
+  [].forEach.call(c.querySelectorAll(".eqn.acc-cache"),function(x){ x.classList.remove("acc-cache"); }); }
+function accPlanningAjuster(w){
+  accPlanningNet(w);
+  var h=w.querySelector("#jourCorps"); if(!h||!w.getClientRects().length||h.classList.contains("paging")) return;
+  var c=w.querySelector("#jourCard")||w, lim=c.getBoundingClientRect().bottom-1.5, garde=0;
+  function trop(){ var r=h.querySelectorAll(".eqp2 tbody tr"), d=null; for(var i=r.length-1;i>=0&&!d;i--) if(r[i].getClientRects().length) d=r[i]; return !!d&&d.getBoundingClientRect().bottom>lim+0.5; }
+  function vus(q){ return [].filter.call(q.children,function(e){ return ((e.classList.contains("eqn")&&!e.classList.contains("acc-cache"))||e.classList.contains("pl-plus"))&&e.getClientRects().length; }); }
+  function lignes(l){ var t={}, n=0; l.forEach(function(e){ var y=Math.round(e.getBoundingClientRect().top); if(!t[y]){ t[y]=1; n++; } }); return n; }
+  while(trop()&&garde++<60){
+    var pire=null, pn=1, pf=false;
+    /* les badges sont dans l'enveloppe de la case (.eqc), ou dans la case
+       elle-même (la rangée Formation) */
+    [].forEach.call(h.querySelectorAll(".eqp2 tbody td"),function(td){
+      var q=td, i; for(i=0;i<td.children.length;i++) if(td.children[i].classList.contains("eqc")) q=td.children[i];
+      var l=vus(q); if(l.filter(function(e){ return e.classList.contains("eqn"); }).length<2) return;
+      var n=lignes(l), f=!!q.closest("tr.eqform");
+      if(n>1&&(n>pn||(n===pn&&f&&!pf))){ pire=q; pn=n; pf=f; } });
+    if(!pire) break;
+    var bs=vus(pire).filter(function(e){ return e.classList.contains("eqn"); });
+    bs[bs.length-1].classList.add("acc-cache");
+    var plus=null; [].forEach.call(pire.children,function(e){ if(e.classList.contains("pl-plus")) plus=e; });
+    if(!plus){ plus=document.createElement("button"); plus.type="button"; plus.className="acc-plus pl-plus"; pire.appendChild(plus); }
+    var noms=[].filter.call(pire.children,function(e){ return e.classList.contains("eqn")&&e.classList.contains("acc-cache"); })
+      .map(function(e){ var b=e.querySelector("b"); return ((b||e).textContent||"").trim(); });
+    plus.textContent="+"+noms.length;
+    plus.title=noms.join(", ")+" · ouvrir le Planning";
+    plus.setAttribute("aria-label",noms.length+(noms.length>1?" autres : ":" autre : ")+noms.join(", ")+". Ouvrir le Planning");
+  }
 }
 function accAjusterTous(){ ACC.ajT=0; ACC.items.forEach(function(el){ var k=el.getAttribute("data-w"), d=k&&accDef(k); if(d&&!d.app) accAjuster(el); }); }
 function accAjusterBientot(){ if(!ACC.ajT) ACC.ajT=requestAnimationFrame(accAjusterTous); }
@@ -38131,7 +38315,7 @@ function accPlanningPlacer(v){
   if(ici){
     if(c.parentNode!==w){ w.appendChild(c); w.hidden=false;
       (window.requestIdleCallback||function(f){ setTimeout(f,40); })(function(){ try{ renderEquipe(); }catch(e){} }); }
-  } else { if(c.parentNode!==vj) vj.appendChild(c); w.hidden=true; }
+  } else { if(c.parentNode!==vj){ accPlanningNet(c); vj.appendChild(c); } w.hidden=true; }
 }
 function accInit(){
   var v=document.getElementById("v-horaire");
@@ -38152,6 +38336,10 @@ function accInit(){
       if([].every.call(ms[i].addedNodes,function(n){ return n.classList&&n.classList.contains("acc-plus"); })&&[].every.call(ms[i].removedNodes,function(n){ return n.classList&&n.classList.contains("acc-plus"); })) continue;
       if(!ACC.scanT) ACC.scanT=requestAnimationFrame(accScan); return; }
   }).observe(v,{childList:true, subtree:true});
+  /* le « +N » d'une case du Planning : l'onglet Planning, où tout est
+     montré (en capture : avant les clics du tableau, qui visent les badges) */
+  var apl=document.getElementById("accPlanning");
+  if(apl) apl.addEventListener("click",function(e){ var b=e.target&&e.target.closest&&e.target.closest(".pl-plus"); if(!b) return; e.preventDefault(); e.stopPropagation(); accVers("jour"); },true);
   v.classList.add("acc-perso");
   accForme(); accScan(); accPied();
   /* en mode « Modifier », le contenu des éléments ne réagit pas */

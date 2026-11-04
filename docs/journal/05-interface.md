@@ -13026,7 +13026,8 @@ la fenêtre (181 px).
   - la rangée aux 98,7/90,7 du même pas ;
   - le widget débordant de (rangée − colonne) / 2, comme au téléphone.
 - Le pas grandit avec la fenêtre jusqu'à 136 px (une icône de 96 px),
-  puis la grille se centre.
+  puis la grille se centre. Remplacé en v1387 : la grille couvre toute
+  la largeur de l'écran, ses colonnes par quatre.
 
 | Fenêtre | Icône | Écart en largeur / en hauteur | Météo (moyen) | Marge |
 |---|---|---|---|---|
@@ -13069,3 +13070,140 @@ leurs positions.
   rangées (118 px pour 148 au PC à 1920).
 - La grille, les gestes (47), le repos (0 mutation), la fiche de
   l'usine, le parcours (112 essais) et statique : 0 faute.
+
+### « Mon profil » en bandeau ou en petit ; les noms placés par mesure à l'écran ; au PC, une grille aussi large que l'écran ; le Planning de l'Accueil tient chaque jour (04/11/2026, `nfdm-v1387`)
+
+Le client : « Sur mobile, j'aimerais pouvoir mettre le premier cadre sur
+une ligne (1 × 4 ou en 2 × 2). Centrage du nom des widgets. Et sur PC,
+il faut adapter une grille plus large pour la largeur écran. »
+
+**« Mon profil » en bandeau ou en petit.** Le premier cadre a désormais
+trois formats :
+- **le bandeau, 4 × 1** : un format qu'Apple n'a pas, ajouté à la
+  demande du client (`B` dans `ACC_FORMATS`, une demi-ligne de widget,
+  soit une rangée d'icônes). Il est aussi haut qu'une icône : 64 points
+  à 393. On y voit l'avatar, le nom, le badge « Employé » (effacé sous
+  300 px de large), le binôme et la roue, sans la photo ;
+- **le petit, 2 × 2** : la photo en haut, l'avatar qui la chevauche, le
+  nom et le binôme dessous, la roue sur la photo. Au PC, la photo
+  prend la place qui reste (elle tombait à 0 de large : une règle du PC
+  centre les éléments du cadre) ;
+- **le moyen, 4 × 2**, celui d'origine.
+
+**Le centrage des noms.** Mes contrôles, dans Chromium, donnaient chaque
+nom centré au pixel. Le client voyait autre chose, sans capture.
+- **Désormais**, la place se mesure à l'écran (`accDans`) : le milieu de
+  la boîte (`getBoundingClientRect`) et sa taille sans transformation,
+  par rapport au coin de la couche, mesuré lui aussi. Le calque du mode
+  Modifier prend la même mesure. L'animation d'entrée de l'onglet, une
+  translation, ne la fausse pas : le widget et la couche bougent
+  ensemble.
+- **La cause n'est pas établie.** J'ai d'abord supposé que Safari prenait
+  pour repère l'enveloppe des trois premiers widgets (`.pf-hero`,
+  positionnée mais sans boîte, `display:contents`). C'est sans doute
+  faux : WebKit cherche ce repère parmi les boîtes, comme Chromium, et
+  cette enveloppe n'en a pas. Rien n'est éprouvé dans Safari (WebKit
+  n'est pas installé ici) ; la mesure à l'écran ne dépend plus d'aucun
+  repère. Une capture dira si un nom reste décalé.
+
+**Au PC, une grille aussi large que l'écran.** La v1386 plafonnait la
+grille à huit colonnes de 136 px et la centrait : à 1920 px, 188 px de
+marge de chaque côté, en plus des 92 du plafond des onglets.
+- **L'Accueil n'est plus plafonné** à 1480 px (les autres onglets le
+  restent) : à 1920 px, la grille fait 1600 px au lieu de 1448.
+- **Les colonnes d'icônes vont par quatre**, la largeur d'un widget
+  moyen : une tous les 105 px au moins, huit au moins (`accForme`).
+  8 colonnes jusqu'à 1563 px de fenêtre, 12 jusqu'à 1983, puis 16 et 20
+  (à 2560).
+- **Une erreur, vue à la photo avant la publication.** La première règle
+  prenait autant de colonnes que la largeur en laissait (une tous les
+  118 px). À 1440 px (9 colonnes) et à 1600 (10), les widgets de quatre
+  ne tombaient pas juste : une bande vide courait à droite sur toute la
+  hauteur, quelques icônes dedans. Aucun contrôle ne le voyait.
+- **Un contrôle neuf** (`bande-test.js`, carnet de la session) : pour
+  chaque colonne d'icônes, la part de la hauteur couverte par un widget
+  ou une icône. Sur la règle fautive, il crie à 1440, 1600 et 1680
+  (6 %, 7 % et 3 % pour la dernière colonne, contre 81 % de médiane).
+  Sur la règle juste, de 1100 à 2560 px : aucune bande. Sa première
+  version ne mesurait rien (« NaN » partout) et passait quand même :
+  seul le sabotage l'a montré.
+
+| Fenêtre | Colonnes | Icône | Écart en largeur / en hauteur | Météo (moyen) |
+|---|---|---|---|---|
+| 1100 | 8 | 70,2 | 20,5 / 38,1 | 378 × 178 |
+| 1280 | 8 | 86,1 | 25,2 / 46,7 | 463 × 219 |
+| 1440 | 8 | 100,2 | 29,3 / 54,3 | 539 × 255 |
+| 1563 | 8 | 111 | 32,4 / 60,2 | 597 × 282 |
+| 1564 | 12 | 74,1 | 21,6 / 40,2 | 398 × 188 |
+| 1920 | 12 | 95 | 27,8 / 51,5 | 511 × 242 |
+| 2560 | 20 | 79,6 | 23,3 / 43,2 | 428 × 202 |
+
+**Le Planning de l'Accueil tient dans son cadre, chaque jour.** Sa taille
+est fixe (très grand, 8 × 4 icônes). Mesuré jour après jour sur 120 jours
+(la flèche ›, `plan-jours.js`), la version en ligne débordait déjà : à
+1280 px, le 16 décembre (21 px) et le 27 janvier 2027 (72 px, une
+rangée Formation de 160 px de haut). Plus petit, il débordait presque
+chaque semaine : à 1100 px (776 × 395, une largeur que la matrice ne
+mesurait pas), 95 px dès le 4 novembre ; à 1564 px, avec la nouvelle
+grille (818 × 417), 73 px.
+- **étroit** (moins de 940 px de large) : le nom court du poste (« CM »,
+  « Meun. »), comme au téléphone, et des badges serrés, 34 px au lieu de
+  44, 73 avec l'horaire au lieu de 86. Les textes gardent leur taille ;
+- **bas** (moins de 450 px de haut) : la barre de date passe de 51 à
+  35 px (son libellé en prenait 44), l'en-tête des pauses de 44 à 30, les
+  badges de 24 à 22 ;
+- **un jour trop chargé** : tant que le tableau dépasse, la case qui tient
+  le plus de lignes (la Formation d'abord) cède sa dernière personne à un
+  « +N ». Il les nomme (infobulle, lecteur d'écran) et ouvre l'onglet
+  Planning, où rien n'est caché. Un jour où tout tient, rien ne change ;
+  de retour dans l'onglet, rien n'est caché (`accPlanningAjuster`).
+
+| Fenêtre | Taille | Débord | Jours avec un « +N » | Personnes derrière |
+|---|---|---|---|---|
+| 1100 | 776 × 395 | 0 | 6 sur 120 | 17 (7 au plus) |
+| 1280 | 951 × 484 | 0 (2 jours en v1386) | 2 | 8 (5 au plus) |
+| 1564 | 818 × 417 | 0 | 2 | 12 (7 au plus) |
+| 1920 | 1050 × 535 | 0 | 0 | 0 |
+
+**Une erreur de mesure.** Le premier relevé jour après jour cliquait
+toutes les 120 ms. Or, au changement de jour, `pageJour()` superpose
+l'ancien et le nouveau tableau le temps du glissement (0,36 s) : les
+rangées, comptées deux fois, donnaient 129 px de débord le 28 janvier,
+faux. Le contrôle attend désormais la fin du glissement.
+
+**Le poste écrasé.** La matrice signalait un « N » rogné de 5 px dans
+« Mon cycle » en moyen à 1564 px (398 × 188 ; 5 px de marge en haut de
+chaque jour, 7 en bas, 4 d'écart : la pastille gardait 3,7 px).
+- En le corrigeant : à 1100 px (378 × 178) et à 760 (353 × 167), la
+  pastille tombait à 0. Les dates restaient, sans le poste, et la
+  matrice ne le voyait pas : elle ne relève qu'un texte coupé en partie,
+  et saute les boîtes de 2 px ou moins.
+- **Une faute neuve, « écrasé »** : un texte de 6 px ou plus enfermé dans
+  une boîte réduite à 2 px ou moins. Sur une copie sans le correctif :
+  « N » écrasé à 0 px à 760 et à 1100, rogné de 5 px à 1564.
+- Elle a trouvé quatre autres défauts, anciens, au téléphone de 320 et
+  360 px, les mêmes dans les 5 états : Mon cycle en moyen (à 0 px à 320,
+  rogné de 3 px à 360), Mon cycle et le Calendrier en grand à 320
+  (pastille de 1,4 et 1,6 px, six semaines dans 267 et 293 px).
+- **Corrigé** par la hauteur réelle (requêtes de conteneur) :
+  - Mon cycle en moyen : sous 215 px, la période cède sa ligne et les
+    jours se serrent ; sous 185, la date aussi ; sous 154, les jours
+    perdent leurs marges ; sous 136, la semaine en cours seule ;
+  - en grand : sous 295 px, la période de Mon cycle cède sa ligne ;
+    sous 300, la barre du mois du Calendrier se serre de 45 à 31 px ; et
+    la date passe à 20 px. Pastilles de 12 à 22 px partout.
+
+**Mesuré.**
+- **La matrice**, « écrasé » compris : chaque widget à chaque format, à
+  10 largeurs (320, 360, 393, 414, 760, 1100, 1280, 1564, 1920, 2560) et
+  5 états : 4 × 439 + 429 = 2 185 mesures, 4 fautes, celles du
+  téléphone ci-dessus. Mon cycle et le Calendrier, corrigés, à 9
+  largeurs : 46 mesures, 0 faute.
+- **Le Planning**, 120 jours à 1100, 1280, 1564 et 1920 px : 0 débord.
+- **Les bandes** : aucune, de 1100 à 2560 px (11 largeurs).
+- **Les noms** à 8 largeurs, 0 faute ; **le calque** à 6, écart maximal
+  0,3 px ; **l'alignement** : 150 widgets à 9 largeurs, 0 faute.
+- **L'épreuve de l'iPhone** (9 mesures à moins d'un point), le geste et
+  le clavier, les icônes à 10 largeurs, la grille, le repos (0
+  mutation), la fiche de l'usine : 0 faute.
+- **Le parcours** : 112 essais, 0 faute ; statique : 0.
