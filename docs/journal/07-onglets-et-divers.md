@@ -651,3 +651,48 @@ La page « Vos données » dit ce que le fil enregistre et qui le lit.
   par Entrée : le texte part tel quel, et le fil se relit.
 - Fonction absente : le cadre reste caché.
 - Parcours : 112 essais, 0 faute (contraste compris). Garde-fou : 0.
+
+### Le fil de l'usine optimisé : qui écrit, toujours dit (04/11/2026, `nfdm-v1358`)
+
+Le client, capture du téléphone à l'appui (un seul message, « Test », à
+03:08, sous un séparateur « 04/11 ») : « Optimise ce cadre. Et voit-on le
+trigramme de celui qui écrit ? »
+
+**La réponse à la question.** Oui pour les autres : leur trigramme était
+au-dessus de leur bulle. Pas pour les siens : à la v1355, mes messages, à
+droite, ne portaient pas de nom, comme dans une messagerie. Le client ne
+pouvait donc pas voir, sur sa propre capture, que le fil signe.
+
+**Une erreur de la v1355, mesurée sur la capture.** Le séparateur
+comparait la date du message au jour de l'usine (`jourUsine()`), où la
+nuit appartient à la veille. Entre minuit et 6 h, le message du jour se
+disait donc « 04/11 » au lieu de « Aujourd'hui ». Le fil compte en jours
+du calendrier : `new Date()`.
+
+**Ce qui change.**
+- Les autres : un rond à leur trigramme devant la bulle, à la matière des
+  icônes. Un seul rond par série d'un même auteur (moins de dix minutes
+  entre deux messages) : la place reste réservée, et les bulles restent
+  alignées.
+- Les miens : mon trigramme sous la bulle, « VBN · 03:08 », pour qu'on
+  voie que chaque message est signé.
+- Pour les lecteurs d'écran, chaque bulle commence par « TRI : » (texte
+  masqué). L'heure est un `<time>`, avec la date complète au survol.
+- Le bouton d'envoi est grisé tant que le champ est vide. Le compte des
+  caractères, « 950 / 1000 », apparaît dès 900.
+- « Effacer » n'est plus souligné en permanence : il ne l'est qu'au
+  survol ou au focus.
+- Le sous-titre est raccourci : « toute l'usine · comptes validés ».
+
+**Éprouvé au navigateur** (base simulée, horloge à 03:10, 320, 390 et
+1280 px) :
+- deux messages d'un collègue à 2 min d'écart, un message effacé, deux
+  messages à moi ;
+- « Hier », puis « Aujourd'hui » à 3 h 10 ;
+- les ronds sont « ATR », (vide), « GDT » ;
+- le bouton est grisé à vide, puis actif ; le compteur est caché sous 900 ;
+- après l'envoi, le champ est vidé et le bouton grisé de nouveau ;
+- aucun débordement, aucune erreur de page.
+
+Parcours : 112 essais, 0 faute. Garde-fou : 0, après une reformulation (un
+commentaire en capitales avait la forme « Nom, Prénom »).

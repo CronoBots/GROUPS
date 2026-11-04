@@ -8523,18 +8523,27 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
 #filCard .fil-l{display:flex; flex-direction:column; gap:6px; max-height:340px; overflow-y:auto; padding:4px 14px 10px; overscroll-behavior:contain}
 #filCard .fil-vide{margin:8px 0; font-size:13px; color:var(--muted); text-align:center}
 #filCard .fil-j{align-self:center; margin:6px 0 2px; font-size:11.5px; font-weight:600; color:var(--muted)}
-#filCard .fil-m{max-width:82%; align-self:flex-start; display:flex; flex-direction:column; gap:2px}
-#filCard .fil-m.moi{align-self:flex-end; align-items:flex-end}
-#filCard .fil-a{font:700 11.5px/1 "IBM Plex Mono",monospace; color:var(--ink2); padding:0 4px}
+#filCard .fil-m{max-width:86%; align-self:flex-start; display:flex; align-items:flex-start; gap:8px}
+#filCard .fil-m.suite{margin-top:-2px}
+#filCard .fil-m.moi{align-self:flex-end; justify-content:flex-end}
+#filCard .fil-c{display:flex; flex-direction:column; gap:3px; min-width:0}
+#filCard .fil-m.moi .fil-c{align-items:flex-end}
+/* le rond au trigramme, à la matière des icônes de l'écran d'iPhone */
+#filCard .fil-av{flex:none; display:grid; place-items:center; width:32px; height:32px; border-radius:50%; background:var(--surface3);
+  box-shadow:inset 0 0 0 1px var(--line); font:700 10.5px/1 "IBM Plex Mono",monospace; letter-spacing:-.02em; color:var(--ink)}
+#filCard .fil-m.suite .fil-av{background:none; box-shadow:none}
 #filCard .fil-b{padding:8px 11px; border-radius:16px 16px 16px 5px; background:var(--surface3); color:var(--ink); font-size:14px; line-height:1.35; white-space:pre-wrap; overflow-wrap:anywhere}
 #filCard .fil-m.moi .fil-b{border-radius:16px 16px 5px 16px; background:var(--in2); color:var(--tx-blanc)}
 #filCard .fil-m.eff .fil-b{background:none; border:1px dashed var(--line); color:var(--muted); font-style:italic}
-#filCard .fil-h{display:flex; align-items:center; gap:8px; padding:0 4px; font-size:11px; color:var(--muted)}
-#filCard .fil-x{border:0; background:none; padding:0; color:var(--muted); font:inherit; font-size:11px; text-decoration:underline; cursor:pointer}
+#filCard .fil-h{display:flex; align-items:center; gap:8px; padding:0 4px; font-size:11.5px; color:var(--muted)}
+#filCard .fil-h b{font:700 11.5px/1 "IBM Plex Mono",monospace; color:var(--ink2)}
+#filCard .fil-x{border:0; background:none; padding:2px 0; color:var(--muted); font:inherit; font-size:11.5px; cursor:pointer}
+#filCard .fil-x:hover,#filCard .fil-x:focus-visible{color:var(--ink); text-decoration:underline}
 #filCard .fil-f{display:flex; align-items:flex-end; gap:8px; padding:10px 14px 14px; border-top:1px solid var(--line2)}
 #filCard .fil-f textarea{flex:1 1 auto; min-height:40px; max-height:120px; resize:none; padding:9px 12px; border:1px solid var(--line); border-radius:20px; background:var(--surface2); color:var(--ink); font:inherit; font-size:15px; line-height:1.35}
 #filCard .fil-env{flex:none; display:grid; place-items:center; width:40px; height:40px; border:0; border-radius:50%; background:var(--marque-vif); color:var(--tx-sur-vif); cursor:pointer}
-#filCard .fil-env:disabled{opacity:.5; cursor:default}
+#filCard .fil-env:disabled{background:var(--surface3); color:var(--muted); cursor:default}
+#filCard .fil-nb{flex:none; align-self:center; font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
 #filCard .fil-err{margin:0 14px 12px; font-size:12.5px; color:var(--tx-rouge-vif2)}
 
 /* — LES SÉLECTEURS À SEGMENTS DE L'IPHONE (le client, le
@@ -8882,11 +8891,12 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
          comme cadre dans l'accueil » ; en QCM : « usine seulement ») : un
          fil commun à tous les comptes validés (base/36-messages.sql). -->
     <div class="card" id="filCard" hidden>
-      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.6A8.5 8.5 0 1 1 21 12z"/></svg>Fil de l'usine</h2><span class="sub" id="filSub">entre collègues · visible de tous les comptes validés</span></header>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.5-5.6A8.5 8.5 0 1 1 21 12z"/></svg>Fil de l'usine</h2><span class="sub" id="filSub">toute l’usine · comptes validés</span></header>
       <div class="fil-l" id="filListe" role="log" aria-live="polite" aria-label="Messages du fil de l'usine"></div>
       <form class="fil-f" id="filForm" autocomplete="off">
         <textarea id="filTexte" rows="1" maxlength="1000" placeholder="Écrire au fil de l'usine…" aria-label="Votre message"></textarea>
-        <button type="submit" class="fil-env" id="filEnvoyer" aria-label="Envoyer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <span class="fil-nb" id="filNb" aria-live="polite" hidden></span>
+        <button type="submit" class="fil-env" id="filEnvoyer" aria-label="Envoyer" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       </form>
       <p class="fil-err" id="filErr" role="status" hidden></p>
     </div>
@@ -22222,20 +22232,31 @@ function filRendre(){
   var c=document.getElementById("filCard"), l=document.getElementById("filListe"); if(!c||!l) return;
   if(!compteBase() || FIL.absente){ c.hidden=true; return; }
   c.hidden=false;
-  var m=filListe(), moi=filMoi(), rh=(st.account||lsGet("account/current")||{}).role==="rh", h=[], jour="";
-  var auj=jourUsine(), hier=new Date(auj); hier.setDate(hier.getDate()-1);
+  var m=filListe(), moi=filMoi(), rh=(st.account||lsGet("account/current")||{}).role==="rh", h=[], jour="", prec=null;
+  /* « Aujourd'hui » au CALENDRIER, et non au jour de l'usine (où la nuit
+     appartient à la veille) : à 3 h 08, le message du 04/11 se disait
+     « 04/11 » (le client, le 04/11/2026, capture à l'appui) */
+  var auj=new Date(), hier=new Date(auj); hier.setDate(hier.getDate()-1);
   function cle(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
   if(!m.length) h.push('<p class="fil-vide">Aucun message pour l’instant. Le premier sera lu de toute l’usine.</p>');
   m.forEach(function(x){
     var d=new Date(x.cree_le); if(isNaN(d)) return;
     var k=cle(d);
-    if(k!==jour){ jour=k; h.push('<span class="fil-j">'+(k===cle(auj)?"Aujourd’hui":k===cle(hier)?"Hier":pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+(d.getFullYear()!==auj.getFullYear()?"/"+d.getFullYear():""))+'</span>'); }
-    var mien=String(x.auteur||"").toUpperCase()===moi, eff=!!x.efface;
-    h.push('<div class="fil-m'+(mien?" moi":"")+(eff?" eff":"")+'">'
-      +(mien?"":'<span class="fil-a">'+esc(x.auteur||"?")+'</span>')
-      +'<span class="fil-b">'+(eff?"Message effacé":esc(x.corps))+'</span>'
-      +'<span class="fil-h">'+pad2(d.getHours())+":"+pad2(d.getMinutes())
-      +(!eff&&(mien||rh)?' <button type="button" class="fil-x" data-fil-x="'+esc(String(x.id))+'">Effacer</button>':'')+'</span></div>');
+    if(k!==jour){ jour=k; prec=null; h.push('<span class="fil-j">'+(k===cle(auj)?"Aujourd’hui":k===cle(hier)?"Hier":pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+(d.getFullYear()!==auj.getFullYear()?"/"+d.getFullYear():""))+'</span>'); }
+    var aut=String(x.auteur||"?").toUpperCase(), mien=aut===moi, eff=!!x.efface;
+    /* Qui écrit se lit toujours (le client : « voit-on le trigramme de celui
+       qui écrit ? ») : les autres, un rond à leur trigramme devant la
+       première bulle d'une série (même auteur, moins de dix minutes) ;
+       les miennes, mon trigramme sous la bulle, comme chacun le lit */
+    var suite=prec && prec.a===aut && (d-prec.d)<600000; prec={a:aut, d:d};
+    var hh=pad2(d.getHours())+":"+pad2(d.getMinutes());
+    h.push('<div class="fil-m'+(mien?" moi":"")+(eff?" eff":"")+(suite?" suite":"")+'">'
+      +(mien?"":'<span class="fil-av" aria-hidden="true">'+(suite?"":esc(aut))+'</span>')
+      +'<div class="fil-c">'
+      +'<span class="fil-b"><span class="sr-only">'+esc(aut)+' : </span>'+(eff?"Message effacé":esc(x.corps))+'</span>'
+      +'<span class="fil-h">'+(mien?'<b>'+esc(aut)+'</b> · ':'')+'<time datetime="'+esc(String(x.cree_le))+'" title="'+esc(d.toLocaleString("fr-BE"))+'">'+hh+'</time>'
+      +(!eff&&(mien||rh)?'<button type="button" class="fil-x" data-fil-x="'+esc(String(x.id))+'" aria-label="Effacer ce message">Effacer</button>':'')+'</span>'
+      +'</div></div>');
   });
   var bas=l.scrollHeight-l.scrollTop-l.clientHeight<40;
   if(l.__h!==h.join("")){ l.__h=h.join(""); l.innerHTML=l.__h; if(bas||!l.__vu){ l.scrollTop=l.scrollHeight; l.__vu=1; } }
@@ -22245,10 +22266,18 @@ function filEnvoyer(){
   var v=String(t&&t.value||"").trim(); if(!v || FIL.envoi) return;
   FIL.envoi=true; if(b) b.disabled=true; if(e) e.hidden=true;
   baseRpc("biowanze_ecrire_message",{p_corps:v}).then(function(){
-    t.value=""; t.style.height=""; FIL.envoi=false; if(b) b.disabled=false; return filCharger();
+    t.value=""; t.style.height=""; FIL.envoi=false; filChamp(); return filCharger();
   }).catch(function(er){
-    FIL.envoi=false; if(b) b.disabled=false; if(e){ e.textContent="Message non envoyé : "+baseMsg(er)+"."; e.hidden=false; }
+    FIL.envoi=false; filChamp(); if(e){ e.textContent="Message non envoyé : "+baseMsg(er)+"."; e.hidden=false; }
   });
+}
+/* le bouton d'envoi grisé tant que le champ est vide ; le compte des
+   caractères dès 900, la limite étant de 1 000 (base/36) */
+function filChamp(){
+  var t=document.getElementById("filTexte"), b=document.getElementById("filEnvoyer"), n=document.getElementById("filNb"); if(!t||!b) return;
+  var v=String(t.value||""), l=v.length;
+  b.disabled=FIL.envoi || !v.trim();
+  if(n){ n.hidden=l<900; n.textContent=l+" / 1000"; }
 }
 function filInit(){
   var f=document.getElementById("filForm"), t=document.getElementById("filTexte"), l=document.getElementById("filListe");
@@ -22256,7 +22285,8 @@ function filInit(){
   f.addEventListener("submit",function(ev){ ev.preventDefault(); filEnvoyer(); });
   /* Entrée envoie, Maj+Entrée va à la ligne ; le champ grandit jusqu'à 5 lignes */
   t.addEventListener("keydown",function(ev){ if(ev.key==="Enter" && !ev.shiftKey && !ev.isComposing){ ev.preventDefault(); filEnvoyer(); } });
-  t.addEventListener("input",function(){ t.style.height="auto"; t.style.height=Math.min(120,t.scrollHeight)+"px"; });
+  t.addEventListener("input",function(){ t.style.height="auto"; t.style.height=Math.min(120,t.scrollHeight)+"px"; filChamp(); });
+  filChamp();
   l.addEventListener("click",function(ev){
     var b=ev.target.closest&&ev.target.closest("[data-fil-x]"); if(!b) return;
     if(!confirm("Effacer ce message ? Il disparaîtra du fil pour tout le monde.")) return;
