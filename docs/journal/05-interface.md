@@ -11392,3 +11392,18 @@ encore, elle passe d'un cran de police (`hp-serre2`, mesuré par
 **Mesuré.** Une personne : 15 cases ; une équipe entière : 253 cases. À
 1280, 390 et 320 px, aucune ne déborde, et aucune n'a eu besoin d'être
 resserrée. Parcours : 112 essais, 0 faute.
+
+### Le mois en gras au téléphone aussi, dans l'onglet Horaire (04/11/2026, `nfdm-v1357`)
+
+Le client, le 04/11/2026 : « Sur mobile, pour la colonne du mois à la
+verticale, les mois doivent être en gras. » Le 31/10, il avait d'abord
+demandé que ni le mois ni le jour ne soient en gras, puis le mois en gras
+au PC seulement.
+
+Le mois est désormais en gras partout ; le jour reste en graisse normale, et
+les annotations rouges gardent leur règle (sans gras au PC, grasses au
+téléphone).
+
+Mesuré : 12 mois en gras à 320, 390 et 1280 px, et aucune lettre ne déborde
+de sa colonne (34 px au téléphone, 44 au PC). Parcours : 112 essais,
+0 faute.
