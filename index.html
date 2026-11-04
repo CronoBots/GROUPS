@@ -8973,6 +8973,39 @@ html body #v-horaire.acc-perso #filListe{padding-top:8px}
 html body #v-horaire.acc-perso #demCard[data-acc-h="2"] .md-nv-pied{display:inline-flex}
 html body #v-horaire.acc-perso #demCard .md-pied{margin-top:auto}
 html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-pied{display:none}
+/* « DEMANDES DE CONGÉ » EN MOYEN (le client, le 04/11/2026 : « le widget
+   n'est pas optimisé en 2 × 1, alors qu'en 2 × 2 on voit bien tout »). Il
+   ne montrait que la ligne de la demande, au milieu : 82 px vides au-
+   dessus et 80 en dessous à 1920 px (511 × 242), 42 et 40 à l'iPhone. Les
+   étapes et le pied y étaient masqués d'office, une règle d'avant les
+   formats d'Apple (une ligne de widget faisait alors 86 à 136 px).
+   Désormais, selon la hauteur réelle :
+   - une seule demande en cours : ses étapes, en une rangée compacte — le
+     rôle seul, l'étape en cours en couleur ; « Demandeur », toujours
+     faite, s'efface (le remplaçant est déjà nommé sur la ligne de la
+     demande) ; dès 155 px de haut ;
+   - le pied (l'historique, « + Nouvelle ») : dès 200 px de haut ;
+   - plusieurs demandes en cours : leurs lignes, sans les étapes (le grand
+     les donne), et le pied. */
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-l>li:only-child .dm-circ{display:grid!important; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); gap:4px; margin:10px 0 0}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .dm-circ>li{flex-direction:column; align-items:center; text-align:center; gap:3px; padding:0 2px}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .dm-circ>li:first-child{display:none}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .dm-circ>li+li::before{top:10px; bottom:auto; right:calc(50% + 13px); left:calc(-50% + 13px); width:auto; height:2px}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .dm-circ>li:nth-child(2)::before{display:none}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .dm-circ b{flex:none; white-space:nowrap}
+html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .dm-circ small{display:none}
+@container demc (max-height:154px){ html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-l>li:only-child .dm-circ{display:none!important} }
+@container demc (min-height:200px){
+  html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-pied{display:flex!important}
+  html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-lien{display:inline-flex!important}
+  html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-nv-pied{display:inline-flex!important}
+}
+/* ce qui ne tient pas, mesuré (accAjuster) : le pied d'abord, puis les
+   étapes ; les demandes passent avant (à la tablette, 353 × 167, la ligne
+   de la demande tient sur trois lignes, et les étapes débordaient de
+   24 px ; avec deux demandes, le pied prenait la place de la seconde) */
+html body #v-horaire.acc-perso #demCard.dem-sans-pied[data-acc-h="1"] .md-pied{display:none!important}
+html body #v-horaire.acc-perso #demCard.dem-sans-etapes[data-acc-h="1"] .md-l>li:only-child .dm-circ{display:none!important}
 /* Polyvalences, sans son titre : le degré, puis chaque polyvalence en
    pastille, au milieu du widget (une pastille seule restait en haut d'un
    cadre de 208 px ; à la moitié d'un téléphone, la ligne du titre
@@ -10176,7 +10209,7 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
     <div class="acc-pied" id="accPied" data-acc-plein hidden></div>
     <div class="acc-barre" id="accBarre" role="toolbar" aria-label="Modifier l'Accueil" hidden>
       <button type="button" class="acc-ajout" id="accAjout" aria-haspopup="dialog" aria-label="Ajouter un widget ou une icône" title="Ajouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-      <button type="button" class="acc-ok" id="accOk" aria-label="Terminé" title="Terminé"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+      <button type="button" class="acc-ok" id="accOk" aria-label="Enregistrer" title="Enregistrer les modifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
     </div>
     <p class="sr-only" id="accAnnonce" aria-live="polite"></p>
 
@@ -37717,8 +37750,8 @@ function accMarquer(){ ACC.items.forEach(function(el){ var k=el.getAttribute("da
    widget « ½ », comme sur l'iPad */
 function accN(s){ return s*2; }
 function accSpan(k){ var d=accDef(k); if(d&&d.app) return ACC.mode==="tel"?1:3; return Math.min(ACC.cols,accN(accTaille(k))); }
-function accCharger(mode){
-  var sv=lsGet("ui/accueil/"+mode)||{}, connus=ACC_W.map(function(d){ return d.k; });
+function accCharger(mode,defaut){
+  var sv=(defaut?null:lsGet("ui/accueil/"+mode))||{}, connus=ACC_W.map(function(d){ return d.k; });
   var base=mode==="tel"?ACC_ORDRE_TEL.slice():connus.slice();
   var o0=(sv.o&&sv.o.length?sv.o:base).slice();
   /* l'heure est passée dans le cadre du poste (04/11/2026) : dans une
@@ -37735,7 +37768,33 @@ function accCharger(mode){
   if(neufs.indexOf("soldes")>=0&&o.indexOf("conges")>=0){ o.splice(o.indexOf("soldes"),1); o.splice(o.indexOf("conges"),0,"soldes"); }
   ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{}; ACC.hh=sv.h&&typeof sv.h==="object"?sv.h:{};
 }
-function accSauver(){ lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh}); }
+/* L'ACCUEIL NE CHANGE QU'À LA CONFIRMATION (le client, le 04/11/2026 :
+   « faire Échap lors d'une modification des widgets ne doit pas valider
+   les changements, il faut toujours une confirmation pour changer ») :
+   pendant le mode Modifier, rien ne s'enregistre ; « ✓ » enregistre
+   (accTerminer), Échap demande s'il faut annuler (accQuitter). Une page
+   rechargée en plein mode retrouve donc la disposition d'avant. */
+function accSauver(){ if(ACC.edit) return; lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh}); }
+function accEtat(){ return JSON.stringify({o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh}); }
+/* la fin du mode : garder (« ✓ ») enregistre ; sinon, la disposition
+   notée à l'ouverture revient */
+function accTerminer(garder){
+  if(!ACC.edit) return;
+  var a=ACC.avant; ACC.avant=null;
+  if(garder){ accEditer(false); accSauver(); accAnnoncer("Accueil enregistré."); return; }
+  if(a&&a.mode===ACC.mode){ var s=JSON.parse(a.l); ACC.o=s.o; ACC.t=s.t; ACC.m=s.m; ACC.hh=s.h; }
+  else accCharger(ACC.mode);
+  accEditer(false); accScan(); accStyle();
+  accAnnoncer(a&&a.l!==accEtat()?"Modifications annulées : l’Accueil reste comme avant.":"Accueil inchangé.");
+}
+/* Échap : sans changement, le mode se ferme ; avec des changements, une
+   confirmation, « Continuer à modifier » par défaut (Échap, encore) */
+function accQuitter(){
+  if(!ACC.edit) return;
+  if(!ACC.avant||ACC.avant.mode!==ACC.mode||accEtat()===ACC.avant.l){ accTerminer(false); return; }
+  confirmerPro({titre:"Annuler les modifications ?", texte:"Les places, les tailles et les widgets ajoutés ou retirés depuis l’ouverture du mode Modifier ne seront pas gardés. « ✓ » les enregistre.",
+    ok:"Annuler les modifications", annuler:"Continuer à modifier"},function(){ accTerminer(false); });
+}
 function accAnnoncer(t){ var a=document.getElementById("accAnnonce"); if(a){ a.textContent=""; setTimeout(function(){ a.textContent=t; },30); } }
 /* la feuille de la disposition : l'ordre, la largeur, les masqués */
 function accStyle(){
@@ -38078,6 +38137,7 @@ function accTremblerStop(){
    en deux. Les listes connues des widgets d'avant reçoivent la marque ici. */
 function accAjuster(w){
   if(w.id==="accPlanning"){ accPlanningAjuster(w); return; }
+  if(w.id==="demCard") w.classList.remove("dem-sans-pied","dem-sans-etapes");
   /* le fil des messages : sur le dernier, sauf si on lit plus haut */
   var fl=w.querySelector(".fil-l"); if(fl&&!fl.__haut) fl.scrollTop=fl.scrollHeight;
   [].forEach.call(w.querySelectorAll(".ctl-l,.md-l,.site-ps,.pf-pr"),function(L){ if(!L.hasAttribute("data-acc-fit")) L.setAttribute("data-acc-fit",""); });
@@ -38090,6 +38150,17 @@ function accAjuster(w){
   [].forEach.call(ls,function(L){ [].forEach.call(L.querySelectorAll(".acc-plus"),function(x){ x.parentNode.removeChild(x); });
     [].forEach.call(L.children,function(c){ c.classList.remove("acc-cache"); }); });
   [].forEach.call(w.querySelectorAll("[data-acc-bloc].acc-cache"),function(b){ b.classList.remove("acc-cache"); });
+  /* « Demandes de congé » en moyen (04/11/2026) : toutes les demandes
+     d'abord ; si le contenu dépasse, le pied s'efface, puis les étapes ;
+     la liste cède ensuite ses dernières demandes (« + N autres ») */
+  if(w.id==="demCard"){
+    if(w.getAttribute("data-acc-h")==="1"&&w.getClientRects().length){
+      var limD=w.getBoundingClientRect().bottom-Math.max(8,parseFloat(getComputedStyle(w).paddingBottom)||0);
+      var basD=function(){ var b=-Infinity; [].forEach.call(w.querySelectorAll("#demCorps>*"),function(e){ if(e.getClientRects().length) b=Math.max(b,e.getBoundingClientRect().bottom); }); return b; };
+      if(basD()>limD+0.5) w.classList.add("dem-sans-pied");
+      if(basD()>limD+0.5) w.classList.add("dem-sans-etapes");
+    }
+  }
   if(!w.getClientRects().length) return;
   /* la limite se relit à chaque mesure, avec les lignes : masquer une ligne
      peut faire défiler la page (ancrage du défilement, widget au-dessus de
@@ -38191,10 +38262,11 @@ function accEspaceHaut(on,garderVue){
 }
 function accEditer(on){
   var v=document.getElementById("v-horaire"), b=document.getElementById("accBarre"); if(!v||!ACC.style) return;
+  if(on&&!ACC.edit) ACC.avant={mode:ACC.mode, l:accEtat()};
   ACC.edit=!!on; v.classList.toggle("acc-edit",ACC.edit);
   if(b){ b.hidden=!ACC.edit; if(ACC.edit) accBas(); }
   accEspaceHaut(ACC.edit,on==="doigt");
-  if(ACC.edit){ accOutils(true); accAnnoncer("Modifier l’Accueil. Glissez un widget ou une icône pour le déplacer ; l’arc de son coin change sa taille ; « − » le retire ; « + », en haut, le remet ; « ✓ » termine."); }
+  if(ACC.edit){ accOutils(true); accAnnoncer("Modifier l’Accueil. Glissez un widget ou une icône pour le déplacer ; l’arc de son coin change sa taille ; « − » le retire ; « + », en haut, le remet ; « ✓ » enregistre ; Échap annule."); }
   else {
     accGalerieFermer(); accTremblerStop();
     if(ACC.calque){ ACC.calque.innerHTML=""; if(ACC.calque.parentNode) ACC.calque.parentNode.removeChild(ACC.calque); }
@@ -38264,9 +38336,8 @@ function accGalerie(){
       return;
     }
     if(t.closest(".acc-gal-raz")){
-      confirmerPro({titre:"Rétablir la disposition d’origine ?", texte:"Pour cet écran, l’ordre, les tailles et ce qui a été retiré reviennent comme au premier jour.", ok:"Rétablir", annuler:"Garder"},function(){
-        try{ localStorage.removeItem("ui/accueil/"+ACC.mode); }catch(er){}
-        accGalerieFermer(); accCharger(ACC.mode); accScan(); accStyle(); accOutils(true); accAnnoncer("Disposition d’origine rétablie.");
+      confirmerPro({titre:"Rétablir la disposition d’origine ?", texte:"Pour cet écran, l’ordre, les tailles et ce qui a été retiré reviennent comme au premier jour. « ✓ » l’enregistre ; Échap peut encore l’annuler.", ok:"Rétablir", annuler:"Garder"},function(){
+        accGalerieFermer(); accCharger(ACC.mode,true); accScan(); accStyle(); accOutils(true); accAnnoncer("Disposition d’origine rétablie. « ✓ » l’enregistre.");
       });
     }
   });
@@ -38446,7 +38517,7 @@ function accInit(){
     var x;
     if((x=t.closest("[data-acc-masquer]"))){ accRetirer(x.getAttribute("data-acc-masquer")); return; }
     if(t.closest("#accAjout")){ accGalerie(); return; }
-    if(t.closest("#accOk")){ accEditer(false); return; }
+    if(t.closest("#accOk")){ accTerminer(true); return; }
     if(t.closest(".acc-calque button")) return;
     e.preventDefault(); e.stopPropagation();
   },true);
@@ -38473,7 +38544,9 @@ function accInit(){
      l'arc du coin, la taille ; Échap termine */
   v.addEventListener("keydown",function(e){
     if(!ACC.edit) return;
-    if(e.key==="Escape"){ if(!ACC.drag&&!document.querySelector(".cfm-ov,#accGal")){ e.preventDefault(); accEditer(false); } return; }
+    /* un Échap déjà pris (la confirmation qui se ferme : « Continuer à
+       modifier ») ne rouvre pas la confirmation */
+    if(e.key==="Escape"){ if(!e.defaultPrevented&&!ACC.drag&&!document.querySelector(".cfm-ov,#accGal")){ e.preventDefault(); accQuitter(); } return; }
     var g=e.target.closest&&e.target.closest("[data-acc-etirer]"), h=e.target.closest&&e.target.closest("[data-acc-tirer]");
     if(g){
       var kk=g.getAttribute("data-acc-etirer"), pp=accSuite(kk), t1=accTaille(kk), h1=accHaut(kk), ii=-1, jj=-1,

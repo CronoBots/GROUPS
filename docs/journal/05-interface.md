@@ -13287,3 +13287,80 @@ repartait du dernier élément cliqué, et non du début de la page.
 
 **Mesuré.** Le menu, 18 cas (3 rôles × 6 fenêtres) : aucun défilement.
 Parcours : 112 essais, 0 faute ; statique : 0.
+
+### « Demandes de congé » entier en moyen ; Échap n'enregistre plus rien (04/11/2026, `nfdm-v1389`)
+
+Le client, deux captures de son PC (le widget en moyen, puis en grand) :
+« le widget demande de congé n'est pas optimisé en 2 × 1, alors qu'en
+2 × 2 on voit bien tout ». Puis : « faire Échap lors d'une modification
+des widgets ne doit pas valider les changements ; il faut toujours une
+confirmation pour changer ».
+
+**« Demandes de congé » en moyen.** Sa demande, reproduite : une courte
+durée VA le 23 novembre, pause AM, remplaçant FPA en attente de
+signature.
+- **Avant** : la ligne de la demande seule, au milieu. À 1920 px
+  (511 × 242), 82 px vides au-dessus et 80 en dessous ; à l'iPhone
+  (344 × 163), 42 et 40. Les étapes et le pied y étaient masqués d'office,
+  par une règle d'avant les formats d'Apple, quand une ligne de widget
+  faisait 86 à 136 px.
+- **Désormais**, une seule demande en cours montre ses étapes, dès 155 px
+  de haut, en une rangée compacte : le rôle seul, l'étape en cours en
+  couleur. « Demandeur », toujours faite, s'efface ; le remplaçant est
+  déjà nommé sur la ligne de la demande.
+- Le pied (l'historique, « + Nouvelle ») vient dès 200 px de haut.
+- **Ce qui ne tient pas se mesure** (`accAjuster`) : les demandes passent
+  d'abord. Si le contenu dépasse, le pied s'efface, puis les étapes ; la
+  liste cède ensuite ses dernières demandes (« + N autres »).
+
+| Fenêtre | Taille | Ce qui se voit (une demande en cours) |
+|---|---|---|
+| 1920 | 511 × 242 | la demande, ses étapes, le pied |
+| 1280 | 463 × 219 | la demande, ses étapes, le pied |
+| 1564 | 398 × 188 | la demande (sur deux lignes), ses étapes |
+| 1100 | 378 × 178 | la demande, ses étapes |
+| 760 | 353 × 167 | la demande (sur trois lignes) |
+| 393 | 344 × 163 | la demande, ses étapes |
+| 360 et 320 | 315 × 149, 280 × 132 | la demande |
+
+Avec deux demandes en cours, à 1920 px : les deux, et le pied. À 1280, le
+pied cède sa place à la seconde.
+
+**Une erreur en chemin.** La règle qui efface les étapes perdait en
+spécificité contre celle qui les montre (toutes deux `!important`) : à
+760 px, la classe était posée, et les étapes restaient, 24 px sous le
+bord. Mesuré, corrigé.
+
+**Échap n'enregistre plus rien.**
+- **Avant** : chaque geste du mode Modifier s'enregistrait aussitôt, et
+  Échap fermait le mode en gardant tout.
+- **Désormais**, à l'ouverture du mode, la disposition est notée, et rien
+  ne s'enregistre pendant le mode. « ✓ » (« Enregistrer ») enregistre.
+- **Échap** : sans changement, il ferme le mode. Avec des changements, une
+  confirmation, « Annuler les modifications ? ». « Continuer à modifier »
+  est le choix par défaut, et celui d'un second Échap ; « Annuler les
+  modifications » rend la disposition d'avant.
+- « Rétablir la disposition d'origine » (galerie « + ») attend « ✓ » lui
+  aussi : il n'efface plus l'enregistrement sur-le-champ.
+- Une page rechargée en plein mode retrouve la disposition enregistrée.
+- **Un défaut corrigé avant la publication** : le second Échap fermait la
+  confirmation, puis arrivait au mode, qui la rouvrait aussitôt. Un Échap
+  déjà pris (`defaultPrevented`) est désormais ignoré.
+
+**Éprouvé** (`ios-test.js`, carnet de la session, à 390 et 1280 px) :
+- des changements faits ; Échap ouvre la confirmation, le mode reste
+  ouvert ; Échap encore, on continue, rien de perdu ;
+- « Annuler les modifications » : la disposition d'avant le mode revient ;
+- sans changement, Échap ferme sans rien demander ;
+- un changement puis « ✓ » : gardé, et après rechargement aussi ;
+- rechargée en plein mode, sans « ✓ » : la disposition enregistrée.
+
+Sur la v1388, l'épreuve crie dès le premier Échap. Elle comparait
+d'abord les pixels, qui bougent de ±1 px avec le tremblement, puis un état
+pris dans le mode, où un widget vide se montre en fantôme. Elle compare
+désormais l'ordre et les formats, à l'état d'avant le mode.
+
+**Mesuré.** La matrice de « Demandes de congé » à 10 largeurs, avec 1 et
+6 demandes : 40 mesures, 0 faute. Le widget seul, à 9 largeurs, avec 1, 2
+et 3 demandes : aucun débord. Parcours : 112 essais, 0 faute ;
+statique : 0.
