@@ -11315,3 +11315,31 @@ JS. **Un cadre ou une rangée neuve reçoit son `data-g`.**
 - **Contrôles.** Parcours : 112 essais, 0 faute. Garde-fou du dépôt : 0,
   après avoir reformulé trois commentaires qui ressemblaient à « Nom,
   Prénom ».
+
+### Un seul horaire par case, le vrai (04/11/2026, `nfdm-v1352`)
+
+Le client, le 04/11/2026 à 2 h, sur deux captures du Planning : « L'horaire
+indiqué doit être le bon, le vrai et un seul. »
+- Le 13/11, SKS portait « 06-10 » dans sa case, puis « → 06-10 » à côté.
+- Le 08/11, ATR portait « 10-14 », puis « → 10-13 ».
+
+Le second libellé donnait les heures de la proposition (ajouté le 03/11) :
+il doublait l'horaire de la personne, et débordait sur la colonne PM.
+
+**Tranché.** La case ne dit plus que les heures de la personne, telles que
+le classeur les écrit. Les heures de la proposition restent dites :
+- dans l'infobulle : « Fermentation → Chaudières de 10 h à 13 h, à
+  confirmer » ;
+- dans la bulle du « ? » de la case orange ;
+- dans « À prévenir ».
+
+**Mesuré.** Chaque jour de 2026 a été balayé au Planning, au téléphone : une
+case de personne ne porte qu'un horaire au plus, et 0 libellé à flèche ne
+déborde.
+
+Le premier balayage relevait aussi 16 cases « qui débordent » sur 8 jours,
+déjà sur la page d'avant. C'était un faux signal de la mesure : elle
+enchaînait les jours sans attendre la fin du rendu. Les mêmes jours, relevés
+seuls, en donnent 0, et la photo du 08/01 n'en montre aucune.
+
+Parcours : 112 essais, 0 faute. Cohérence du Planning : 0.
