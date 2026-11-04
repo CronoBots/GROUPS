@@ -22,8 +22,8 @@
    le 03/11/2026 (le client : « nous allons adapter celui-ci plus tard »).
 
    Faute (code 1) : une requête du téléphone couché qui diverge des
-   autres, une accolade CSS orpheline (deux contrôles sans navigateur,
-   faits d'abord), une règle CSS écrite que le navigateur jette, une
+   autres, une accolade CSS orpheline, une boîte du système (confirm,
+   alert, prompt : trois contrôles sans navigateur, faits d'abord), une règle CSS écrite que le navigateur jette, une
    erreur JavaScript, un débordement horizontal de la
    page, un cadre posé sous la barre d'onglets (portrait) ou sous le rail
    (couché), une page blanche hors ligne, un TEXTE SOUS LE SEUIL de
@@ -83,6 +83,22 @@ function requetesDivergentes(fichier){
     const q=(m[1]||m[2]||"").trim();
     if(!/76[01]px|max-height:500px|500\.01px/.test(q)) continue;
     if(REQUETES_ADMISES.indexOf(q)<0) f.push("ligne "+src.slice(0,m.index).split("\n").length+" : "+q.slice(0,140));
+  }
+  return f;
+}
+/* JAMAIS LA BOÎTE DU SYSTÈME (le client, le 09/10/2026 pour la
+   déconnexion, puis le 04/11/2026 pour l'effacement d'un message : « le
+   message de suppression est horrible »). confirm(), alert() et prompt()
+   ouvrent la boîte du navigateur, l'adresse du site en titre ; la page a
+   confirmerPro(). Cherché dans les <script>, commentaires ôtés. */
+function boitesSysteme(fichier){
+  const src=fs.readFileSync(fichier,"utf8"), f=[], re=/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g; let m;
+  while((m=re.exec(src))){
+    const debut=src.slice(0,m.index+m[0].indexOf(">")+1).split("\n").length;
+    /* les commentaires ôtés en gardant les sauts de ligne, pour compter juste */
+    const code=m[1].replace(/\/\*[\s\S]*?\*\//g,c=>c.replace(/[^\n]/g," ")).replace(/(^|[\s;{}])\/\/[^\n]*/g,"$1");
+    const r=/(^|[^\w.$])(confirm|alert|prompt)\s*\(/g; let k;
+    while((k=r.exec(code))) f.push("ligne "+(debut+code.slice(0,k.index).split("\n").length-1)+" : "+k[2]+"()");
   }
   return f;
 }
@@ -200,11 +216,13 @@ function constater(){
      « --statique [fichier] » ne fait que lui (l'épreuve sur une copie) */
   const iS=process.argv.indexOf("--statique");
   const cible=iS>=0&&process.argv[iS+1]?process.argv[iS+1]:path.join(RACINE,"index.html");
-  const div=requetesDivergentes(cible), acc=accoladesOrphelines(cible);
+  const div=requetesDivergentes(cible), acc=accoladesOrphelines(cible), boi=boitesSysteme(cible);
   div.forEach(l=>console.log("✗ requête du téléphone couché qui diverge, "+l));
   acc.forEach(l=>console.log("✗ accolade CSS, "+l));
+  boi.forEach(l=>console.log("✗ boîte du système (confirmerPro à la place), "+l));
   if(iS>=0){ console.log(div.length?div.length+" requête(s) divergente(s)":"requêtes du téléphone couché : toutes identiques");
-    console.log(acc.length?acc.length+" accolade(s) orpheline(s)":"accolades CSS : toutes appariées"); process.exit(div.length||acc.length?1:0); }
+    console.log(acc.length?acc.length+" accolade(s) orpheline(s)":"accolades CSS : toutes appariées");
+    console.log(boi.length?boi.length+" boîte(s) du système":"boîtes du système : aucune"); process.exit(div.length||acc.length||boi.length?1:0); }
   const vite=process.argv.indexOf("--vite")>=0;
   const srv=await servir(), url="http://127.0.0.1:"+srv.address().port+"/";
   const nav=await chromium.launch();
@@ -214,7 +232,7 @@ function constater(){
      tard ») */
   const passes=[];
   ecrans.forEach(e=>passes.push([e,"dark"]));
-  let fautes=div.length+acc.length, essais=1;
+  let fautes=div.length+acc.length+boi.length, essais=1;
   /* EN PARALLÈLE (le client, le 03/11/2026 : « pourquoi ce parcours
      complet ? », après six minutes d'attente à chaque envoi) : les mêmes
      passes — chaque écran, thème et rôle dans son propre contexte —, trois

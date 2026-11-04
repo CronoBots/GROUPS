@@ -823,3 +823,34 @@ chaque ligne restent identiques au pixel. 0 ligne sur 5 ne bouge, contre 1
 à la v1360 (25 → 48 px).
 
 Parcours : 112 essais, 0 faute. Garde-fou : 0.
+
+### La fenêtre de l'application pour effacer un message (04/11/2026, `nfdm-v1362`)
+
+Le client, capture à l'appui (la boîte « cronobots.github.io indique —
+Effacer ce message ? »), a écrit : « le message de suppression est horrible ».
+
+**Mon erreur.** J'avais écrit `confirm()` à la v1355. Or l'application a
+`confirmerPro()` depuis le 09/10/2026, née de la même plainte pour la
+déconnexion, et un commentaire (ligne 1683) le dit. Je ne l'avais pas relu.
+
+**Corrigé.** « Effacer » ouvre la fenêtre de l'application :
+- une corbeille, « Effacer ce message ? », le trigramme de l'auteur en
+  pastille ;
+- l'extrait du message (90 caractères au plus) : « « oui » disparaîtra pour
+  tout le monde, sans laisser de trace. » ;
+- « Garder » et « Effacer », le focus d'abord sur « Garder », comme pour la
+  suppression d'une demande.
+
+**Pour que ça ne revienne pas :**
+- `tools/parcours.js` refuse désormais `confirm()`, `alert()` et `prompt()`
+  dans les `<script>`, commentaires ôtés : c'est un troisième contrôle
+  sans navigateur, faute et code 1 ;
+- épreuve : sur une copie sabotée d'un `confirm()`, il a crié à la bonne
+  ligne (22345), code 1 ; sur la page, il ne trouve rien ;
+- la règle est écrite dans CLAUDE.md (Conventions).
+
+**Éprouvé au navigateur** (390 et 1280 px) :
+- la fenêtre s'ouvre avec le bon extrait ;
+- « Garder » referme sans rien effacer ;
+- « Effacer » appelle la base (id 7), puis la ligne disparaît ;
+- aucune boîte du système ne s'est ouverte.

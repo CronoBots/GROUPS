@@ -323,6 +323,10 @@ deviner à sa place sur ces points : ils touchent à des montants.
   dont l'en-tête, comme une rangée, porte un `data-g` ; un accès, une icône
   d'app dont `--ic` (`--ip-*`) suit son `data-go` ou `data-side-ws` ; un
   sélecteur, les segments `--seg-*` (journal 05).
+- **Jamais la boîte du système** : ni `confirm()`, ni `alert()`, ni
+  `prompt()`, mais `confirmerPro()`. Le client l'a trouvée « horrible », pour
+  la déconnexion (09/10/2026) puis pour l'effacement d'un message
+  (04/11/2026) ; `parcours.js` la refuse.
 - **Un seul thème, le sombre.** Le clair (29/10/2026) est retiré le
   03/11/2026, code compris (le client : « supprimer le thème clair, nous
   allons adapter celui-ci plus tard » ; journal 05). Toute couleur passe

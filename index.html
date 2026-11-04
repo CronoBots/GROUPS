@@ -7012,13 +7012,17 @@ html .pvt td.pvzero{color:var(--faint)}
 }
 /* LE MENU DE CONTRÔLE À GAUCHE (le client, le 21/10/2026 : « sur PC cela
    peut être une plateforme avec menu de contrôle complet sur la gauche »).
-   L'en-tête devient une colonne fixe de 248 px : la marque et le jour, les
+   L'en-tête devient une colonne fixe de 288 px : la marque et le jour, les
    sections de l'application, la Gestion (l'espace RH s'ouvre à DROITE du
    menu, qui reste utilisable ; son propre menu se cache), et les Réglages
    en bas. Le contenu prend le reste de la largeur. */
 .side-gestion,.side-pied{display:none}
 @media (min-width:1100px){
-  :root{--side:248px}
+  /* 288 px, la largeur du menu de Claude (le client, le 04/11/2026 : « sur
+     PC, j'aimerais que la barre de menu soit de même largeur que celle de
+     Claude ») : 18 rem ; sur sa capture, les deux menus étaient dans un
+     rapport de 1,15, soit 286 px pour 248 */
+  :root{--side:288px}
   body{padding-left:var(--side)}
   html .top{position:fixed; left:0; top:0; bottom:0; width:var(--side); z-index:60; display:flex; flex-direction:column; align-items:stretch;
     padding:18px 12px 14px; border-bottom:0; border-right:1px solid var(--bd-blanc-08); overflow-y:auto; transform:none;
@@ -7619,7 +7623,7 @@ html .hp-fab:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2
   html .ft-gr span{font-size:11px}
   html #wsTdb .pl-pa{font-size:11px}
   /* Horaire production : la rangée de boutons passe à la ligne (le menu de
-     gauche prend 248 px) ; l'en-tête des noms colle à celui des postes */
+     gauche prend 288 px) ; l'en-tête des noms colle à celui des postes */
   html .xl-pilules{flex-wrap:wrap}
   html .hp-t thead tr.hp-g th{height:24px; box-sizing:border-box}
   html .hp-t thead tr.hp-ops th{top:24px}
@@ -8436,7 +8440,7 @@ html body #pfRac .ctl-t>.plus-nb+.plus-nb{left:auto; right:calc(50% + var(--ip-t
 
 /* — LE HÉROS N'EST PLUS UN CADRE : ses morceaux sont des widgets — */
 html body #rythmeTete .pf-hero{display:flex; flex-direction:column; gap:var(--ip-ecart)}
-html body .pf-hero .pf-wprof,html body #sideProf .pf-wprof,html body .pf-hero>.pf-mt,html body .pf-hero .pf-bloc,html body .pf-hero .pf-corps>#ryAn,html body .pf-hero .pf-pv{
+html body .pf-hero .pf-wprof,html body .pf-hero>.pf-mt,html body .pf-hero .pf-bloc,html body .pf-hero .pf-corps>#ryAn,html body .pf-hero .pf-pv{
   background:var(--surface); border:1px solid var(--cadre); border-radius:var(--rj); box-shadow:inset 0 1px 0 var(--bd-blanc-07), var(--ombre-cadre)}
 /* deux widgets gardent leur teinte : le prochain poste, la carte qui
    ressort (le cyan validé le 03/11/2026, v1332), et la pointeuse, son ambre
@@ -8445,44 +8449,27 @@ html body .pf-hero .pf-wprof,html body #sideProf .pf-wprof,html body .pf-hero>.p
 html body .pf-hero .pf-bloc{background:color-mix(in srgb,var(--in) 10%,var(--surface)); border-color:color-mix(in srgb,var(--in) 30%,transparent)}
 html body .pf-hero .pf-pointe{box-shadow:var(--ombre-cadre)}
 /* le profil : la couverture en tête du widget, le cercle à cheval */
-html body .pf-hero .pf-wprof,html body #sideProf .pf-wprof{position:relative; overflow:hidden; padding-bottom:14px}
-html body .pf-hero .pf-wprof .pf-prof,html body #sideProf .pf-wprof .pf-prof{flex-wrap:nowrap}
-/* — EN TÊTE DU MENU DU PC (le client, le 04/11/2026) : le même widget, à
-   la largeur du menu (216 px) ; la couverture plus basse, le cercle centré
-   à cheval, le poste et le statut dessous, centrés. La marque (logo,
-   trigramme, jour) se retire tant qu'il est là. — */
+html body .pf-hero .pf-wprof{position:relative; overflow:hidden; padding-bottom:14px}
+html body .pf-hero .pf-wprof .pf-prof{flex-wrap:nowrap}
+/* — AU PC, LE PROFIL EN HAUT À DROITE DE L'ACCUEIL (le client, le
+   04/11/2026 : « changement d'avis, sur PC la bannière doit être dans un
+   cadre qui est dans le haut de l'accueil, partie de droite »). Il avait été
+   mis en tête du menu (v1360-v1361) : le menu retrouve la marque. Ce qui a
+   été demandé entre-temps reste : la bannière ENTIÈRE, à ses proportions
+   (2170 × 540), rien posé dessus (« la bannière doit être complète ») ;
+   dessous, une ligne : le cercle, le poste, le statut et le binôme, puis
+   la cloche et la roue au bout. La cloche et la roue restent « relatives »
+   (le pouls de la cloche, ::after en inset 0, couvrirait sinon le cadre) et
+   perdent les décalages de leur place sur la bannière. — */
 @media (min-width:1100px){
-  html .top.a-prof .brand{display:none}
-  html .top.a-prof>.top-in{padding-bottom:12px}
-  html body #sideProf{margin:0; flex:1 1 100%; width:100%; min-width:0; box-sizing:border-box}
-  /* la bannière ENTIÈRE, rien posé dessus (le client, le 04/11/2026 : « la
-     bannière doit être complète sur la gauche, il faut optimiser également
-     ce cadre sur PC ») : à ses proportions (2170 × 540), elle n'est plus
-     rognée sur la marque, et le cercle ne la cache plus. Dessous, une
-     ligne : le cercle, le poste et le statut, la cloche au bout. La roue
-     se retire : le menu a déjà « Réglages » en pied. */
-  html body #sideProf .pf-wprof{display:grid; grid-template-columns:minmax(0,1fr); grid-template-areas:"couv" "prof" "notif"; padding:0 0 12px}
-  html body #sideProf .pf-couv{grid-area:couv; aspect-ratio:2170/540; height:auto; min-height:0; background-size:cover; background-position:50% 50%}
-  html body #sideProf .pf-roue{display:none}
-  html body #sideProf .pf-prof{grid-area:prof; flex-direction:row; align-items:center; gap:10px; padding:0 12px; margin:12px 0 0; text-align:left}
-  html body #sideProf .pf-av{width:44px; height:44px; font-size:14px; border-width:2px; box-shadow:0 0 0 1.5px var(--marque-vif)}
-  html body #sideProf .pf-prof .pf-hmeta{flex:1 1 auto; min-width:0; padding-top:0; gap:3px; align-items:flex-start}
-  html body #sideProf .pf-prof .pf-poste{justify-content:flex-start; flex-wrap:wrap; gap:4px 6px; font-size:15px}
-  html body #sideProf .pf-prof .pf-poste .pf-statut{margin-left:0}
-  html body #sideProf .pf-ou{font-size:12px}
-  /* la cloche, sur sa ligne et nommée : au bout de la ligne du nom, elle
-     ne laissait que 57 px à « Contremaître » (mesuré le 04/11/2026). Elle
-     reste « relative » : son pouls (::after, inset 0) couvrirait sinon
-     tout le cadre. */
-  html body #sideProf .pf-notif{grid-area:notif; position:relative; top:auto; left:auto; margin:10px 12px 0; height:34px; padding:0 6px 0 10px; gap:8px; border-radius:10px;
-    background:var(--surface3); color:var(--ink); font-size:13px; font-weight:600}
-  html body #sideProf .pf-notif::before{content:"Horaire modifié"; order:1}
-  html body #sideProf .pf-notif svg{order:0; flex:none; width:16px; height:16px}
-  html body #sideProf .pf-notif b{order:2; margin-left:auto; min-width:22px; height:22px}
-  html body #sideProf .pf-notif:hover{filter:brightness(1.15)}
-  /* l'Accueil sans le profil : sa place dans la grille se referme (un vide
-     de 100 px restait au-dessus de l'heure, mesuré le 04/11/2026) */
-  html body #rythmeTete .pf-hero.sans-prof{grid-template-areas:"mt cyc" "gau cyc" "pv cyc"}
+  html body #rythmeTete .pf-hero>.pf-wprof{display:grid; grid-template-columns:minmax(0,1fr) auto auto; grid-template-areas:"couv couv couv" "prof notif roue"; align-items:center; column-gap:8px; padding:0 0 16px}
+  html body #rythmeTete .pf-wprof .pf-couv{grid-area:couv; aspect-ratio:2170/540; height:auto; min-height:0; background-size:cover; background-position:50% 50%}
+  html body #rythmeTete .pf-wprof .pf-prof{grid-area:prof; align-items:center; gap:14px; padding:0 0 0 18px; margin:14px 0 0; min-width:0}
+  html body #rythmeTete .pf-wprof .pf-av{width:64px; height:64px; font-size:20px; border-width:2px; box-shadow:0 0 0 2px var(--marque-vif),0 4px 12px var(--om-noir-40)}
+  html body #rythmeTete .pf-wprof .pf-prof .pf-hmeta{flex:1 1 auto; min-width:0; padding-top:0; gap:4px}
+  html body #rythmeTete .pf-wprof .pf-prof .pf-poste{flex-wrap:wrap; gap:4px 8px; font-size:19px}
+  html body #rythmeTete .pf-wprof .pf-notif{grid-area:notif; position:relative; top:auto; left:auto; margin:14px 0 0; height:38px; background:var(--surface3)}
+  html body #rythmeTete .pf-wprof .pf-roue{grid-area:roue; position:relative; top:auto; right:auto; left:auto; margin:14px 16px 0 0; background:var(--surface3)}
 }
 /* l'heure et la météo */
 html body .pf-hero>.pf-mt{display:flex; flex:none; align-items:center; justify-content:space-between; gap:12px; min-width:0; box-sizing:border-box; margin:0; padding:16px 18px; color:var(--tx-blanc)}
@@ -8533,16 +8520,18 @@ html body .pf-hero .pf-ps,html body .pf-hero .pf-fl{color:var(--tx-blanc-62)}
 
 /* — AU PC (le menu de gauche porte les sections, la grille n'a que les
    accès) : la colonne du prochain poste n'avait plus que quatre icônes, et
-   laissait 310 px de vide à côté du cycle. Le profil, l'heure en bandeau,
-   le prochain poste et les accès s'empilent à gauche ; le cycle tient
-   toute la hauteur à droite. — */
+   laissait 310 px de vide à côté du cycle. Depuis le 04/11/2026, l'heure
+   et le profil ouvrent l'Accueil côte à côte, le profil à droite ; le
+   prochain poste et les accès suivent à gauche, le cycle à droite. — */
 @media (min-width:1100px){
-  html body #rythmeTete .pf-hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-areas:"prof cyc" "mt cyc" "gau cyc" "pv cyc"; align-items:start}
+  /* le profil en haut à DROITE (le client, le 04/11/2026), l'heure à côté,
+     à sa hauteur, sous la forme de la tablette (les chiffres en grand, la
+     météo dessous) ; puis le prochain poste et les accès à gauche, le cycle
+     à droite */
+  html body #rythmeTete .pf-hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-areas:"mt prof" "gau cyc" "pv cyc"; align-items:start}
   html body #rythmeTete .pf-hero>.pf-corps{display:contents}
-  html body #rythmeTete .pf-hero>.pf-wprof{grid-area:prof}
-  html body #rythmeTete .pf-hero>.pf-mt{grid-area:mt; flex-direction:row; align-items:center; justify-content:space-between; padding:18px 22px}
-  html body #rythmeTete .pf-hero>.pf-mt .pf-mt-hh,html body #rythmeTete .pf-hero>.pf-mt .pf-mt-c{font-size:34px}
-  html body #rythmeTete .pf-hero>.pf-mt .pf-mt-w{align-self:center; padding-top:0; border-top:0}
+  html body #rythmeTete .pf-hero>.pf-wprof{grid-area:prof; align-self:stretch}
+  html body #rythmeTete .pf-hero>.pf-mt{grid-area:mt; align-self:stretch}
   html body #rythmeTete .pf-hero>.pf-corps>.pf-gauche{grid-area:gau}
   html body #rythmeTete .pf-hero>.pf-corps>#ryAn{grid-area:cyc}
   html body #rythmeTete .pf-hero>.pf-corps>.pf-pv{grid-area:pv}
@@ -8754,12 +8743,6 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 
 <header class="top">
   <div class="top-in">
-    <!-- LE PROFIL EN TÊTE DU MENU, AU PC (le client, le 04/11/2026 : « sur
-         PC, il faut que le cadre avec la bannière et le pseudo prenne la
-         place de ce qui est présent tout au-dessus de la barre de menu ») :
-         profilAuMenu() y pose le widget du profil de l'Accueil, un seul
-         exemplaire, et la marque se retire. -->
-    <div class="side-prof" id="sideProf" hidden></div>
     <!-- Le nom du bouton contient ce qu'il montre (trigramme, date, poste),
          précédé de ce qu'il fait ; le titre de la page n'est plus DANS un
          bouton, il est en tête du contenu (audit du 23/10/2026) -->
@@ -17488,36 +17471,10 @@ function majBadgeNotif(){
   if(!NOTIF_NB) return;
   /* la roue vit dans le widget du profil depuis le 03/11/2026 : insérer
      dans le héros, avant un nœud qui n'en est plus l'enfant, levait une
-     erreur qui emportait aussi le cadre « Horaire modifié » (revue). Au PC,
-     le widget est en tête du menu depuis le 04/11/2026 : on le cherche là
-     d'abord (profilAuMenu). */
-  var wp=document.querySelector("#sideProf .pf-wprof")||h.querySelector(".pf-wprof");
-  var r=wp&&wp.querySelector(".pf-roue"), w=document.createElement("div"); w.innerHTML=badgeNotifHTML();
-  if(r&&r.parentNode) r.parentNode.insertBefore(w.firstChild,r.nextSibling); else (wp||h).appendChild(w.firstChild);
+     erreur qui emportait aussi le cadre « Horaire modifié » (revue) */
+  var r=h.querySelector(".pf-roue"), w=document.createElement("div"); w.innerHTML=badgeNotifHTML();
+  if(r&&r.parentNode) r.parentNode.insertBefore(w.firstChild,r.nextSibling); else (h.querySelector(".pf-wprof")||h).appendChild(w.firstChild);
 }
-/* LE PROFIL EN TÊTE DU MENU, AU PC (le client, le 04/11/2026 : « sur PC,
-   il faut que le cadre avec la bannière et le pseudo prenne la place de ce
-   qui est présent tout au-dessus de la barre de menu »). Le widget du
-   profil de l'Accueil (couverture, roue, cloche, cercle, poste) n'existe
-   qu'une fois : au PC, il quitte l'Accueil pour le haut du menu, où il
-   reste d'un onglet à l'autre, et la marque se retire ; sous 1 100 px, il
-   revient à sa place dans l'Accueil. Rappelé à chaque rendu de l'Accueil
-   et quand la fenêtre passe le seuil. */
-function profilAuMenu(){
-  var slot=document.getElementById("sideProf"); if(!slot) return;
-  var pc=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
-  var tete=document.getElementById("rythmeTete"), hero=tete&&!tete.hidden?tete.querySelector(".pf-hero"):null;
-  var dansHero=hero?hero.querySelector(".pf-wprof"):null, dansMenu=slot.querySelector(".pf-wprof");
-  if(!hero) slot.innerHTML="";
-  else if(pc){ if(dansHero){ slot.innerHTML=""; slot.appendChild(dansHero); } }
-  else if(dansMenu && !dansHero){ var t=hero.querySelector("h2"); hero.insertBefore(dansMenu,t?t.nextSibling:hero.firstChild); }
-  if(!pc) slot.innerHTML="";
-  var a=pc && !!slot.querySelector(".pf-wprof"), top=slot.parentNode&&slot.parentNode.parentNode;
-  slot.hidden=!a; if(top&&top.classList) top.classList.toggle("a-prof",a);
-  if(hero) hero.classList.toggle("sans-prof",a);
-}
-(function(){ var m=window.matchMedia&&matchMedia("(min-width:1100px)"); if(!m) return;
-  if(m.addEventListener) m.addEventListener("change",profilAuMenu); else if(m.addListener) m.addListener(profilAuMenu); })();
 var notifRetour=null;
 function ouvrirNotif(){
   var ov=document.getElementById("notifOv"); if(!ov||!NOTIF_NB) return;
@@ -22386,12 +22343,22 @@ function filInit(){
       var o=l.querySelector(".fil-m.ouvert"); if(o&&o!==r) o.classList.remove("ouvert");
       if(!r.classList.toggle("ouvert") && r.blur) r.blur(); return;
     }
-    if(!confirm("Effacer ce message ? Il disparaîtra pour tout le monde.")) return;
-    var id=Number(b.getAttribute("data-fil-x"));
-    baseRpc("biowanze_effacer_message",{p_id:id}).then(function(){
-      FIL.liste=(FIL.liste||[]).filter(function(x){ return Number(x.id)!==id; }); lsSet("ui/fil",FIL.liste); filRendre(); return filCharger();
-    }).catch(function(er){
-      var e=document.getElementById("filErr"); if(e){ e.textContent="Message non effacé : "+baseMsg(er)+"."; e.hidden=false; } });
+    /* la fenêtre de l'application, et non confirm() : la boîte du système
+       (« cronobots.github.io indique… ») était « horrible » (le client, le
+       04/11/2026), comme elle l'avait été pour la déconnexion le 09/10 */
+    var id=Number(b.getAttribute("data-fil-x")), msg=filListe().filter(function(x){ return Number(x.id)===id; })[0];
+    var extrait=msg?String(msg.corps||"").replace(/\s+/g," ").trim():"";
+    if(extrait.length>90) extrait=extrait.slice(0,88).replace(/\s+\S*$/,"")+"…";
+    confirmerPro({titre:"Effacer ce message ?", qui:msg?String(msg.auteur||"").toUpperCase():"",
+      texte:(extrait?"« "+extrait+" » ":"Ce message ")+"disparaîtra pour tout le monde, sans laisser de trace.",
+      ok:"Effacer", annuler:"Garder",
+      icone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>'
+    },function(){
+      baseRpc("biowanze_effacer_message",{p_id:id}).then(function(){
+        FIL.liste=(FIL.liste||[]).filter(function(x){ return Number(x.id)!==id; }); lsSet("ui/fil",FIL.liste); filRendre(); return filCharger();
+      }).catch(function(er){
+        var e=document.getElementById("filErr"); if(e){ e.textContent="Message non effacé : "+baseMsg(er)+"."; e.hidden=false; } });
+    });
   });
 }
 function filAccueil(){
@@ -24646,9 +24613,9 @@ function renderRythme(){
   var person=(db&&id)?db.people.filter(function(p){return p.id===id;})[0]:null;
   var vide=document.getElementById("resumeVide");
   var ag=document.getElementById("agendaCard");
-  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; try{ profilAuMenu(); }catch(e){} if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
+  if(!db||!person){ card.hidden=true; if(ag) ag.hidden=true; if(tete) tete.hidden=true; if(vide) vide.hidden=false; var anc=document.getElementById("anCard"); if(anc) anc.hidden=true; renderNotif(null,null); return; }
   card.hidden=false; if(ag) ag.hidden=false; if(tete) tete.hidden=false; if(vide) vide.hidden=true;
-  if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} meteoDemarrer(); try{ profilAuMenu(); }catch(e){} }
+  if(tete){ tete.innerHTML=_pfHead(db,person); try{ pfAxeAjuste(tete); }catch(e){} meteoDemarrer(); }
   /* Le héros est là : l'intro peut partir (elle attendait tout le rendu de
      l'onglet, jusqu'à 7 s sur un téléphone lent — audit du 10/10/2026). */
   if(typeof finIntro==="function") finIntro();

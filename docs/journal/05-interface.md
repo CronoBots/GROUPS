@@ -11480,3 +11480,46 @@ Le pouls de la cloche (`::after`, `inset:0`) exige qu'elle reste en
 **Mesuré** à 1100 et 1280 px, avec une cloche simulée (« 18 ») : cadre de
 200 × 183 px, aucun débordement, aucune erreur. Parcours : 112 essais,
 0 faute.
+
+### Changement d'avis : le profil en haut à droite de l'Accueil ; le menu à la largeur de Claude (04/11/2026, `nfdm-v1362`)
+
+Le client : « changement d'avis, sur PC la bannière doit être dans un
+cadre qui est dans le haut de l'accueil, partie de droite », puis « sur PC,
+j'aimerais que la barre de menu soit de même largeur que celle de Claude ».
+
+**Le profil quitte le menu (v1360-v1361 retirées).**
+- `profilAuMenu()`, `#sideProf`, leur style, `.sans-prof` et `.a-prof` sont
+  ôtés du code, et `majBadgeNotif` reprend sa forme d'avant.
+- Le haut du menu retrouve la marque : le logo, le trigramme et le jour.
+  C'est le retour à l'état d'avant, choisi seul : le client n'a dit que la
+  place de la bannière.
+
+**L'Accueil au PC** (≥ 1100 px) :
+- la grille passe de « prof cyc / mt cyc / gau cyc / pv cyc » à « mt prof /
+  gau cyc / pv cyc » : l'heure et le profil ouvrent l'Accueil côte à côte, à
+  la même hauteur, le profil à DROITE ;
+- l'heure reprend la forme de la tablette, les chiffres en grand et la météo
+  dessous ;
+- le prochain poste et les accès suivent à gauche, le cycle à droite.
+
+**Le cadre du profil.** Ce qui a été demandé entre-temps reste :
+- la bannière entière (2170 × 540 : 465 × 116 px à 1280), rien posé dessus ;
+- dessous, une ligne : le cercle (64 px), le poste, le statut, le binôme,
+  puis la cloche et la roue au bout ;
+- la cloche et la roue sont rendues à la grille (`position:relative`, leurs
+  décalages de bannière ôtés).
+
+Un vide reste à gauche, sous les accès : le cycle (523 px) est plus haut
+que le prochain poste et les accès (218 px). Il existait déjà, plus petit,
+en v1360-v1361.
+
+**Le menu à 288 px**, au lieu de 248 : 18 rem, la largeur du menu de
+Claude. Sur la capture du client, les deux menus étaient dans un rapport de
+1,15, soit 286 px. Tout passe par `--side` : le contenu, l'espace RH et le
+bandeau hors ligne suivent.
+- À 1100 px, il reste 377 px par colonne à l'Accueil : la ligne du profil
+  tient, sans rien qui déborde.
+
+**Mesuré** à 1100, 1280 et 1440 px, avec une cloche simulée (« 18 »). La
+tablette (900 px) et le téléphone (390 px) sont inchangés. Parcours :
+112 essais, 0 faute.
