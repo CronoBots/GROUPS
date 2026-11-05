@@ -14132,3 +14132,40 @@ jamais dans l'Accueil. Il cale désormais le tableau du widget
 d'horaire du Planning de l'Accueil reste dans sa rangée. Éprouvé sur la
 v1413, sans le calage : « 2 cadre(s) d'horaire hors de leur rangée ».
 Sur la v1415 : 153 essais, 0 faute.
+
+### v1416 — Mon profil : statut en bas à droite, fonction exacte, trigramme du logo (05/11/2026)
+
+Le client : « il faut que le statut soit en bas à droite du widget
+profil. Il faut indiquer le poste actuel de l'opérateur, mais pour le
+contremaître c'est “Contremaître de production”. Et est-ce possible que
+le trigramme soit dans le style de l'écriture BioWanze du logo ? »
+
+- **Le statut** (employé, ouvrier ou intérimaire) est posé dans le coin
+  en bas à droite, en moyen, en bandeau et en petit. Il est plus menu en
+  bandeau, en petit et en moyen sous 340 px ; à 320 px en moyen, il ne
+  disparaît plus. Les lignes qu'il touche lui laissent leur place.
+- **La fonction.** Un contremaître lit « Contremaître de production ».
+  « de production » se tait en mini, en bandeau et sous 310 px de
+  contenu : « Contremaître » reste entier plutôt que coupé.
+- **Un opérateur lisait « Opérateur »**, mesuré sur LCI, faute de poste
+  attitré écrit : il est en formation. Son poste actuel est désormais
+  celui qu'il apprend (« Distillation »), et la ligne jaune dit
+  seulement « En formation ». Sans poste attitré et hors formation, on
+  prend le poste qu'il tient aujourd'hui (`posteAttitreLe`).
+- **Le trigramme dans la police du logo.** Le mot « biowanze » est une
+  linéale arrondie, aux bouts de lettres ronds. Nunito 800 (licence
+  libre OFL) en est la plus proche des polices libres. Elle est
+  réduite aux majuscules et aux chiffres (2,9 Ko) et écrite dans la page
+  (`@font-face`, data:) : rien ne se télécharge, hors ligne compris.
+  Ses mots (licence, auteurs) sont admis par le garde-fou des noms.
+
+**`tools/widget-photos.js` ne changeait plus de format** depuis la vue
+par défaut (v1412) : une disposition sans ordre reçoit les formats par
+défaut, et l'outil n'en donnait pas. Toutes ses photos étaient donc au
+même format. Corrigé : il donne l'ordre (`o:[k]`).
+
+**Essai permanent** (`parcours.js`, chaque rôle et écran) : le trigramme
+est dans la police du logo, chargée ; le statut visible est à 16 px au
+plus du coin en bas à droite. Éprouvé sur la v1415 : « Profil : le
+trigramme n'est pas dans la police du logo ». Sur la v1416 : 177 essais,
+0 faute.

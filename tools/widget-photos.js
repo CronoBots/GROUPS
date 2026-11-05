@@ -20,7 +20,7 @@ const E=[{n:'tel390',w:390,h:844,m:'tel',z:{top:59,bottom:34,left:0,right:0}},{n
   await ctx.addInitScript(([k,m,t,h,qui])=>{ if(localStorage.getItem("__p")) return; localStorage.setItem("__p","1"); localStorage.setItem("ui/prefillId",JSON.stringify(qui));
    localStorage.setItem("account/current",JSON.stringify({role:"employe",tri:qui,cat:"",email:"x@exemple.be",base:"hierarchie",at:"x"}));
    localStorage.setItem("base/session",JSON.stringify({access:"a",refresh:"r",exp:Date.now()+9e12,email:"x@exemple.be"}));
-   const tt={}, hh={}; tt[k]=t; hh[k]=h; localStorage.setItem("ui/accueil/"+m,JSON.stringify({v:1,o:[],t:tt,m:{},h:hh})); },[k,e.m,F[e.m][f][0],F[e.m][f][1],qui]);
+   const tt={}, hh={}; tt[k]=t; hh[k]=h; localStorage.setItem("ui/accueil/"+m,JSON.stringify({v:1,o:[k],t:tt,m:{},h:hh})); },[k,e.m,F[e.m][f][0],F[e.m][f][1],qui]);
   const p=await ctx.newPage(); const errs=[]; p.on('pageerror',x=>errs.push(x.message));
   /* une météo de Wanze fabriquée : sans réseau, le widget se cache */
   await p.route(/open-meteo\.com/,r=>{ const n=Date.now(), h=[...Array(48)].map((_,i)=>new Date(n+(i-1)*36e5).toISOString().slice(0,13)+":00"), d=[...Array(7)].map((_,i)=>new Date(n+i*864e5).toISOString().slice(0,10));
