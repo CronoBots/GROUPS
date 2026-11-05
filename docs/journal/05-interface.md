@@ -13742,3 +13742,33 @@ chaque icône dans le dock, le même écart entre elles et aux bouts, les
 côtés égaux, et debout, le haut et le bas égaux aux côtés, à 1 px près.
 Éprouvé sur une copie sans `dockAjuster` : « debout, l'écart du haut et du
 bas n'est pas celui des côtés ». Le parcours : 141 essais, 0 faute.
+
+### Le widget soulevé garde sa forme (05/11/2026, `nfdm-v1403`)
+
+Le client, trois captures du mode Modifier à l'appui : « les widgets ne sont
+pas les mêmes avant et pendant le déplacement ». Soulevé, « Ma paie »
+retrouvait le titre et la date de sa carte d'origine (« Ma paie avril
+2030 »), « Mon cycle » son en-tête « MON CYCLE », la météo débordait de son
+cadre.
+
+**La cause.** La copie qui suit le doigt (`.acc-vol`, depuis la v1371) perdait
+son attribut `data-w`, pour ne pas compter parmi les éléments de l'Accueil.
+Or toute la forme d'un widget passe par lui : les règles
+« #v-horaire.acc-perso [data-w=…] » et ses requêtes de conteneur. Sans lui,
+la copie redevenait la carte de l'onglet d'où vient le widget.
+
+**La correction.** La copie garde `data-w` ; c'est sa classe `acc-vol` qui
+l'écarte du relevé (`accScan`, `accItem`, les icônes des accès) et du
+masquage des autres pages. Sa taille est posée avec `!important`, pour
+passer avant la règle commune des widgets (`width:auto!important`). Elle
+est inerte.
+
+Mesuré sur les 17 widgets de l'Accueil (téléphone, rôle hiérarchie) : chaque
+élément de la copie a la boîte de l'original, à 2 px près, sauf un petit
+texte de « Mon cycle » (3 px). Avant : jusqu'à 136 éléments différents
+(« Mon rythme »).
+
+**Contrôle permanent** (`parcours.js`, au PC) : la copie soulevée du premier
+widget, élément par élément, à 2 px près. Éprouvé sur une copie qui ôte de
+nouveau `data-w` : « la copie soulevée de « poste » n'a pas sa forme (24
+élément(s) diffèrent) ». Le parcours : 141 essais, 0 faute.

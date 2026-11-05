@@ -38076,7 +38076,7 @@ function accStyle(){
     if(ACC.m[k]) c.push(sel+"{display:none!important}");
     /* une autre page que celle qu'on regarde (plus fort que le cadre
        fantôme du mode Modifier) */
-    else if(accPageDe(k)!==ACC.page) c.push('html body #v-horaire.acc-perso[class] [data-w="'+k+'"][data-w]{display:none!important}');
+    else if(accPageDe(k)!==ACC.page) c.push('html body #v-horaire.acc-perso[class] [data-w="'+k+'"][data-w]:not(.acc-vol){display:none!important}');
   });
   c.push("#v-horaire.acc-perso #resumeVide{order:0!important} #v-horaire.acc-perso #installCard{order:9000!important} #v-horaire.acc-perso #accPageVide{order:9980!important} #v-horaire.acc-perso #accPied{order:9990!important}");
   /* le reste (l'invitation à choisir son identité, l'installation) n'est
@@ -38227,8 +38227,8 @@ function accScan(){
     var cs=getComputedStyle(el); if(cs.display==="contents"||cs.position==="absolute"||cs.position==="fixed") return;
     el.setAttribute("data-acc-plein","");
   });
-  [].forEach.call(v.querySelectorAll("#pfRac .ctl-t"),function(el){ var k=accAppCle(el); if(!k) return; ACC_APPN[k]=accAppNom(el); if(el.getAttribute("data-w")!==k) el.setAttribute("data-w",k); });
-  var l=[].slice.call(v.querySelectorAll("[data-w],[data-acc-plein]"));
+  [].forEach.call(v.querySelectorAll("#pfRac .ctl-t"),function(el){ if(el.closest(".acc-vol")) return; var k=accAppCle(el); if(!k) return; ACC_APPN[k]=accAppNom(el); if(el.getAttribute("data-w")!==k) el.setAttribute("data-w",k); });
+  var l=[].slice.call(v.querySelectorAll("[data-w],[data-acc-plein]")).filter(function(el){ return !el.closest(".acc-vol"); });
   /* une icône qu'on n'a jamais vue se pose après les autres icônes, ou à
      la place du bloc des accès d'avant (« acces ») ; si ce bloc était
      masqué, elle l'est aussi */
@@ -38268,7 +38268,7 @@ function accScan(){
    La case tremble avec son élément (même animation, même départ). Les
    éléments, eux, sont inertes tant qu'on modifie. */
 var ACC_MOINS='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
-function accItem(k){ var l=document.querySelectorAll('#v-horaire [data-w="'+k+'"]'); for(var i=0;i<l.length;i++) if(l[i].getClientRects().length) return l[i]; return null; }
+function accItem(k){ var l=document.querySelectorAll('#v-horaire [data-w="'+k+'"]'); for(var i=0;i<l.length;i++) if(l[i].getClientRects().length&&!l[i].closest(".acc-vol")) return l[i]; return null; }
 /* LA PLACE D'UN ÉLÉMENT MESURÉE À L'ÉCRAN (le 04/11/2026, le client :
    « centrage du nom des widgets ») : par le milieu de sa boîte — que le
    tremblement, une rotation autour du milieu, ne déplace pas — et sa
@@ -38691,9 +38691,17 @@ function accTirer(ev,k,el,attendre){
     var w=el.offsetWidth||r.width, h=el.offsetHeight||r.height, cl=el.cloneNode(true), bx=boite();
     d.s=Math.min(1.05,innerWidth*0.8/w,innerHeight*0.5/h);
     d.dx=Math.max(0,Math.min(d.dx,w)); d.dy=Math.max(0,Math.min(d.dy,h));
-    cl.removeAttribute("data-w"); [].forEach.call(cl.querySelectorAll("[data-w]"),function(x){ x.removeAttribute("data-w"); });
-    cl.classList.remove("acc-tire","acc-vide"); cl.classList.add("acc-vol"); cl.setAttribute("aria-hidden","true");
-    cl.style.width=w+"px"; cl.style.height=h+"px"; cl.style.gridRowEnd="auto";
+    /* LA COPIE A LA FORME DU WIDGET (le client, le 05/11/2026, trois
+       captures à l'appui : « les widgets ne sont pas les mêmes avant et
+       pendant le déplacement »). On lui ôtait son data-w, pour qu'elle ne
+       compte pas parmi les éléments : or toute la forme d'un widget passe
+       par lui (« #v-horaire.acc-perso [data-w=…] », ses requêtes de
+       conteneur) ; « Ma paie » retrouvait son titre et sa date, « Mon
+       cycle » son en-tête, la météo débordait. Elle le garde ; c'est sa
+       classe acc-vol qui l'écarte du relevé (accScan, accItem). Sa taille
+       passe avant la règle commune des widgets (width:auto!important). */
+    cl.classList.remove("acc-tire","acc-vide"); cl.classList.add("acc-vol"); cl.setAttribute("aria-hidden","true"); cl.inert=true;
+    cl.style.setProperty("width",w+"px","important"); cl.style.setProperty("height",h+"px","important"); cl.style.setProperty("min-height",h+"px","important"); cl.style.gridRowEnd="auto";
     /* LE SOULEVER EN DOUCEUR (05/11/2026) : la copie grossit autour du
        point tenu (son origine), qui reste sous le doigt ; avant, elle
        paraissait d'un coup à sa taille soulevée */

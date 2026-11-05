@@ -379,6 +379,21 @@ function constater(){
         if(!glisse) lignes.push("Modifier : un widget déplacé, rien ne glisse (les autres sautent)");
         if(fin.reste||fin.pire>1) lignes.push("Modifier : après le glissement, "+fin.reste+" élément(s) glissent encore, case à "+fin.pire.toFixed(1)+" px de son élément");
         await page.focus('.acc-b[data-acc-pour="'+k+'"] .acc-bouger').catch(()=>{}); await page.keyboard.press("ArrowUp"); await page.waitForTimeout(450);
+        /* LA COPIE SOULEVÉE A LA FORME DU WIDGET (le client, le 05/11/2026 :
+           « les widgets ne sont pas les mêmes avant et pendant le
+           déplacement ») : chaque élément dedans, même boîte à 2 px près */
+        if(!ecran.mobile){
+          const forme=vol=>page.evaluate(([k,vol])=>{ const el=vol?document.querySelector(".acc-vol"):[...document.querySelectorAll('#v-horaire [data-w="'+k+'"]')].find(e=>e.getClientRects().length&&!e.closest(".acc-vol")); if(!el) return null;
+            return [...el.querySelectorAll("*")].map(x=>getComputedStyle(x).display==="none"||!x.getClientRects().length?null:[x.offsetWidth,x.offsetHeight,x.offsetLeft,x.offsetTop]); },[k,vol]);
+          const bx=await page.evaluate(k=>{ const b=document.querySelector('.acc-b[data-acc-pour="'+k+'"]'); b.scrollIntoView({block:"center"}); const r=b.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+Math.min(40,r.height/2)}; },k);
+          await page.waitForTimeout(200);
+          const av=await forme(false);
+          await page.mouse.move(bx.x,bx.y); await page.mouse.down(); await page.mouse.move(bx.x+8,bx.y+8,{steps:3}); await page.waitForTimeout(250);
+          const pe=await forme(true);
+          let diff=0; if(!av||!pe) diff=-1; else av.forEach((x,i)=>{ const y=pe[i]; if(!x!==!y) diff++; else if(x&&x.some((q,j)=>Math.abs(q-y[j])>2)) diff++; });
+          if(diff) lignes.push("Modifier : la copie soulevée de « "+k+" » n'a pas sa forme ("+(diff<0?"pas de copie":diff+" élément(s) diffèrent")+")");
+          await page.keyboard.press("Escape"); await page.mouse.up(); await page.waitForTimeout(400);
+        }
       } else lignes.push("Modifier : aucun widget à déplacer");
       await page.keyboard.press("Escape"); await page.waitForTimeout(300);
       if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))) lignes.push("Modifier : revenu à l'identique, Échap demande une confirmation");
