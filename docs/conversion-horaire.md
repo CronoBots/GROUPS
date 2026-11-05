@@ -791,6 +791,25 @@ Elle rejoint donc `ALIAS_HORAIRE`, à côté de `ABS → MAL`.
 
 **Les neuf règles dures sont maintenant à zéro.** C'est la première fois.
 
+### « r emplace » : une espace dans le mot (05/11/2026)
+
+LHS le 04/11 (classeur du 04/11), sur une nuit prévue, « 7h-15h » :
+« conserver prime de nuit r emplace CKS de 10h à 14h ». CKS, ce jour-là :
+« Départ à 10h Remplacé par LHS ».
+- Chaque lecture cherchait « remplace » d'un seul tenant. Le relais n'était
+  donc pas lu, et le Planning laissait un trou « ? » en Fermentation, de 10 h
+  à 14 h.
+- Le client : « il est bien marqué qu'il remplace ».
+
+La coquille se recolle avant toute lecture : un « r » isolé suivi de
+« emplac… » redevient « remplac… ». C'est dans `corrigerAutoRemplacements`,
+que l'application applique au chargement et que `verifier-calendrier.js`
+découpe dans la page : la lecture est la même partout.
+- C'est la seule journée de 2026 écrite ainsi.
+- Les sorties du vérificateur sont identiques, hors deux changements : le
+  trou du 04/11 quitte les manques (36 journées → 35), et l'agenda de LHS
+  lit « remplace ».
+
 ### Les autres points ouverts
 
 - **Le précompte du double pécule de vacances** — la fiche de mai 2026 porte

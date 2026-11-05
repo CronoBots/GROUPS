@@ -14885,6 +14885,14 @@ function corrigerAutoRemplacements(db){
   var faits=[];
   if(!db || !db.people) return faits;
   function base(id){ return String(id).split("-")[0]; }
+  /* UNE ESPACE DANS « REMPLACE » (le client, le 05/11/2026, sur LHS le
+     04/11, « conserver prime de nuit r emplace CKS de 10h à 14h » : « il
+     est bien marqué qu'il remplace ») : chaque lecture cherchait
+     « remplace » d'un seul tenant, et le Planning gardait un trou de 10 h
+     à 14 h. La coquille se recolle ici, avant toute lecture, dans
+     l'application comme dans les outils qui découpent cette fonction. */
+  db.people.forEach(function(p){ Object.keys(p.d||{}).forEach(function(md){ var raw=p.d[md];
+    if(raw && raw[2] && /\b[Rr]\s+emplac/.test(raw[2])) raw[2]=String(raw[2]).replace(/\b([Rr])\s+(emplac)/g,"$1$2"); }); });
   db.people.forEach(function(p){
     var b=base(p.id), rx=new RegExp("\\bremplace\\s+"+b+"\\b","i");
     Object.keys(p.d||{}).forEach(function(md){

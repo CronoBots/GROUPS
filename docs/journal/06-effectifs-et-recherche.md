@@ -5054,3 +5054,26 @@ remplace en fermentation de 13h à 14h00'"]`.
 - Cohérence du Planning : 0 faute. Elle contrôle que « À prévenir » égale
   le Planning, et que la proposition reste dans les heures de la copie.
 - Recherche : 0. Parcours : 112 essais, 0 faute. Agendas inchangés.
+
+### « r emplace » : le trou du 04/11 en Fermentation (05/11/2026, `nfdm-v1394`)
+
+Le client, capture du Planning à 5 h 30 : un « ? » de 10 h à 14 h en
+Fermentation, le 04/11, matin. « Pourquoi ceci ? Il est bien marqué qu'il
+remplace. »
+- CKS part à 10 h : « Départ à 10h Remplacé par LHS ».
+- LHS travaille de 7 h à 15 h : « conserver prime de nuit r emplace CKS de
+  10h à 14h ».
+- L'espace dans « r emplace » cachait le relais à toutes les lectures, qui
+  cherchent « remplace » d'un seul tenant.
+
+La coquille se recolle avant toute lecture (`corrigerAutoRemplacements`) ;
+la règle est écrite dans `docs/conversion-horaire.md`. C'est la seule
+journée ainsi écrite en 2026.
+
+**Mesuré.**
+- Le Planning du 04/11 : CKS 06-10 et LHS 07-15 en Fermentation, sans trou.
+- Le vérificateur : les neuf règles, les manques commentés, la polyvalence
+  et les compteurs sont identiques à l'octet.
+- Deux changements seulement :
+  - dans les manques, le 04/11 disparaît (36 journées → 35) ;
+  - l'agenda de LHS lit « remplace ».
