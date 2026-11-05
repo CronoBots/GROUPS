@@ -13408,7 +13408,7 @@ désormais sur la photo, sans étiquette, plus petites (15 px).
 | Gluten | 300, 470 | 302, 500 | à mi-hauteur des six silos (de y 450 à 550) |
 | Chaudières | 500, 232 | 648, 259 | au milieu des deux cheminées : leurs axes en x 626 et 670, de leur sommet (y 184) à leur pied (334) |
 | Terrain arrière | 740, 470 | 720, 470 | 20 px plus à gauche |
-| Meunerie | 222, 215 | inchangée | question au client |
+| Meunerie | 222, 215 | inchangée, puis 122, 345 en v1391 | question au client (réponse ci-dessous) |
 
 **La meunerie attend une réponse.** Le pointeur ne figure pas sur la
 capture : Windows ne le photographie pas. Seul indice, la zone de la
@@ -13475,3 +13475,19 @@ taille ; ses enfants seuls le lisent, pas lui-même.
 - Parcours : 112 essais, 0 faute ; statique : 0. Repassés sur le fichier
   final avec les contrôles de la bannière (20 mesures), des épingles
   (24) et la matrice (60) : 0 faute.
+
+### L'épingle de la meunerie sur le bâtiment bas de la tour du moulin (05/11/2026, `nfdm-v1391`)
+
+La question de la v1390, posée en QCM sur l'image de quatre places
+numérotées : le client a choisi la 3, « bâtiment bas à gauche ». C'est le
+bloc bas au toit sombre, à gauche de la tour du moulin.
+- **Avant** : en x 222, y 215, sur la tête de la bande transporteuse qui
+  monte du quai.
+- **Désormais** : en x 122, y 345 (`USP_POINTS`).
+
+**Mesuré.**
+- `carte-epingles.js`, avec la nouvelle place attendue : 24 mesures,
+  0 faute. Aucune étiquette ne couvre une épingle : celle de la
+  meunerie se pose au-dessus de sa tête, à gauche de celle du gluten.
+- Parcours : ci-dessous.
+
