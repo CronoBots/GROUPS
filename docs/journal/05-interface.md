@@ -13818,3 +13818,50 @@ la liste des défauts, je corrige, je rephotographie.
 
 Sans défaut relevé : le moyen (bannière, avatar, titre, étiquette, roue)
 à chaque largeur. Le parcours : 143 essais, 0 faute.
+
+### « Mon profil » : le trigramme écrit, la bannière entière (05/11/2026, `nfdm-v1406`)
+
+Le client : « Chaque widget doit être vérifié avec les skills installés. […]
+J'aimerais que dans ce widget il soit marqué le trigramme, pour que la
+bannière soit complètement visible sans être réduite ; le statut, l'équipe
+ou le binôme. » Et deux questions : faut-il forcer ce widget en haut, sur
+une ligne et toute la largeur, pour la bannière ? la résolution de la
+bannière est-elle la bonne ?
+
+**La règle.** Chaque widget de la série se vérifie aussi avec les deux
+skills d'interface installés : `impeccable` (sa « critique », lanceur
+absent : son plancher de qualité, `reference/craft-floor.md`, lu avant
+chaque retouche) et `ui-ux-pro-max` (cibles tactiles, contraste,
+typographie, images). Écrite dans `CLAUDE.md`, à la ligne de
+`tools/widget-photos.js`.
+
+**Ce qui change.** Le rond de l'avatar (60 à 76 px) s'efface : le trigramme
+devient le titre du widget, en lettres (22 px en bandeau, jusqu'à 34 px en
+petit et en moyen). La bannière garde partout son format (4 : 1, toute la
+largeur du widget). À droite du trigramme, après un filet : la fonction et
+le statut, puis l'équipe ou le binôme. En petit, le statut passe sous la
+fonction (il était masqué) ; sous 150 px de large (le petit d'un écran de
+320 px), la place manque et il reste masqué. La fonction (« Contremaître »)
+reste : le client ne l'a pas retirée.
+
+Deux règles plus bas dans la feuille, de même force, gardaient `nowrap` et
+`display:flex` au statut du petit format : les sélecteurs neufs doublent
+une classe (`.pf-poste.pf-poste`, `.pf-statut.pf-statut`).
+
+**La bannière.** `banniere.jpg` fait 1600 × 398 px (tirée de la source
+2170 × 540). Sa plus grande largeur affichée : 342 px au téléphone (× 3 =
+1026 px), 458 à 508 px au PC (× 2 = 916 à 1016) : la résolution suffit
+partout, avec de la marge. Elle ne manquerait qu'en pleine largeur au PC
+(970 à 1550 px, soit 1940 à 3100 px sur un écran à forte densité) : il
+faudrait alors 3200 × 796 px.
+
+**Forcer le widget en haut, pleine largeur ?** Non recommandé. Au
+téléphone, il est déjà en tête et sur toute la largeur (le format moyen).
+Au PC, en pleine largeur, la bannière à 4 : 1 ferait 390 px de haut sur un
+écran de 1920 : près de la moitié de l'écran pour un profil. Et forcer une
+place retirerait au client la liberté de l'Accueil, qu'il a voulue comme
+celle de l'iPhone. La bannière est désormais entière à chaque format.
+
+Vérifié à chaque format (bandeau, petit, moyen), téléphone 390 et 320 px,
+PC 1280 et 1920 px : rien ne déborde, rien n'est coupé, aucun texte sous
+11 px.
