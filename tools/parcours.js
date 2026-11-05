@@ -423,6 +423,21 @@ function constater(){
       await aller(page,"tab-horaire");
       const g=await page.evaluate(()=>{ const v=document.getElementById("v-horaire"); return {tel:v.classList.contains("acc-tel"), cols:parseInt(getComputedStyle(v).getPropertyValue("--acc-cols"),10)}; });
       if(g.tel&&!(g.cols>=6)) lignes.push("Accueil couché : "+g.cols+" colonnes, la grille n'est pas inversée"); }
+    /* TOUCHER LE PROFIL OUVRE LES RÉGLAGES (le client, le 05/11/2026) :
+       plus de roue dans le widget ; le widget entier y mène */
+    if(role==="hierarchie"){ n++;
+      await aller(page,"tab-horaire");
+      const w=page.locator('#v-horaire .pf-wprof[data-w="profil"]').first();
+      if(await w.count()&&await w.isVisible()){
+        const roue=await page.evaluate(()=>{ const r=document.querySelector(".pf-wprof .pf-roue"); return !!r&&r.getClientRects().length>0; });
+        if(roue) lignes.push("Profil : la roue est encore dans le widget");
+        await w.scrollIntoViewIfNeeded().catch(()=>{});
+        const b=await w.boundingBox(); if(ecran.mobile) await page.touchscreen.tap(b.x+b.width*0.4,b.y+b.height-20); else await page.mouse.click(b.x+b.width*0.4,b.y+b.height-20);
+        await page.waitForTimeout(500);
+        const v=await page.evaluate(()=>document.body.getAttribute("data-view"));
+        if(v!=="reglages") lignes.push("Profil : toucher le widget ouvre « "+v+" » et non les Réglages");
+        await aller(page,"tab-horaire");
+      } }
     lignes.push(...page.fautes);
     await page.ctx.close();
     res[i]={avant:avant, tag:ecran.nom+" · "+(role||"sans compte"), lignes:lignes, n:n}; }

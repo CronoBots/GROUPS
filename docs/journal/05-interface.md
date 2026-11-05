@@ -13892,3 +13892,34 @@ haut), un vide de 60 à 80 px sous la bannière : le texte est calé au bas,
 comme dans un widget de l'iPhone ; le remplir demanderait une information
 de plus, que le client n'a pas demandée. À 320 px, le statut ne tient pas
 en bandeau ni en petit (règles d'avant, gardées).
+
+### « Mon profil » ouvre les Réglages ; plus de roue (05/11/2026, `nfdm-v1408`)
+
+Le client demandait s'il fallait laisser les options dans le widget du profil,
+en faire un widget à part impossible à supprimer, ou les rendre accessibles
+d'ailleurs. Ma recommandation : ni l'un ni l'autre ; le widget entier ouvre
+les réglages, comme un widget de l'iPhone ouvre son app. Ceux-ci ont
+déjà trois accès qui ne peuvent pas disparaître : le menu « Plus » du
+téléphone, la carte du bas du menu du PC, l'icône « Réglages » de
+l'Accueil. Un widget imposé casserait la liberté de l'Accueil. Le client :
+« Faut tout cela pour 100 % pro. »
+
+**Fait.** La roue s'efface du widget (CSS). Le widget porte
+`data-go="reglages"`, `role="link"`, `tabindex="0"` et un nom (« Mon
+profil : ouvrir les réglages ») : un toucher, un clic ou Entrée y mène ; en
+mode Modifier, rien ne s'ouvre (le clic y est déjà arrêté). Au PC, le
+survol éclaire son bord et l'anneau du clavier l'entoure ; au doigt, il
+s'enfonce d'un rien. Le gestionnaire commun des `data-go` ne suit plus que
+l'élément actif le plus proche : la cloche, un bouton posé dans le widget,
+garde son geste (ouvrir les changements d'horaire) au lieu d'ouvrir aussi
+les Réglages.
+
+**Pas fait, une question au client.** Ma recommandation déplaçait aussi la
+cloche (les changements d'horaire) dans « À faire ». Or le client a décidé
+le 30/10/2026 : « le changement d'horaire n'a rien à faire en action à
+faire ». Revenir sur une décision se demande : question posée.
+
+**Contrôle permanent** (`parcours.js`, rôle hiérarchie, chaque écran) : la
+roue n'est plus visible, et toucher le widget ouvre les Réglages. Éprouvé
+sur une copie sans `data-go` : « toucher le widget ouvre « horaire » et non
+les Réglages ». Le parcours : 149 essais, 0 faute.

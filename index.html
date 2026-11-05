@@ -9621,6 +9621,13 @@ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-hmeta{padding:0 12p
    « … » plutôt que de déborder (320 px : l'équipe et ses deux
    trigrammes, la formation) */
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-fo{display:none!important}
+/* plus de roue : le widget entier ouvre les Réglages ; au PC, il le dit au
+   survol, et l'anneau du clavier l'entoure */
+html body #v-horaire.acc-perso .pf-wprof .pf-roue{display:none!important}
+html body #v-horaire.acc-perso:not(.acc-edit) .pf-wprof[data-go]{cursor:pointer; -webkit-tap-highlight-color:transparent}
+@media (hover:hover){ html body #v-horaire.acc-perso:not(.acc-edit) .pf-wprof[data-go]:hover{border-color:var(--bd-blanc-18)} }
+html body #v-horaire.acc-perso .pf-wprof[data-go]:focus-visible{outline:2px solid var(--marque-vif); outline-offset:3px}
+html body #v-horaire.acc-perso:not(.acc-edit) .pf-wprof[data-go]:active{transform:scale(.985); transition:transform .12s}
 html body #v-horaire.acc-perso .pf-wprof .pf-hmeta>*{min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 @container (max-width:299px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-fo{display:none!important} }
 /* en petit aussi, le statut : sous la fonction, la place manquant à côté ;
@@ -14700,7 +14707,18 @@ document.querySelector(".tabs").addEventListener("keydown",function(e){
   tabs[j].focus();
 });
 document.addEventListener("click",function(e){
-  var g=e.target.closest("[data-go]"); if(g) setView(g.dataset.go);
+  /* un bouton posé DANS un élément qui mène ailleurs (la cloche dans le
+     widget du profil, 05/11/2026) garde son geste : seul le plus proche
+     élément actif compte */
+  var a=e.target.closest("button,a,[data-go]"), g=a&&a.hasAttribute("data-go")?a:null; if(g) setView(g.dataset.go);
+});
+/* au clavier, Entrée ou Espace sur un élément « lien » qui n'est pas un
+   bouton (le widget du profil) */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ") return;
+  var g=e.target; if(!g||!g.getAttribute||g.getAttribute("role")!=="link"||!g.hasAttribute("data-go")) return;
+  if(document.getElementById("v-horaire")&&document.getElementById("v-horaire").classList.contains("acc-edit")) return;
+  e.preventDefault(); setView(g.getAttribute("data-go"));
 });
 
 /* ===================== horaire — saisie ===================== */
@@ -18636,7 +18654,12 @@ function _pfHead(db,p){
        l'iPhone ») : le profil est un widget à lui seul, la couverture en
        tête ; la météo en fait un autre (l'heure est passée dans le cadre du
        poste le 04/11/2026). */
-    +'<div class="pf-wprof" data-w="profil">'
+    /* LE WIDGET OUVRE LES RÉGLAGES (le client, le 05/11/2026 : « faut tout
+       cela pour 100 % pro ») : comme un widget de l'iPhone ouvre son app,
+       toucher « Mon profil » ouvre les Réglages ; sa roue, un quatrième
+       accès après le menu « Plus », celui du PC et l'icône « Réglages »,
+       s'efface (CSS) */
+    +'<div class="pf-wprof" data-w="profil" data-go="reglages" role="link" tabindex="0" aria-label="Mon profil : ouvrir les réglages">'
     +'<div class="pf-couv" aria-hidden="true"></div>'
     +'<button type="button" class="pf-roue" data-go="reglages" aria-label="Réglages"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>'
     +badgeNotifHTML()
