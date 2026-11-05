@@ -1,10 +1,12 @@
 """L'image du widget « Mon profil » en moyen (banniere-widget.jpg).
 
-La bannière (banniere-biowanze-usine.png) intacte, réduite à 1600 px de
-large, puis prolongée vers le bas : sa dernière bande (sous le mot
-« biowanze », sans texte), étirée et floutée, et fondue jusqu'au fond du
-widget, --surface (#212737) exactement. Le client, le 05/11/2026, maquette
-à l'appui. Dépend de numpy, opencv-python-headless et Pillow.
+La bannière (banniere-biowanze-usine.png) entière et intacte, réduite à
+1600 px de large ; sous elle, le dégradé part de sa dernière ligne (le
+blanc à droite, la photo à gauche), s'adoucit en descendant et finit sur
+le fond du widget, --surface (#212737) exactement. Le client, le
+05/11/2026 : « la transition ne doit pas couper le logo ; la bannière doit
+être totalement visible et le blanc être le dégradé vers la partie
+basse ». Dépend de numpy, opencv-python-headless et Pillow.
 
     python3 tools/banniere-widget.py      # depuis la racine du dépôt
 """
@@ -14,23 +16,21 @@ RACINE=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 src=np.asarray(Image.open(os.path.join(RACINE,'banniere-biowanze-usine.png')).convert('RGB')).astype(np.float32)
 W=1600; H=round(540*W/2170)            # 398
 b=cv2.resize(src,(W,H),interpolation=cv2.INTER_AREA)
-EXT=0.42; T=H+round(H*EXT)
+EXT=round(H*0.55)                       # le dégradé, sous la bannière
 fond=np.array([33,39,55],np.float32)
-# prolongement : la dernière bande (sous le mot), étirée et floutée
-bande=b[H-12:H]
-ext=cv2.resize(bande,(W,T-H),interpolation=cv2.INTER_LINEAR)
-ext=cv2.GaussianBlur(ext,(0,0),sigmaX=18,sigmaY=10)
-img=np.concatenate([b,ext],0)
-# raccord : les 10 dernières lignes de la bannière glissent vers le prolongement flouté
-for i in range(10):
-    t=(i+1)/11; y=H-10+i; img[y]=b[y]*(1-t*0.6)+ext[0]*(t*0.6)
-y=np.arange(T)/H                         # 0 = haut, 1 = bas de la bannière
-xp=[0,0.50,0.88,1.0,1.18,1.36,EXT+1]
-fp=[0,0.06,0.18,0.45,0.82,1.0,1.0]
-a=np.interp(y,xp,fp)
-a=a*a*(3-2*a)                            # lissé
-a3=a.reshape(-1,1,1)
-out=img*(1-a3)+fond*a3
-o=np.clip(out.round(),0,255).astype(np.uint8)
+der=b[H-1]                              # la dernière ligne de la bannière
+moy=b[H-8:].mean(0)                     # les 8 dernières, sans le détail d'une seule
+ext=np.empty((EXT,W,3),np.float32)
+for k in range(EXT):
+    t=(k+1)/EXT
+    sig=6+90*t**0.5                     # vite doux (sinon des stries), puis de plus en plus
+    ligne=cv2.GaussianBlur(moy[None,:,:],(0,0),sigmaX=sig,sigmaY=0.1)[0]
+    r=min(1,k/20); ligne=der*(1-r)+ligne*r  # la couture : de la vraie ligne au flou
+    # de 0 (la ligne) à 1 (le fond) : vite d'abord, là où le texte se pose
+    # (blanc sur un blanc à peine grisé, il ne se lisait pas), doux ensuite
+    a=1-(1-t)**5
+    ext[k]=ligne*(1-a)+fond*a
+o=np.clip(np.concatenate([b,ext],0).round(),0,255).astype(np.uint8)
+assert (o[:H]==np.clip(b.round(),0,255).astype(np.uint8)).all()   # la bannière, intacte
 Image.fromarray(o).save(os.path.join(RACINE,'banniere-widget.jpg'),quality=84,optimize=True,progressive=True)
 print(o.shape, 'bas =', o[-1].mean(0).round(1))

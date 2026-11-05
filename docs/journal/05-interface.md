@@ -14278,3 +14278,31 @@ fondue jusqu'à `--surface` (#212737) exactement. La ligne fine qui
 restait était la bordure basse de `.pf-couv` : retirée. Mesuré : marges
 de 17 px des deux côtés, statut aligné sur sa ligne, au téléphone (390,
 320) et au PC. Résultat : 177 essais, 0 faute.
+
+### v1422 — La bannière entière, son blanc en dégradé (05/11/2026)
+
+Le client, sur la v1421 : « la transition ne doit pas couper le logo ;
+la bannière doit être totalement visible et le blanc être le dégradé
+vers la partie basse ». La v1421 voilait déjà le bas de la bannière : le
+mot « biowanze » à 18 %, sa dernière ligne à 45 %. Le texte se posait
+aussi sur elle.
+
+- `banniere-widget.jpg` : la bannière est **intacte**, et l'outil le
+  vérifie à chaque passage (assert sur les pixels). Sous elle, le
+  dégradé part de sa dernière ligne exacte, puis de la moyenne de ses
+  8 dernières, floutée de plus en plus, et finit sur --surface. Il va
+  vite d'abord, là où le texte se pose : le texte blanc sur un blanc à
+  peine grisé ne se lisait pas, et son ombre y dessinait des rectangles
+  sombres. Il va doucement ensuite. Une première version, partie d'une
+  seule ligne peu floutée, faisait des stries côté photo.
+- Le texte ne se pose plus sur la bannière. La première rangée de la
+  grille a sa hauteur : un élément vide (`::after`) aux proportions
+  2170 : 540. Le texte est centré dans la rangée qui reste.
+- Erreur commise : une hauteur de rangée en unités de conteneur, posée
+  sur le widget lui-même, lisait la largeur de l'Accueil. Au PC, le
+  texte sortait du widget (« bas = −119 px ») ; d'où l'élément vide.
+
+Mesuré, entre le bas de la bannière et le texte : 16 px au téléphone de
+390 px (5 px pour un opérateur en formation, trois lignes), 10 px à
+320 px, 16 à 27 px au PC. L'image est refaite à l'octet par l'outil.
+Résultat : 177 essais, 0 faute.
