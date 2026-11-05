@@ -13973,3 +13973,20 @@ Wanze fabriquée (sans réseau, le widget se cache : il n'était jamais
 photographié). Mesuré à chaque format et écran (téléphone 390 et 320 px,
 couché, PC 1280 et 1920) : rien ne déborde, rien n'est coupé, aucun texte
 sous 11 px.
+
+### Les widgets un par un : « Heure et poste » (05/11/2026, `nfdm-v1411`)
+
+Le client : « Go. » Photographié à chaque format (petit, moyen, grand),
+téléphone 390 et 320 px, couché, PC 1280 et 1920 px : rien ne déborde, rien
+n'est coupé, aucun texte sous 11 px. Relu avec les deux skills ; deux
+défauts, tous deux du grand format :
+- un surtitre, « REPRISE · DEMAIN », au-dessus de « Demain matin », qu'il
+  redisait ; le plancher du skill impeccable proscrit l'étiquette posée sur
+  un titre. Il tombe, comme il tombait déjà en petit et en moyen ;
+- le décompte (« dans 15 h 20 ») rejeté à droite, quand le petit et le
+  moyen le posent au-dessus du titre, à gauche : il y passe aussi.
+
+Gardé : l'horloge à la seconde, la date, le carré de la pause, la liste
+« Ensuite » (trois jours et « + 3 autres » au téléphone, six au PC). Non
+photographié : l'état « en poste » (la barre d'avancement), qui dépend de
+l'heure ; ses règles ne changent pas.
