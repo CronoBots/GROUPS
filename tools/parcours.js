@@ -400,6 +400,30 @@ function constater(){
       if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))){ await page.keyboard.press("Escape"); }
       if(await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-edit"))) await page.click("#accOk").catch(()=>{});
     }
+    /* PASSER UN VOISIN PAR LE BORD DU WIDGET TENU (le client, le
+       05/11/2026 : « la météo est à gauche, je veux juste la déplacer à
+       droite et cela ne veut pas ») : au téléphone debout, « Mon profil »
+       tenu en son milieu et poussé de 130 px vers la droite passe après
+       la météo, sa voisine de rangée ; le doigt seul n'en atteint pas le
+       milieu, le bord droit de la copie le dépasse. Échap, tenu, annule. */
+    if(role==="hierarchie"&&ecran.mobile&&ecran.w<500){ n++;
+      await aller(page,"tab-horaire"); await page.evaluate(()=>scrollTo(0,0));
+      await page.evaluate(()=>{ const b=document.querySelector("[data-acc-editer]"); if(b) b.click(); }); await page.waitForTimeout(500);
+      const bt=k=>page.evaluate(k=>{ const e=[...document.querySelectorAll('#v-horaire [data-w="'+k+'"]')].find(x=>x.getClientRects().length&&!x.closest(".acc-vol")); if(!e) return null; const r=e.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2, l:r.left, t:r.top}; },k);
+      const a=await bt("profil"), b=await bt("meteo");
+      if(!a||!b||Math.abs(a.t-b.t)>2||b.l<a.l) lignes.push("Modifier : « Mon profil » et la météo ne sont plus côte à côte au téléphone (essai du voisin impossible)");
+      else {
+        await page.mouse.move(a.x,a.y); await page.mouse.down();
+        for(let i=1;i<=13;i++){ await page.mouse.move(a.x+i*10,a.y); await page.waitForTimeout(40); }
+        await page.waitForTimeout(700);
+        const a2=await bt("profil"), b2=await bt("meteo");
+        if(!a2||!b2||!(b2.l<a2.l)) lignes.push("Modifier : « Mon profil » poussé de 130 px vers la droite ne passe pas après la météo");
+        await page.keyboard.press("Escape"); await page.mouse.up(); await page.waitForTimeout(400);
+      }
+      await page.keyboard.press("Escape"); await page.waitForTimeout(300);
+      if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))){ lignes.push("Modifier : après Échap tenu, Échap demande une confirmation"); await page.keyboard.press("Escape"); }
+      if(await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-edit"))) await page.click("#accOk").catch(()=>{});
+    }
     /* LE DOCK AUX ÉCARTS ÉGAUX (le client, le 05/11/2026) : au téléphone,
        debout ou couché, chaque icône est dans le dock, et l'écart est le
        même entre elles, aux deux bouts et sur les côtés (à 1 px près) */

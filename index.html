@@ -38891,13 +38891,30 @@ function accTirer(ev,k,el,attendre){
   function cibler(){
     /* sous le doigt, ce qui est de l'Accueil : les points des pages (au
        bas de l'écran, par-dessus) ne cachent pas la case visée */
-    var es=document.elementsFromPoint?document.elementsFromPoint(d.x,d.y):[document.elementFromPoint(d.x,d.y)], w=null;
-    for(var ie=0;ie<es.length&&!w;ie++){ var e=es[ie]; if(e&&e.closest) w=e.closest(".acc-b")||e.closest("#v-horaire [data-w]"); }
-    if(!w) return;
-    var kc=w.getAttribute("data-acc-pour")||w.getAttribute("data-w"); if(!kc||kc===d.k||!accDef(kc)) return;
+    /* PAR LE BORD DU WIDGET TENU, ET NON PAR LE SEUL DOIGT (le client,
+       le 05/11/2026, deux captures : « la météo est à gauche, je veux
+       juste la déplacer à droite et cela ne veut pas »). Le doigt seul
+       devait dépasser le milieu de la dernière icône de la rangée : une
+       bande d'une trentaine de pixels, collée à la bande du bord où le
+       widget tenu part sur la page voisine. Comme sur l'iPhone, c'est le
+       bord avant de la copie qui pousse : sous le doigt d'abord, puis
+       sous ses bords droit et gauche (le doigt, lui, est souvent au-dessus
+       de la place vide du widget tenu) ; et elle passe un voisin dès que
+       ce bord en dépasse le milieu. */
+    var cr=d.vol?d.vol.getBoundingClientRect():{left:d.x,right:d.x}, w=null, kc=null,
+        pts=[[d.x,d.y],[cr.right-4,d.y],[cr.left+4,d.y]];
+    for(var ip=0;ip<pts.length&&!kc;ip++){
+      var px=Math.max(1,Math.min(innerWidth-1,pts[ip][0])),
+          es=document.elementsFromPoint?document.elementsFromPoint(px,pts[ip][1]):[document.elementFromPoint(px,pts[ip][1])];
+      for(var ie=0;ie<es.length&&!kc;ie++){ var e=es[ie]; if(!e||!e.closest||e.closest(".acc-vol")) continue;
+        w=e.closest(".acc-b")||e.closest("#v-horaire [data-w]"); var kx=w&&(w.getAttribute("data-acc-pour")||w.getAttribute("data-w"));
+        if(kx&&kx!==d.k&&accDef(kx)) kc=kx; }
+    }
+    if(!kc) return;
     var it=accItem(kc); if(!it) return;
-    var rc=it.getBoundingClientRect(), v=document.getElementById("v-horaire"), plein=rc.width>v.clientWidth*0.7;
-    var apres=plein?d.y>rc.top+rc.height/2:d.x>rc.left+rc.width/2, sig=kc+(apres?">":"<");
+    var rc=it.getBoundingClientRect(), v=document.getElementById("v-horaire"), plein=rc.width>v.clientWidth*0.7,
+        mil=rc.left+rc.width/2, avant=ACC.o.indexOf(d.k)<ACC.o.indexOf(kc);
+    var apres=plein?d.y>rc.top+rc.height/2:avant?cr.right>mil:!(cr.left<mil), sig=kc+(apres?">":"<");
     /* le temps qu'ils finissent de s'écarter (300 ms) avant de viser à
        nouveau : sans quoi l'élément qui glisse sous le doigt serait visé
        en cours de route, et la place ferait des allers-retours */

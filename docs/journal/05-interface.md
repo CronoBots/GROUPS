@@ -14039,3 +14039,34 @@ noms sous les icônes descendent dans l'écart, comme voulu.)
 **Qui la voit** : une disposition neuve, et « Rétablir la disposition
 d'origine » (« + » du mode Modifier). Une disposition déjà réglée garde son
 ordre et ses tailles : rien n'est imposé à qui a déjà arrangé son Accueil.
+
+### v1413 — Passer un voisin par le bord du widget tenu (05/11/2026)
+
+Le client, deux captures à l'appui : « la météo est à gauche, je veux
+juste la déplacer à droite et cela ne veut pas ». Sa rangée : la météo
+en mini (deux cases), puis deux icônes.
+
+**La cause, mesurée au navigateur.** La place visée se décidait au seul
+doigt : passer après une icône demandait que le doigt en dépasse le
+milieu. Pour la dernière de la rangée, au téléphone de 390 px, le doigt
+devait aller au-delà de 330 px. Or, au-delà de 362 px, le doigt tenu
+deux tiers de seconde fait partir le widget sur la page voisine. Restait
+une bande de 32 px. Un doigt qui tenait la météo en son milieu
+la laissait au milieu de la rangée, ou l'envoyait sur l'autre page.
+
+**Le correctif (`cibler`)**, comme sur l'iPhone : c'est le bord avant
+de la copie tenue qui pousse. Le voisin visé est cherché sous le doigt,
+puis sous les bords droit et gauche de la copie. Le doigt est souvent
+au-dessus de la place vide du widget tenu, qui ne vise rien. On passe
+le voisin dès que ce bord en dépasse le milieu : le bord droit quand
+le widget tenu le précède, le gauche sinon. Les cibles pleine largeur
+gardent la règle du doigt, en hauteur.
+
+**Mesure.** La météo tenue en son milieu passe à droite des deux icônes
+dès que le doigt atteint 250 px ; avant, il fallait plus de 330 px.
+Le retour à gauche marche aussi.
+
+**Essai permanent** (`parcours.js`, téléphone debout) : « Mon profil »
+tenu en son milieu et poussé de 130 px vers la droite doit passer après
+la météo. Éprouvé sur l'ancienne version : « 16 essais, 1 faute »
+(`--vite`). Sur la nouvelle : 152 essais, 0 faute.
