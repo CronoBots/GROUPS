@@ -14070,3 +14070,43 @@ Le retour à gauche marche aussi.
 tenu en son milieu et poussé de 130 px vers la droite doit passer après
 la météo. Éprouvé sur l'ancienne version : « 16 essais, 1 faute »
 (`--vite`). Sur la nouvelle : 152 essais, 0 faute.
+
+### v1414 — Le Planning, widget de la page de droite au téléphone (05/11/2026)
+
+Le client : « sur mobile, le Planning doit devenir un widget, situé à
+droite de l'Accueil normal ».
+
+**Ce qui est fait.**
+- Le widget « Planning » n'était qu'au PC (`pc:true`, 1 100 px et plus).
+  Il est maintenant partout : la carte de l'onglet Planning se pose dans
+  l'Accueil (`accPlanningPlacer`), et retourne dans son onglet quand on
+  l'ouvre.
+- Le téléphone a un format « Très grand » de plus, toute la largeur et
+  trois lignes (`ACC_FORMATS.tel.XL`, 342 × 553 px à 390 px d'écran),
+  réservé au Planning. « Mon cycle », le Calendrier, « Sur site » et
+  « Mon rythme » ont des formats par écran, pour ne pas le recevoir
+  sans avoir été vérifiés.
+- Sa page par défaut est celle de droite (`ACC_PAGE_DEFAUT`). Une
+  disposition déjà réglée le reçoit une fois, au même endroit et au même
+  format. Les ajouts déjà faits sont retenus (`ACC.x`, enregistré avec la
+  disposition) : un Planning ramené ensuite sur la page principale y
+  reste.
+- Couché, l'Accueil est une grille large, sans pages : le Planning y est
+  dans la grille, en très grand, comme au PC.
+
+**Un défaut trouvé en route, et corrigé.** Dans le widget, les cadres
+d'horaire des Chaudières (« SPS 18-06 ») débordaient sur la rangée STEP.
+Ils sont calés par `alignerFusions`, appelé par `ajusterLignesJour`, qui
+ne faisait rien quand l'onglet Planning était caché, donc jamais dans
+l'Accueil. Il cale désormais aussi le tableau du widget. De plus, le
+Planning dessiné pendant que sa page est cachée est redessiné dès que sa
+carte reprend une largeur (`ResizeObserver`).
+
+**Essai permanent** (`parcours.js`, téléphone, contremaître) : le second
+point ouvre la page de droite, où le Planning est montré ; chaque cadre
+d'horaire reste dans sa rangée et dans le widget. Une première version
+de l'essai ne mordait pas : elle mesurait la hauteur du cadre, qui garde
+la sienne, au lieu de sa rangée. Corrigé, puis éprouvé sur une copie
+sans le calage : « 2 cadre(s) d'horaire hors de leur rangée ». L'essai
+des pages tient compte du Planning déjà à droite. Résultat : 157 essais,
+0 faute.
