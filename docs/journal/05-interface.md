@@ -14169,3 +14169,25 @@ est dans la police du logo, chargée ; le statut visible est à 16 px au
 plus du coin en bas à droite. Éprouvé sur la v1415 : « Profil : le
 trigramme n'est pas dans la police du logo ». Sur la v1416 : 177 essais,
 0 faute.
+
+### v1417 — « Opérateur » puis le poste (05/11/2026)
+
+Le client : « fais-moi l'inventaire de ce qui peut être écrit à côté d'un
+opérateur […] ; pour les opérateurs, il faut indiquer “Opérateur X” puis
+le poste ». L'inventaire a été relevé au navigateur, sur les 68 personnes
+qui ne sont pas contremaîtres :
+- la fonction : Chaudières 18, Gluten 17, Distillation 10, Meunerie 9,
+  Terrain arrière 7, Fermentation 5, STEP 2 ;
+- le statut : Ouvrier 48, Intérimaire 15, Employé 5 ;
+- « En formation » : 10 ;
+- l'équipe : Équipe 1 à 5, vide pour 3 personnes.
+
+Le classeur sait aussi l'affectation (un poste, polyvalent, renfort avant
+ou arrière), le degré (G ou H) et « Assistant usine » ; rien de cela
+n'est affiché. Question en QCM : que doit être X ? Réponse : « le poste
+lui-même ».
+
+Le profil d'un opérateur lit donc « Opérateur » suivi du nom du poste, le titre du
+lecteur d'écran aussi. Là où la place manque (bandeau, mini, moins de
+310 px de contenu), il garde le poste seul, qui dit le plus (la même
+classe `pf-de` que « de production »). Résultat : 177 essais, 0 faute.
