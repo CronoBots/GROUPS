@@ -284,6 +284,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/verifier-recherche.js` | confronte la recherche (congé, absence) au compte du poste demi-heure par demi-heure, chacun à ses heures ; code 1 à la moindre faute |
 | `tools/coherence-planning.js` | confronte jour par jour le moteur, le Planning et « À prévenir » ; code 1 à la moindre faute |
 | `tools/parcours.js` | le parcours de l'application au navigateur, rôles et écrans, hors ligne compris ; code 1 à la moindre faute |
+| `tools/widget-photos.js` | photographie un widget de l'Accueil à chaque format, téléphone et PC, et relève débordements, coupures, textes sous 11 px |
 | `tools/anonymiser-sommaire.py` | repeint le nom, le matricule et la section d'un relevé de pointage scanné, trigramme à la place |
 | `.claude/hooks/session-start.sh` | démarrage d'une session cloud : crochet git, `playwright-cli` 0.1.22 et sa configuration, PowerShell en arrière-plan (`/tmp/pwsh-installation.log`) |
 | `.claude/skills/` | skills tiers relus avant d'entrer (journal 01), hors du garde-fou (`TIERS`) |

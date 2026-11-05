@@ -13794,3 +13794,27 @@ ne change : quatre colonnes. La disposition enregistrée reste la même
 téléphone a au moins six colonnes. Éprouvé sur une copie restée à quatre
 colonnes : « Accueil couché : 4 colonnes, la grille n'est pas inversée ».
 Le parcours : 143 essais, 0 faute.
+
+### Les widgets un par un : « Mon profil » (05/11/2026, `nfdm-v1405`)
+
+Le client : « J'aimerais que l'on travaille widget par widget et qu'on les
+optimise, un à la fois, pour trouver le meilleur réglage et affichage
+100 % pro selon chaque taille. » L'ordre suivi est celui de l'Accueil ;
+« Mon profil » ouvre la série.
+
+**La méthode, pour chaque widget** : `tools/widget-photos.js` (neuf) le
+photographie à chacun de ses formats, au téléphone (390 et 320 px, zones
+de l'iPhone simulées) et au PC (1280 et 1920 px), et relève ce qui déborde,
+ce qui est coupé et tout texte sous 11 px ; je lis chaque photo, je dresse
+la liste des défauts, je corrige, je rephotographie.
+
+« Mon profil » a trois formats : bandeau, petit, moyen. Trois défauts :
+
+| | Avant | Après |
+|---|---|---|
+| Bandeau, 320 px | le trigramme de la pastille à 10,8 px | 11 px au moins |
+| Bandeau, téléphone | l'étiquette « Employé » rejetée à droite contre la roue (la marge automatique de la carte d'origine) ; au PC et en moyen, elle suit le titre | elle suit le titre à chaque format |
+| Petit format au PC (217 px) | l'avatar plafonné à 60 px flottait entre deux vides de 50 px, le nom collé au bas | l'avatar remplit la place jusqu'à 76 px ; au téléphone (161 px), la place le borne toujours à 59 |
+
+Sans défaut relevé : le moyen (bannière, avatar, titre, étiquette, roue)
+à chaque largeur. Le parcours : 143 essais, 0 faute.
