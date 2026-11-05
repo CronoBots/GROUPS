@@ -14191,3 +14191,14 @@ Le profil d'un opérateur lit donc « Opérateur » suivi du nom du poste, le ti
 lecteur d'écran aussi. Là où la place manque (bandeau, mini, moins de
 310 px de contenu), il garde le poste seul, qui dit le plus (la même
 classe `pf-de` que « de production »). Résultat : 177 essais, 0 faute.
+
+### v1418 — Le profil d'un opérateur sans le binôme du cycle (05/11/2026)
+
+Le client : « pour les 5 semaines, dans le profil, il n'est pas
+nécessaire de mettre le binôme avec qui ils sont ce cycle-ci, car c'est
+affiché dans un autre onglet ». La ligne de l'équipe d'un opérateur dit
+« Équipe 5 », sans les trigrammes du contremaître et de l'adjoint. Le
+widget « Mon cycle » les montre toujours (`cycleAvec`). `_pfBinomeEquipe`,
+qui ne servait qu'à cette ligne, est retiré. Le binôme d'un cadre
+(« Binôme · … ») reste : la demande vise les équipes de 5 semaines.
+Résultat : 177 essais, 0 faute.

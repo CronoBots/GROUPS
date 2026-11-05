@@ -18126,44 +18126,6 @@ function _pfPartenaire(db,p){
   db.people.forEach(function(x){ if(x.id!==p.id && _pfBinome(x)===bn) out.push(idLisible(x.id)); });
   return out.join(", ");
 }
-/* LE BINÔME AVEC QUI TOURNE L'ÉQUIPE D'UN OPÉRATEUR (le client, le
-   17/10/2026 : « les opérateurs doivent voir leur équipe et le binôme avec
-   qui ils tournent ; on se fout du numéro de binôme, le plus important ce
-   sont les initiales »). Les équipes tournent sur 5 semaines, les binômes
-   sur 6 : le binôme change d'une semaine à l'autre. On prend le premier jour,
-   à partir d'aujourd'hui, où l'équipe est en AM, PM ou N (equipeALaPause(),
-   le cycle de l'équipe), et les cadres dont la cellule franche (la rotation
-   PRÉVUE, pas les remplacements) écrit cette pause. Sur les quatre premiers
-   jours de SEMAINE seulement : le week-end, les cadres tournent autrement
-   (le samedi 17/10, l'équipe 2 était au matin avec l'adjoint du binôme 3,
-   alors qu'elle tourne la semaine avec GPS). Le binôme qui réunit le plus
-   de voix l'emporte. Rend les trigrammes, contremaître d'abord. */
-function _pfBinomeEquipe(p,eq){
-  eq=String(eq||"").replace(/\D+/g,""); if(!eq || typeof equipeALaPause!=="function") return null;
-  var ju=jourPerso(p), k, d, an, db, mm, pv, vote={}, best=null, bs=0, pause, x, n=0, dbB=null;
-  for(k=0;k<28 && n<4;k++){
-    d=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()+k); an=d.getFullYear();
-    if(d.getDay()===0 || d.getDay()===6) continue;
-    db=(typeof horaireDe==="function")?horaireDe(an):null; if(!db) continue;
-    pause=equipeALaPause(db,an,d.getMonth()+1,d.getDate()); pv=null;
-    for(x in pause){ if(pause.hasOwnProperty(x) && String(pause[x]).split("/").indexOf(eq)>=0) pv=x; }
-    if(!pv || pv==="D") continue;
-    mm=pad2(d.getMonth()+1)+pad2(d.getDate()); n++; dbB=db;
-    db.people.forEach(function(c){
-      if(!estCadre(c)) return;
-      var bn=_pfBinome(c); if(!bn) return;
-      var e=c.d&&c.d[mm]; if(!e) return;
-      var fr=((typeof e==="string"?e:e[0])||"").trim();
-      if(fr===pv) vote[bn]=(vote[bn]||0)+1;
-    });
-  }
-  for(x in vote){ if(vote.hasOwnProperty(x) && vote[x]>bs){ bs=vote[x]; best=x; } }
-  if(!best) return null;
-  /* tout le binôme, même celui qui manque ce jour-là */
-  var tous=dbB.people.filter(function(c){ return estCadre(c) && _pfBinome(c)===best; });
-  tous.sort(function(a,b){ return (estContremaitre(b)?1:0)-(estContremaitre(a)?1:0); });
-  return {tri:tous.map(function(c){ return idLisible(c.id); })};
-}
 /* LE COMPTE À REBOURS DU BILLET : « Encore 3 h 41 min » pendant le poste,
    « dans 5 h 24 » avant. Tiré des instants du poste (pfInstant), à la
    minute : « Encore » se tirait d'un pourcentage arrondi puis arrondi à
@@ -18695,8 +18657,11 @@ function _pfHead(db,p){
     var pa2=_pfPartenaire(db,p);
     if(pa2) rg='Binôme · <b>'+esc(pa2)+'</b>';
   } else if(eq&&eq!=="—"){
-    var eqn=String(eq).replace(/^Équipe\s*/i,""), bq=_pfBinomeEquipe(p,eq);
-    rg='Équipe '+esc(eqn)+(bq&&bq.tri.length?' · <b>'+esc(bq.tri.join(" · "))+'</b>':'');
+    /* SANS LE BINÔME DU CYCLE (le client, le 05/11/2026 : « pour les 5
+       semaines, dans le profil, il n'est pas nécessaire de mettre le
+       binôme avec qui ils sont ce cycle-ci, car c'est affiché dans un
+       autre onglet » — « Mon cycle », cycleAvec) : l'équipe seule */
+    rg='Équipe '+esc(String(eq).replace(/^Équipe\s*/i,""));
   }
   /* LE PROCHAIN POSTE ET LE WEEK-END LIBRE DANS UN SEUL BLOC (le client, le
      18/10/2026 : « il y a moyen de faire bien mieux pour le héros, je veux
@@ -26076,7 +26041,7 @@ function cycleActuel(p){
    la cellule franche de la personne prévoit AM, PM ou N : pour un cadre,
    l'équipe que son cycle met à cette pause (equipeALaPause) ; pour un
    opérateur, le binôme dont les cadres ont cette pause en cellule franche
-   (la lecture de _pfBinomeEquipe). Le week-end, les cadres tournent
+   (la même lecture que l'ancien _pfBinomeEquipe du profil, retiré le 05/11/2026). Le week-end, les cadres tournent
    autrement : il ne compte pas. Les cycles de 5 et 6 semaines glissent l'un
    sur l'autre : celui qui change en cours de cycle s'écrit « A → B », dans
    l'ordre où il vient, s'il pèse au moins un quart des jours. */
