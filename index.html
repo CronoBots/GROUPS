@@ -38210,8 +38210,51 @@ function accItem(k){ var l=document.querySelectorAll('#v-horaire [data-w="'+k+'"
    d'entrée de l'onglet, une translation, ne la fausse pas : le widget et
    la couche bougent ensemble. */
 function accDans(el,repere){
-  var r=el.getBoundingClientRect(), c=repere.getBoundingClientRect();
-  return {x:(r.left+r.right)/2-c.left-(repere.clientLeft||0)-el.offsetWidth/2, y:(r.top+r.bottom)/2-c.top-(repere.clientTop||0)-el.offsetHeight/2};
+  var r=el.getBoundingClientRect(), c=repere.getBoundingClientRect(), f=accFlipReste(el);
+  return {x:(r.left+r.right)/2-c.left-(repere.clientLeft||0)-el.offsetWidth/2-f.x, y:(r.top+r.bottom)/2-c.top-(repere.clientTop||0)-el.offsetHeight/2-f.y};
+}
+/* Les autres s'écartent en glissant, comme sur l'iPhone (le client, le
+   05/11/2026 : « que la modification, le glissage de widget, le
+   déplacement soient aussi intuitifs et fluides que sur iPhone ») : avant,
+   un widget déplacé, retiré, remis ou redimensionné faisait sauter les
+   autres d'un coup à leur place neuve. Désormais chacun y glisse (la
+   technique « FLIP ») : on note où il est à l'écran, on change la
+   disposition, on lit sa place neuve, puis on le ramène à l'ancienne par
+   la propriété « translate » et on le laisse filer à la neuve en 300 ms.
+   « translate » s'ajoute au tremblement (une animation de « transform »)
+   sans l'écraser ; sa case du mode Modifier et son nom glissent du même
+   pas. Un glissement repris en cours part d'où l'élément est vraiment
+   (sa place à l'écran, glissement compris). */
+function accFlipReste(el){
+  if(!el.__flip||el.__flip.playState!=="running") return {x:0, y:0};
+  var t=getComputedStyle(el).translate; if(!t||t==="none") return {x:0, y:0};
+  var a=t.split(" "); return {x:parseFloat(a[0])||0, y:parseFloat(a[1])||0};
+}
+function accCentre(el){ var r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2, y:(r.top+r.bottom)/2}; }
+function accFlip(fn){
+  var v=document.getElementById("v-horaire");
+  if(!v||!accAnime()||!Element.prototype.animate){ fn(); return; }
+  var L=ACC.items.filter(function(el){ return !el.__voisin&&el.getClientRects().length; });
+  L=L.filter(function(el){ for(var p=el.parentElement;p&&p!==v;p=p.parentElement) if(L.indexOf(p)>=0&&getComputedStyle(p).display!=="contents") return false; return true; });
+  var avant=L.map(accCentre);
+  function stop(x){ if(x&&x.__flip){ try{ x.__flip.cancel(); }catch(e){} x.__flip=null; } }
+  L.forEach(stop);
+  if(ACC.calque) [].forEach.call(ACC.calque.children,stop);
+  if(ACC.noms) [].forEach.call(ACC.noms.children,stop);
+  fn();
+  if(ACC.placeT){ cancelAnimationFrame(ACC.placeT); ACC.placeT=0; } accCalquePlacer();
+  if(ACC.nomsT){ cancelAnimationFrame(ACC.nomsT); ACC.nomsT=0; } accNoms();
+  function filer(x,dx,dy){ if(!x) return;
+    x.__flip=x.animate([{translate:dx+"px "+dy+"px"},{translate:"0px 0px"}],{duration:300, easing:"cubic-bezier(.2,.8,.2,1)"});
+    x.__flip.onfinish=function(){ x.__flip=null; }; }
+  L.forEach(function(el,i){
+    if(!el.getClientRects().length) return;
+    var c=accCentre(el), dx=avant[i].x-c.x, dy=avant[i].y-c.y; if(Math.abs(dx)<0.5&&Math.abs(dy)<0.5) return;
+    filer(el,dx,dy);
+    var k=el.getAttribute("data-w"); if(!k) return;
+    if(ACC.calque) filer(ACC.calque.querySelector('.acc-b[data-acc-pour="'+k+'"]'),dx,dy);
+    if(ACC.noms) filer(ACC.noms.querySelector('[data-acc-nom-pour="'+k+'"]'),dx,dy);
+  });
 }
 function accPos(el){ return accDans(el,document.getElementById("v-horaire")); }
 function accBoiteHTML(k){
@@ -38496,7 +38539,7 @@ function accRetirer(k){
   confirmerPro({titre:d.app?"Retirer « "+d.nom+" » de l’Accueil ?":"Retirer le widget « "+d.nom+" » ?",
     texte:(d.app?"L’icône quitte l’Accueil ; rien n’est effacé. Le bouton « + », en haut, la remet.":"Le widget quitte l’Accueil ; rien n’est effacé. Le bouton « + », en haut, le remet."),
     ok:"Retirer", annuler:"Annuler"},function(){
-    ACC.m[k]=true; accStyle(); accSauver(); accOutils(false);
+    accFlip(function(){ ACC.m[k]=true; accStyle(); }); accSauver(); accOutils(false);
     accAnnoncer("« "+d.nom+" » retiré de l’Accueil. « + », en haut, le remet.");
     var a=document.getElementById("accAjout"); if(a) try{ a.focus({preventScroll:true}); }catch(e){}
   });
@@ -38578,23 +38621,36 @@ function accTirer(ev,k,el,attendre){
     cl.removeAttribute("data-w"); [].forEach.call(cl.querySelectorAll("[data-w]"),function(x){ x.removeAttribute("data-w"); });
     cl.classList.remove("acc-tire","acc-vide"); cl.classList.add("acc-vol"); cl.setAttribute("aria-hidden","true");
     cl.style.width=w+"px"; cl.style.height=h+"px"; cl.style.gridRowEnd="auto";
+    /* LE SOULEVER EN DOUCEUR (05/11/2026) : la copie grossit autour du
+       point tenu (son origine), qui reste sous le doigt ; avant, elle
+       paraissait d'un coup à sa taille soulevée */
+    cl.style.transformOrigin=d.dx+"px "+d.dy+"px";
     el.parentNode.insertBefore(cl,el.nextSibling); d.vol=cl;
     [el,bx].forEach(function(x){ if(x&&x.__accAnim){ try{ x.__accAnim.cancel(); }catch(e){} x.__accAnim=null; } });
     el.classList.add("acc-tire"); if(bx) bx.classList.add("acc-tire");
     try{ if(navigator.vibrate&&ev.pointerType!=="mouse") navigator.vibrate(8); }catch(e){}
-    placer(); boucle();
+    placer();
+    if(cl.animate&&accAnime()) try{ cl.animate([{scale:"1"},{scale:String(d.s)}],{duration:160, easing:"cubic-bezier(.2,.8,.2,1)"}); }catch(e){}
+    boucle();
   }
-  function placer(){ if(d.vol) d.vol.style.transform="translate("+(d.x-d.dx*d.s)+"px,"+(d.y-d.dy*d.s)+"px) scale("+d.s+")"; }
+  function placer(){ if(d.vol){ d.vol.style.transform="translate("+(d.x-d.dx)+"px,"+(d.y-d.dy)+"px)"; d.vol.style.scale=String(d.s); } }
   function cibler(){
-    var e=document.elementFromPoint(d.x,d.y), w=e&&e.closest?(e.closest(".acc-b")||e.closest("#v-horaire [data-w]")):null; if(!w) return;
+    /* sous le doigt, ce qui est de l'Accueil : les points des pages (au
+       bas de l'écran, par-dessus) ne cachent pas la case visée */
+    var es=document.elementsFromPoint?document.elementsFromPoint(d.x,d.y):[document.elementFromPoint(d.x,d.y)], w=null;
+    for(var ie=0;ie<es.length&&!w;ie++){ var e=es[ie]; if(e&&e.closest) w=e.closest(".acc-b")||e.closest("#v-horaire [data-w]"); }
+    if(!w) return;
     var kc=w.getAttribute("data-acc-pour")||w.getAttribute("data-w"); if(!kc||kc===d.k||!accDef(kc)) return;
     var it=accItem(kc); if(!it) return;
     var rc=it.getBoundingClientRect(), v=document.getElementById("v-horaire"), plein=rc.width>v.clientWidth*0.7;
     var apres=plein?d.y>rc.top+rc.height/2:d.x>rc.left+rc.width/2, sig=kc+(apres?">":"<");
-    if(sig===d.cible||accMaint()-d.t<150) return;
+    /* le temps qu'ils finissent de s'écarter (300 ms) avant de viser à
+       nouveau : sans quoi l'élément qui glisse sous le doigt serait visé
+       en cours de route, et la place ferait des allers-retours */
+    if(sig===d.cible||accMaint()-d.t<280) return;
     d.cible=sig; d.t=accMaint();
     var o=ACC.o.filter(function(x){ return x!==d.k; }), i=o.indexOf(kc); o.splice(apres?i+1:i,0,d.k);
-    if(o.join()!==ACC.o.join()){ ACC.o=o; accStyle(); }
+    if(o.join()!==ACC.o.join()) accFlip(function(){ ACC.o=o; accStyle(); });
   }
   function boucle(){
     d.raf=requestAnimationFrame(function(){
@@ -38633,12 +38689,28 @@ function accTirer(ev,k,el,attendre){
     if(e&&e.pointerId!==undefined&&e.pointerId!==d.id) return;
     document.removeEventListener("pointermove",bouger,true); document.removeEventListener("pointerup",fin,true);
     document.removeEventListener("pointercancel",fin,true); document.removeEventListener("keydown",esc_,true);
-    cancelAnimationFrame(d.raf); if(d.vol&&d.vol.parentNode) d.vol.parentNode.removeChild(d.vol);
-    el.classList.remove("acc-tire"); var bx=boite(); if(bx) bx.classList.remove("acc-tire");
-    ACC.drag=null; accNomsBientot();
-    if(!d.parti) return;
-    if(annule){ ACC.o=d.avant; ACC.pg=JSON.parse(d.avPg); ACC.page=d.avPage; accStyle(); }
-    else {
+    cancelAnimationFrame(d.raf);
+    ACC.drag=null;
+    var vol=d.vol;
+    function lacher(){ if(vol&&vol.parentNode) vol.parentNode.removeChild(vol);
+      el.classList.remove("acc-tire"); var bx=boite(); if(bx) bx.classList.remove("acc-tire");
+      ACC.pose=false; accNomsBientot(); accTrembler(); }
+    if(!d.parti){ lacher(); return; }
+    if(annule) accFlip(function(){ ACC.o=d.avant; ACC.pg=JSON.parse(d.avPg); ACC.page=d.avPage; accStyle(); });
+    /* Le poser, comme sur l'iPhone (05/11/2026) : la copie file de sous le
+       doigt jusqu'à sa place, en reprenant sa taille, puis le widget
+       reparaît dessous ; avant, elle disparaissait d'un coup */
+    var cible=vol&&el.getClientRects().length?accCentre(el):null, rs=accFlipReste(el);
+    if(cible&&vol.animate&&accAnime()){
+      ACC.pose=true;
+      var w=parseFloat(vol.style.width)||el.offsetWidth, h=parseFloat(vol.style.height)||el.offsetHeight;
+      /* le centre de la place, à taille 1, origine au point tenu : le coin
+         vaut centre − moitié de la taille */
+      var tx=cible.x-rs.x-w/2, ty=cible.y-rs.y-h/2;
+      try{ var an=vol.animate([{transform:vol.style.transform, scale:vol.style.scale||"1"},{transform:"translate("+tx+"px,"+ty+"px)", scale:"1"}],{duration:240, easing:"cubic-bezier(.2,.8,.2,1)", fill:"forwards"});
+        an.onfinish=lacher; an.oncancel=lacher; }catch(e){ lacher(); }
+    } else lacher();
+    if(!annule){
       accSauver();
       var vis=ACC.o.filter(function(x){ return !ACC.m[x]&&accItem(x); });
       accAnnoncer("« "+accDef(k).nom+" » posé"+(accPageDe(k)!==d.avPage?" sur la "+ACC_PAGE_NOM[accPageDe(k)].toLowerCase():"")+" : position "+(vis.indexOf(k)+1)+" sur "+vis.length+".");
@@ -38680,7 +38752,7 @@ function accEtirer(ev,k,el,g){
     p.forEach(function(s){ var dd=Math.abs(largeur(s)-voulu); if(dd<ec){ ec=dd; mieux=s; } });
     hs=accHautsPour(k,mieux);
     hs.forEach(function(x){ var dd=Math.abs(accLignesPx(x)-vouluH); if(dd<eh){ eh=dd; mh=x; } });
-    if(mieux!==t||mh!==h){ t=mieux; h=mh; if(p.length) ACC.t[k]=t; if(hs.length) ACC.hh[k]=h; accStyle(); bu.textContent=accTailleTexte(k,t,h); accTrembler(); }
+    if(mieux!==t||mh!==h){ t=mieux; h=mh; accFlip(function(){ if(p.length) ACC.t[k]=t; if(hs.length) ACC.hh[k]=h; accStyle(); }); bu.textContent=accTailleTexte(k,t,h); accTrembler(); }
   }
   function fin(e,annule){
     if(e&&e.pointerId!==undefined&&e.pointerId!==id) return;
@@ -38688,7 +38760,7 @@ function accEtirer(ev,k,el,g){
     document.removeEventListener("pointercancel",fin,true); document.removeEventListener("keydown",esc_,true);
     ACC.etire=false;
     if(bu.parentNode) bu.parentNode.removeChild(bu); if(bx) bx.classList.remove("acc-etire");
-    if(annule){ if(avant===undefined) delete ACC.t[k]; else ACC.t[k]=avant; if(avantH===undefined) delete ACC.hh[k]; else ACC.hh[k]=avantH; accStyle(); }
+    if(annule) accFlip(function(){ if(avant===undefined) delete ACC.t[k]; else ACC.t[k]=avant; if(avantH===undefined) delete ACC.hh[k]; else ACC.hh[k]=avantH; accStyle(); });
     else if(t!==t0||h!==h0){ accSauver(); accAnnoncer("« "+accDef(k).nom+" » : "+accTailleTexte(k,t,h)+"."); }
     accOutils(false); accTrembler(); accBloqueClic=accMaint();
   }
@@ -38756,7 +38828,7 @@ function accInit(){
     e.preventDefault(); e.stopPropagation();
   },true);
   v.addEventListener("pointerdown",function(e){
-    if(!ACC.edit||ACC.drag||(e.button!==undefined&&e.button!==0)) return;
+    if(!ACC.edit||ACC.drag||ACC.pose||(e.button!==undefined&&e.button!==0)) return;
     var g=e.target.closest("[data-acc-etirer]"), bx=e.target.closest(".acc-b"), k, w;
     if(g){ e.preventDefault(); k=g.getAttribute("data-acc-etirer"); w=accItem(k); if(w) accEtirer(e,k,w,g); return; }
     if(!bx||e.target.closest(".acc-moins")) return;
@@ -38788,8 +38860,7 @@ function accInit(){
       pp.forEach(function(o,i){ if(o.t===t1&&o.h===h1) ii=i; });
       if(e.key==="Home") jj=0; else if(e.key==="End") jj=pp.length-1; else if(st) jj=ii+st; else return;
       e.preventDefault(); if(jj<0||jj>=pp.length||jj===ii) return;
-      ACC.t[kk]=pp[jj].t; ACC.hh[kk]=pp[jj].h;
-      accStyle(); accSauver(); accOutils(false);
+      accFlip(function(){ ACC.t[kk]=pp[jj].t; ACC.hh[kk]=pp[jj].h; accStyle(); }); accSauver(); accOutils(false);
       accAnnoncer("« "+accDef(kk).nom+" » : "+accTailleTexte(kk)+".");
       return;
     }
@@ -38808,7 +38879,7 @@ function accInit(){
       var k=h.getAttribute("data-acc-tirer"), vis=ACC.o.filter(function(x){ return !ACC.m[x]&&accItem(x); }), i=vis.indexOf(k), j=i+sens;
       if(j<0||j>=vis.length) return;
       var o=ACC.o.filter(function(x){ return x!==k; }), a=o.indexOf(vis[j]); o.splice(sens>0?a+1:a,0,k);
-      ACC.o=o; accStyle(); accSauver(); accOutils(false);
+      accFlip(function(){ ACC.o=o; accStyle(); }); accSauver(); accOutils(false);
       accAnnoncer("« "+accDef(k).nom+" » : position "+(j+1)+" sur "+vis.length+".");
       return;
     }

@@ -359,6 +359,32 @@ function constater(){
       if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))){ await page.keyboard.press("Escape"); }
       if(await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-edit"))) await page.click("#accOk").catch(()=>{});
     }
+    /* LES AUTRES S'ÉCARTENT EN GLISSANT (le client, le 05/11/2026 : « aussi
+       intuitif et fluide que sur iPhone ») : un widget déplacé au clavier
+       (↓), les éléments qui changent de place y glissent (une animation de
+       « translate » en cours 60 ms après) ; 500 ms après, plus rien ne
+       glisse et chaque case du mode Modifier est sur son élément, au pixel */
+    if(role==="hierarchie"){ n++;
+      await aller(page,"tab-horaire");
+      await page.evaluate(()=>{ const b=document.querySelector("[data-acc-editer]"); if(b) b.click(); }); await page.waitForTimeout(500);
+      const k=await page.evaluate(()=>{ const b=[...document.querySelectorAll(".acc-b:not(.app)")].find(x=>x.getClientRects().length); return b?b.getAttribute("data-acc-pour"):null; });
+      if(k){
+        await page.focus('.acc-b[data-acc-pour="'+k+'"] .acc-bouger'); await page.keyboard.press("ArrowDown"); await page.waitForTimeout(60);
+        const glisse=await page.evaluate(()=>[...document.querySelectorAll("#v-horaire [data-w]")].filter(e=>e.getAnimations().some(a=>a.effect&&a.effect.getKeyframes().some(f=>f.translate))).length);
+        await page.waitForTimeout(500);
+        const fin=await page.evaluate(()=>{ let pire=0; const reste=[...document.querySelectorAll("#v-horaire [data-w], .acc-b")].filter(e=>e.getAnimations().some(a=>a.effect&&a.effect.getKeyframes().some(f=>f.translate))).length;
+          document.querySelectorAll(".acc-b").forEach(b=>{ const e=[...document.querySelectorAll('#v-horaire [data-w="'+b.getAttribute("data-acc-pour")+'"]')].find(x=>x.getClientRects().length); if(!e) return;
+            const r=b.getBoundingClientRect(), q=e.getBoundingClientRect(); pire=Math.max(pire,Math.abs((r.left+r.right)/2-(q.left+q.right)/2),Math.abs((r.top+r.bottom)/2-(q.top+q.bottom)/2)); });
+          return {reste, pire}; });
+        if(!glisse) lignes.push("Modifier : un widget déplacé, rien ne glisse (les autres sautent)");
+        if(fin.reste||fin.pire>1) lignes.push("Modifier : après le glissement, "+fin.reste+" élément(s) glissent encore, case à "+fin.pire.toFixed(1)+" px de son élément");
+        await page.focus('.acc-b[data-acc-pour="'+k+'"] .acc-bouger').catch(()=>{}); await page.keyboard.press("ArrowUp"); await page.waitForTimeout(450);
+      } else lignes.push("Modifier : aucun widget à déplacer");
+      await page.keyboard.press("Escape"); await page.waitForTimeout(300);
+      if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))) lignes.push("Modifier : revenu à l'identique, Échap demande une confirmation");
+      if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))){ await page.keyboard.press("Escape"); }
+      if(await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-edit"))) await page.click("#accOk").catch(()=>{});
+    }
     lignes.push(...page.fautes);
     await page.ctx.close();
     res[i]={avant:avant, tag:ecran.nom+" · "+(role||"sans compte"), lignes:lignes, n:n}; }

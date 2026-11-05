@@ -13669,3 +13669,39 @@ Contrôle permanent (`parcours.js`) : à mi-geste, au quatrième pas du doigt,
 un élément de la page voisine doit se voir à l'écran. Éprouvé sur une copie
 où la voisine n'est plus posée : 2 fautes, dont « à mi-geste, la page
 voisine n'est pas visible ». Le parcours : 130 essais, 0 faute.
+
+### Le mode Modifier aussi fluide que l'iPhone (05/11/2026, `nfdm-v1401`)
+
+Le client : « J'aimerais également que la modification, le glissage de
+widget, le déplacement soit aussi intuitif et fluide que sur iPhone ; il faut
+vraiment optimiser cela. » Trois écarts avec l'iPhone, relevés au banc
+d'essai :
+
+| | Avant | Après |
+|---|---|---|
+| Un widget change de place (tiré, au clavier, retiré, remis, agrandi) | les autres sautaient d'un coup à leur place neuve | chacun y glisse en 300 ms (`accFlip`, la technique « FLIP » : noter la place à l'écran, changer, lire la place neuve, partir de l'ancienne par `translate`). Sa case du mode Modifier et son nom glissent du même pas ; « translate » s'ajoute au tremblement sans l'écraser |
+| Soulever | la copie paraissait d'un coup à sa taille soulevée | elle grossit en 160 ms autour du point tenu, qui reste sous le doigt (origine de la copie au point tenu, `scale` à part de `translate`) |
+| Lâcher | la copie disparaissait, le widget reparaissait à sa place | la copie file en 240 ms de sous le doigt jusqu'à sa place, en reprenant sa taille, puis le widget reparaît dessous ; un nouveau départ attend la fin (`ACC.pose`) |
+
+Deux réglages qui vont avec :
+- **la retenue de visée passe de 150 à 280 ms** : le temps que les autres
+  finissent de glisser. Sans elle, l'élément qui glisse sous le doigt serait
+  visé en cours de route, et la place ferait des allers-retours ;
+- **les points des pages ne cachent plus la case visée** : tiré au bas de
+  l'écran, le widget passait sur les points (fixes, par-dessus), et
+  `elementFromPoint` rendait un point au lieu de la case. On lit désormais
+  toute la pile (`elementsFromPoint`). Trouvé par le banc d'essai : le
+  premier glisser « ne déplaçait rien ».
+- **la place mesurée ignore le glissement en cours** (`accFlipReste`) :
+  sans quoi une case posée pendant un glissement l'aurait été à mi-chemin.
+
+Mesuré au téléphone : un widget tiré sur un autre, 4 éléments glissent
+pendant le geste ; au lâcher, la copie file puis disparaît ; ensuite plus
+aucun reste (ni copie, ni « translate »), et chaque case du mode Modifier
+est sur son élément à 0,0 px près.
+
+**Contrôle permanent** (`parcours.js`, rôle hiérarchie, chaque écran) : un
+widget déplacé au clavier, quelque chose glisse 60 ms après ; 500 ms après,
+plus rien ne glisse, et les cases sont sur leurs éléments à 1 px près.
+Éprouvé sur une copie où `accFlip` ne glisse plus : « un widget déplacé,
+rien ne glisse ». Le parcours : 136 essais, 0 faute.
