@@ -13489,5 +13489,4 @@ bloc bas au toit sombre, à gauche de la tour du moulin.
 - `carte-epingles.js`, avec la nouvelle place attendue : 24 mesures,
   0 faute. Aucune étiquette ne couvre une épingle : celle de la
   meunerie se pose au-dessus de sa tête, à gauche de celle du gluten.
-- Parcours : ci-dessous.
-
+- Parcours : 112 essais, 0 faute ; statique : 0.
