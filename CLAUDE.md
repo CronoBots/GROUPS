@@ -297,7 +297,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `docs/plateforme.md` | l'inventaire du classeur (macros, codes, commentaires, pied) et la plateforme qui le remplace, module par module |
 | `sw.js` | cache et fonctionnement hors ligne |
 | `logo.png` | le logo Biowanze, source des icônes — ne sert pas à l'application |
-| `banniere.jpg` | la couverture du héros de l'Accueil, tirée de `banniere-biowanze-usine.png` |
+| `banniere.jpg` | la couverture du héros de l'Accueil, tirée de `banniere-biowanze-usine.png` ; `banniere-widget.jpg`, la même fondue dans le widget (`tools/banniere-widget.py`) |
 
 ## Conventions
 

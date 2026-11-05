@@ -14240,3 +14240,41 @@ trigramme (2 px près). L'ancienne règle, « à 16 px du coin au plus »,
 aurait refusé le moyen du PC : l'étiquette y est à 28 px du bas, au bout
 de sa ligne. Éprouvé sur la v1419 : 8 fautes (« le statut n'est pas en
 bas à droite »). Sur la v1420 : 177 essais, 0 faute.
+
+### v1421 — La bannière fondue dans le widget profil, logo réduit (05/11/2026)
+
+Le client a d'abord demandé : « sur cette bannière, sans rien modifier
+d'autre et en respectant le logo à 100 %, rétrécis le logo ». Le logo
+(11 pièces : le « ce », le mot, la feuille du i) est détecté par ses
+propres pixels. Ce sont des composantes qui ne touchent pas le haut de
+l'image, ce qui écarte les bandes de couleur. Il est réduit à 70 %, au
+même centre. Sa place est remplie du blanc uni du fond (254, grain
+compris). Aucun pixel ne change hors de cette zone (mesuré).
+
+Deux erreurs en route :
+- le logo vectoriel du dépôt (`logo.svg`) n'a pas les proportions de
+  celui de la bannière : recalé dessus, il laissait des fantômes ; on
+  garde les pixels de la bannière ;
+- un bruit de grain dépassait 255 et repassait à 0, ce qui faisait des
+  points noirs et verts ; les valeurs sont bornées.
+
+Puis, maquette à l'appui : « utilise cette bannière pour que la
+transition avec le contenu en dessous donne quelque chose comme ceci ».
+En moyen, la bannière couvre désormais le haut du widget et se fond
+dans son fond ; le texte se pose sur le bas ; un liseré aux couleurs du
+logo entoure le widget.
+
+Trois essais en CSS ont échoué :
+- un masque en dégradé : le logo est bas dans l'image (45 à 88 % de sa
+  hauteur), le fondu le mangeait ;
+- un voile : il laissait une ligne nette au bas de la photo ;
+- un reflet : il montrait « biowanze » à l'envers, puis, flouté, une
+  ligne encore.
+
+La solution est une image dédiée, `banniere-widget.jpg`, écrite par
+`tools/banniere-widget.py` (refaite à l'octet) : la bannière intacte,
+prolongée vers le bas par sa dernière bande étirée et floutée, puis
+fondue jusqu'à `--surface` (#212737) exactement. La ligne fine qui
+restait était la bordure basse de `.pf-couv` : retirée. Mesuré : marges
+de 17 px des deux côtés, statut aligné sur sa ligne, au téléphone (390,
+320) et au PC. Résultat : 177 essais, 0 faute.
