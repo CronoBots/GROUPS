@@ -2873,7 +2873,10 @@ html .mqinc{font-size:12px}
   .ws-kpi b{font-size:22px; text-align:right}
   .ws-kpi small{grid-column:1 / -1}
   .ws-kpis-2{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .ws-kpis-2 .ws-kpi{grid-template-columns:1fr}
+  /* alignées en haut, la pastille à sa taille : la tuile au texte court
+     centrait son contenu, et les nombres n'étaient plus sur une ligne (18 px
+     d'écart, audit du 05/11/2026) */
+  .ws-kpis-2 .ws-kpi{grid-template-columns:1fr; align-content:start; justify-items:start}
   .ws-kpis-2 .ws-kpi b{text-align:left}
   /* « Par personne » en cartes : la personne, puis le code, la période et les jours */
   .ws-per thead{display:none}
@@ -6104,6 +6107,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 .ry-hm-n{font:600 11px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--faint); text-align:center; overflow:visible; white-space:nowrap}
 .ry-hm-n.auj{color:var(--ink)}
 .ry-hm-n b{font-weight:600} .ry-hm-n em{display:none; font-style:normal}
+/* (au bureau, tous les numéros ; mais dans le widget de l'Accueil, voir
+   « LES NUMÉROS DE TOUS LES JOURS SEULEMENT QUAND ILS TIENNENT ») */
 @media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){ .ry-hm-n{font-size:11px} .ry-hm-n b{display:none} .ry-hm-n em{display:inline} }
 .ry-hm-tete{margin-bottom:1px}
 .ry-hm-c{aspect-ratio:1; max-height:14px; border-radius:2px; background:var(--surface3)}
@@ -7451,9 +7456,10 @@ html .hp-fab:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2
    passées à la ligne (voulu pour le PC, v922), elles prenaient 390 à 498 px
    et ne laissaient que 77 à 185 px à la grille */
 @media (max-width:699px){ html .xl-pilules{flex-wrap:nowrap; justify-content:flex-start; padding:8px 10px} }
-/* L'ACCUEIL RÉORGANISÉ (le client, le 22/10/2026, « go ») : la photo garde
-   190 px au PC (à 100 ou 140, le logo du bandeau se coupait), Ma semaine et Mes demandes au-dessus du calendrier et des
-   compteurs, dans leurs deux colonnes. */
+/* (L'ACCUEIL RÉORGANISÉ du 22/10/2026 — la photo à 190 px au PC, Ma semaine
+   et Mes demandes au-dessus du calendrier et des compteurs, en deux colonnes —
+   est remplacé par la grille de widgets du 04/11/2026, ACC_W ; ce
+   commentaire le décrivait encore.) */
 /* Mon cycle : la même case, resserrée, cinq ou six rangées */
 .mc-tt{display:inline-flex; align-items:baseline; gap:8px; min-width:0}
 .mc-avec{font-size:12px; font-weight:600; color:var(--marque-vif); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -7546,8 +7552,9 @@ html .hp-fab:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2
   html #alerteDefaut .btn{display:table; margin-top:10px}
   html .rel-bas i{font-size:11.5px}
 }
+/* (le tableau des absences n'est plus borné à 1 100 px : il s'arrêtait
+   436 px avant ses tuiles, audit du 05/11/2026 ; comme dans Personnel) */
 @media (min-width:1500px){
-  html #wsAbs .ws-table{max-width:1100px}
   html #wsDem .dm-onglets{max-width:760px}
 }
 /* la feuille de demande en plein écran au téléphone : l'en-tête laisse la
@@ -9382,6 +9389,32 @@ html body #v-horaire.acc-perso.acc-tel #usineCard :is(#uspEt,#uspTraits,.usp-eta
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-live{left:auto; right:6px; top:6px; gap:5px; padding:3px 7px 3px 6px; font-size:11px}
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-live :is(span,em){display:none}
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-live i{width:7px; height:7px}
+/* LES NUMÉROS DE TOUS LES JOURS SEULEMENT QUAND ILS TIENNENT (audit du
+   05/11/2026) : au PC, « Mon rythme » fait de 373 à 534 px, et ses 31
+   colonnes de 10 à 15 px ; « 10 », « 11 »… se touchaient (1,4 px d'écart à
+   1 920 px) ou se chevauchaient (−2,9 px à 1 100). La forme du téléphone,
+   « 1 · · · 5 · · · 10 », tant que le widget n'a pas 580 px : une colonne de
+   17 px au moins. Mesuré sur la largeur du widget, pas sur celle de l'écran */
+@container accw (max-width:579px){ html body #v-horaire.acc-perso #rythmeCard .ry-hm-n b{display:inline} html body #v-horaire.acc-perso #rythmeCard .ry-hm-n em{display:none} }
+/* LA ZONE DE TOUCHER À 44 PX SANS CHANGER LE DESSIN (audit du 05/11/2026,
+   la règle du projet : 44 px au doigt). Seulement des boutons isolés, dont
+   ::before était libre : dans une grille serrée (les trigrammes, les
+   pastilles), une zone agrandie mordrait sur la voisine */
+@media (pointer:coarse){
+  html body :is(.pf-roue,#paieOeil,#prev,#next,#jourPrev,#jourNext)::before{content:""; position:absolute; left:50%; top:50%;
+    width:max(100%,44px); height:max(100%,44px); transform:translate(-50%,-50%)}
+}
+/* LE « − » DU MODE MODIFIER NE CACHE RIEN (audit du 05/11/2026) : la
+   seconde pastille d'une icône (orange : une tâche) se pose au coin haut
+   gauche, sous le « − » ; elle se retire le temps de modifier, comme sur
+   l'iPhone, et revient au « ✓ » */
+html body #v-horaire.acc-edit #pfRac .ctl-t>.plus-nb+.plus-nb{display:none}
+/* LE PANNEAU NE SAUTE PLUS D'UN ONGLET À L'AUTRE (audit du 05/11/2026) :
+   au PC, l'Accueil, les Équipes et les Réglages défilent, pas le Planning
+   ni la Recherche ; la barre de défilement prenait 10 px aux premiers, et
+   le panneau se décalait de 5 px. La place de la barre est désormais
+   toujours réservée (sans effet sur un téléphone, dont la barre flotte) */
+html{scrollbar-gutter:stable}
 /* ses épingles (05/11/2026), plus petites que celles du PC */
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-pin{--pw:15px}
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-pin.usp-pin-moi{--pw:17px}
@@ -28423,7 +28456,8 @@ function finAbsence(db,p,annee,mois,jour,hJour,famille,pas){
 }
 /* equipeDuJour() recalculait ces trois fonctions POUR CHAQUE PERSONNE ET
    CHAQUE JOUR, et renvoisDuMois() balaie l'année entière à chaque appel :
-   une saison coûtait 265 jours x 77 personnes x 365 journées de balayage.
+   une saison coûtait 265 jours x 77 personnes (79 le 05/11/2026) x 365
+   journées de balayage.
    Elles ne dépendent que de la personne, du mois et de l'heure de journée.
 
    La clé porte hJour : un changement de réglage doit refaire le calcul.
@@ -28512,7 +28546,7 @@ function equipeEnDSemaine(db,annee,mois,jour){
 /* ⚙️ HARNAIS DE NON-RÉGRESSION (debug, 05/10/2026). window.__horaireSig() calcule une
    SIGNATURE déterministe de TOUT le calcul piloté par les commentaires de cellule —
    placement (equipeDuJour), lecture paie (lireJournee + remplacementCM + rappelDuJour),
-   renfort (renfortDuJour), renvois (renvoisDuMois) — sur les 77 personnes × tous les
+   renfort (renfortDuJour), renvois (renvoisDuMois) — sur toutes les personnes (77 alors, 79 le 05/11/2026) × tous les
    jours de 2026, en hachages compacts. Sert à PROUVER qu'une refonte du parsing des
    commentaires ne change rien : on compare la signature avant/après, elle doit rester
    identique. AUCUN effet tant qu'on ne l'appelle pas. Le détail par cellule est stocké
@@ -38660,8 +38694,10 @@ function boot(){
      l'onglet, mais au repos : le calcul balaie toutes les journées à venir. */
   fetchHoraireDB().then(function(db){ if(!db) return;
     var auRepos=window.requestIdleCallback?function(f){ window.requestIdleCallback(f,{timeout:4000}); }:function(f){ setTimeout(f,1500); };
-    /* en tranches de 40 ms au plus, rendues au repos : la page reste
-       sensible au toucher pendant le parcours (audit du 23/10/2026) */
+    /* en tranches d'au moins 40 ms (davantage si le navigateur a plus de
+       temps libre) et de 200 journées au plus, rendues au repos : la page
+       reste sensible au toucher pendant le parcours (audit du 23/10/2026 ;
+       ce commentaire disait « 40 ms au plus », c'était faux) */
     var cle0=mqCle(), p=null;
     function tranche(dl){
       try{

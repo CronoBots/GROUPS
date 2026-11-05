@@ -2290,3 +2290,26 @@ sans résultat d'authentification. Elle tourne à chaque envoi
 (`verification.yml`), et elle crie quand on sabote le contrôle : sans la
 vérification du serveur, le cas 6 passe ; sans la borne du domaine, le
 cas 4.
+
+### Les robots quittent Node 20 ; « jamais lancée » corrigé (05/11/2026, `nfdm-v1396`)
+
+L'agent des robots du check complet l'avait relevé (ROB-6) : chaque job
+affichait « Node.js 20 is deprecated ». Les quatre flux passent à
+`actions/checkout@v5`, `actions/setup-node@v5` et `actions/setup-python@v6`,
+qui tournent sous Node 24. Les versions de Node et de Python des scripts ne
+changent pas (22.x et 3.x). Aucun `package.json` : le cache automatique de
+`setup-node` v5 ne s'applique pas.
+
+**ROB-3, deux commentaires faux.** `conges-scolaires.yml` et
+`horaire-auto.yml` disaient que GitHub n'avait « jamais lancé » la
+planification des congés scolaires. L'historique des Actions, relu le
+05/11/2026, en compte deux passages : le 02/11 à 13 h 38 et le 03/11 à
+12 h 52 (UTC), environ 8 h après l'heure prévue (5 h 23). La conclusion ne
+change pas : la relecture passe par l'horaire automatique, que la base
+lance toutes les 15 minutes. Les commentaires disent désormais ce qui a été
+mesuré.
+
+**Le service worker** : l'exception de `cacheSiBon` pour les réponses
+opaques est retirée. Elle laissait passer les polices de Google, quand
+elles en venaient ; le handler fetch ne traite plus que notre origine, et
+elle n'avait plus rien à laisser passer.

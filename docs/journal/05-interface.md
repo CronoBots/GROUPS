@@ -13514,3 +13514,32 @@ détail et les mesures sont au journal 08, « Les défauts confirmés, corrigés
   seuil des 700 px en plein mode ne perd plus les changements de l'autre
   forme, et « ✓ » les enregistre toutes ; le focus revient sur « ✓ » après
   « Rétablir » ; l'annonce dit vrai.
+
+### Les retouches restantes du check complet (05/11/2026, `nfdm-v1396`)
+
+Le client : « Le multi agent est terminé ? » Oui ; mais des constats de
+l'agent de l'interface attendaient encore. Ils ne dépendaient que de moi :
+les voici, chacun mesuré sur la page en ligne (v1395) puis sur la nouvelle.
+
+| | Avant | Après |
+|---|---|---|
+| UI-13 · au PC, le panneau d'un onglet à l'autre (barres de défilement visibles, 1 920 px) | 380 → 1 828 sur le Planning, la Recherche et le Salaire ; 375 → 1 823 sur les Équipes : il sautait de 5 px | 375 → 1 823 partout : `html{scrollbar-gutter:stable}` réserve toujours la place de la barre (sans effet au téléphone, dont la barre flotte) |
+| UI-14 · « Mon rythme » au PC, les numéros des jours | tous en entier, au bureau, quelle que soit la largeur du widget : « 10 » et « 11 » à 1,4 px l'un de l'autre à 1 920 px, et qui se chevauchaient à 1 280 (−0,2 px) et 1 100 (−2,9 px) | la forme du téléphone, « 1 · 5 · · 10 », tant que le widget n'a pas 580 px (une colonne de 17 px) : mesuré sur le widget (`@container accw`), non plus sur l'écran |
+| UI-15 · au doigt, quatre boutons isolés sous 44 px (la roue de « Mon profil », 34 px ; l'œil de « Ma paie », 30 ; les flèches du Planning, 36) | un toucher à 4 px du dessin ne les atteignait pas | il les atteint : `::before` de 44 × 44 au centre, sur les écrans tactiles seulement ; le dessin ne change pas |
+| UI-11 · le mode Modifier au téléphone | la seconde pastille d'une icône (orange, une tâche) restait sous le « − » | elle se retire le temps de modifier, et revient au « ✓ » |
+| UI-10 · « Absences et congés » (espace RH), au téléphone | les trois nombres à 257, 239 et 257 px (18 px d'écart), les pastilles étirées sur 83 px | les trois à 239 px ; les pastilles à leur taille (34 à 47 px) |
+| UI-10 · le même, au PC de 1 920 px | le tableau s'arrêtait à 1 429 px, ses tuiles à 1 864 | les deux à 1 854 (la borne de 1 100 px retirée, comme dans Personnel) |
+
+**Pas faits, et pourquoi.**
+- **UI-6, l'ordre du clavier sur l'Accueil.** Il faudrait déplacer les
+  widgets dans le document à chaque disposition. Un déplacement fait perdre
+  le focus et relance la mesure de la grille : c'est un chantier à part.
+- **UI-12, les widgets du PC à moitié vides** à leur format d'origine
+  (« Sur site », « Effectif du jour », « Ma paie », « Météo »). C'est un
+  travail de contenu, widget par widget.
+- **UI-15 dans les grilles serrées** (les 168 trigrammes des Équipes, les
+  pastilles du Planning). Une zone agrandie y mordrait sur la voisine, ce
+  qui est pire qu'une petite.
+- **UI-9, le reste** (les pastilles d'absent à 21 px, le bandeau de
+  l'Horaire production à 22 px). L'exception d'espacement du critère 2.5.8
+  les couvre : un cercle de 24 px centré sur chacune ne touche pas sa voisine.

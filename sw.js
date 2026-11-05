@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v1395";
+var V = "nfdm-v1396";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./logo-app.png", "./banniere.jpg", "./usine-photo.jpg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -69,14 +69,13 @@ self.addEventListener("activate", function (e) {
    empoisonnant l'entrée à la main. */
 function cacheSiBon(req, res) {
   if (!res || res.type === "error") return;
-  /* Une réponse OPAQUE (une autre origine, demandée sans CORS) ne se lit
-     pas : ni son code ni son corps. On ne peut donc pas la juger ; elle
-     passait, pour ne pas priver la page de ses polices hors ligne, quand
-     elles venaient de Google. Elles sont aujourd'hui servies par notre
-     origine, et le handler fetch laisse les autres origines au navigateur
-     (plus bas) : cette exception n'a plus rien à laisser passer. Tout ce
-     qui se LIT, lui, doit être bon : c'est là qu'était le trou. */
-  if (res.type !== "opaque" && !res.ok) return;
+  /* Seule une bonne réponse entre au cache : c'est là qu'était le trou.
+     Une réponse OPAQUE (une autre origine, demandée sans CORS), qu'on ne
+     peut pas juger, passait autrefois, pour les polices de Google ; elles
+     sont servies par notre origine, et le handler fetch laisse les autres
+     origines au navigateur (plus bas) : l'exception est retirée le
+     05/11/2026, elle n'avait plus rien à laisser passer. */
+  if (!res.ok) return;
   var copy = res.clone();
   caches.open(V).then(function (c) { try { c.put(req, copy); } catch (err) {} });
 }

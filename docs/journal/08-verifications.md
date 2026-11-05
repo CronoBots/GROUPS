@@ -3528,13 +3528,12 @@ corrigés :
   `self.` et `top.` — éprouvé : la page d'avant, 3 appels ; celle-ci, 0 ;
   `p.prompt()` d'un objet reste permis.
 
-Restent à faire, et pourquoi :
-- UI-6 (l'ordre du clavier sur l'Accueil) touche l'ordre du document ;
-- UI-10 à UI-15 sont des retouches de forme ;
-- le reste d'UI-9 et d'UI-15 (cibles de 44 px) changerait la densité des
-  widgets.
-
-Ils sont notés pour une passe d'interface.
+Restaient à faire : UI-6, UI-9 (le reste), UI-10 à UI-15. **Faits à la
+v1396** (journal 05, « Les retouches restantes du check complet ») :
+UI-10, UI-11, UI-13, UI-14, et UI-15 sur les boutons isolés. Restent,
+avec leurs raisons au même endroit : UI-6 (l'ordre du document), UI-12
+(le contenu des widgets du PC), UI-15 dans les grilles serrées, et le
+reste d'UI-9, que l'exception d'espacement couvre.
 
 **Deux contrôles neufs dans `parcours.js`**, chacun éprouvé sur la v1394, où
 il crie :
