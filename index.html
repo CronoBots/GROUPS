@@ -6049,11 +6049,10 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
    « le statut doit être aligné à droite du poste ») : la colonne prend
    toute la largeur, la pastille se range contre le bord */
 .pf-prof .pf-hmeta{flex:1}
-.pf-prof .pf-poste .pf-statut{margin-left:auto}
 /* au PC, le bord droit du héros est à 660 px du poste (Mon cycle occupe
    la colonne de droite) : la pastille s'y perdait, elle se range à côté
    du poste (passe sur tout l'Accueil, 25/10/2026) */
-@media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){ .pf-prof .pf-poste .pf-statut{margin-left:4px} .pf-prof .pf-hmeta{flex:0 1 auto} }
+@media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){ .pf-prof .pf-hmeta{flex:0 1 auto} }
 .pf-statut{flex:0 0 auto; font-size:11.5px; font-weight:600; line-height:1; padding:4px 8px; border-radius:99px;
   color:var(--tx-blanc-78); border:1px solid var(--bd-blanc-22); background:var(--fd-blanc-05)}
 .pf-statut.int{color:var(--at-jaune); border-color:color-mix(in srgb,var(--at-jaune) 45%,transparent)}
@@ -9567,12 +9566,10 @@ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-av{width:calc(100cq
    selon chaque taille ») : l'étiquette du statut suit le titre à chaque
    format, comme au PC ; au téléphone, en bandeau, elle était rejetée contre
    la roue (margin-left:auto de la carte d'origine) */
-html body #v-horaire.acc-perso .pf-wprof .pf-poste .pf-statut{margin-left:2px}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-hmeta{padding-top:0!important; gap:2px; justify-content:center; min-width:0}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-poste{font-size:16px!important; flex-wrap:nowrap!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-notif{order:1; position:relative!important; top:auto!important; left:auto!important; margin:0!important; flex:none}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-roue{order:2; position:relative!important; top:auto!important; right:auto!important; left:auto!important; margin:0!important; flex:none; width:34px; height:34px}
-@container (max-width:299px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-statut{display:none} }
 /* LA BANNIÈRE ENTIÈRE, EN PETIT COMME EN MOYEN (le client, le 05/11/2026 :
    « que la bannière soit complètement visible même en 1x1 ») : au
    téléphone comme au PC, elle garde ses proportions (2170 × 540) sur toute
@@ -9599,6 +9596,11 @@ html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .
 html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .pf-notif{grid-area:notif}
 /* moyen : une ligne sous la bannière */
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"]{grid-template-columns:auto minmax(0,1fr) auto auto; grid-template-rows:auto minmax(0,1fr); grid-template-areas:"couv couv couv couv" "av meta notif roue"; column-gap:12px}
+/* LES MARGES ÉGALES (05/11/2026) : la roue partie (display:none), sa
+   colonne gardait ses deux écarts ; le statut finissait à 25 px du bord,
+   le trigramme commençant à 17. Sans elle, le texte va à 17 px du bord */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"]{grid-template-columns:auto minmax(0,1fr) auto; grid-template-areas:"couv couv couv" "av meta notif"}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-hmeta{margin-right:4px!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-av{--av:clamp(32px, calc(100cqh - 100cqw * 540 / 2170 - 20px), 64px); margin-left:14px!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-roue{margin-right:12px!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-hmeta{gap:3px}
@@ -9635,22 +9637,30 @@ html body #v-horaire.acc-perso .pf-wprof .pf-prof .pf-av.pf-av{width:auto!import
   src:url(data:font/woff2;base64,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) format("woff2")}
 html body #v-horaire.acc-perso .pf-wprof .pf-prof .pf-av.pf-av{font-family:"BW Trigramme",ui-rounded,"SF Pro Rounded",system-ui,sans-serif; font-weight:800; letter-spacing:.03em}
 /* LE STATUT EN BAS À DROITE (le client, le 05/11/2026 : « il faut que le
-   statut soit en bas à droite du widget profil »), en bandeau et en
-   moyen ; la dernière ligne lui laisse sa place */
-html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="B"],[data-acc-f="M"],[data-acc-f="S"]) .pf-poste .pf-statut.pf-statut{position:absolute; right:12px; bottom:10px; margin:0; z-index:1}
-html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="B"],[data-acc-f="M"]):has(.pf-statut) .pf-hmeta>:is(.pf-ou,.pf-st2){padding-right:80px}
-/* en bandeau (64 px) et en petit, une étiquette plus menue, qui tient sous
-   la première ligne */
-html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="B"],[data-acc-f="S"]) .pf-poste .pf-statut.pf-statut{right:10px; bottom:8px; font-size:11px; padding:3px 7px}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"]:has(.pf-statut) .pf-hmeta>*{padding-right:64px}
-/* en bandeau (64 px de haut), l'étiquette touche aussi la première ligne :
-   « Contremaître », sans « de production » */
+   statut soit en bas à droite du widget profil ») : au bout de la dernière
+   ligne, aligné sur elle (voir _pfHead) */
+html body #v-horaire.acc-perso .pf-wprof .pf-hmeta>:is(.pf-ou,.pf-st2){display:flex; align-items:center; gap:8px; overflow:visible!important}
+html body #v-horaire.acc-perso .pf-wprof .pf-hmeta :is(.pf-l,.pf-fo){min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+html body #v-horaire.acc-perso .pf-wprof .pf-hmeta .pf-statut{display:inline-flex; margin:0 0 0 auto; flex:none}
+html body #v-horaire.acc-perso .pf-wprof .pf-hmeta:has(>.pf-st2)>.pf-ou .pf-statut{display:none}
+/* en bandeau et en petit, sans la ligne de la formation : le statut de
+   la ligne de l'équipe ; plus menu */
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="B"],[data-acc-f="S"]) .pf-hmeta>.pf-st2{display:none!important}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="B"],[data-acc-f="S"]) .pf-hmeta>.pf-ou .pf-statut.pf-statut{display:inline-flex}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="B"],[data-acc-f="S"]) .pf-statut{font-size:11px; padding:3px 7px}
+@container (max-width:339px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-statut{font-size:11px; padding:3px 7px} }
+/* les marges égales, en bandeau et en petit : le statut à la même
+   distance du bord droit que le trigramme du gauche (17 et 13 px) */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-hmeta{margin-right:8px!important}
+html body #v-horaire.acc-perso .pf-wprof.pf-wprof[data-acc-f="S"] .pf-hmeta{padding-right:12px!important}
+/* le petit d'un écran de 320 px (moins de 150 px de contenu) : l'équipe
+   ou le binôme d'abord, sans le statut, comme avant la v1416 */
+@container (max-width:149px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-hmeta .pf-statut.pf-statut{display:none!important} }
+/* en petit, le binôme d'un cadre sans le mot « Binôme » : « Binôme · ATR »
+   et « Employé » ne tenaient pas ensemble dans 136 px (390 px d'écran) */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-rg-m{display:none}
+/* en bandeau (64 px de haut) : « Contremaître », sans « de production » */
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-de{display:none}
-@container (min-width:150px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"]:has(.pf-statut) .pf-hmeta>:is(.pf-ou,.pf-st2){padding-right:60px} }
-/* moyen, sous 340 px (l'écran de 320) : l'étiquette menue reste, plutôt
-   que de disparaître */
-@container (max-width:339px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-poste .pf-statut.pf-statut{display:inline-flex!important; right:10px; bottom:8px; font-size:11px; padding:3px 7px}
-  html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"]:has(.pf-statut) .pf-hmeta>:is(.pf-ou,.pf-st2){padding-right:64px} }
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-de{display:none}
 /* la place du contenu (sans les marges intérieures du widget) : 326 px en
    bandeau à 390, 264 à 320 */
@@ -9678,7 +9688,7 @@ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-couv{display:none!i
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-prof{display:flex!important; flex-direction:column; align-items:flex-start; justify-content:center; gap:3px; flex:1 1 auto; min-width:0; margin:0!important; padding:0!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-prof .pf-av.pf-av{font-size:20px!important; margin:0!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-hmeta{padding:0!important; border:0; width:100%}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-hmeta>:not(.pf-poste),html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-poste .pf-statut.pf-statut{display:none!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-hmeta>:not(.pf-poste){display:none!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-poste.pf-poste{font-size:13px!important; font-weight:600; color:var(--tx-blanc-75)}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-notif{position:relative!important; top:auto!important; left:auto!important; margin:0!important; flex:none; height:30px}
 html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"]{display:flex!important; flex-direction:row; align-items:center; padding:0 14px!important}
@@ -9700,21 +9710,20 @@ html body #v-horaire.acc-perso:not(.acc-edit) .pf-wprof[data-go]{cursor:pointer;
 html body #v-horaire.acc-perso .pf-wprof[data-go]:focus-visible{outline:2px solid var(--marque-vif); outline-offset:3px}
 html body #v-horaire.acc-perso:not(.acc-edit) .pf-wprof[data-go]:active{transform:scale(.985); transition:transform .12s}
 html body #v-horaire.acc-perso .pf-wprof .pf-hmeta>*{min-width:0; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-@container (max-width:299px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-fo{display:none!important} }
+@container (max-width:299px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-st2{display:none!important}
+  html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-hmeta>.pf-ou .pf-statut.pf-statut{display:inline-flex} }
 /* en petit aussi, le statut : sous la fonction, la place manquant à côté ;
    le trigramme et la roue descendent contre le texte (au PC, 217 px de
    haut, ils flottaient au milieu) */
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste .pf-statut.pf-statut{display:inline-flex; margin-left:0}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste.pf-poste{flex-wrap:wrap!important; row-gap:5px; white-space:normal}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste .pf-poste-n{flex:1 0 100%; overflow:hidden; text-overflow:ellipsis}
 /* sous 150 px de large (le petit d'un écran de 320 px), la place manque :
    sans le statut */
-@container (max-width:149px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste .pf-statut.pf-statut{display:none} }
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] :is(.pf-av,.pf-roue,.pf-notif){align-self:end; margin-bottom:8px!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-notif{height:30px}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-hmeta{align-self:end; gap:1px; padding:0 10px 9px!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste{font-size:15px!important; flex-wrap:nowrap!important}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] :is(.pf-statut,.pf-st2){display:none}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-st2{display:none}
 /* le nom sous chaque widget (accNoms) : le style de l'étiquette d'une icône */
 .acc-noms{position:absolute; inset:0; z-index:2; pointer-events:none}
 /* les deux couches posées sur la grille (le calque du mode Modifier, les
@@ -18655,7 +18664,7 @@ function _pfHead(db,p){
   var rg="";
   if(cadre){
     var pa2=_pfPartenaire(db,p);
-    if(pa2) rg='Binôme · <b>'+esc(pa2)+'</b>';
+    if(pa2) rg='<span class="pf-rg-m">Binôme · </span><b>'+esc(pa2)+'</b>';
   } else if(eq&&eq!=="—"){
     /* SANS LE BINÔME DU CYCLE (le client, le 05/11/2026 : « pour les 5
        semaines, dans le profil, il n'est pas nécessaire de mettre le
@@ -18704,6 +18713,7 @@ function _pfHead(db,p){
      être marqué pour ces gens-là ») : la fonction que le classeur des
      polyvalences leur donne (poly.statut), une par équipe, polyvalents sur
      tous les postes ; à la place de « Opérateur » et d'un poste du jour */
+  var stH=st?'<span class="pf-statut'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'';
   var assU=!cadre&&p.poly&&/assistant\s+usine/i.test(p.poly.statut||"");
   if(assU) role="Assistant usine";
   /* « OPÉRATEUR » PUIS LE POSTE (le client, le 05/11/2026, en réponse à
@@ -18735,10 +18745,16 @@ function _pfHead(db,p){
     /* LE STATUT À CÔTÉ DU POSTE (le client, le 20/10/2026 : « le statut de
        travail à côté de son poste ? ») : une étiquette après le poste, et
        la troisième ligne ne reste que pour la formation. */
-    +'<div class="pf-hmeta"><span class="pf-poste"><span class="pf-poste-n">'+bio+'</span>'
-    +(st?'<span class="pf-statut'+(/int/i.test(st)?' int':'')+'">'+esc(st)+'</span>':'')+'</span>'
-    +(rg?'<span class="pf-ou pf-rg">'+rg+'</span>':'')
-    +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
+    /* LE STATUT SUR LA DERNIÈRE LIGNE (05/11/2026, « comment optimiser le
+       widget profil ? ») : posé en absolu dans le coin, il flottait (son
+       milieu 6 px sous celui de « Binôme · ATR », 13 px du bord droit
+       contre 17 au trigramme à gauche). Il termine désormais la dernière
+       ligne, aligné sur elle. Deux exemplaires, un seul montré : celui de
+       la ligne de l'équipe, et celui de la ligne jaune de la formation
+       quand elle se montre (pas en bandeau ni en petit) */
+    +'<div class="pf-hmeta"><span class="pf-poste"><span class="pf-poste-n">'+bio+'</span></span>'
+    +((rg||st)?'<span class="pf-ou pf-rg"><span class="pf-l">'+rg+'</span>'+stH+'</span>':'')
+    +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span>'+stH+'</span>':'')
     +'</div></div></div>'+meteoWidgetHTML()
     +'<div class="pf-corps"><div class="pf-gauche"><div class="pf-pw" data-w="poste">'+h+'</div><div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn" data-w="cycle"></div>'+(pvH?'<div class="pf-pvw" data-w="polyvalences">'+pvH+'</div>':'')+'</div></div>';
 }

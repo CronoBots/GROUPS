@@ -14212,3 +14212,31 @@ postes de production. Leur profil lit « Assistant usine » à la place de
 « Opérateur » et d'un poste du jour, titre du lecteur d'écran compris.
 Leur statut reste « Employé ». Mesuré au navigateur sur les quatre, et
 sur deux témoins inchangés. Résultat : 177 essais, 0 faute.
+
+### v1420 — Le statut au bout de la dernière ligne, les marges égales (05/11/2026)
+
+Le client, capture à l'appui : « comment optimiser le widget profil ? ».
+Mesuré en moyen, à 390 px, sur la v1419 : l'étiquette du statut,
+posée en absolu dans le coin, flottait. Son milieu était 6 px sous celui
+de la ligne « Binôme · ATR ». Elle était à 13 px du bord droit, contre
+17 px pour le trigramme à gauche.
+
+- Le statut termine désormais la dernière ligne, aligné sur elle
+  (`margin-left:auto`). Il y a deux exemplaires et un seul est montré :
+  celui de la ligne de l'équipe, ou celui de la ligne jaune de la
+  formation quand elle se montre. En bandeau, en petit et en moyen sous
+  300 px, la ligne de la formation se cache, et c'est celui de l'équipe.
+- Les marges sont égales, mesurées : 17 px des deux côtés en moyen et en
+  bandeau, 13 en petit. La colonne de la roue, partie, gardait ses écarts.
+- En petit, « Binôme · ATR » et « Employé » ne tenaient pas ensemble
+  (136 px) : le binôme y est écrit sans le mot « Binôme ». Sous 150 px de
+  contenu (l'écran de 320), il n'y a pas de statut.
+- Les règles du statut posé en absolu, et ses réserves de place, sont
+  retirées, ainsi que deux règles mortes de l'ancien héros.
+
+**L'essai permanent est changé** : le statut termine la dernière ligne
+visible (centres à 1 px près), à la même distance du bord que le
+trigramme (2 px près). L'ancienne règle, « à 16 px du coin au plus »,
+aurait refusé le moyen du PC : l'étiquette y est à 28 px du bas, au bout
+de sa ligne. Éprouvé sur la v1419 : 8 fautes (« le statut n'est pas en
+bas à droite »). Sur la v1420 : 177 essais, 0 faute.

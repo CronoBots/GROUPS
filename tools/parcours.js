@@ -437,7 +437,8 @@ function constater(){
     }
     /* Le widget profil (le client, le 05/11/2026) : le trigramme dans la
        police du logo, chargée depuis la page ; le statut, quand il se
-       montre, dans le coin en bas à droite (à 16 px des bords au plus) */
+       montre, au bout de la dernière ligne, aligné sur elle, à la même
+       distance du bord droit que le trigramme du gauche (2 px près) */
     { n++;
       await aller(page,"tab-horaire");
       const r=await page.evaluate(async()=>{ const w=document.querySelector('#v-horaire [data-w="profil"]'); if(!w||!w.getClientRects().length) return null;
@@ -445,7 +446,8 @@ function constater(){
         const av=w.querySelector(".pf-av"), stt=[...w.querySelectorAll(".pf-statut")].find(e=>e.getClientRects().length&&getComputedStyle(e).display!=="none");
         const rw=w.getBoundingClientRect(), q=stt&&stt.getBoundingClientRect();
         return {police:!!av&&/BW Trigramme/.test(getComputedStyle(av).fontFamily)&&document.fonts.check('800 20px "BW Trigramme"'),
-          coin:!q||(rw.right-q.right<=16&&rw.bottom-q.bottom<=16&&q.right<=rw.right+0.5&&q.bottom<=rw.bottom+0.5)}; });
+          coin:!q||(()=>{ const lv=[...w.querySelectorAll(".pf-hmeta>*")].filter(e=>e.getClientRects().length&&getComputedStyle(e).display!=="none"), der=lv[lv.length-1], ra=av.getBoundingClientRect(), rl=der&&der.getBoundingClientRect();
+            return !!der&&der.contains(stt)&&Math.abs((q.top+q.bottom)/2-(rl.top+rl.bottom)/2)<=1&&Math.abs((rw.right-q.right)-(ra.left-rw.left))<=2&&q.bottom<=rw.bottom+0.5; })()}; });
       if(r&&!r.police) lignes.push("Profil : le trigramme n'est pas dans la police du logo");
       if(r&&!r.coin) lignes.push("Profil : le statut n'est pas en bas à droite du widget");
     }
