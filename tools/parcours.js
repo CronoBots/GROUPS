@@ -385,6 +385,23 @@ function constater(){
       if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))){ await page.keyboard.press("Escape"); }
       if(await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-edit"))) await page.click("#accOk").catch(()=>{});
     }
+    /* LE DOCK AUX ÉCARTS ÉGAUX (le client, le 05/11/2026) : au téléphone,
+       debout ou couché, chaque icône est dans le dock, et l'écart est le
+       même entre elles, aux deux bouts et sur les côtés (à 1 px près) */
+    if(role==="hierarchie"&&ecran.mobile){ n++;
+      const d=await page.evaluate(()=>{ const t=document.querySelector(".navwrap>.tabs"); if(!t||!t.getClientRects().length) return null;
+        const r=t.getBoundingClientRect(), b=1, ic=[...t.querySelectorAll("button")].filter(x=>getComputedStyle(x).display!=="none").map(x=>x.querySelector("svg").getBoundingClientRect()).sort((u,v)=>(u.top-v.top)||(u.left-v.left));
+        const couche=r.height>r.width, e=[];
+        e.push(couche?ic[0].top-r.top-b:ic[0].left-r.left-b, couche?r.bottom-b-ic[ic.length-1].bottom:r.right-b-ic[ic.length-1].right);
+        for(let i=1;i<ic.length;i++) e.push(couche?ic[i].top-ic[i-1].bottom:ic[i].left-ic[i-1].right);
+        const cotes=ic.map(q=>couche?[q.left-r.left-b,r.right-b-q.right]:[q.top-r.top-b,r.bottom-b-q.bottom]).flat();
+        return {e, cotes, couche}; });
+      if(!d) lignes.push("Dock : introuvable");
+      else { const tous=d.e.concat(d.cotes), mi=Math.min(...tous), ma=Math.max(...d.e), mac=Math.max(...d.cotes);
+        if(mi<0) lignes.push("Dock : une icône dépasse du dock ("+mi.toFixed(1)+" px)");
+        if(ma-Math.min(...d.e)>1) lignes.push("Dock : écarts inégaux entre les icônes et aux bouts ("+d.e.map(x=>x.toFixed(1)).join(", ")+")");
+        if(Math.abs(mac-Math.min(...d.cotes))>1) lignes.push("Dock : les côtés diffèrent ("+d.cotes.map(x=>x.toFixed(1)).join(", ")+")");
+        if(!d.couche&&Math.abs(Math.min(...d.cotes)-Math.min(...d.e))>1) lignes.push("Dock : debout, l'écart du haut et du bas n'est pas celui des côtés"); } }
     lignes.push(...page.fautes);
     await page.ctx.close();
     res[i]={avant:avant, tag:ecran.nom+" · "+(role||"sans compte"), lignes:lignes, n:n}; }

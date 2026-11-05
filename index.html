@@ -6519,6 +6519,41 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
   html .toast{bottom:calc(94px + var(--navbas) + var(--vvbas,0px))}
   html .enhaut{bottom:calc(92px + var(--navbas) + var(--vvbas,0px))}
 }
+/* LE DOCK AUX ÉCARTS ÉGAUX (le client, le 05/11/2026 : « que les boutons du
+   menu du bas soient de bonne taille et que les écarts soient les mêmes de
+   chaque côté par rapport au bord »). Avant : des icônes de 52 px, 8 px
+   d'écart au-dessus, 16 px sur les côtés, 15 dessous. Comme le dock de
+   l'iPhone : des icônes de 56 px au plus (--dk-s), et un seul écart
+   (--dk-g) entre elles, aux bords, en haut et en bas — mesuré par
+   dockAjuster sur la largeur du dock et le nombre d'icônes. Le point de
+   l'app ouverte se pose au milieu de l'écart du bas. */
+/* (la requête du téléphone, partagée avec le couché : le bloc suivant,
+   couché seul, reprend chacune de ces propriétés) */
+@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
+  html .navwrap>.tabs{justify-content:space-evenly; gap:0; padding:var(--dk-g,8px) 0}
+  html .navwrap>.tabs button,html .navwrap>.tabs button[aria-selected="true"],html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"],
+  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"][aria-selected="true"]{flex:0 0 var(--dk-s,52px); width:var(--dk-s,52px); padding:0}
+  html .navwrap>.tabs button svg,html .navwrap>.tabs button[aria-selected="true"] svg{width:var(--dk-s,52px); height:var(--dk-s,52px); padding:calc(var(--dk-s,52px)*.23); border-radius:calc(var(--dk-s,52px)*.24)}
+  html .navwrap>.tabs #tab-plus svg{padding:calc(var(--dk-s,52px)*.135)}
+  html .navwrap>.tabs button[aria-selected="true"]::after,html .navwrap>.tabs #tab-plus.actif::after,html .navwrap>.tabs #tab-plus[aria-expanded="true"]::after{bottom:calc(var(--dk-g,8px) / -2 - 2.5px)}
+}
+/* COUCHÉ, LE RAIL À LA LARGEUR DE SES ICÔNES (le client, le même jour :
+   « les boutons du menu, qui est la verticale à gauche, dépassent et n'ont
+   pas d'écart de chaque côté »). Le rail faisait 64 px pour des icônes de
+   52 px et un rembourrage de 10 px de chaque côté : elles débordaient à
+   droite. Désormais ses icônes (--dk-s) se répartissent sur sa hauteur à
+   écarts égaux (--dk-g) ; sur les côtés, le même écart (16 px au plus,
+   --dk-c), et le rail prend la largeur qui en résulte (--dk-w). Le point
+   de l'app ouverte passe à droite de l'icône. */
+@media (orientation:landscape) and (max-height:500px) and (max-width:1099px){
+  :root{--rail:calc(var(--dk-w,76px) + max(16px, env(safe-area-inset-left,0px)))}
+  html .navwrap>.tabs{width:var(--dk-w,76px); box-sizing:border-box; justify-content:space-evenly; align-items:center; gap:0; padding:0}
+  html .navwrap>.tabs button,html .navwrap>.tabs button[aria-selected="true"],html .navwrap>.tabs #tab-plus.actif,html .navwrap>.tabs #tab-plus[aria-expanded="true"],
+  html .navwrap>.tabs .side-ws-inj[data-side-ws="planning"][aria-selected="true"]{flex:0 0 var(--dk-s,52px); width:var(--dk-s,52px); height:var(--dk-s,52px); max-height:none; padding:0}
+  html .navwrap>.tabs button svg,html .navwrap>.tabs button[aria-selected="true"] svg{width:var(--dk-s,52px); height:var(--dk-s,52px); padding:calc(var(--dk-s,52px)*.23); border-radius:calc(var(--dk-s,52px)*.24)}
+  html .navwrap>.tabs #tab-plus svg{padding:calc(var(--dk-s,52px)*.135)}
+  html .navwrap>.tabs button[aria-selected="true"]::after,html .navwrap>.tabs #tab-plus.actif::after,html .navwrap>.tabs #tab-plus[aria-expanded="true"]::after{left:auto; right:calc(var(--dk-c,10px) / -2 - 2.5px); top:50%; bottom:auto; margin:-2.5px 0 0}
+}
 /* ═══ LE BUREAU (le client, le 12/10/2026 : « le site est pas optimisé
    pc »). Sa capture, fenêtre de 1920 px : la barre du haut sur deux lignes,
    le tableau du jour de 330 px de haut au milieu d'un écran vide, des badges
@@ -34193,6 +34228,29 @@ function jourNavActive(on){
   document.addEventListener("visibilitychange",function(){ if(!document.hidden) recaler(); });
   caler();
 })();
+/* LES ÉCARTS DU DOCK (05/11/2026, voir « LE DOCK AUX ÉCARTS ÉGAUX ») : sur
+   la longueur du dock (sa largeur debout, sa hauteur couché), des icônes
+   de 56 px au plus, un écart égal entre elles et aux bords ; couché, le
+   même écart sur les côtés, borné à 16 px. Rien au PC. */
+function dockAjuster(){
+  var t=document.querySelector(".navwrap > .tabs"), r=document.documentElement; if(!t||!window.matchMedia) return;
+  var couche=matchMedia("(orientation:landscape) and (max-height:500px) and (max-width:1099px)").matches,
+      debout=!couche&&matchMedia("(max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px)").matches;
+  if(!debout&&!couche){ ["--dk-s","--dk-g","--dk-c","--dk-w"].forEach(function(x){ r.style.removeProperty(x); }); return; }
+  var n=[].filter.call(t.children,function(x){ return x.tagName==="BUTTON"&&getComputedStyle(x).display!=="none"; }).length; if(!n) return;
+  var cs=getComputedStyle(t), bord=(parseFloat(cs.borderLeftWidth)||0)*2,
+      L=(couche?t.getBoundingClientRect().height:t.getBoundingClientRect().width)-bord,
+      sz=Math.min(56,Math.floor(L/(n*1.22))), g=(L-n*sz)/(n+1), c=Math.min(16,g);
+  function poser(k,v){ if(r.style.getPropertyValue(k)!==v) r.style.setProperty(k,v); }
+  poser("--dk-s",sz+"px"); poser("--dk-g",g.toFixed(2)+"px"); poser("--dk-c",c.toFixed(2)+"px"); poser("--dk-w",(sz+2*c+bord).toFixed(2)+"px");
+}
+(function(){
+  var f=function(){ try{ dockAjuster(); }catch(e){} };
+  window.addEventListener("resize",f); window.addEventListener("orientationchange",f);
+  var t=document.querySelector(".navwrap > .tabs");
+  if(t&&window.MutationObserver) new MutationObserver(f).observe(t,{childList:true, subtree:true, attributes:true, attributeFilter:["hidden"]});
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",f); else f();
+})();
 function ajusterHauteurJour(){
   var nav=document.querySelector(".navwrap > .tabs");
   /* Du HAUT de la barre au bas de l'écran, et non sa seule hauteur : depuis
@@ -37963,7 +38021,16 @@ function accVoisine(p,garderVue){
   mes.forEach(function(m){ var k=m.el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!m.w) return;
     var q=accDans(m.el,c); h.push('<span class="acc-nom" style="left:'+q.x.toFixed(2)+'px;top:'+(q.y+m.h).toFixed(2)+'px;width:'+m.w+'px">'+esc(d.nom)+'</span>'); });
   c.innerHTML=h.join("");
-  return {p:p, mes:mes, L:haut.map(function(m){ return m.el; }).concat([c]), noms:c, T:T};
+  /* SA DISTANCE (05/11/2026) : non pas une largeur d'écran, mais juste de
+     quoi cacher son contenu derrière le bord ; elle parcourt cette
+     distance pendant que la page actuelle en parcourt une largeur
+     d'écran. Couché, la grille est centrée entre de larges marges : à une
+     largeur d'écran, la voisine n'entrait qu'aux deux cinquièmes du geste
+     (« le contenu doit être déjà visible lors du swipe ») */
+  var W=document.documentElement.clientWidth||innerWidth, sens=p>av?1:-1, g0=W, d0=0;
+  mes.forEach(function(m){ if(m.w){ g0=Math.min(g0,m.x); d0=Math.max(d0,m.x+m.w); } });
+  var D=Math.max(40,Math.min(W,sens>0?W-g0+8:d0+8));
+  return {p:p, mes:mes, L:haut.map(function(m){ return m.el; }).concat([c]), noms:c, T:T, D:D, sens:sens};
 }
 function accVoisineFin(vo){
   if(!vo) return;
@@ -37976,7 +38043,7 @@ function accGlisserFin(g,garder,ms){
   var W=document.documentElement.clientWidth||innerWidth;
   ACC.glisse=true;
   if(garder){ accDecaler(g.L,-g.sens*W,ms); if(g.vo) accDecaler(g.vo.L,0,ms); }
-  else { accDecaler(g.L,0,ms); if(g.vo) accDecaler(g.vo.L,g.sens*W,ms); }
+  else { accDecaler(g.L,0,ms); if(g.vo) accDecaler(g.vo.L,g.sens*g.vo.D,ms); }
   setTimeout(function(){
     var p=g.vo&&g.vo.p, T=g.vo&&g.vo.T;
     accVoisineFin(g.vo);
@@ -37996,7 +38063,7 @@ function accAllerPage(p,garderVue){
   if(ACC.glisse||pv.indexOf(p)<0||p===ACC.page) return;
   if(!accAnime()){ var vo0=accVoisine(p,garderVue); accVoisineFin(vo0); ACC.page=p; accStyle(); if(ACC.edit) accOutils(false); if(vo0.T!==scrollY) window.scrollTo(0,vo0.T); return; }
   var W=document.documentElement.clientWidth||innerWidth, sens=p>ACC.page?1:-1, L=accGlisseEls(), vo=accVoisine(p,garderVue);
-  accDecaler(vo.L,sens*W,0); void document.body.offsetWidth;
+  accDecaler(vo.L,sens*vo.D,0); void document.body.offsetWidth;
   accGlisserFin({L:L, vo:vo, sens:sens},true,300);
 }
 function accStyle(){
@@ -38081,7 +38148,13 @@ function accAligner(v,mode){
        carrées de la v1384 (93,5 points en tous sens) serraient les rangées
        et écartaient les colonnes. À une autre largeur d'écran, les mêmes
        proportions, l'icône plafonnée à 64 points. */
-    var W=document.documentElement.clientWidth||v.clientWidth+32, k=W/393, vw=v.clientWidth,
+    /* couché, l'échelle se prend sur le petit côté de l'écran (le client,
+       le 05/11/2026 : « les écarts entre les applications sont trop
+       grands ») : sur la largeur couchée (852 px), une colonne tous les
+       197 px ; désormais, la grille du portrait, centrée */
+    var W=document.documentElement.clientWidth||v.clientWidth+32;
+    if(innerWidth>innerHeight&&innerHeight>0) W=Math.min(W,innerHeight);
+    var k=W/393, vw=v.clientWidth,
         C=90.7*k, R=98.7*k, pad=(vw-4*C+g)/2;
     s=Math.min(64,64*k);
     if(pad<0){ pad=0; C=(vw-3*g)/4+g; R=C*98.7/90.7; }
@@ -38956,7 +39029,7 @@ function accInit(){
     if(sw.vo&&(!ok||sw.vo.p!==np)){ accVoisineFin(sw.vo); sw.vo=null; }
     if(ok&&!sw.vo){ sw.vo=accVoisine(np); sw.L=accGlisseEls().filter(function(el){ return !el.__voisin; }); }
     sw.dx=dx; accDecaler(sw.L,ok?dx:dx/3,0);
-    if(sw.vo) accDecaler(sw.vo.L,dx+(np>ACC.page?W:-W),0);
+    if(sw.vo) accDecaler(sw.vo.L,sw.vo.sens*sw.vo.D*(1-Math.min(1,Math.abs(dx)/W)),0);
   },{passive:false});
   function swFin(){
     if(!sw||sw.etat!=="h"){ sw=null; return; }

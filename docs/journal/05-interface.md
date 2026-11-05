@@ -13705,3 +13705,40 @@ widget déplacé au clavier, quelque chose glisse 60 ms après ; 500 ms après,
 plus rien ne glisse, et les cases sont sur leurs éléments à 1 px près.
 Éprouvé sur une copie où `accFlip` ne glisse plus : « un widget déplacé,
 rien ne glisse ». Le parcours : 136 essais, 0 faute.
+
+### Le dock aux écarts égaux ; couché, le rail et l'Accueil à la bonne mesure (05/11/2026, `nfdm-v1402`)
+
+Le client, trois captures de son iPhone couché à l'appui : « que les
+boutons du menu du bas soient de bonne taille et que les écarts soient les
+mêmes de chaque côté par rapport au bord. […] Couché, les écarts entre les
+applications sont trop grands, et les boutons du menu, qui est la verticale
+à gauche, dépassent et n'ont pas d'écart de chaque côté. »
+
+| | Avant | Après |
+|---|---|---|
+| Dock debout (390 px) | icônes de 52 px ; 8 px au-dessus, 16 sur les côtés, 15 dessous | icônes de 56 px ; 12,7 px partout : entre elles, aux bouts, en haut et en bas (320 px : 46 px et 9,3) |
+| Rail couché | 64 px de large pour des icônes de 52 px et 10 px de rembourrage de chaque côté : elles débordaient à droite | icônes de 56 px, réparties sur la hauteur à écarts égaux (12,3 px à 852 × 393), le même écart de chaque côté ; le rail prend la largeur qui en résulte (82,7 px) |
+| Accueil couché (852 × 393) | une colonne d'applications tous les 197 px : l'échelle se prenait sur la largeur couchée | tous les 91 px, comme debout : l'échelle se prend sur le petit côté de l'écran, la grille centrée |
+
+`dockAjuster` mesure le dock (sa largeur debout, sa hauteur couché) et le
+nombre d'icônes montrées, puis pose `--dk-s` (l'icône, 56 px au plus),
+`--dk-g` (l'écart), `--dk-c` (les côtés couché, 16 px au plus) et `--dk-w`
+(la largeur du rail, d'où `--rail`). Le point de l'app ouverte se pose au
+milieu de l'écart du bas, couché à sa droite.
+
+**Une suite, sur les pages.** La grille couchée, centrée entre de larges
+marges, a fait tomber l'essai « à mi-geste, la page voisine est visible »
+au parcours (iPhone couché, encoche) : à une largeur d'écran, la voisine
+n'entrait qu'aux deux cinquièmes du geste. Elle part désormais juste
+derrière le bord (sa distance : de quoi cacher son contenu, `vo.D`) et la
+parcourt pendant que la page actuelle parcourt une largeur d'écran.
+
+Et une règle du parcours tenue : ma première requête « portrait seul »
+divergeait des requêtes admises du téléphone. Elle prend la requête
+commune, le bloc couché suivant reprenant chacune de ses propriétés.
+
+**Contrôle permanent** (`parcours.js`, au téléphone, debout et couché) :
+chaque icône dans le dock, le même écart entre elles et aux bouts, les
+côtés égaux, et debout, le haut et le bas égaux aux côtés, à 1 px près.
+Éprouvé sur une copie sans `dockAjuster` : « debout, l'écart du haut et du
+bas n'est pas celui des côtés ». Le parcours : 141 essais, 0 faute.
