@@ -29,15 +29,11 @@ la commande est enchaînée avec `;` au lieu de `&&`. En session cloud,
 `.claude/hooks/session-start.sh` le fait seul (et installe `playwright-cli`, puis PowerShell en arrière-plan).
 
 **Aucune demande d'autorisation.** Le client, le 18/10/2026 : « il faut
-que tu acceptes tout tout seul ». `.claude/settings.json` autorise donc
-le terminal, les fichiers, le web, les artefacts et les connecteurs
-(Notion, GitHub, Supabase, sessions, Docs). Une session cloud ne lit ce
-fichier que si elle n'a qu'un seul dépôt ; le reste se règle par le mode
-« Auto » du menu à côté de la zone de saisie, que seul le client peut
-choisir. Le 20/10/2026 : « j'aimerais que tu arrêtes de me demander les
-permissions, que tu le fasses tout seul ». Ni fenêtre d'autorisation (la
-liste de `.claude/settings.json` couvre aussi Gmail et le connecteur des
-sessions), ni question de choix : quand plusieurs améliorations se
+que tu acceptes tout tout seul » (`.claude/settings.json` et le mode
+« Auto » : journal 07, « Le fichier des règles tient en 25 Ko »). Le
+20/10/2026 : « j'aimerais que tu arrêtes de me demander les
+permissions, que tu le fasses tout seul ». Ni fenêtre d'autorisation,
+ni question de choix : quand plusieurs améliorations se
 présentent, on fait celles qu'on recommande, puis on dit ce qui a été fait.
 On ne demande que ce que le classeur et le client seuls savent (une règle
 de lecture ou de paie), et ce qui reviendrait sur une décision du client.
@@ -48,8 +44,7 @@ validé ». **Ne jamais finir un tour sur une question de goût ou de
 choix** (« dites-moi lesquels appliquer ») : trancher selon la
 recommandation, l'appliquer, la vérifier, committer, pousser sur `main`,
 reporter dans Notion (journal 07), puis DIRE ce qui a été choisi et pourquoi — le
-client corrige après coup s'il le veut. Les fenêtres d'autorisation de
-la session ne s'effacent que par le mode « Auto » choisi par le client.
+client corrige après coup s'il le veut.
 **Une migration de la base** — avec un `drop` (même une fonction
 aussitôt recréée), et le 30/10/2026 même sans (une table neuve) : le
 serveur de Supabase demande une confirmation que le mode « Auto » ne
@@ -269,7 +264,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 | `tools/survivants-admis.txt` | les survivants de `verifier-anonymat.py` qu'un humain a lus et jugés innocents |
 | `tools/mettre-a-jour.py` | toute la procédure en une commande, derrière huit portes |
 | `tools/envoyer-push.js` | la notification du téléphone à chaque classeur installé |
-| `tools/horaire-auto.py` | la mise à jour sans personne au clavier, lancée chaque heure par GitHub |
+| `tools/horaire-auto.py` | la mise à jour sans personne au clavier, lancée toutes les 15 min par la base (`pg_cron`, journal 02) |
 | `tools/base-synchro.py` | recopie l'horaire installé dans la base BIOWANZE (étape 2), quand sa version diffère |
 | `tools/base-sauvegarde.py` | la sauvegarde quotidienne de la base, chiffrée par la clé du robot, envoyée à sa boîte Gmail (30 gardées) ; la commande de restauration est en tête du fichier |
 | `base/*.sql` | la structure de la base BIOWANZE (schéma `biowanze` du projet de base de données de PINO) — jamais de données ; `06-domaines.sql` touche `auth.users`, commune à tout le projet |
@@ -308,7 +303,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 - **Français** partout : interface, commentaires de code, messages de commit.
 - **ES5**, `var`, pas de fonctions fléchées — le fichier vise aussi des
   navigateurs anciens et n'est pas transpilé.
-- Aucun barème n'est figé : tout est modifiable dans l'onglet « Barèmes ».
+- Les barèmes sont figés (`fige:true`, 17 champs sur 18) : seul le calage se règle, dans la section « Barèmes » des Réglages (journal 07).
 - Les données de l'utilisateur ne quittent jamais l'appareil.
 - **Aucun nom complet** dans le dépôt : l'horaire n'identifie les gens que par
   initiales ou matricule. **Y compris dans un commentaire, y compris comme
@@ -355,5 +350,5 @@ deviner à sa place sur ces points : ils touchent à des montants.
    emporte même un `sticky` (29/10/2026, journal 05). Playwright et
    Chromium sont disponibles ; servir le dossier (`npx http-server`) puis
    piloter la page. Le script étant dans une IIFE, rien n'est accessible
-   depuis `page.evaluate` : il faut passer par l'interface.
+   depuis `page.evaluate` (hors les `window.__*` de mesure, journal 03) : il faut passer par l'interface.
 

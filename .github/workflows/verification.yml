@@ -30,12 +30,19 @@ jobs:
           node-version: "22.x"
       - name: Vérifier la syntaxe Python
         run: python -m compileall -q tools
+      # tous les outils (envoyer-push.js et notifier-demandes.js tournent
+      # dans les robots) et les scripts de la page (check du 05/11/2026)
       - name: Vérifier la syntaxe JavaScript
         run: |
-          node --check tools/verifier-calendrier.js
-          node --check tools/verifier-conges-scolaires.js
-          node --check tools/conges-auto.js
-          node --check sw.js
+          for f in tools/*.js sw.js; do node --check "$f"; done
+          node -e 'const fs=require("fs"),h=fs.readFileSync("index.html","utf8"),re=/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/g;let m,i=0;while((m=re.exec(h))){fs.writeFileSync(process.env.RUNNER_TEMP+"/page-"+(i++)+".js",m[1]);}'
+          for f in "$RUNNER_TEMP"/page-*.js; do node --check "$f"; done
+      # le garde-fou des noms : un commit fait sur le site de GitHub, ou avec
+      # --no-verify, échappe au crochet local (check du 05/11/2026)
+      - name: Aucune forme de nom dans le dépôt
+        run: python tools/verifier-depot.py
+      - name: Le robot n'accepte qu'un expéditeur authentifié
+        run: python tools/horaire-auto.py --epreuve-expediteur
       - name: Congés scolaires recoupés avec les arrêtés
         run: node tools/verifier-conges-scolaires.js
       - name: Vérifier la structure de l'horaire

@@ -5077,3 +5077,23 @@ journée ainsi écrite en 2026.
 - Deux changements seulement :
   - dans les manques, le 04/11 disparaît (36 journées → 35) ;
   - l'agenda de LHS lit « remplace ».
+
+**Erreur de la v1394, corrigée à la v1395.** L'agenda refait par l'outil
+lisait bien « remplace », mais l'agenda publié, `cal/LHS.ics`, n'avait pas
+été recopié dans le commit : il gardait « r emplace » dans sa description.
+La comparaison des agendas au dépôt l'a trouvé le 05/11/2026 ; il est recopié
+dans le commit de la v1395.
+
+### La Recherche nomme tous les remplaçants écrits (05/11/2026, `nfdm-v1395`)
+
+« Remplacé par X et Y » se partage la place depuis la v1351, mais la
+Recherche (« Absence », la personne déjà absente dans l'horaire) ne citait
+que X : 30 commentaires sur 106 à plusieurs nommés y perdaient un nom. Une
+seule lecture des nommés suivants, `nommesSuivants`, sert désormais au
+Planning (`nommesParAbsents`) et à la Recherche (`caSimuler`) — deux copies
+d'une même règle, la seconde restée en arrière. La phrase dit « VGG, AFA,
+YPE et JBI ». `verifier-calendrier.js` découpe la fonction nouvelle avec
+`nommesParAbsents` (liste `MORCEAUX`). Les gardes « ou », « ? » et « au
+CPPT par » du Planning n'ont pas été reprises : la Recherche cite
+toujours « JKS » dans « remplacé par JKS ou HKB ». Mesures : journal 08,
+« Les défauts confirmés, corrigés (v1395) ».

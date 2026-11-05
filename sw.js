@@ -1,5 +1,5 @@
 /* BIOWANZE — service worker */
-var V = "nfdm-v1394";
+var V = "nfdm-v1395";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./logo-app.png", "./banniere.jpg", "./usine-photo.jpg",
             "./data/recyclages-2026.json",
             "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
@@ -11,10 +11,12 @@ var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo.svg", "./log
             "./fonts/archivo-latin.woff2", "./fonts/ibmplexmono-400-latin.woff2",
             "./fonts/ibmplexmono-500-latin.woff2", "./fonts/ibmplexmono-600-latin.woff2"];
 /* data/horaire-AAAA.json (un par année : 2026 et 2027 depuis le 20/10/2026,
-   environ 700 Ko chacun) est volontairement
-   absent d'ici : il est mis en cache à la demande par le handler fetch ci-dessous,
-   seulement pour qui utilise le pré-remplissage, plutôt que de ralentir l'installation
-   pour tout le monde. La taille varie avec les mises à jour de l'horaire. */
+   environ 730 et 450 Ko le 05/11/2026) est volontairement absent d'ici,
+   pour ne pas alourdir l'installation : il est mis en cache à chaque
+   lecture réussie, par le handler fetch ci-dessous (jsonFrais). Tout le
+   monde le lit, dès le démarrage (boot(), fetchHoraireDB) ; ce
+   commentaire disait « seulement pour qui utilise le pré-remplissage » :
+   ce n'est plus vrai. La taille varie avec les mises à jour de l'horaire. */
 
 self.addEventListener("install", function (e) {
   e.waitUntil(
@@ -44,9 +46,11 @@ self.addEventListener("activate", function (e) {
    - La PAGE : le réseau d'abord, le cache s'il ne répond pas. Une seconde de
      plus au démarrage quand la connexion traîne, et la version du jour à
      coup sûr. Hors ligne, le cache reprend la main sans que rien ne change.
-   - L'HORAIRE : le cache d'abord pour ne pas attendre 290 Ko, mais une
-     relecture réseau en arrière-plan qui met le cache à jour pour la fois
-     suivante.
+   - L'HORAIRE, et tout data/*.json : le réseau d'abord lui aussi, depuis
+     le 19/10/2026 (jsonFrais, plus bas) — revalidé, et le cache au-delà de
+     quatre secondes ou hors ligne. Il était servi du cache d'abord, pour
+     ne pas attendre ses 290 Ko d'alors, et relu en arrière-plan : l'horaire
+     neuf n'arrivait qu'à l'ouverture suivante.
    - LE RESTE — icônes, polices : le cache d'abord. Elles ne changent pas. */
 /* ON NE MET EN CACHE QUE CE QUI EST BON, et cette garde manquait.
 
@@ -65,10 +69,13 @@ self.addEventListener("activate", function (e) {
    empoisonnant l'entrée à la main. */
 function cacheSiBon(req, res) {
   if (!res || res.type === "error") return;
-  /* Une réponse OPAQUE — les polices, demandées sans CORS — ne se lit pas :
-     ni son code ni son corps. On ne peut donc pas la juger, et la refuser
-     priverait la page de ses polices hors ligne. Elle passe, comme avant.
-     Tout ce qui se LIT, lui, doit être bon : c'est là qu'était le trou. */
+  /* Une réponse OPAQUE (une autre origine, demandée sans CORS) ne se lit
+     pas : ni son code ni son corps. On ne peut donc pas la juger ; elle
+     passait, pour ne pas priver la page de ses polices hors ligne, quand
+     elles venaient de Google. Elles sont aujourd'hui servies par notre
+     origine, et le handler fetch laisse les autres origines au navigateur
+     (plus bas) : cette exception n'a plus rien à laisser passer. Tout ce
+     qui se LIT, lui, doit être bon : c'est là qu'était le trou. */
   if (res.type !== "opaque" && !res.ok) return;
   var copy = res.clone();
   caches.open(V).then(function (c) { try { c.put(req, copy); } catch (err) {} });
@@ -157,7 +164,9 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(
     caches.match(req).then(function (hit) {
       if (hit) {
-        /* l'horaire se rafraîchit derrière, sans faire attendre personne */
+        /* un .json hors de data/ se relirait derrière, sans faire attendre
+           personne ; l'horaire n'y passe plus depuis le 19/10/2026 (jsonFrais,
+           plus haut), et l'application ne lit aucun autre .json */
         if (/\.json$/.test(url.pathname)) {
           fetch(req, { cache: "no-cache" }).then(function (res) {
             /* et si la réponse est mauvaise, on RETIRE ce qui dort en cache

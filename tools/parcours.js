@@ -97,7 +97,10 @@ function boitesSysteme(fichier){
     const debut=src.slice(0,m.index+m[0].indexOf(">")+1).split("\n").length;
     /* les commentaires ôtés en gardant les sauts de ligne, pour compter juste */
     const code=m[1].replace(/\/\*[\s\S]*?\*\//g,c=>c.replace(/[^\n]/g," ")).replace(/(^|[\s;{}])\/\/[^\n]*/g,"$1");
-    const r=/(^|[^\w.$])(confirm|alert|prompt)\s*\(/g; let k;
+    /* et sous la forme window.prompt( (05/11/2026 : trois appels y
+       échappaient, le point excluant la forme) ; « p.prompt() », l'invite
+       d'installation, reste admise */
+    const r=/(^|[^\w.$]|\b(?:window|self|top)\.)(confirm|alert|prompt)\s*\(/g; let k;
     while((k=r.exec(code))) f.push("ligne "+(debut+code.slice(0,k.index).split("\n").length-1)+" : "+k[2]+"()");
   }
   return f;
@@ -270,6 +273,40 @@ function constater(){
         const ok=await page.evaluate(k=>{ const b=document.getElementById("caOng-"+k); return !!b&&b.getAttribute("aria-selected")==="true"; },k);
         if(!ok) lignes.push("Recherche : l'onglet « "+k+" » ne répond pas au clic");
       } }
+    /* UNE SEULE FICHE DE L'USINE (05/11/2026) : sur l'iPhone couché, 844 px
+       de fenêtre mais 670 px d'Accueil, la largeur de la fenêtre envoyait
+       l'usine au PC alors que l'Accueil était « téléphone » ; un poste
+       touché ouvrait la bulle ET le panneau. On touche le premier poste de
+       la légende (téléphone) ou de la bande d'état (PC) */
+    if(role==="hierarchie"){
+      await aller(page,"tab-horaire");
+      const cible=await page.evaluate(()=>{ const vis=e=>!!e&&getComputedStyle(e).display!=="none"&&e.getClientRects().length>0;
+        const u=document.getElementById("usineCard"); if(!vis(u)) return null;
+        const l=[...document.querySelectorAll("#uspListe .usp-li,#uspEtat .usp-st")].find(vis);
+        return l?(l.closest("#uspListe")?"#uspListe .usp-li":"#uspEtat .usp-st"):null; });
+      if(cible){ n++;
+        const b=page.locator(cible).first(); await b.scrollIntoViewIfNeeded().catch(()=>{});
+        if(ecran.mobile) await b.tap({force:true}).catch(()=>{}); else await b.click({force:true}).catch(()=>{});
+        await page.waitForTimeout(400);
+        const f=await page.evaluate(()=>{ const vis=e=>!!e&&getComputedStyle(e).display!=="none"&&e.getClientRects().length>0;
+          return {bulle:vis(document.getElementById("uspPop")), panneau:vis(document.querySelector("#usineCard .us-panneau"))}; });
+        if(f.bulle&&f.panneau) lignes.push("L'usine en direct : la fiche du poste s'ouvre deux fois (bulle et panneau)");
+        if(!f.bulle&&!f.panneau) lignes.push("L'usine en direct : le poste touché n'ouvre aucune fiche");
+        await page.keyboard.press("Escape").catch(()=>{}); await page.waitForTimeout(200); } }
+    /* LA BARRE DIT OÙ L'ON EST (05/11/2026) : la vue ouverte allume son
+       onglet, ou « Plus » quand son onglet est caché — jamais les deux,
+       jamais aucun. Au téléphone, les Effectifs ouverts par « Plus »
+       n'allumaient rien ; à la tablette, la Recherche allumait les deux */
+    if(role==="hierarchie"){ n++;
+      for(const v of ["horaire","jour","equipe","salaire","rh","recherche"]){
+        await page.evaluate(v=>{ const b=document.createElement("button"); b.setAttribute("data-go",v); document.body.appendChild(b); b.click(); b.remove(); },v);
+        await page.waitForTimeout(350);
+        const r=await page.evaluate(()=>{ const vu=b=>!!b&&b.offsetParent!==null;
+          const sel=[...document.querySelectorAll(".tabs button[aria-selected='true']")].filter(vu).length;
+          const t=document.getElementById("tab-plus"); return {sel:sel, plus:vu(t)&&t.classList.contains("actif")?1:0}; });
+        if(r.sel+r.plus!==1) lignes.push("Barre : la vue « "+v+" » allume "+(r.sel+r.plus)+" entrée(s) ("+r.sel+" onglet(s), « Plus » "+(r.plus?"allumé":"éteint")+")");
+      }
+      await aller(page,"tab-horaire"); }
     lignes.push(...page.fautes);
     await page.ctx.close();
     res[i]={avant:avant, tag:ecran.nom+" · "+(role||"sans compte"), lignes:lignes, n:n}; }

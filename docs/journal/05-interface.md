@@ -13490,3 +13490,27 @@ bloc bas au toit sombre, à gauche de la tour du moulin.
   0 faute. Aucune étiquette ne couvre une épingle : celle de la
   meunerie se pose au-dessus de sa tête, à gauche de celle du gluten.
 - Parcours : 112 essais, 0 faute ; statique : 0.
+
+### L'usine de l'iPhone couché, « Plus » des Effectifs, les brouillons du mode Modifier (05/11/2026, `nfdm-v1395`)
+
+Trouvés par le check complet multi-agents, remesurés par le sceptique ; le
+détail et les mesures sont au journal 08, « Les défauts confirmés, corrigés
+(v1395) ».
+- **L'usine suit la forme de l'Accueil** (`uspTel`), et non plus la largeur de
+  la fenêtre. L'iPhone couché, 670 px d'Accueil entre ses zones protégées,
+  ouvrait la fiche d'un poste deux fois (bulle et panneau) et montrait la
+  bande d'état du PC. Les tuiles de la légende ne vivent plus dans le seul
+  bloc 699 px. Les mesures du journal 05 sur l'écran couché avaient été
+  prises sans zones protégées : elles ne pouvaient pas le voir.
+- **« Plus » s'allume pour toute vue dont l'onglet est caché**
+  (`ongletCache`) : les Effectifs, ouverts par « Plus » au téléphone quand
+  l'Horaire production prend leur place, n'allumaient rien ; à la tablette,
+  la Recherche allumait deux entrées.
+- **« À retenir » dit les vacances scolaires comme l'agenda** : du samedi
+  d'avant (la règle du client du 23/10, « le premier week-end juste avant
+  le congé doit être compris dans ce congé »), et l'été compris, qu'il
+  oubliait. Une seule règle, `fwbVacances`, pour les deux.
+- **Le mode Modifier garde un brouillon par forme d'écran** : passer le
+  seuil des 700 px en plein mode ne perd plus les changements de l'autre
+  forme, et « ✓ » les enregistre toutes ; le focus revient sur « ✓ » après
+  « Rétablir » ; l'annonce dit vrai.

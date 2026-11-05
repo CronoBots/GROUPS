@@ -43,7 +43,7 @@ les mêmes outils et le même horaire installé, au lieu de tout refaire.
 
 Tout s'écrit dans un DOSSIER TEMPORAIRE. À blanc, l'outil s'arrête là et
 imprime le rapport du comparateur — qu'il faut LIRE, et dont il faut dire au
-client ce qui a bougé. Avec --installer, et seulement si les sept portes
+client ce qui a bougé. Avec --installer, et seulement si les huit portes
 sont ouvertes : les trois fichiers de data/ sont remplacés ensemble, `V` est
 incrémenté dans sw.js, et le garde-fou du dépôt passe sur le résultat. S'il
 échoue, les fichiers d'avant sont remis en place depuis leur copie — et non

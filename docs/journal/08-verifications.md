@@ -3481,3 +3481,158 @@ prenait pour un nom. L'horaire en place restait celui du 03/11.
   avec sa raison.
 - L'e-mail a été retiré de la corbeille et remis dans la boîte de
   réception : le robot ne lit que celle-ci.
+
+### Les défauts confirmés, corrigés (v1395)
+
+Chaque défaut ci-dessous a été **remesuré par le sceptique avant d'être
+corrigé**, puis mesuré de nouveau après, contre la v1394, sur le même
+horaire. Les scripts de mesure sont ceux du sceptique, rejoués tels quels.
+
+| | Ce qui se voyait | La correction | Mesuré après |
+|---|---|---|---|
+| REV-1 | Entre minuit et 6 h, « À retenir » et la note de « Ma paie » comptaient depuis le jour de l'usine, qui est encore la veille : « Armistice · demain » le 11/11 à 1 h | `awJour`, `awDates`, `aideVersements` et `aideInfHTML` comptent au calendrier. Changer les seuls mots était une régression, mesurée : « Armistice · aujourd'hui » le 12/11 à 2 h | les cinq heures du sceptique sont justes |
+| REV-2 | À 6 h, l'Accueil ne se refaisait pas : son Planning restait sur la veille | `accCle` porte aussi le jour de l'usine | refait à 6 h |
+| REV-3 | iPhone couché (844 px de fenêtre, mais 670 px d'Accueil entre les zones protégées) et PC de 700 à 731 px : l'usine prenait la branche du PC — la bande d'état au lieu de la légende, et la fiche d'un poste ouverte deux fois, bulle et panneau | `uspTel()` : l'usine est « téléphone » quand l'Accueil l'est (`acc-tel`), la fenêtre seulement sans grille. Les tuiles de la légende sortent du bloc 699 px | une seule fiche et la légende sur les iPhone 12 à 16 Pro couchés et au PC de 700 à 731 px ; les styles calculés du couché sont ceux du debout, hors géométrie |
+| REV-5 | La Recherche « Absence » ne nommait que le premier de « remplacé par X et Y » : 30 commentaires sur 106 à plusieurs nommés y perdaient un nom | `nommesSuivants`, une seule lecture des nommés pour le Planning (`nommesParAbsents`) et la Recherche (`caSimuler`) ; la phrase dit « X, Y et Z » | « remplacé par VGG et PBL », « GST et SKS », « VGG, AFA, YPE et JBI » |
+| REV-6 | Messages : un envoi pendant une relecture n'apparaissait qu'au relevé suivant, 30 s plus tard ; un message effacé réapparaissait, bouton « Effacer » compris | un compteur d'écritures (`FIL.ecrit`) : la réponse d'une relecture partie avant la dernière écriture est jetée | aussitôt, dans les deux cas ; une lecture de plus seulement quand la relecture neuve n'a pas déjà rendu le fil |
+| ACC-1 | En plein mode Modifier, une fenêtre qui passait le seuil de l'Accueil (une moitié d'écran de PC, un iPhone Plus ou Pro Max tourné) rechargeait l'autre disposition : revenue, la forme quittée avait perdu ses changements, et « ✓ » annonçait « Accueil enregistré » sans les garder | un brouillon par forme d'écran, en mémoire seulement (`ACC.av`, `ACC.brou`) ; « ✓ » enregistre chaque forme changée ; Échap demande confirmation si une forme quelconque a changé | le retrait survit à l'aller-retour, « ✓ » l'enregistre ; Échap demande |
+| ACC-2 | Après « Rétablir la disposition d'origine », le focus partait avec la galerie : Échap ne faisait plus rien, alors que la confirmation le promet | le focus revient sur « ✓ » | Échap ouvre « Annuler les modifications ? » |
+| ACC-3 | L'annonce (lecteur d'écran) disait « Accueil inchangé » après une annulation, et « Modifications annulées » après une bascule sans changement | « changé » se lit avant de remettre, et par forme | les deux annonces sont justes |
+| REV-4 | « À retenir » faisait commencer les vacances scolaires le lundi (l'agenda, le samedi d'avant, selon la règle du client du 23/10) et oubliait l'été | `fwbVacances(A)`, une seule règle pour l'agenda et le widget, l'été compris | Noël le 19/12 au lieu du 21 ; l'été 2027, du 3/07 au 29/08 ; les 81 agendas identiques à l'octet |
+| Plus | Au téléphone, les Effectifs ouverts par « Plus » n'allumaient rien dans le dock, et « Plus » ne les nommait pas (deux tables écrites à la main les oubliaient) ; à la tablette, la Recherche allumait deux entrées | `ongletCache(v)` : « Plus » s'allume et nomme la vue dont l'onglet est caché, lu dans la page après `sideMaj` | Effectifs : « Plus » allumé, « section ouverte : Effectifs » ; tablette : la Recherche seule |
+
+**Trouvés par l'agent de l'interface** (skills impeccable et ui-ux-pro-max),
+corrigés :
+- **UI-1** — Le tableau de bord RH, la base ne répondant pas, disait
+  « Aucune demande » : il dit « Demandes indisponibles : la base ne répond
+  pas », avec « Réessayer ».
+- **UI-2** — Le widget « Messages », dans le même cas, disait « Aucun message
+  pour l'instant » : il dit « Messages indisponibles », le champ est
+  désactivé, et « Réessayer » relance.
+- **UI-3** — La barre « journée de jour » était peinte sur le badge du
+  calendrier.
+- **UI-4** — La carte « moi » du pied du menu PC coupait la date : deux
+  lignes.
+- **UI-5** — Au clavier, la case du jour ne montrait pas le focus.
+- **UI-7** — Des textes utiles sous 11 px (huit sélecteurs) : 11 px, mesurés
+  de 340 à 414 px de large sans débordement.
+- **UI-8** — Le contraste insuffisant dans Équipes.
+- **UI-9** — En partie : la légende de l'usine au téléphone passe à 24 px de
+  haut.
+- **Les dialogues du navigateur.** `window.prompt()` servait encore deux
+  fois (le lien de l'agenda à partager, l'adresse de l'expéditeur des
+  codes). La règle « jamais `confirm()`, `alert()` ni `prompt()` » ne les
+  voyait pas : le motif de `parcours.js` écartait tout appel précédé d'un
+  point. Ils passent par `confirmerPro` (`aCopierALaMain`, l'adresse
+  sélectionnée dans un champ) ; le motif prend désormais `window.`,
+  `self.` et `top.` — éprouvé : la page d'avant, 3 appels ; celle-ci, 0 ;
+  `p.prompt()` d'un objet reste permis.
+
+Restent à faire, et pourquoi :
+- UI-6 (l'ordre du clavier sur l'Accueil) touche l'ordre du document ;
+- UI-10 à UI-15 sont des retouches de forme ;
+- le reste d'UI-9 et d'UI-15 (cibles de 44 px) changerait la densité des
+  widgets.
+
+Ils sont notés pour une passe d'interface.
+
+**Deux contrôles neufs dans `parcours.js`**, chacun éprouvé sur la v1394, où
+il crie :
+- **« Une seule fiche de l'usine »** : un poste touché ouvre la bulle ou le
+  panneau, jamais les deux, jamais aucun. Sur la v1394 : « la fiche du poste
+  s'ouvre deux fois » sur l'iPhone couché (encoche).
+- **« La barre dit où l'on est »** : chaque vue allume une entrée de la
+  barre, son onglet ou « Plus ». Sur la v1394 : « la vue « rh » allume 0
+  entrée(s) » sur les cinq écrans de téléphone.
+
+**La performance**, mesurée par l'agent (processeur ralenti ×4, tours
+entrelacés et appariés). Démarrage du téléphone : premier affichage
+0,19 s ; Accueil rempli 1,71 s, contre 0,89 à 1,47 s le 28/10 (la grille de
+widgets coûte environ 270 ms : relevé et ajustement). Quatre correctifs,
+prouvés sans effet à l'écran (30 configurations, états identiques, photos
+identiques au pixel) :
+- **PERF-1** — Le widget du téléphone ne calcule plus les bandes qu'il
+  cache. `uspBandes` essayait 256 répartitions, pour rien : le JS d'`uspPlacer`
+  passe de 6,2 à 1,4 ms ;
+- **PERF-2** — Les épingles et les traits de l'usine, réécrits à chaque
+  placement, ne relancent plus le relevé de tout l'Accueil : un placement
+  passe de 51 à 12 ms au téléphone ;
+- **PERF-3** — Au redimensionnement, l'usine ne se refait que si sa mise en
+  page change. La clé est commune à `renderUsine` et au redimensionnement
+  (`usineCle`, `usineLargeur`) : le correctif proposé sur la v1391
+  comparait l'ancienne forme de la clé, `photo|false|…`, et ne se serait
+  jamais déclenché sur la page nettoyée ;
+- **PERF-4** — Le calcul de la pastille des Effectifs passe après les
+  rendus différés de l'Accueil ;
+- **PERF-5** — La table des personnes ne se refait plus à chaque journée
+  lue (`db.__parId`, le cache de `relaisAuxHeures`) : −208 ms de calcul de
+  fond.
+
+Ensemble : Accueil rempli 152 ms plus tôt (13 tours sur 15), tâches longues
+−369 ms, minute au repos −15 % au téléphone.
+
+**Le code mort, suite :**
+- le stockage de l'« espace Claude » (`window.claude`, `st.db`), un reste du
+  temps où la page tournait comme artefact. Publiée sur GitHub Pages, elle
+  ne l'a jamais eu, et il aurait envoyé les mois hors de l'appareil ;
+- `filRelire`, remplacé par le compteur.
+- **10 déclarations de police jamais appliquées** : `font:600 13px/1.2
+  inherit` et ses semblables. `inherit` ne se combine à rien dans un
+  raccourci : le navigateur jetait la déclaration entière
+  (`CSS.supports` le dit faux). Elles ont été retirées, et le CSS que le
+  navigateur retient est identique avant et après, caractère pour
+  caractère (573 390 caractères) ; une seule valeur sabotée fait crier la
+  comparaison. Ce qu'elles voulaient n'a donc jamais été visible : une
+  graisse 600 pour la légende de l'usine et quelques boutons, une croix de
+  20 px pour le panneau de l'usine. C'est à reprendre dans une passe
+  d'interface, si on le veut.
+
+**71 commentaires trompeurs** corrigés par l'agent des commentaires (vues,
+onglets, menu, thème, calendrier, service worker). La page sans ses
+commentaires est **identique** avant et après (`squelette.js`, acorn), et le
+contrôle crie sur une copie sabotée d'un caractère, en JS comme en CSS. Le
+docstring de `mettre-a-jour.py` dit « huit portes » au lieu de « sept ».
+
+**La sécurité** (skills security-review et supabase-postgres-best-practices,
+la base comparée au dépôt fonction par fonction : 67 identiques sur 72, les
+4 écarts sont la base plus stricte, la 72e est le lanceur du robot) :
+- **SEC-2, corrigé** — le robot acceptait un classeur de n'importe quel
+  expéditeur : son adresse est publique et le sujet attendu dans le dépôt,
+  et les huit portes jugent un classeur sur sa cohérence, pas sur son
+  origine. Il n'accepte plus que le domaine de l'entreprise, authentifié
+  (le premier « Authentication-Results », posé par Gmail, doit dire
+  `dmarc=pass` pour ce domaine, qui publie `p=REJECT`). Les classeurs et
+  recyclages reçus du 16/10 au 04/11 viennent tous de ce domaine (journal
+  02). Un e-mail écarté part à la
+  corbeille sans être lu, avec un rapport ; le journal public des Actions
+  n'en dit que le nombre. L'épreuve `--epreuve-expediteur` (8 cas, dont six
+  usurpations) tourne dans la vérification de chaque envoi, et elle crie
+  quand on sabote le contrôle (deux sabotages, deux fautes).
+- **SEC-1, connu** — le code personnel de 6 chiffres du compte du client,
+  de rôle RH : c'est sa demande du 31/10, et son prix lui a été dit
+  (journal 02). Un code de 8 chiffres ou plus entre dans les mêmes cases.
+- **SEC-3, à faire dans l'éditeur SQL** — `pg_net` : ses fonctions restent
+  exécutables par `anon` et `authenticated`. Aucune n'est exposée par
+  l'API (PostgREST ne sert pas le schéma `net`) : c'est une défense en
+  profondeur.
+- **SEC-4, par conception** — une seule clé du robot garde l'export de la
+  base et l'écriture de l'horaire. Elle n'est ni dans le dépôt ni dans son
+  historique ; séparer la clé d'export de celle des notifications la
+  rendrait moins précieuse.
+- **Sain** : `esc()` échappe les cinq caractères, et chacune des 218
+  écritures de HTML (`innerHTML`, `insertAdjacentHTML`, `outerHTML`) qui
+  reçoit un texte de la base passe par lui ; aucun secret
+  dans l'arbre ni dans les 2 646 commits ; le service worker ne met rien de
+  la base en cache.
+
+**Trois places vides commentées, admises** (`manques-admis.txt`). Le
+classeur du 04/11 exige 3 opérateurs aux chaudières pour la Vyncke
+(« Présence de 3 opérateurs obligatoire… », règle du 29/10) et n'en écrit
+que deux :
+- le 05/11 matin, JBS remplace ADK, et JBA est en VA, « Equipe complète » ;
+- le 05/11 nuit, LDY part en meunerie remplacer CDE ;
+- le 06/11 matin, ATR remplace KDN.
+
+Les remplaçants écrits sont placés. L'appli montre la troisième place vide
+et propose quelqu'un. Le contrôle échouait déjà sur la v1394 : ces
+journées viennent du classeur installé par le robot.

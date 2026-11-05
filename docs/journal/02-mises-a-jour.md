@@ -2244,3 +2244,49 @@ Un contrôle qui ne tourne pas est dit aussi : « contrôle des commentaires en
 `manques-admis.txt` privée de la ligne du 14/11 donne 1 place, le 14/11 au
 matin en meunerie, avec ses commentaires. Le fichier a ensuite été remis à
 l'identique.
+
+### Le robot n'accepte qu'un expéditeur authentifié (05/11/2026, `nfdm-v1395`)
+
+L'audit de sécurité du check complet (journal 08) l'a trouvé : le robot lisait
+le dernier e-mail au sujet « BIOWANZE horaire » (ou « recyclage »), de
+n'importe qui, sauf de lui-même. Son adresse est publique (l'écran de
+connexion la donne, pour les « Expéditeurs approuvés »), le sujet est dans
+le dépôt, et les huit portes jugent un classeur sur sa cohérence, jamais
+sur son origine : un classeur cohérent venu d'ailleurs se serait installé
+et publié.
+
+**Ce que fait `horaire-auto.py` désormais** (`expediteur_admis`) :
+- l'adresse « From » doit être du domaine de l'entreprise (`HORAIRE_DOMAINE`,
+  le domaine de l'entreprise par défaut) ;
+- le **premier** « Authentication-Results », celui que Gmail pose en tête à
+  l'arrivée, au-dessus de tout ce qu'un expéditeur aurait écrit lui-même,
+  doit venir de `mx.google.com` et dire `dmarc=pass` pour ce domaine ;
+- le domaine publie une politique DMARC `p=REJECT` : un e-mail qui
+  l'usurpe est refusé par Gmail avant même d'arriver.
+
+**Relu avant d'écrire** :
+- les 12 envois « BIOWANZE horaire » et les 9 « BIOWANZE recyclage » des
+  40 derniers jours viennent tous de l'adresse professionnelle du client ;
+- les en-têtes d'un e-mail de cette adresse, le seul assez petit pour être
+  relu en entier (le 01/11), disent `dkim=pass`, `spf=pass` et
+  `dmarc=pass (p=REJECT)`. Ceux des 21 envois n'ont pas été relus un par
+  un ; mais un e-mail de ce domaine qui ne passerait pas DMARC n'arrive pas
+  dans la boîte, puisque Gmail refuse ceux que `p=REJECT` désigne.
+
+S'il en manquait un quand même, le rapport « e-mail(s) écarté(s) » le
+dirait au premier passage, et l'e-mail est récupérable dans la corbeille.
+
+**Un e-mail écarté** part à la corbeille sans être lu, et un rapport
+« BIOWANZE · N e-mail(s) écarté(s) » en donne l'adresse. Le journal des
+Actions, public, n'en dit que le nombre. Le plus récent d'un expéditeur
+admis reste celui qui est lu : un e-mail usurpé arrivé après lui ne le
+masque pas.
+
+**L'épreuve** `python3 tools/horaire-auto.py --epreuve-expediteur` passe
+8 cas : l'authentique, et six usurpations (un autre domaine, un domaine
+qui prolonge le vrai, `dmarc=fail`, un `header.from` voisin, un faux
+« pass » écrit sous le vrai, un serveur autre que Gmail), plus l'e-mail
+sans résultat d'authentification. Elle tourne à chaque envoi
+(`verification.yml`), et elle crie quand on sabote le contrôle : sans la
+vérification du serveur, le cas 6 passe ; sans la borne du domaine, le
+cas 4.

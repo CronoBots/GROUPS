@@ -155,6 +155,7 @@ const MORCEAUX=[
   ["function ecritDesDeuxCotes(","\n}"],
   ["function remplPartiel(","\n}"],
   ["function adjointFaitCM(","\n}"],
+  ["function nommesSuivants(","\n}"],
   ["function nommesParAbsents(","\n}"],
   ["function peutPrendreRemplace(","\n}"],
   ["function remplacesActifs(","\n}"],
@@ -283,6 +284,7 @@ const MORCEAUX=[
   /* l'agenda des congés scolaires de la Fédération Wallonie-Bruxelles */
   ["var FWB_ARRETES=","\n};"],
   ["function fwbAn(","\n}"],
+  ["function fwbVacances(","\n}"],
   ["function icsCongesScolaires(","\n}"]
 ];
 /* compteursCalcules() interroge st.params : l'application le remplit, l'outil

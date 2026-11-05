@@ -43,6 +43,7 @@ Secrets : GMAIL_USER, GMAIL_APP_PASSWORD (mot de passe d'application Google).
 """
 import datetime
 import email
+import email.utils
 import imaplib
 import json
 import os
@@ -99,6 +100,75 @@ def _option(nom):
     return None
 
 
+# L'EXPÉDITEUR DU CLASSEUR (audit de sécurité du 05/11/2026, SEC-2). L'adresse
+# du robot est publique (index.html, EXPEDITEUR_CODE) et le sujet attendu est
+# dans le dépôt : n'importe qui pouvait lui soumettre un classeur, que les huit
+# portes jugent sur sa cohérence, jamais sur son origine. Un classeur ne vient
+# donc que du domaine de l'entreprise, AUTHENTIFIÉ. Ce domaine publie une
+# politique DMARC « p=REJECT » : un e-mail qui l'usurpe est refusé par Gmail
+# lui-même. Tous les classeurs et recyclages reçus du 16/10 au 04/11/2026
+# viennent de ce domaine (relu le 05/11/2026 ; journal 02).
+DOMAINE_ADMIS = (os.environ.get("HORAIRE_DOMAINE") or "biowanze.be").strip().lower()
+
+
+def expediteur(m):
+    return email.utils.parseaddr(str(m.get("From", "")))[1].lower()
+
+
+def expediteur_admis(m, domaine=None):
+    """L'adresse « From » est du domaine, et le PREMIER « Authentication-
+    Results » — celui que Gmail pose en tête à l'arrivée, au-dessus de tout ce
+    que l'expéditeur aurait écrit lui-même — est de mx.google.com et dit
+    « dmarc=pass » pour ce domaine (et non pour « domaine.autre.com »)."""
+    domaine = (domaine or DOMAINE_ADMIS).lower()
+    if not expediteur(m).endswith("@" + domaine):
+        return False
+    ar = m.get_all("Authentication-Results") or []
+    if not ar:
+        return False
+    tete = re.sub(r"\s+", " ", str(ar[0])).strip().lower()
+    if not tete.startswith("mx.google.com"):
+        return False
+    return re.search(r"(?:^|[;\s])dmarc=pass\b[^;]*\bheader\.from=" + re.escape(domaine) + r"(?![\w.-])",
+                     tete) is not None
+
+
+def ecarter(imap, user, mdp, sujet, ecartes):
+    """Les e-mails d'un expéditeur non admis : à la corbeille sans être lus,
+    et un rapport. Le journal des Actions, public, n'en dit que le nombre."""
+    if not ecartes:
+        return
+    corbeille(imap, [u for u, _a in ecartes])
+    etat("%d e-mail(s) « %s » écarté(s) : expéditeur non admis." % (len(ecartes), sujet))
+    envoyer(user, mdp, "BIOWANZE · %d e-mail(s) « %s » écarté(s)" % (len(ecartes), sujet),
+            "Ces e-mails ne venaient pas d'une adresse @%s authentifiée (DMARC) :"
+            " mis à la corbeille sans être lus, rien installé.\n\n%s\n\nSi l'un"
+            " d'eux est le vôtre, renvoyez le classeur depuis votre adresse"
+            " professionnelle." % (DOMAINE_ADMIS, "\n".join("- " + (a or "(sans adresse)") for _u, a in ecartes)))
+
+
+def _epreuve_expediteur():
+    """--epreuve-expediteur : l'authentique passe, chaque usurpation échoue."""
+    def msg(frm, *ar):
+        t = "".join("Authentication-Results: %s\r\n" % x for x in ar)
+        return email.message_from_string(t + "From: %s\r\nSubject: BIOWANZE horaire\r\n\r\nx" % frm)
+    bon = ("mx.google.com; dkim=pass header.i=@biowanze.be header.s=selector2; spf=pass"
+           " smtp.mailfrom=x@biowanze.be; dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=biowanze.be")
+    cas = [
+        (True, msg('"X" <x@biowanze.be>', bon, "mx.microsoft.com 1; dkim=none; dmarc=none header.from=biowanze.be")),
+        (False, msg("x@exemple.com", bon)),                                  # un autre domaine
+        (False, msg("x@biowanze.be.exemple.com", bon)),                      # un domaine qui le prolonge
+        (False, msg("x@biowanze.be", bon.replace("dmarc=pass", "dmarc=fail"))),
+        (False, msg("x@biowanze.be", "mx.google.com; dmarc=pass header.from=biowanze.be.exemple.com")),
+        (False, msg("x@biowanze.be", "mx.google.com; spf=softfail; dmarc=fail header.from=biowanze.be", bon)),  # le vrai en tête dit « fail »
+        (False, msg("x@biowanze.be", "serveur.exemple.com; dmarc=pass header.from=biowanze.be")),
+        (False, msg("x@biowanze.be")),                                       # aucun résultat d'authentification
+    ]
+    fautes = [i for i, (attendu, m) in enumerate(cas) if expediteur_admis(m, "biowanze.be") != attendu]
+    print("expéditeur : %d cas, %d faute(s)%s" % (len(cas), len(fautes), (" (cas %s)" % fautes) if fautes else ""))
+    return 1 if fautes else 0
+
+
 def lire_gmail(imap, sujet, dest, moi=None):
     """Le dernier e-mail du sujet donné : sa pièce jointe écrite dans
     `dest`. Rend les uids de tous ces e-mails ([] s'il n'y en a pas). La pièce jointe se reconnaît à son contenu (une archive ZIP), pas à
@@ -116,9 +186,18 @@ def lire_gmail(imap, sujet, dest, moi=None):
     typ, data = imap.uid("search", None, crit)
     uids = sorted((data[0] or b"").split(), key=int)
     if not uids:
-        return []
-    typ, msg = imap.uid("fetch", uids[-1], "(RFC822)")
-    m = email.message_from_bytes(msg[0][1])
+        return [], []
+    # le plus récent d'un expéditeur admis ; les plus récents que lui, écartés
+    ecartes = []
+    for u in reversed(uids):
+        typ, msg = imap.uid("fetch", u, "(RFC822)")
+        m = email.message_from_bytes(msg[0][1])
+        if expediteur_admis(m):
+            break
+        ecartes.append((u, expediteur(m)))
+    else:
+        return [], ecartes
+    uids = [u for u in uids if u not in [e[0] for e in ecartes]]
     meilleure = None
     for part in m.walk():
         if part.get_content_maintype() == "multipart":
@@ -127,10 +206,10 @@ def lire_gmail(imap, sujet, dest, moi=None):
         if contenu[:2] == b"PK" and (meilleure is None or len(contenu) > len(meilleure)):
             meilleure = contenu
     if meilleure is None:
-        return uids                # un e-mail sans classeur : à la corbeille quand même
+        return uids, ecartes       # un e-mail sans classeur : à la corbeille quand même
     with open(dest, "wb") as f:
         f.write(meilleure)
-    return uids
+    return uids, ecartes
 
 
 def lire_gmail_par_annee(imap, sujet, dossier, moi=None):
@@ -138,14 +217,19 @@ def lire_gmail_par_annee(imap, sujet, dossier, moi=None):
     jointe de chacun est lue, et l'on garde la PLUS RÉCENTE DE CHAQUE ANNÉE.
     Avant le 20/10/2026, seul le dernier e-mail était lu : un classeur 2027
     arrivé après un 2026 dans le même quart d'heure l'aurait fait jeter.
-    Rend (uids, {année: chemin}, nombre de pièces dont l'année ne se lit pas)."""
+    Rend (uids, {année: chemin}, nombre de pièces dont l'année ne se lit pas,
+    [(uid, adresse)] des e-mails d'un expéditeur non admis, que uids ne
+    compte pas)."""
     crit = '(SUBJECT "%s")' % sujet if not moi else '(SUBJECT "%s" NOT FROM "%s")' % (sujet, moi)
     typ, data = imap.uid("search", None, crit)
     uids = sorted((data[0] or b"").split(), key=int)
-    par_an, illisibles = {}, 0
+    par_an, illisibles, ecartes = {}, 0, []
     for u in reversed(uids):
         typ, msg = imap.uid("fetch", u, "(RFC822)")
         m = email.message_from_bytes(msg[0][1])
+        if not expediteur_admis(m):
+            ecartes.append((u, expediteur(m)))
+            continue
         meilleure = None
         for part in m.walk():
             if part.get_content_maintype() == "multipart":
@@ -163,7 +247,7 @@ def lire_gmail_par_annee(imap, sujet, dossier, moi=None):
             illisibles += 1
         elif an not in par_an:
             par_an[an] = chemin
-    return uids, par_an, illisibles
+    return [u for u in uids if u not in [e[0] for e in ecartes]], par_an, illisibles, ecartes
 
 
 def corbeille(imap, uids):
@@ -714,6 +798,8 @@ def identites_base(source, annee):
 
 
 def main():
+    if "--epreuve-expediteur" in sys.argv:
+        return _epreuve_expediteur()
     user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
     avant_h, avant_r = horaires_installes(), _lire(RECYC)
     pousser = "--sans-pousser" not in sys.argv
@@ -742,7 +828,8 @@ def main():
             etat("%d rapport(s) « rien de changé » remplacé(s) mis à la corbeille." % n)
         # L'horaire : la plus récente pièce jointe de CHAQUE année (2026 et
         # 2027 se copient du serveur côte à côte depuis le 20/10/2026).
-        uids, par_an, illisibles = lire_gmail_par_annee(imap, SUJET, tmp, user)
+        uids, par_an, illisibles, ecartes = lire_gmail_par_annee(imap, SUJET, tmp, user)
+        ecarter(imap, user, mdp, SUJET, ecartes)
         if uids:
             etat("%d e-mail(s) « %s » ; le plus récent de chaque année est lu (%s)."
                  % (len(uids), SUJET, ", ".join(str(a) for a in sorted(par_an)) or "aucune"))
@@ -762,7 +849,8 @@ def main():
                 lots.append(("horaire", par_an[an], uids if i == 0 else []))
         for genre, sujet, nom in (("recyclage", SUJET_RECYC, "Suivi_recyclages.xlsx"),):
             source = os.path.join(tmp, nom)
-            uids = lire_gmail(imap, sujet, source, user)
+            uids, ecartes = lire_gmail(imap, sujet, source, user)
+            ecarter(imap, user, mdp, sujet, ecartes)
             if not uids:
                 continue
             etat("%d e-mail(s) « %s » ; le plus récent est lu." % (len(uids), sujet))

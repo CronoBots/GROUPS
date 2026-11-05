@@ -878,6 +878,25 @@ journal. Le voici MOT POUR MOT :
 > ici que les règles, les commandes et la structure. **Ne jamais le laisser
 > regrossir** : au-delà de 25 Ko, déplacer dans le journal.
 
+Le 05/11/2026, le check complet a corrigé trois affirmations fausses du
+fichier (les barèmes, le lanceur du robot, `page.evaluate`) : il repassait
+25 Ko (25 708 octets). Ces phrases de la règle « Aucune demande
+d'autorisation » y sont remplacées par un renvoi ici, MOT POUR MOT :
+
+> `.claude/settings.json` autorise donc
+> le terminal, les fichiers, le web, les artefacts et les connecteurs
+> (Notion, GitHub, Supabase, sessions, Docs). Une session cloud ne lit ce
+> fichier que si elle n'a qu'un seul dépôt ; le reste se règle par le mode
+> « Auto » du menu à côté de la zone de saisie, que seul le client peut
+> choisir.
+
+> Ni fenêtre d'autorisation (la
+> liste de `.claude/settings.json` couvre aussi Gmail et le connecteur des
+> sessions), ni question de choix
+
+> Les fenêtres d'autorisation de
+> la session ne s'effacent que par le mode « Auto » choisi par le client.
+
 ### Les gens en formation dans leur équipe, partout (04/11/2026, `nfdm-v1365`)
 
 Le client : « les opérateurs en formation n'ont pas leur équipe que l'on
