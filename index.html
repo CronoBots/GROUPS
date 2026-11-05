@@ -38155,9 +38155,9 @@ function accAligner(v,mode){
     var W=document.documentElement.clientWidth||v.clientWidth+32;
     if(innerWidth>innerHeight&&innerHeight>0) W=Math.min(W,innerHeight);
     var k=W/393, vw=v.clientWidth,
-        C=90.7*k, R=98.7*k, pad=(vw-4*C+g)/2;
+        nc=ACC.cols||4, C=90.7*k, R=98.7*k, pad=(vw-nc*C+g)/2;
     s=Math.min(64,64*k);
-    if(pad<0){ pad=0; C=(vw-3*g)/4+g; R=C*98.7/90.7; }
+    if(pad<0){ pad=0; C=(vw-(nc-1)*g)/nc+g; R=C*98.7/90.7; }
     var o=(R-C)/2;
     v.style.paddingLeft=v.style.paddingRight=pad.toFixed(2)+"px";
     if(rac) rac.style.setProperty("--ip-taille",s.toFixed(2)+"px");
@@ -38187,6 +38187,19 @@ function accAligner(v,mode){
   /* rend vrai si la grille a changé (la rangée, les marges, l'icône) */
   return [ACC.p,v.style.paddingLeft,rac?rac.style.getPropertyValue("--ip-taille"):""].join("|")!==avant;
 }
+/* Couché, la grille inversée, comme sur l'iPhone (le client, le 05/11/2026 :
+   « couché, la grille de placement des widgets doit être inversée aussi »).
+   Debout, quatre colonnes et des rangées à la suite ; couché, l'iPhone
+   échange les deux : plus de colonnes, moins de rangées. Ici, au même pas
+   qu'en portrait (accAligner : l'échelle prise sur le petit côté de
+   l'écran), autant de colonnes que la largeur en tient, en nombre pair
+   (les widgets en couvrent deux ou quatre) : six sur un iPhone couché de
+   852 × 393, au lieu de quatre centrées entre deux larges marges. */
+function accColsTel(w){
+  if(!(innerWidth>innerHeight&&innerHeight>0)) return 4;
+  var W=Math.min(document.documentElement.clientWidth||innerWidth,innerHeight), C=90.7*W/393, n=Math.floor((w+ACC.gap)/C);
+  return Math.max(4,n-n%2);
+}
 function accForme(){
   var v=document.getElementById("v-horaire"); if(!v) return;
   var w=v.clientWidth; if(!w) return;
@@ -38201,7 +38214,7 @@ function accForme(){
      bande vide courait à droite sur toute la hauteur (photos à 1440 et
      1600 px). 8 colonnes jusqu'à 1560 px de fenêtre, 12 jusqu'à 1980,
      16 au-delà. */
-  var cols=mode==="large"?3*Math.max(8,4*Math.floor((w+ACC.gap)/420)):4, colsNeuves=cols!==ACC.cols;
+  var cols=mode==="large"?3*Math.max(8,4*Math.floor((w+ACC.gap)/420)):accColsTel(w), colsNeuves=cols!==ACC.cols;
   ACC.cols=cols;
   var neuf=accAligner(v,mode)||colsNeuves;
   if(mode===ACC.mode){ if(neuf) accStyle(); return; }

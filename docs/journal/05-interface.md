@@ -13772,3 +13772,25 @@ texte de « Mon cycle » (3 px). Avant : jusqu'à 136 éléments différents
 widget, élément par élément, à 2 px près. Éprouvé sur une copie qui ôte de
 nouveau `data-w` : « la copie soulevée de « poste » n'a pas sa forme (24
 élément(s) diffèrent) ». Le parcours : 141 essais, 0 faute.
+
+### Couché, la grille inversée, comme sur l'iPhone (05/11/2026, `nfdm-v1404`)
+
+Le client : « Couché, la grille de placement des widgets doit être inversée
+aussi. » Debout, l'iPhone a quatre colonnes et des rangées à la suite ;
+couché, il échange les deux : plus de colonnes, moins de rangées. Depuis la
+v1402, l'Accueil couché gardait les quatre colonnes du portrait, centrées
+entre deux marges de 150 px.
+
+Désormais (`accColsTel`), le téléphone couché prend, au même pas qu'en
+portrait (l'échelle sur le petit côté de l'écran), autant de colonnes que
+la largeur en tient, en nombre pair, puisque les widgets en couvrent deux ou
+quatre : six à 852 × 393 comme à 844 × 390. Les widgets et les applications
+s'y rangent côte à côte (le profil et « Heure et poste » à gauche, les
+applications en deux colonnes à droite), au lieu de s'empiler. Debout, rien
+ne change : quatre colonnes. La disposition enregistrée reste la même
+(`ui/accueil/tel`) : c'est l'ordre qui se répartit sur plus de colonnes.
+
+**Contrôle permanent** (`parcours.js`, téléphone couché) : l'Accueil du
+téléphone a au moins six colonnes. Éprouvé sur une copie restée à quatre
+colonnes : « Accueil couché : 4 colonnes, la grille n'est pas inversée ».
+Le parcours : 143 essais, 0 faute.

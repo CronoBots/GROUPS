@@ -417,6 +417,12 @@ function constater(){
         if(ma-Math.min(...d.e)>1) lignes.push("Dock : écarts inégaux entre les icônes et aux bouts ("+d.e.map(x=>x.toFixed(1)).join(", ")+")");
         if(Math.abs(mac-Math.min(...d.cotes))>1) lignes.push("Dock : les côtés diffèrent ("+d.cotes.map(x=>x.toFixed(1)).join(", ")+")");
         if(!d.couche&&Math.abs(Math.min(...d.cotes)-Math.min(...d.e))>1) lignes.push("Dock : debout, l'écart du haut et du bas n'est pas celui des côtés"); } }
+    /* COUCHÉ, LA GRILLE INVERSÉE (le client, le 05/11/2026) : l'Accueil du
+       téléphone couché a plus de colonnes que debout (4), au même pas */
+    if(role==="hierarchie"&&ecran.mobile&&ecran.w>ecran.h){ n++;
+      await aller(page,"tab-horaire");
+      const g=await page.evaluate(()=>{ const v=document.getElementById("v-horaire"); return {tel:v.classList.contains("acc-tel"), cols:parseInt(getComputedStyle(v).getPropertyValue("--acc-cols"),10)}; });
+      if(g.tel&&!(g.cols>=6)) lignes.push("Accueil couché : "+g.cols+" colonnes, la grille n'est pas inversée"); }
     lignes.push(...page.fautes);
     await page.ctx.close();
     res[i]={avant:avant, tag:ecran.nom+" · "+(role||"sans compte"), lignes:lignes, n:n}; }
