@@ -13621,3 +13621,18 @@ caché. L'application était juste ; le test est corrigé.
 Éprouvé sur une copie où l'Accueil large retrouve ses pages : 2 fautes
 (« l'Accueil large en a »), au PC et en couché. Le parcours : 130 essais,
 0 faute.
+
+### Le poste des chaudières sans lignes vides en tête de case (05/11/2026, `nfdm-v1399`)
+
+Le client, capture du Planning du jour à l'appui : « Pourquoi ces décalages
+de ligne vide aux chaudières ? » Sous la ligne des Chaudières courait une
+rangée de cadres (une place à pourvoir de 14 h à 18 h, SPS 18-06). Depuis la
+v1216, les cases d'une ligne suivie de cadres étaient collées au BAS, pour
+toucher les cadres : la case du matin avait trois rangées de badges, celle
+de l'après-midi une seule (ADS, GJR), posée deux rangées plus bas ; la nuit,
+à mi-hauteur. Aucune décision du client ne demandait ce collage. Les cases
+sont désormais alignées en HAUT : la première rangée de chaque pause est à
+la même hauteur, comme dans les autres postes, et le vide passe au-dessus des
+cadres. La rangée des cadres au-dessus de la ligne du contremaître
+(`eqdessus`) ne change pas. Photographié avant et après sur le jeudi
+05/11, au téléphone.
