@@ -13602,3 +13602,22 @@ téléphone (« ne ramène pas à la page principale ») ; `accPagePoser` vidé 
 donne 5. Le parcours entier : 130 essais, 0 faute. (Le premier passage
 avait 2 fautes, en couché : le doigt simulé partait du menu de gauche, que
 le geste exclut à raison ; il part désormais du bord de l'Accueil.)
+
+### Les pages au téléphone seulement (05/11/2026, `nfdm-v1398`)
+
+Le client, le même jour : « Sur PC ce n'est pas nécessaire je pense, c'est
+moins intuitif. » L'Accueil large (dès 700 px d'Accueil : le PC, la
+tablette, le grand téléphone couché) n'a plus qu'une page : ni points, ni
+geste, ni passage au bord, ni Maj et flèche vers une autre page
+(`accPagesOn`). Ce qu'une disposition large aurait gardé d'une page est
+ignoré : tout y revient sur la page unique. Le balayage y change de mois
+partout, comme avant la v1397. Le téléphone garde ses trois pages, et le
+mois n'y change toujours qu'en balayant le Calendrier.
+
+Le parcours le contrôle : dans l'Accueil large, Maj et → ne fait apparaître
+ni point ni widget seul. Le premier passage avait 2 fautes, au PC et en
+couché : mon test attendait un point « −1 » là où la liste en compte un,
+caché. L'application était juste ; le test est corrigé.
+Éprouvé sur une copie où l'Accueil large retrouve ses pages : 2 fautes
+(« l'Accueil large en a »), au PC et en couché. Le parcours : 130 essais,
+0 faute.

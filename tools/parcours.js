@@ -322,8 +322,13 @@ function constater(){
       else {
         await page.focus('.acc-b[data-acc-pour="'+k+'"] .acc-bouger'); await page.keyboard.press("Shift+ArrowRight"); await page.waitForTimeout(400);
         const e1=await etat();
-        if(e1.pts!==3||e1.cur!==2||!e1.seul) lignes.push("Pages : « "+k+" » passé à droite, mais "+e1.pts+" point(s), page "+e1.cur+", "+e1.vis+" élément(s) montré(s)");
-        if(ecran.mobile){
+        /* l'Accueil large n'a pas de pages (le client, le 05/11/2026) :
+           ni points, ni widget parti */
+        if(await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-large"))){
+          if(e1.pts||e1.seul) lignes.push("Pages : l'Accueil large en a ("+e1.pts+" point(s), « "+k+" » seul : "+e1.seul+")");
+        }
+        else if(e1.pts!==3||e1.cur!==2||!e1.seul) lignes.push("Pages : « "+k+" » passé à droite, mais "+e1.pts+" point(s), page "+e1.cur+", "+e1.vis+" élément(s) montré(s)");
+        if(ecran.mobile&&await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-tel"))){
           /* le doigt part du bord gauche de l'Accueil (couché, un menu est à sa gauche) */
           const c=await page.context().newCDPSession(page), o=await page.evaluate(()=>{ const r=document.getElementById("v-horaire").getBoundingClientRect(); return {x:Math.round(Math.max(0,r.left)+20), w:r.width, y:Math.round(innerHeight*0.6)}; }), y=o.y, pas=Math.round(o.w*0.6/8);
           await c.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:o.x,y}]});
@@ -335,9 +340,11 @@ function constater(){
           if(!(await etat()).seul) lignes.push("Pages : le point de droite n'ouvre pas la page de droite");
         }
         const e3=await page.evaluate(()=>!!document.querySelector(".acc-b .acc-bouger"));
+        /* Maj et ← : la page principale au téléphone ; dans l'Accueil large,
+           la place d'avant (Maj et une flèche y déplacent comme la flèche) */
         await page.evaluate(k=>{ const b=document.querySelector('.acc-b[data-acc-pour="'+k+'"] .acc-bouger'); if(b) b.focus(); },k);
         await page.keyboard.press("Shift+ArrowLeft"); await page.waitForTimeout(400);
-        const e4=await etat(); if(e4.cur!==1||e4.seul) lignes.push("Pages : Maj et ← ne ramène pas « "+k+" » sur la page principale");
+        const e4=await etat(); if(e4.cur!==(e1.pts?1:0)||e4.seul) lignes.push("Pages : Maj et ← ne ramène pas « "+k+" » sur la page principale");
         await page.keyboard.press("Escape"); await page.waitForTimeout(400);
         const r=await page.evaluate(()=>({edit:document.getElementById("v-horaire").classList.contains("acc-edit"), cfm:!!document.querySelector(".cfm-ov")}));
         if(r.cfm||r.edit) lignes.push("Pages : revenu à l'identique, Échap "+(r.cfm?"demande une confirmation":"ne ferme pas le mode Modifier"));

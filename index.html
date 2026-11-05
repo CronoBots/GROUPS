@@ -34002,9 +34002,10 @@ function jourNavActive(on){
     /* sauf le champ invisible posé sur l'étiquette du mois (#moisPick) : un
        appui l'ouvre toujours, seul un glissement franc change de mois */
     if(t.closest && t.closest("input,select,textarea,[contenteditable]") && !/^(moisPick|semPick|anPick)$/.test(t.id)){ x0=null; return; }
-    /* sur l'Accueil, le balayage change de page (accInit, 05/11/2026) ;
-       le mois ne change qu'en balayant le Calendrier lui-même */
-    if(id==="v-horaire" && c.classList.contains("acc-perso") && !(t.closest && t.closest("#calCard"))){ x0=null; return; }
+    /* sur l'Accueil du téléphone, le balayage change de page (accInit,
+       05/11/2026) ; le mois n'y change qu'en balayant le Calendrier
+       lui-même. L'Accueil large n'a pas de pages : le mois, partout */
+    if(id==="v-horaire" && c.classList.contains("acc-tel") && !(t.closest && t.closest("#calCard"))){ x0=null; return; }
     x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now();
   },{passive:true});
   c.addEventListener("touchend",function(e){
@@ -37868,8 +37869,15 @@ function accAnnoncer(t){ var a=document.getElementById("accAnnonce"); if(a){ a.t
    le bord de l'écran (accTirer), au clavier par Maj et une flèche, ou par
    « + », qui pose sur la page montrée. */
 var ACC_PAGE_NOM={"-1":"Page de gauche", "0":"Page principale", "1":"Page de droite"};
-function accPageDe(k){ var p=ACC.pg&&ACC.pg[k]; return p===-1||p===1?p:0; }
-function accPagePoser(k,p){ if(p===-1||p===1) ACC.pg[k]=p; else delete ACC.pg[k]; }
+/* AU TÉLÉPHONE SEULEMENT (le client, le 05/11/2026, le même jour : « sur
+   PC ce n'est pas nécessaire je pense, c'est moins intuitif ») : l'Accueil
+   large (dès 700 px : le PC, la tablette, le téléphone couché) n'a qu'une
+   page, sans points ni geste ; le balayage y change de mois partout,
+   comme avant la v1397. Ce qu'une disposition large aurait gardé d'une
+   page est ignoré */
+function accPagesOn(){ return ACC.mode==="tel"; }
+function accPageDe(k){ if(!accPagesOn()) return 0; var p=ACC.pg&&ACC.pg[k]; return p===-1||p===1?p:0; }
+function accPagePoser(k,p){ if(accPagesOn()&&(p===-1||p===1)) ACC.pg[k]=p; else delete ACC.pg[k]; }
 /* ce qui se montrerait sur une page (sans compter le masquage des pages) */
 function accVisible(k){ var d=accDef(k); if(!d||ACC.m[k]||!accDispo(d)) return false;
   if(d.pc&&!(window.matchMedia&&matchMedia("(min-width:1100px)").matches)) return false;
@@ -37878,7 +37886,7 @@ function accVisible(k){ var d=accDef(k); if(!d||ACC.m[k]||!accDispo(d)) return f
 function accPageVide(p){ return !ACC.o.some(function(k){ return accPageDe(k)===p&&accVisible(k); }); }
 /* les pages qu'on peut voir : la principale, celles qui ont quelque chose,
    et toutes en mode Modifier */
-function accPagesVues(){ return [-1,0,1].filter(function(p){ return p===0||ACC.edit||!accPageVide(p); }); }
+function accPagesVues(){ if(!accPagesOn()) return [0]; return [-1,0,1].filter(function(p){ return p===0||ACC.edit||!accPageVide(p); }); }
 function accPagesMaj(){
   if(accPagesVues().indexOf(ACC.page)<0){ ACC.page=0; if(ACC.style) return accStyle(); }
   var pv=document.getElementById("accPageVide"); if(pv) pv.hidden=!(ACC.edit&&accPageVide(ACC.page));
@@ -38151,7 +38159,7 @@ function accPos(el){ return accDans(el,document.getElementById("v-horaire")); }
 function accBoiteHTML(k){
   var d=accDef(k), nom=esc(d.nom);
   return '<button type="button" class="acc-moins" data-acc-masquer="'+k+'" aria-label="Retirer « '+nom+' » de l’Accueil">'+ACC_MOINS+'</button>'
-    +'<button type="button" class="acc-bouger" data-acc-tirer="'+k+'" aria-label="Déplacer « '+nom+' » : flèches du clavier ; Maj et flèche gauche ou droite : la page voisine">Déplacer · '+nom+'</button>'
+    +'<button type="button" class="acc-bouger" data-acc-tirer="'+k+'" aria-label="Déplacer « '+nom+' » : flèches du clavier'+(accPagesOn()?' ; Maj et flèche gauche ou droite : la page voisine':'')+'">Déplacer · '+nom+'</button>'
     +(accSuite(k).length>1?'<button type="button" class="acc-etirer" data-acc-etirer="'+k+'" aria-label="Taille de « '+nom+' » : '+accTailleTexte(k)+'. Flèches : le format précédent ou suivant" title="Tirer pour changer la taille"><svg viewBox="0 0 56 56" aria-hidden="true"><path d="'+accArc(22)+'"/></svg></button>':'');
 }
 function accOutils(tout){
@@ -38546,7 +38554,7 @@ function accTirer(ev,k,el,attendre){
          moins de 28 px du bord gauche ou droit de l'Accueil (ou de l'écran),
          et l'élément passe sur la page voisine, qui s'ouvre */
       var vr=document.getElementById("v-horaire").getBoundingClientRect(), bg=Math.max(0,vr.left)+28, bd=Math.min(innerWidth,vr.right)-28,
-          sens=d.x<bg?-1:d.x>bd?1:0, np=ACC.page+sens;
+          sens=!accPagesOn()?0:d.x<bg?-1:d.x>bd?1:0, np=ACC.page+sens;
       if(!sens||np<-1||np>1){ d.bord=0; }
       else if(d.bord!==sens){ d.bord=sens; d.bordT=accMaint(); }
       else if(accMaint()-d.bordT>650&&!ACC.glisse){
@@ -38727,7 +38735,7 @@ function accInit(){
       accAnnoncer("« "+accDef(kk).nom+" » : "+accTailleTexte(kk)+".");
       return;
     }
-    if(h&&e.shiftKey&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){
+    if(h&&e.shiftKey&&accPagesOn()&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){
       e.preventDefault();
       var kp=h.getAttribute("data-acc-tirer"), np=accPageDe(kp)+(e.key==="ArrowLeft"?-1:1);
       if(np<-1||np>1){ accAnnoncer("Pas de page plus à "+(np<0?"gauche":"droite")+"."); return; }
@@ -38801,7 +38809,7 @@ function accInit(){
   var sw=null;
   document.addEventListener("touchstart",function(e){
     sw=null;
-    if(e.touches.length!==1||ACC.drag||ACC.etire||ACC.glisse||!ici(e.target)) return;
+    if(e.touches.length!==1||!accPagesOn()||ACC.drag||ACC.etire||ACC.glisse||!ici(e.target)) return;
     var t=e.target; if(t.closest("input,select,textarea,[contenteditable],#calCard,#jourCard,.acc-etirer")||cote(t)) return;
     sw={x:e.touches[0].clientX, y:e.touches[0].clientY, t:accMaint(), etat:"", L:null, dx:0};
   },{passive:true});
