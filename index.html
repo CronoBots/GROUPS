@@ -8728,6 +8728,11 @@ html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="2"] .pf-avenir{displ
   html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-proch-com{display:none}
   html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-mt-d{display:none}
 }
+/* (05/11/2026, la vue par défaut à 320 px : le moyen y fait 280 px) un
+   prochain poste lointain (« Lundi 16 novembre », plus long que « Demain
+   matin ») passait sur deux lignes, et la date sous l'heure poussait le
+   carré de la pause hors du cadre : sous 300 px, pas de date sous l'heure */
+@container pposte (max-width:299px){ html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] :is(.pf-mt-d,.pf-proch-at){display:none} }
 /* Météo : 2 lignes, les jours */
 .pm-jours{display:none}
 html body #v-horaire.acc-perso [data-w="meteo"][data-acc-h="2"] .pm-jours{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:0; padding:4px 0 0; list-style:none; border-top:1px solid var(--line2)}
@@ -37873,7 +37878,39 @@ var ACC_W=[
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
    les demandes et le calendrier */
-var ACC_ORDRE_TEL=["profil","poste","meteo","acces","cycle","polyvalences","paie","dates","planning","afaire","annonces","presents","soldes","conges","site","messages","usine","demandes","calendrier","rythme"];
+/* LA VUE PAR DÉFAUT (le client, le 05/11/2026 : « une vue par défaut, les
+   widgets affichés de la manière la plus intuitive et la plus
+   professionnelle, aux tailles existantes ») : un ordre et un format par
+   widget, pour chaque forme d'écran, lus de haut en bas comme une journée
+   de travail :
+   1. qui je suis et le temps qu'il fait, d'un coup d'œil (en mini au
+      téléphone, côte à côte) ;
+   2. quand je travaille (« Heure et poste », en moyen : il mène) ;
+   3. ce qui m'attend : « À faire » et les annonces, côte à côte ;
+   4. mes applications ;
+   5. ma semaine (« Mon cycle »), puis ma paie et mes congés, les
+      échéances (« À retenir »), mes demandes ;
+   6. le détail, plus bas : le calendrier, l'usine, le site, les messages,
+      mon année, mon rythme.
+   Deux widgets de même rang se rangent côte à côte en petit (la grille
+   les tasse, grid-auto-flow:dense), les autres prennent la largeur. Ces
+   formats ne valent que pour une disposition neuve et pour « Rétablir la
+   disposition d'origine » : une disposition déjà réglée garde les siens. */
+/* (mesuré au téléphone et au PC, contremaître et opérateur) l'effectif du
+   jour (contremaître, RH) et les polyvalences (opérateur) ne vont jamais
+   ensemble : chacun, seul en petit, laissait un trou ; « Mon année » en
+   petit les accompagne. Au PC, « À faire » et les annonces en moyen
+   faisaient une rangée presque vide quand rien n'attend : en petit, à côté
+   de « Mon cycle » ; la paie, les congés, l'effectif ou les polyvalences
+   et « Mon année », quatre petits sur une rangée */
+var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle","paie","soldes","dates","demandes","presents","polyvalences","conges","planning","calendrier","usine","site","messages","rythme"];
+var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","usine","calendrier","site","messages","rythme"];
+var ACC_DEFAUT={
+  tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S",
+    calendrier:"L", usine:"L", site:"M", messages:"M", rythme:"M"},
+  large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S",
+    usine:"XL", calendrier:"L", site:"M", messages:"L", rythme:"XL"}
+};
 /* LES LARGEURS, DES MULTIPLES D'UNE ICÔNE (04/11/2026) : au PC, une icône
    fait un huitième ; ¼, ½, ¾ et 1 tombent sur ses colonnes, ⅓ et ⅔ non
    (2,67 et 5,33 icônes) : ils sont retirés, comme l'iPad n'offre que des
@@ -37975,7 +38012,8 @@ function accN(s){ return s*2; }
 function accSpan(k){ var d=accDef(k); if(d&&d.app) return ACC.mode==="tel"?1:3; return Math.min(ACC.cols,accN(accTaille(k))); }
 function accCharger(mode,defaut){
   var sv=(defaut?null:lsGet("ui/accueil/"+mode))||{}, connus=ACC_W.map(function(d){ return d.k; });
-  var base=mode==="tel"?ACC_ORDRE_TEL.slice():connus.slice();
+  var base=(mode==="tel"?ACC_ORDRE_TEL:ACC_ORDRE_LARGE).filter(function(k){ return connus.indexOf(k)>=0; });
+  connus.forEach(function(k){ if(base.indexOf(k)<0) base.push(k); });
   var o0=(sv.o&&sv.o.length?sv.o:base).slice();
   /* l'heure est passée dans le cadre du poste (04/11/2026) : dans une
      disposition déjà réglée, « Heure et poste » prend la place de l'heure */
@@ -37991,6 +38029,10 @@ function accCharger(mode,defaut){
   if(neufs.indexOf("soldes")>=0&&o.indexOf("conges")>=0){ o.splice(o.indexOf("soldes"),1); o.splice(o.indexOf("conges"),0,"soldes"); }
   ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{}; ACC.hh=sv.h&&typeof sv.h==="object"?sv.h:{};
   ACC.pg=sv.p&&typeof sv.p==="object"?sv.p:{};
+  /* une disposition neuve (ou rétablie) prend les formats de la vue par
+     défaut ; une disposition réglée garde les siens */
+  if(!(sv.o&&sv.o.length)){ var Fm=ACC_FORMATS[mode], D=ACC_DEFAUT[mode]||{};
+    Object.keys(D).forEach(function(k){ var f=Fm[D[k]]; if(f){ ACC.t[k]=f[0]; ACC.hh[k]=f[1]; } }); }
 }
 /* L'ACCUEIL NE CHANGE QU'À LA CONFIRMATION (le client, le 04/11/2026 :
    « faire Échap lors d'une modification des widgets ne doit pas valider

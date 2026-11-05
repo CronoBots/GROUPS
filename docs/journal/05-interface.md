@@ -13990,3 +13990,52 @@ Gardé : l'horloge à la seconde, la date, le carré de la pause, la liste
 « Ensuite » (trois jours et « + 3 autres » au téléphone, six au PC). Non
 photographié : l'état « en poste » (la barre d'avancement), qui dépend de
 l'heure ; ses règles ne changent pas.
+
+### La vue par défaut de l'Accueil (05/11/2026, `nfdm-v1412`)
+
+Le client : « Utilise tous les skills et aptitudes design et format de
+widget pour faire une vue par défaut avec les widgets affichés de la manière
+la plus intuitive et la plus professionnelle et stylée pour mon app. Les
+tailles doivent être adaptées aux tailles existantes des widgets. Vérifie
+le contenu et si tout se met bien. »
+
+**La thèse** (skill impeccable, `reference/layout.md` : ordre de lecture,
+regroupement, densité ; mode « Operate ») : l'Accueil se lit de haut en bas
+comme une journée de travail. Qui je suis et le temps qu'il fait, d'un coup
+d'œil ; quand je travaille (« Heure et poste » mène) ; ce qui m'attend
+(« À faire », les annonces) ; mes applications ; ma semaine, ma paie, mes
+congés, mes échéances ; puis le détail (calendrier, usine, site, messages,
+mon année, mon rythme). Deux widgets de même rang, en petit, côte à côte.
+Un ordre et un format par widget et par forme d'écran (`ACC_ORDRE_TEL`,
+`ACC_ORDRE_LARGE`, `ACC_DEFAUT`), pris parmi ses formats existants.
+
+| | Téléphone (4 colonnes) | PC (8 colonnes d'icônes à 1280 px) |
+|---|---|---|
+| 1 | profil et météo en mini, côte à côte | profil petit · « Heure et poste » moyen · météo petit |
+| 2 | « Heure et poste » moyen | « À faire » petit · annonces petit · « Mon cycle » moyen |
+| 3 | « À faire » et annonces, petits | les applications ; le Planning très grand |
+| 4 | les applications | « À retenir » moyen · paie et congés restants, petits |
+| 5 | « Mon cycle » moyen | effectif du jour ou polyvalences · « Mon année », petits · « Sur site » moyen |
+| 6 | paie et congés restants, petits ; « À retenir », demandes, moyens | « L'usine en direct » très grand |
+| 7 | effectif du jour ou polyvalences · « Mon année », petits | calendrier et messages, grands, côte à côte |
+| 8 | calendrier, usine (grands) ; site, messages, rythme (moyens) | « Mon rythme » très grand |
+
+**Mesuré, puis corrigé** (contremaître et opérateur ; téléphone 390 et
+320 px, couché, PC 1280 et 1920 px ; chevauchements, débordements, trous) :
+- l'effectif du jour (contremaître, RH) et les polyvalences (opérateur) ne
+  vont jamais ensemble : seul en petit, chacun laissait un trou ; « Mon
+  année » en petit l'accompagne ;
+- au PC, « À faire » et les annonces en moyen faisaient une rangée presque
+  vide quand rien n'attend : en petit, à côté de « Mon cycle » ;
+- au PC, les messages en moyen à côté du calendrier (grand, deux rangées)
+  laissaient un trou dessous : en grand ;
+- « Heure et poste » d'un opérateur, en moyen à 320 px : un poste lointain
+  (« Lundi 16 novembre ») passait sur deux lignes, la date sous l'heure et
+  la ligne du poste poussaient le carré de la pause hors du cadre ; sous
+  300 px de large, ni l'une ni l'autre.
+Reste après correction : rien ne chevauche, rien ne déborde, nulle part. (Les
+noms sous les icônes descendent dans l'écart, comme voulu.)
+
+**Qui la voit** : une disposition neuve, et « Rétablir la disposition
+d'origine » (« + » du mode Modifier). Une disposition déjà réglée garde son
+ordre et ses tailles : rien n'est imposé à qui a déjà arrangé son Accueil.
