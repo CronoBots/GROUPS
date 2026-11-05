@@ -3353,3 +3353,131 @@ depuis la personne 1 744. Première mesure, avant toute correction : 785
 fautes A ; puis, les relais à heures lus, 207 fautes R, venues de ma
 première version de `trousDeSesRelais`, qui ne rejouait une pause que si
 un commentaire l'y annonçait et oubliait la journée longue.
+
+## Le check complet multi-agents et le nettoyage du 05/11/2026 (`nfdm-v1392`)
+
+Le client : « Check complet multi agent et nettoyage code mort +
+optimisation avec les skills ».
+
+### La méthode
+
+**La mesure de départ, avant tout changement** (`check-tout.sh`, carnet de
+la session). Toutes les sorties sont gardées pour la comparaison à
+l'octet.
+
+| Contrôle | Résultat |
+|---|---|
+| `verifier-depot.py` | 0 |
+| `verifier-calendrier.js` | 0 dans les neuf règles dures (51 questions faibles) |
+| `--manques 0926`, `--polyvalence`, `--compteurs`, `--manques-commentes` | 0 |
+| `--agendas` | 0 : les 80 agendas sont identiques à ceux du dépôt |
+| `verifier-conges-scolaires.js`, `comparer-fiches.py VBN` | 0 |
+| `coherence-planning.js`, `verifier-recherche.js` | 0 |
+| `parcours.js` | 112 essais, 0 faute ; statique : 0 |
+| `verifier-integralite.py` (2026, 2027) | 1, comme le 29/10 : le classeur brut du conteneur (30/10) est plus ancien que l'horaire installé par le robot depuis. Ce n'est pas une faute de l'application |
+
+**Huit agents en parallèle**, chacun sur un angle :
+- le JavaScript mort ;
+- le CSS mort ;
+- deux revues de code pour la justesse (skill code-review) : le moteur de
+  l'Accueil, puis le reste, depuis la dernière revue (v1343) ;
+- la sécurité (skills security-review et supabase-postgres-best-practices) ;
+- les fichiers, les commentaires trompeurs et les robots ;
+- la performance mesurée (skill simplify) ;
+- l'interface (skills impeccable et ui-ux-pro-max).
+
+Puis **un sceptique** a remesuré les défauts avant toute correction.
+
+### Le nettoyage, prouvé sans effet (v1392)
+
+**Le CSS mort** : 92 règles, 8 `@keyframes` et 122 jetons de couleur.
+- **Le plan schématique de « L'usine en direct »**, retiré en v1326 :
+  - 11 classes et le sélecteur `[class^="us-m-"]>polygon` ;
+  - les 8 animations (`usRoule`, `usTrain`, `usFlux`, `usVagues`, `usBerce`,
+    `usPont`, `usFumee`, `usRespire`) ;
+  - 122 jetons `--us-*` que plus rien ne lit, et 15 commentaires qui ne
+    décrivaient plus qu'eux.
+
+  Restent les `--us-f-*` et `--us-encre`, que la photo lit.
+- **D'anciennes vues** :
+  - l'ancienne jauge du flex time (`ft-*`, 8 classes) ;
+  - l'ancienne vue d'équipe (`eqg`, `eqpo`, `eqmq`…, 9 classes) ;
+  - `cafaire`, `cahr`, `mc-rien`, `lg-pvsien`, `pf-role` ;
+  - la balise `<s>` de la légende, que plus rien ne crée.
+- **Un état impossible** : `#v-horaire:not(.acc-perso) .acc-noms`.
+  `acc-noms` n'est créé que sous `acc-perso`.
+- **8 doublons exacts** : un même sélecteur avec les mêmes déclarations.
+  L'exemplaire retiré est toujours couvert par l'autre (même spécificité,
+  contexte inclus, rien entre les deux sur la même propriété).
+
+Le critère est celui du 29/10 :
+- une classe n'est morte que si son nom n'apparaît nulle part hors du CSS
+  (page, `sw.js`, `tools/`), et qu'aucune concaténation ne peut la
+  fabriquer ;
+- elle ne tombe que là où elle est obligatoire, jamais dans un `:not()` ni
+  un `:is()`.
+
+L'analyseur a été éprouvé par quatre sabotages, qui mordent tous. Par
+exemple, une pose de `ft-jauge` ajoutée au JS rend la classe vivante.
+
+**Le JavaScript mort** : 17 retraits. Ce sont surtout des branches qui
+cherchent des éléments disparus du HTML depuis octobre :
+- `#cal`, le calendrier du résumé (fin de `renderResume`, et son écouteur) ;
+- `#eqCorps`, `#eqJour`, `#eqAuj`, `#eqSub`, le tableau du jour de l'ancien
+  Accueil (et `glisseCorps`) ;
+- `#jourAuj`, `#grAuj`, `#orgSub`, `#rotasub`, `#sideRecNb` ;
+- `calTip` et `tipOff` (l'infobulle retirée le 10/10) ;
+- `appliquerEqSub`, un no-op ;
+- `siteJ` ;
+- deux fonctions locales jamais appelées (`ligne`, `carte`) ;
+- `window.guideInstall` et `window.__SEED__`, que rien ne lit ni ne définit ;
+- la clé `ui/prefillCat`, écrite et plus lue depuis le 01/10 ;
+- `mqNbCle` ;
+- 19 variables locales jamais lues ;
+- le paramètre `cote` de `usinePhotoRendre`, toujours faux.
+
+La preuve s'appuie sur trois outils :
+- `eslint` (`no-unused-vars`, portée réelle) ;
+- un graphe d'atteignabilité qui a pour racines le code du chargement et
+  les 221 noms que les outils découpent dans la page ;
+- la confrontation des 1 370 recherches d'éléments à ce que le HTML et le
+  JS produisent.
+
+Puis le CSS que ces retraits rendaient orphelin : `#grAuj` (15 sélecteurs),
+`#eqCorps`, `#eqAuj`, `#calTip`, `.us-cote`, la légende `.cal .legend` et
+`.glisse-g`/`.glisse-d`.
+
+**Gardés à dessein**, et dits :
+- `grEditer`, réservée à la saisie que la RH fera au PC ;
+- `icsAgenda` et `icsCongesScolaires`, que lit `verifier-calendrier.js` ;
+- le harnais `__horaireSig` et ses audits (journal 03) ;
+- les gardes `typeof X==="function"` ;
+- le repli sans grille de l'Accueil, pour les navigateurs sans
+  `ResizeObserver` (avant iOS 13.4), qui tient en vie `uspBandes` ;
+- les valeurs du thème clair dans `:root`, que le bloc sombre surcharge
+  (décision du 03/11, journal 05).
+
+**Bilan** : `index.html` passe de 2 764 184 à 2 741 628 octets (−22,6 Ko),
+et de 38 914 à 38 586 lignes.
+
+**La preuve qu'il n'a rien changé** :
+- les quinze sorties des contrôles, refaites sur la page nettoyée, sont
+  **identiques à l'octet** ; les 80 agendas aussi ;
+- deux lignes seules diffèrent : le dossier de sortie des agendas, et le
+  compte de `parcours.js`, « règles CSS : les 5274 écrites, toutes
+  retenues » devenu « les 5182 écrites, toutes retenues » ;
+- **25 écrans**, chaque vue à 390 et 1280 px et les sept sections de
+  l'espace RH, photographiés à la même minute avant et après : **0 pixel
+  différent**.
+
+### Le classeur du 04/11 au soir, bloqué à la porte 8
+
+L'agent des robots l'a trouvé. Le classeur envoyé le 04/11 à 21 h 31 n'a
+pas été installé : la porte 8 s'est fermée sur « Vyncke RAPPEL », qu'elle
+prenait pour un nom. L'horaire en place restait celui du 03/11.
+- La forme n'a pas pu être lue dans son contexte : le fichier n'était pas
+  dans la session, et l'e-mail n'offre pas sa pièce jointe.
+- Le client a tranché en QCM : « La chaudière Vyncke ». La forme est admise
+  avec sa raison.
+- L'e-mail a été retiré de la corbeille et remis dans la boîte de
+  réception : le robot ne lit que celle-ci.
