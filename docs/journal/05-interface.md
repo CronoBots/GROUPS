@@ -13923,3 +13923,27 @@ faire ». Revenir sur une décision se demande : question posée.
 roue n'est plus visible, et toucher le widget ouvre les Réglages. Éprouvé
 sur une copie sans `data-go` : « toucher le widget ouvre « horaire » et non
 les Réglages ». Le parcours : 149 essais, 0 faute.
+
+### « Horaire modifié » passe dans les Annonces (05/11/2026, `nfdm-v1409`)
+
+À la question « où mettre la cloche des changements d'horaire ? » (la
+décision du 30/10/2026 l'écartait de « À faire »), le client : « dans À
+faire, ou un autre onglet comme une annonce qui annoncerait ces
+changements ». Choisi : les Annonces. Un changement d'horaire est une
+nouvelle, pas une action, et c'est là qu'on regarde ce qui est nouveau ;
+la décision du 30/10 tient.
+
+- La première ligne du widget « Annonces » dit « Horaire modifié · N
+  journées changées dans le dernier classeur », en jaune, avec « Voir » ;
+  toute la ligne est un bouton qui ouvre la feuille des changements (au
+  lieu de mener aux Annonces) ; rien en mode Modifier. Sans annonce, elle
+  s'affiche seule.
+- **Un secours** : la cloche revient dans le profil quand le widget manque
+  (sans compte) ou a été retiré de l'Accueil (`notifDansAnnonces`) ; le
+  retrait, la remise et l'annulation du mode Modifier la replacent
+  (`majBadgeNotif`). Un changement ne passe jamais inaperçu.
+
+Mesuré au téléphone (deux journées en attente simulées) : la ligne en tête
+des Annonces, pas de cloche dans le profil ; la toucher ouvre la feuille ;
+les Annonces retirées, la cloche revient au profil. Le parcours : 149
+essais, 0 faute.

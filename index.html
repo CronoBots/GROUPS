@@ -5909,6 +5909,10 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 @media (hover:hover){ .pf-bloc .pf-proch:hover{background:rgba(105,178,203,.08)} }
 .pf-st2 i{font-style:normal}
 .pf-fo{color:var(--at-jaune)}
+/* la ligne « Horaire modifié » des annonces : toute la ligne est le bouton */
+.aw-hm-b{display:flex; align-items:center; gap:10px; width:100%; min-width:0; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
+.aw-hm-b:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px; border-radius:8px}
+.aw-hm .aw-t b{color:var(--at-jaune)}
 /* Les progressions : un filet entre l'année et chaque cycle, et la semaine
    du cycle lisible à côté de son titre. */
 .pf-an .ry-an-t~.ry-an-t{border-top:1px solid var(--bd-blanc-07); margin-top:2px}
@@ -18419,10 +18423,12 @@ function awDates(){
 function awAnnonces(){
   var c=document.getElementById("annCard"), corps=document.getElementById("annCorps"); if(!c||!corps) return;
   if(!compteBase()){ c.hidden=true; return; }
+  var hm=NOTIF_NB?'<li class="aw-r aw-hm"><button type="button" class="aw-hm-b" data-notif-ouvrir aria-haspopup="dialog"><span class="aw-t"><b>Horaire modifié</b><small>'
+      +NOTIF_NB+' journée'+(NOTIF_NB>1?'s':'')+' changée'+(NOTIF_NB>1?'s':'')+' dans le dernier classeur</small></span><em class="aw-q aw-q-on">Voir</em></button></li>':'';
   var l=aideAnnonces().slice().sort(function(a,b){ return (b.epingle?1:0)-(a.epingle?1:0)||(new Date(b.cree_le)-new Date(a.cree_le)); }),
       nl={}; aideNonLues().forEach(function(x){ nl[x.id]=1; });
   document.getElementById("annSub").textContent=Object.keys(nl).length?Object.keys(nl).length+" non lue"+(Object.keys(nl).length>1?"s":""):"";
-  corps.innerHTML=l.length?'<ul class="aw-l aw-ann" data-acc-fit>'+l.map(function(x){
+  corps.innerHTML=(l.length||hm)?'<ul class="aw-l aw-ann" data-acc-fit>'+hm+l.map(function(x){
       return '<li class="aw-r'+(x.epingle?' aw-epingle':'')+'"><span class="aw-t"><b>'+esc(x.titre||"Annonce")+'</b><small>'+(x.epingle?'<span class="aw-ep">épinglée · </span>':'')+"le "+esc(aideDate(x.cree_le))+'</small>'
         /* le début du texte, montré à 2 lignes (les règles de #annCard) */
         +(x.corps?'<span class="aw-ex">'+esc(String(x.corps).replace(/\s+/g," ").slice(0,600))+'</span>':'')+'</span>'
@@ -18451,6 +18457,7 @@ function awCacher(){ ["paieCard","retCard","annCard","presCard"].forEach(functio
 document.addEventListener("click",function(e){
   var t=e.target; if(!t.closest) return;
   if(t.closest("#paieOeil")){ lsSet("ui/paie/voir",!lsGet("ui/paie/voir")); awPaie(); return; }
+  if(t.closest("[data-notif-ouvrir]")){ if(!(ACC&&ACC.edit)) ouvrirNotif(); return; }
   var w=t.closest("#v-horaire .aw[data-aller]"); if(w&&!(ACC&&ACC.edit)) accVers(w.getAttribute("data-aller"));
 });
 /* LES POSTES SUIVANTS (« Heure et poste » en 2 lignes, 04/11/2026) : les six
@@ -18868,10 +18875,19 @@ function badgeNotifHTML(){
     +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'
     +'<b>'+NOTIF_NB+'</b></button>';
 }
+/* « HORAIRE MODIFIÉ » DANS LES ANNONCES (le client, le 05/11/2026 : « dans
+   un autre onglet, comme une annonce qui annoncerait ces changements ») :
+   un changement d'horaire est une nouvelle, pas une action (« À faire »
+   n'en veut pas, le client, le 30/10/2026). Il ouvre le widget « Annonces »
+   (awAnnonces) ; la cloche du profil ne revient qu'en secours, quand ce
+   widget manque (sans compte) ou a été retiré de l'Accueil : un changement
+   ne doit jamais passer inaperçu. */
+function notifDansAnnonces(){ return !!(document.getElementById("annCard")&&compteBase()&&!(typeof ACC!=="undefined"&&ACC&&ACC.m&&ACC.m.annonces)); }
 function majBadgeNotif(){
+  try{ awAnnonces(); }catch(e){}
   var h=document.querySelector("#rythmeTete .pf-hero"); if(!h) return;
   var v=document.getElementById("pfNotif"); if(v) v.parentNode.removeChild(v);
-  if(!NOTIF_NB) return;
+  if(!NOTIF_NB||notifDansAnnonces()) return;
   /* la roue vit dans le widget du profil depuis le 03/11/2026 : insérer
      dans le héros, avant un nœud qui n'en est plus l'enfant, levait une
      erreur qui emportait aussi le cadre « Horaire modifié » (revue) */
@@ -37971,7 +37987,7 @@ function accTerminer(garder){
     Object.keys(br).forEach(function(m){ if(m!==ACC.mode&&br[m]!==av[m]){ var x=JSON.parse(br[m]); lsSet("ui/accueil/"+m,{v:1, o:x.o, t:x.t, m:x.m, h:x.h, p:x.p||{}}); } });
     accAnnoncer("Accueil enregistré."); return; }
   if(av[ACC.mode]!==undefined) accRemettre(av[ACC.mode]); else accCharger(ACC.mode);
-  accEditer(false); accScan(); accStyle();
+  accEditer(false); accScan(); accStyle(); try{ majBadgeNotif(); }catch(e){}
   accAnnoncer(change?"Modifications annulées : l’Accueil reste comme avant.":"Accueil inchangé.");
 }
 /* Échap : sans changement, le mode se ferme ; avec des changements (dans
@@ -38690,7 +38706,7 @@ function accRetirer(k){
   confirmerPro({titre:d.app?"Retirer « "+d.nom+" » de l’Accueil ?":"Retirer le widget « "+d.nom+" » ?",
     texte:(d.app?"L’icône quitte l’Accueil ; rien n’est effacé. Le bouton « + », en haut, la remet.":"Le widget quitte l’Accueil ; rien n’est effacé. Le bouton « + », en haut, le remet."),
     ok:"Retirer", annuler:"Annuler"},function(){
-    accFlip(function(){ ACC.m[k]=true; accStyle(); }); accSauver(); accOutils(false);
+    accFlip(function(){ ACC.m[k]=true; accStyle(); }); accSauver(); accOutils(false); try{ majBadgeNotif(); }catch(e){}
     accAnnoncer("« "+d.nom+" » retiré de l’Accueil. « + », en haut, le remet.");
     var a=document.getElementById("accAjout"); if(a) try{ a.focus({preventScroll:true}); }catch(e){}
   });
@@ -38736,7 +38752,7 @@ function accGalerie(){
     var t=e.target, b;
     if(t===o||t.closest(".acc-gal-x")){ accGalerieFermer(); var a=document.getElementById("accAjout"); if(a) try{ a.focus(); }catch(er){} return; }
     if((b=t.closest("[data-acc-montrer]"))){
-      var k=b.getAttribute("data-acc-montrer"); delete ACC.m[k]; accPagePoser(k,ACC.page); accStyle(); accSauver(); accGalerieFermer(); accOutils(false);
+      var k=b.getAttribute("data-acc-montrer"); delete ACC.m[k]; accPagePoser(k,ACC.page); accStyle(); accSauver(); accGalerieFermer(); accOutils(false); try{ majBadgeNotif(); }catch(er){}
       accAnnoncer("« "+accDef(k).nom+" » remis sur l’Accueil"+(ACC.page?", "+ACC_PAGE_NOM[ACC.page].toLowerCase():"")+".");
       var el=accItem(k); if(el) try{ el.scrollIntoView({block:"center"}); }catch(er){}
       var bx=ACC.calque&&ACC.calque.querySelector('.acc-b[data-acc-pour="'+k+'"] .acc-moins'); if(bx) try{ bx.focus({preventScroll:true}); }catch(er){}
