@@ -9628,6 +9628,31 @@ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-fo{display:none!imp
 /* plus de roue : le widget entier ouvre les Réglages ; au PC, il le dit au
    survol, et l'anneau du clavier l'entoure */
 html body #v-horaire.acc-perso .pf-wprof .pf-roue{display:none!important}
+/* LE MINI (2 × 1 icônes, 05/11/2026) : le profil, son trigramme et sa
+   fonction l'un sous l'autre ; la météo, la température, le symbole et le
+   ciel sur une ligne */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"]{display:flex!important; flex-direction:row; align-items:center; gap:8px; padding:0 14px!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-couv{display:none!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-prof{display:flex!important; flex-direction:column; align-items:flex-start; justify-content:center; gap:3px; flex:1 1 auto; min-width:0; margin:0!important; padding:0!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-prof .pf-av.pf-av{font-size:20px!important; margin:0!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-hmeta{padding:0!important; border:0; width:100%}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-hmeta>:not(.pf-poste),html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-poste .pf-statut.pf-statut{display:none!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-poste.pf-poste{font-size:13px!important; font-weight:600; color:var(--tx-blanc-75)}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="R"] .pf-notif{position:relative!important; top:auto!important; left:auto!important; margin:0!important; flex:none; height:30px}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"]{display:flex!important; flex-direction:row; align-items:center; padding:0 14px!important}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-haut{display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:8px; width:100%; min-width:0; margin:0; padding:0}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-g{display:block; flex:none}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-lieu,html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-mm,
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] :is(.pm-heures,.pm-jours,.pm-poste){display:none!important}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-c{font-size:30px!important; line-height:1}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-d{display:flex; flex-direction:column; align-items:flex-end; gap:2px; min-width:0; margin:0}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-d>.pm-ico{display:block!important; width:22px; height:22px}
+html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-ciel{font-size:12.5px; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+/* sous 120 px de contenu (le petit et le mini d'un écran de 320 px) : le mini
+   garde le symbole sans le ciel, le petit sans le maximum et le minimum
+   (ils débordaient) */
+@container meteo (max-width:119px){ html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="R"] .pm-ciel{display:none}
+  html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="S"] .pm-mm{display:none} }
 html body #v-horaire.acc-perso:not(.acc-edit) .pf-wprof[data-go]{cursor:pointer; -webkit-tap-highlight-color:transparent}
 @media (hover:hover){ html body #v-horaire.acc-perso:not(.acc-edit) .pf-wprof[data-go]:hover{border-color:var(--bd-blanc-18)} }
 html body #v-horaire.acc-perso .pf-wprof[data-go]:focus-visible{outline:2px solid var(--marque-vif); outline-offset:3px}
@@ -37798,8 +37823,10 @@ var ACC_W=[
   {k:"poste",        nom:"Heure et poste",      l:6,  f:["S","M","L"], h:1},
   /* la photo remplit toute largeur ; 2 lignes ne montraient qu'une photo
      plus haute */
-  {k:"profil",       nom:"Mon profil",          l:6,  f:["B","S","M"], h:1},
-  {k:"meteo",        nom:"Météo",               l:6,  f:["S","M","L"], h:1},
+  /* et le mini, 2 × 1 icônes (le client, le 05/11/2026 : « le profil et la
+     météo pourraient être affichés aussi sur 2 × 1 icônes ») */
+  {k:"profil",       nom:"Mon profil",          l:6,  f:["R","B","S","M"], h:1},
+  {k:"meteo",        nom:"Météo",               l:6,  f:["R","S","M","L"], h:1},
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
   /* une grille de sept jours : moyen (la semaine), grand et très grand
      (six semaines) */
@@ -37879,8 +37906,11 @@ function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return AC
    profil » (le 04/11/2026 : « mettre le premier cadre sur une ligne ») :
    le bandeau, 4 icônes de large sur une seule rangée (h : une demi-ligne
    de widget) */
-var ACC_FORMATS={tel:{B:[2,0.5], S:[1,1], M:[2,1], L:[2,2]}, large:{B:[6,0.5], S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
-var ACC_FORMAT_NOM={B:"Bandeau", S:"Petit", M:"Moyen", L:"Grand", XL:"Très grand"};
+/* et le mini, 2 × 1 icônes : la largeur du petit, une seule rangée (le
+   client, le 05/11/2026), pour un coup d'œil : le trigramme et la
+   fonction, la température et le ciel */
+var ACC_FORMATS={tel:{R:[1,0.5], B:[2,0.5], S:[1,1], M:[2,1], L:[2,2]}, large:{R:[3,0.5], B:[6,0.5], S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
+var ACC_FORMAT_NOM={R:"Mini", B:"Bandeau", S:"Petit", M:"Moyen", L:"Grand", XL:"Très grand"};
 function accFormats(k){ var d=accDef(k), m=ACC.mode||"tel", F=ACC_FORMATS[m], f=d&&!d.app&&d.f; if(!f) return null; if(!(f instanceof Array)) f=f[m]||[];
   return f.filter(function(x){ return F[x]; }).map(function(x){ return {n:x, t:F[x][0], h:F[x][1]}; }); }
 function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; if(!d||d.app) return [];

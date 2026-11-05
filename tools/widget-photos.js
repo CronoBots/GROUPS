@@ -11,7 +11,7 @@
 */
 const {chromium}=require('playwright');
 const k=process.argv[2], out=process.argv[3], qui=process.argv[4]||"VBN";
-const F={tel:{B:[2,0.5],S:[1,1],M:[2,1],L:[2,2]}, large:{B:[6,0.5],S:[3,1],M:[6,1],L:[6,2],XL:[12,2]}};
+const F={tel:{R:[1,0.5],B:[2,0.5],S:[1,1],M:[2,1],L:[2,2]}, large:{R:[3,0.5],B:[6,0.5],S:[3,1],M:[6,1],L:[6,2],XL:[12,2]}};
 const E=[{n:'tel390',w:390,h:844,m:'tel',z:{top:59,bottom:34,left:0,right:0}},{n:'tel320',w:320,h:568,m:'tel',z:{top:20,bottom:0,left:0,right:0}},{n:'couche852',w:852,h:393,m:'tel',z:{top:0,bottom:21,left:59,right:59}},{n:'ordi-1280',w:1280,h:800,m:'large',pc:true},{n:'ordi-1920',w:1920,h:1080,m:'large',pc:true}];
 (async()=>{
  const b=await chromium.launch(); const res=[];
@@ -22,6 +22,10 @@ const E=[{n:'tel390',w:390,h:844,m:'tel',z:{top:59,bottom:34,left:0,right:0}},{n
    localStorage.setItem("base/session",JSON.stringify({access:"a",refresh:"r",exp:Date.now()+9e12,email:"x@exemple.be"}));
    const tt={}, hh={}; tt[k]=t; hh[k]=h; localStorage.setItem("ui/accueil/"+m,JSON.stringify({v:1,o:[],t:tt,m:{},h:hh})); },[k,e.m,F[e.m][f][0],F[e.m][f][1],qui]);
   const p=await ctx.newPage(); const errs=[]; p.on('pageerror',x=>errs.push(x.message));
+  /* une météo de Wanze fabriquée : sans réseau, le widget se cache */
+  await p.route(/open-meteo\.com/,r=>{ const n=Date.now(), h=[...Array(48)].map((_,i)=>new Date(n+(i-1)*36e5).toISOString().slice(0,13)+":00"), d=[...Array(7)].map((_,i)=>new Date(n+i*864e5).toISOString().slice(0,10));
+    r.fulfill({status:200,contentType:"application/json",body:JSON.stringify({latitude:50.54,longitude:5.21,timezone:"Europe/Brussels",current:{temperature_2m:3.2,weather_code:1,is_day:1},
+      hourly:{time:h,temperature_2m:h.map((_,i)=>2+i%9),weather_code:h.map(()=>1),is_day:h.map(()=>1)},daily:{time:d,temperature_2m_max:d.map(()=>11),temperature_2m_min:d.map(()=>1),weather_code:d.map(()=>2)}})}); });
   await p.route(/supabase\.co\//,r=>{ const u=r.request().url(); r.fulfill({status:200,contentType:"application/json",body:u.includes("mon_compte")?JSON.stringify([{role:"hierarchie",valide:true,trigramme:qui}]):"[]"}); });
   await p.goto('http://localhost:8790/'); await p.waitForTimeout(3000);
   if(e.z) await p.evaluate(z=>{ document.querySelectorAll("style").forEach(s=>{ s.textContent=s.textContent.replace(/env\(safe-area-inset-top(,[^)]*)?\)/g,z.top+"px").replace(/env\(safe-area-inset-bottom(,[^)]*)?\)/g,z.bottom+"px").replace(/env\(safe-area-inset-left(,[^)]*)?\)/g,z.left+"px").replace(/env\(safe-area-inset-right(,[^)]*)?\)/g,z.right+"px"); }); window.dispatchEvent(new Event("resize")); },e.z);

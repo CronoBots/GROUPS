@@ -13947,3 +13947,29 @@ Mesuré au téléphone (deux journées en attente simulées) : la ligne en tête
 des Annonces, pas de cloche dans le profil ; la toucher ouvre la feuille ;
 les Annonces retirées, la cloche revient au profil. Le parcours : 149
 essais, 0 faute.
+
+### Le format mini, 2 × 1 icônes : le profil et la météo (05/11/2026, `nfdm-v1410`)
+
+Le client : « le profil et le widget météo pourraient être affichés aussi
+sur 1 × 2, non ? » ; à la question du sens, « 2 × 1 icônes ». Un format
+neuf, « Mini » (`R` dans `ACC_FORMATS`) : la largeur du petit (deux
+icônes), une seule rangée ; 162 × 64 px au téléphone de 390 px,
+217 × 85 au PC de 1280. Apple n'a pas ce format ; il sert au coup d'œil.
+
+- **Profil** : le trigramme (20 px), la fonction dessous (13 px) ; pas de
+  bannière (elle aurait 162 × 40 px), ni statut, ni équipe ; toucher ouvre
+  les Réglages, comme aux autres formats.
+- **Météo** : la température (30 px) à gauche, le symbole et le ciel à
+  droite ; sous 120 px de contenu (l'écran de 320 px), le ciel tombe et le
+  symbole reste.
+- **Trouvé en passant** : la Météo en petit, sur l'écran de 320 px, débordait
+  par son maximum et son minimum ; ils tombent sous 120 px de contenu. Une
+  erreur de seuil d'abord : posée à 149 px, la règle effaçait aussi le ciel
+  du mini à 390 px, la requête de conteneur mesurant la largeur sans les
+  marges intérieures (134 px, et non 162).
+
+`tools/widget-photos.js` photographie aussi le mini, et sert une météo de
+Wanze fabriquée (sans réseau, le widget se cache : il n'était jamais
+photographié). Mesuré à chaque format et écran (téléphone 390 et 320 px,
+couché, PC 1280 et 1920) : rien ne déborde, rien n'est coupé, aucun texte
+sous 11 px.
