@@ -2632,7 +2632,9 @@ html #grille .ws-site{margin-bottom:14px}
 .usp-tr-h{fill:none; stroke:rgba(0,0,0,.5); stroke-width:3.2; stroke-linecap:round}
 .usp-tr{fill:none; stroke:rgba(255,255,255,.92); stroke-width:1.2; stroke-linecap:round}
 .usp-tr-h.usp-sel{stroke-width:4.4} .usp-tr.usp-sel{stroke:#fff; stroke-width:2.2}
-.usp-pt{--zc:var(--us-f-gris); fill:var(--zc); stroke:#fff; stroke-width:1.5}
+.usp-pt{--zc:var(--us-f-gris)}
+.usp-pt .usp-pin-c{stroke-width:2.6}
+.usp-pt-sol{fill:rgba(0,0,0,.5)}
 .usp-pt.usp-f-jaune,.usp-carre.usp-f-jaune{--zc:var(--us-f-jaune)} .usp-pt.usp-f-vert,.usp-carre.usp-f-vert{--zc:var(--us-f-vert)} .usp-pt.usp-f-rouge,.usp-carre.usp-f-rouge{--zc:var(--us-f-rouge)} .usp-pt.usp-f-bleu,.usp-carre.usp-f-bleu{--zc:var(--us-f-bleu)}
 .usp-liste{display:none}
 .usp-ets{position:absolute; inset:0; pointer-events:none}
@@ -2657,13 +2659,27 @@ html #grille .ws-site{margin-bottom:14px}
    qui pulse, ses trigrammes en étiquette au-dessus, un trait fin entre
    les deux ; le badge « En direct » et l'heure, en haut à gauche */
 .usp-traits.usp-pc{display:block}
+/* DES ÉPINGLES À LA FAÇON D’UN POINT GPS (le client, le 05/11/2026 : « j'aimerais
+   que les voyants de la carte live soient comme des points GPS ») : la
+   pointe sur la place du poste, la tête à sa couleur (ambre s'il y manque
+   quelqu'un) et son point blanc ; à son pied, son ombre et l'onde qui
+   pulse au sol, comme une position suivie en direct. La pointe est en
+   (0, 0) du dessin (USP_EPINGLE) ; l'épingle grandit avec la photo, comme
+   les étiquettes (--usp-k) ; celle de votre poste est un peu plus grande,
+   son point au cyan de « vous » */
 .usp-pins{position:absolute; inset:0; pointer-events:none}
-.usp-pin{--zc:var(--us-f-gris); position:absolute; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; border-radius:50%; background:var(--zc); box-shadow:0 0 0 2px #fff,0 1px 5px rgba(0,0,0,.6)}
+.usp-pin{--zc:var(--us-f-gris); --pw:calc(20px*var(--usp-k,1)); position:absolute; width:0; height:0}
 .usp-pin.usp-f-jaune{--zc:var(--us-f-jaune)} .usp-pin.usp-f-vert{--zc:var(--us-f-vert)} .usp-pin.usp-f-rouge{--zc:var(--us-f-rouge)} .usp-pin.usp-f-bleu{--zc:var(--us-f-bleu)}
-.usp-pin::after{content:""; position:absolute; inset:-2px; border-radius:50%; border:2px solid var(--zc); opacity:0; animation:uspPouls 2.4s ease-out infinite; animation-delay:var(--d,0s)}
-.usp-pin.usp-pin-mq{background:#F5C451} .usp-pin.usp-pin-mq::after{border-color:#F5C451; animation-duration:1.6s}
-.usp-pin.usp-pin-moi{width:13px; height:13px; margin:-6.5px 0 0 -6.5px; box-shadow:0 0 0 2.5px #fff,0 0 0 4.5px rgba(0,0,0,.35),0 1px 6px rgba(0,0,0,.6)}
-.usp-pin.usp-sel{box-shadow:0 0 0 2.5px #fff,0 0 12px 2px rgba(255,255,255,.55)}
+.usp-pin.usp-pin-mq{--zc:#F5C451}
+.usp-pin.usp-pin-moi{--pw:calc(23px*var(--usp-k,1))}
+.usp-pin svg{position:absolute; left:calc(var(--pw)/-2); bottom:calc(var(--pw)/-22); width:var(--pw); height:calc(var(--pw)*32/22); overflow:visible; filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.usp-pin-c{fill:var(--zc); stroke:#fff; stroke-width:2; stroke-linejoin:round}
+.usp-pin-o{fill:#fff}
+.usp-pin.usp-pin-moi .usp-pin-o{fill:var(--in)}
+.usp-pin.usp-sel svg{filter:drop-shadow(0 0 5px rgba(255,255,255,.9)) drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.usp-pin::before{content:""; position:absolute; left:-7px; top:-3px; width:14px; height:6px; border-radius:50%; background:rgba(0,0,0,.5); filter:blur(1.5px)}
+.usp-pin::after{content:""; position:absolute; left:-8px; top:-4px; width:16px; height:8px; box-sizing:border-box; border-radius:50%; border:2px solid var(--zc); opacity:0; animation:uspPouls 2.4s ease-out infinite; animation-delay:var(--d,0s)}
+.usp-pin.usp-pin-mq::after{animation-duration:1.6s}
 @keyframes uspPouls{0%{transform:scale(1); opacity:.85} 70%{transform:scale(3.2); opacity:0} 100%{transform:scale(3.2); opacity:0}}
 .usp-live{position:absolute; left:10px; top:10px; display:flex; align-items:center; gap:7px; padding:5px 10px 5px 9px; border-radius:99px; background:rgba(12,17,26,.72);
   -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:#fff; font-size:11.5px; line-height:1; letter-spacing:.02em; box-shadow:0 1px 6px rgba(0,0,0,.35); pointer-events:none}
@@ -8743,6 +8759,18 @@ html body #v-horaire.acc-perso .card.aw{container:awc / inline-size}
 #annCard[data-acc-h="2"] .aw-ex{display:-webkit-box; margin-top:3px}
 #annCard[data-acc-h="2"] .aw-ann>li{padding:10px 0}
 #annCard[data-acc-h="2"] .aw-ann>li:only-child .aw-ex{-webkit-line-clamp:9; line-clamp:9}
+/* ANNONCES EN PETIT (le client, le 05/11/2026 : « que Annonces puisse être
+   réduit en 1x1 aussi ») : la pastille « Nouveau » passe au-dessus du
+   titre (à droite, elle serrait le titre sur quatre lignes et le
+   chevauchait à 393 et 320 px d'écran) ; le titre tient en trois lignes
+   au plus, deux sous 150 px de large ; « épinglée » s'efface (l'épinglée
+   vient en tête) ; ce qui ne tient pas cède sa place à « + N autres » */
+html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-ann>li{flex-direction:column; align-items:flex-start; justify-content:center; gap:4px; padding:6px 0}
+html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-ann .aw-q{order:-1; padding:1px 7px; font-size:11px}
+html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-ann .aw-t{width:100%; flex:none}
+html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-ann .aw-t b{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; overflow:hidden}
+html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-ann .aw-ep{display:none}
+@container awc (max-width:149px){ html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-ann .aw-t b{-webkit-line-clamp:2; line-clamp:2} }
 #presCard[data-acc-h="1"] .aw-corps{justify-content:center}
 @container awc (max-width:259px){ .aw-pzi small{display:none} .aw-gros{font-size:30px} }
 /* Mon profil : la photo prend ce que le nom lui laisse */
@@ -9467,10 +9495,15 @@ html body #v-horaire.acc-perso.acc-tel #usineCard .usp-liste{gap:4px; margin:6px
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-li{min-height:0; padding:4px 8px; gap:6px; font-size:12px; line-height:1.15; border-radius:8px}
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-li b{overflow-wrap:normal}
 /* la photo entière, sans ses bandes de trigrammes (à 341 px, elles ne lui
-   laissaient que 55 px de haut) : les points de couleur disent les postes,
-   la fiche dit qui */
+   laissaient que 55 px de haut) : les épingles disent les postes, la fiche
+   dit qui. (« Les points de couleur disent les postes », écrit ici
+   d'abord, était faux : ces points se dessinaient dans #uspTraits, caché
+   avec les bandes ; la photo n'avait aucun voyant jusqu'à la v1390.) */
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp{padding:0!important}
 html body #v-horaire.acc-perso.acc-tel #usineCard :is(#uspEt,#uspTraits){display:none!important}
+/* ses épingles (05/11/2026), plus petites que celles du PC */
+html body #v-horaire.acc-perso.acc-tel #usineCard .usp-pin{--pw:15px}
+html body #v-horaire.acc-perso.acc-tel #usineCard .usp-pin.usp-pin-moi{--pw:17px}
 /* Calendrier et Mon cycle, grands, de 300 à 360 px (téléphones de 360 à
    414 px) : six semaines, la pastille de la dernière n'est plus rognée */
 @container accw (min-height:300px) and (max-height:359px){ html body #v-horaire.acc-perso :is(#calCard,#ryAn)[data-acc-h="2"] .mc-j{padding-top:0!important; padding-bottom:0!important}
@@ -9548,17 +9581,50 @@ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-poste{font-size:16p
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-notif{order:1; position:relative!important; top:auto!important; left:auto!important; margin:0!important; flex:none}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-roue{order:2; position:relative!important; top:auto!important; right:auto!important; left:auto!important; margin:0!important; flex:none; width:34px; height:34px}
 @container (max-width:299px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="B"] .pf-statut{display:none} }
-/* le petit : la photo en haut, l'avatar qui la chevauche, le nom et le
-   binôme dessous ; la roue sur la photo */
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"]{display:flex!important; flex-direction:column; align-items:stretch!important; padding:0 0 10px!important}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-couv{flex:1 1 40%!important; min-height:0!important}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-prof{flex-direction:column; align-items:flex-start; gap:4px; margin:-24px 0 0!important; padding:0 12px!important; min-width:0}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-av{width:48px!important; height:48px!important; font-size:15px!important; flex:none}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-hmeta{padding-top:0!important; gap:1px; width:100%; min-width:0}
+/* LA BANNIÈRE ENTIÈRE, EN PETIT COMME EN MOYEN (le client, le 05/11/2026 :
+   « que la bannière soit complètement visible même en 1x1 ») : au
+   téléphone comme au PC, elle garde ses proportions (2170 × 540) sur toute
+   la largeur du widget, et rien n'est posé dessus — ni la roue, ni la
+   cloche, ni l'avatar. Elle se rognait (mesuré sur la v1389) : en petit,
+   elle prenait la place que le nom lui laissait, 36 % de sa largeur au PC
+   de 1 920 px et 47 % à l'iPhone, sans le logo ; en moyen, 70 % de sa
+   hauteur au PC (le bas du logo coupé) et 88 % de sa largeur à l'iPhone,
+   la roue et l'avatar posés dessus. Dessous, la place qui reste (la hauteur du
+   widget moins celle de la bannière, lues en unités de conteneur : le
+   widget est un conteneur de taille, et ses enfants seuls le lisent) :
+   - en moyen, une ligne : l'avatar, le poste et le binôme, la cloche, la
+     roue ;
+   - en petit, l'avatar et la roue, puis le poste et le binôme.
+   L'avatar prend la taille que la place lui laisse. */
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]){display:grid!important; align-items:center!important; padding:0!important}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .pf-couv{grid-area:couv; flex:none!important; width:100%; height:calc(100cqw * 540 / 2170)!important; aspect-ratio:auto!important; min-height:0!important;
+  background-size:cover!important; background-position:50% 50%!important}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .pf-prof{display:contents!important}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .pf-av{grid-area:av; flex:none; margin:0!important; width:var(--av)!important; height:var(--av)!important; font-size:calc(var(--av) * .31)!important}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .pf-hmeta{grid-area:meta; min-width:0; padding:0!important}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) :is(.pf-roue,.pf-notif){position:relative!important; top:auto!important; right:auto!important; left:auto!important; margin:0!important; background:var(--surface3)}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .pf-roue{grid-area:roue}
+html body #v-horaire.acc-perso .pf-wprof:is([data-acc-f="S"],[data-acc-f="M"]) .pf-notif{grid-area:notif}
+/* moyen : une ligne sous la bannière */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"]{grid-template-columns:auto minmax(0,1fr) auto auto; grid-template-rows:auto minmax(0,1fr); grid-template-areas:"couv couv couv couv" "av meta notif roue"; column-gap:12px}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-av{--av:clamp(32px, calc(100cqh - 100cqw * 540 / 2170 - 20px), 64px); margin-left:14px!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-roue{margin-right:12px!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-hmeta{gap:3px}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-poste{flex-wrap:nowrap!important}
+/* au téléphone (344 px à 393), la roue, passée sous la bannière, prenait
+   la place du poste : « Contremaî… » ; sous 420 px, le poste à 16 px, la
+   roue à 34 ; sous 340, sans le statut */
+@container (max-width:419px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-poste{font-size:16px!important; gap:4px 6px!important}
+  html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-roue{width:34px; height:34px} }
+@container (max-width:339px){ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="M"] .pf-statut{display:none} }
+/* petit : l'avatar et la roue, puis le poste et le binôme */
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"]{grid-template-columns:auto minmax(0,1fr) auto auto; grid-template-rows:auto minmax(0,1fr) auto; grid-template-areas:"couv couv couv couv" "av . notif roue" "meta meta meta meta"; column-gap:6px}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-av{--av:clamp(30px, calc(100cqh - 100cqw * 540 / 2170 - 62px), 60px); margin-left:10px!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-roue{width:30px; height:30px; margin-right:10px!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-notif{height:30px}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-hmeta{align-self:end; gap:1px; padding:0 10px 9px!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste{font-size:15px!important; flex-wrap:nowrap!important}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-statut{display:none}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-roue{position:absolute!important; top:8px!important; right:8px!important; left:auto!important; width:30px; height:30px; margin:0!important}
-html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-notif{position:absolute!important; top:8px!important; left:8px!important; right:auto!important; margin:0!important}
+html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] :is(.pf-statut,.pf-st2){display:none}
 /* le nom sous chaque widget (accNoms) : le style de l'étiquette d'une icône */
 .acc-noms{position:absolute; inset:0; z-index:2; pointer-events:none}
 /* les deux couches posées sur la grille (le calque du mode Modifier, les
@@ -18332,7 +18398,7 @@ function awAnnonces(){
       nl={}; aideNonLues().forEach(function(x){ nl[x.id]=1; });
   document.getElementById("annSub").textContent=Object.keys(nl).length?Object.keys(nl).length+" non lue"+(Object.keys(nl).length>1?"s":""):"";
   corps.innerHTML=l.length?'<ul class="aw-l aw-ann" data-acc-fit>'+l.map(function(x){
-      return '<li class="aw-r'+(x.epingle?' aw-epingle':'')+'"><span class="aw-t"><b>'+esc(x.titre||"Annonce")+'</b><small>'+(x.epingle?"épinglée · ":"")+"le "+esc(aideDate(x.cree_le))+'</small>'
+      return '<li class="aw-r'+(x.epingle?' aw-epingle':'')+'"><span class="aw-t"><b>'+esc(x.titre||"Annonce")+'</b><small>'+(x.epingle?'<span class="aw-ep">épinglée · </span>':'')+"le "+esc(aideDate(x.cree_le))+'</small>'
         /* le début du texte, montré à 2 lignes (les règles de #annCard) */
         +(x.corps?'<span class="aw-ex">'+esc(String(x.corps).replace(/\s+/g," ").slice(0,600))+'</span>':'')+'</span>'
         +(nl[x.id]?'<em class="aw-q aw-q-on">Nouveau</em>':'')+'</li>'; }).join("")+'</ul>'
@@ -23979,7 +24045,17 @@ function uspRectangles(pieces){
         rs[i]=[Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[2],b[2]),Math.max(a[3],b[3])]; rs.splice(j,1); fondu=true; } } }
   return rs;
 }
-var USP_POINTS={meun:[222,215], glut:[300,470], chau:[500,232], dist:[515,430], ferm:[650,612], terr:[740,470], cm:[1100,650], step:[1320,352]};
+/* LES PLACES DES ÉPINGLES, sur la photo de 1600 × 840 (le client, le
+   05/11/2026, sur sa capture : « ceux du gluten légèrement plus bas
+   qu'actuellement ; chaudières, le centre entre les deux cheminées ; le
+   terrain arrière un rien plus à gauche ») : le gluten à mi-hauteur de
+   ses silos (y 470 → 500), les chaudières au milieu des deux cheminées
+   (leurs axes en x 626 et 670, de y 184 à leur pied, 334), le terrain
+   arrière 20 px plus à gauche (x 740 → 720) */
+var USP_POINTS={meun:[222,215], glut:[302,500], chau:[648,259], dist:[515,430], ferm:[650,612], terr:[720,470], cm:[1100,650], step:[1320,352]};
+/* l'épingle : sa pointe en (0, 0), sa tête de 20 de large, centrée en
+   (0, -20) ; 31 de haut avec son trait */
+var USP_EPINGLE='<path class="usp-pin-c" d="M0 0C-2.5-3.5-10-12-10-20A10 10 0 0 1 10-20C10-12 2.5-3.5 0 0Z"/><circle class="usp-pin-o" cx="0" cy="-20" r="4"/>';
 /* LA PHOTO SEULE (le client, le 03/11/2026 : « supprimer les vues 3D et
    plan ») : le plan schématique (v1253-v1278) et la 3D (v1288) sont
    retirés, leur code avec ; le cadre ne garde que la photo. */
@@ -24025,6 +24101,13 @@ function usinePhotoEtat(E){
     return '<button type="button" class="usp-st usp-f-'+(z.f||"gris")+(manque?' usp-manque':'')+(z.k===US_SEL?' usp-sel':'')+'" data-k="'+z.k+'" aria-label="'+esc(z.t+", "+n+(att?" sur "+att:"")+" au poste")+'">'
       +'<i aria-hidden="true"></i><span>'+esc(z.k==="cm"?"CM":(PV_COURT[z.k]||z.t))+'</span><b>'+n+(att?'/'+att:'')+'</b></button>'; }).join("");
 }
+/* les épingles des postes présents, celles du bas de la photo devant
+   celles du haut, comme sur une carte */
+function uspEpingles(L){
+  return L.map(function(o,i){ var f=(o.b.className.match(/usp-f-(\w+)/)||[])[1]||"gris", sel=o.b.classList.contains("usp-sel"), mq=o.b.classList.contains("usp-manque"), moi=!!o.b.querySelector(".usp-moi");
+      return {y:o.y, h:'<span class="usp-pin usp-f-'+f+(mq?' usp-pin-mq':'')+(sel?' usp-sel':'')+(moi?' usp-pin-moi':'')+'" data-k="'+o.k+'" style="left:'+Math.round(o.x)+'px;top:'+Math.round(o.y)+'px;--d:'+((i*0.37)%2.4).toFixed(2)+'s"><svg viewBox="-11 -31 22 32" aria-hidden="true">'+USP_EPINGLE+'</svg></span>'}; })
+    .sort(function(a,b){ return a.y-b.y; }).map(function(p){ return p.h; }).join("");
+}
 /* au PC, chaque groupe sur le point de son poste ; au téléphone, dans sa
    bande, relié à son point */
 function uspPlacer(){
@@ -24037,21 +24120,29 @@ function uspPlacer(){
     r.classList.toggle("usp-sel",k===US_SEL||(US_SEL==="terr"&&(k==="ferm"||k==="dist"))); });
   var tr=document.getElementById("uspTraits");
   var pins=document.getElementById("uspPins");
-  if(mob){ if(pins) pins.innerHTML=""; if(tr) tr.classList.remove("usp-pc"); uspBandes(L,W,H,usp,tr); return; }
+  if(mob){ if(tr) tr.classList.remove("usp-pc"); uspBandes(L,W,H,usp,tr);
+    /* LE WIDGET DU TÉLÉPHONE cache les bandes, leurs traits et les points
+       qu'ils portent : la photo n'avait plus aucun voyant (05/11/2026), que
+       son commentaire disait pourtant (« les points de couleur disent les
+       postes »). Les épingles s'y posent, sans étiquette */
+    if(pins) pins.innerHTML=(tr&&getComputedStyle(tr).display==="none")?uspEpingles(L):""; return; }
   if(usp){ usp.style.removeProperty("--usp-haut"); usp.style.removeProperty("--usp-bas"); } if(tr) tr.innerHTML="";
   /* les étiquettes grandissent avec la photo (11 px à 900 px de large,
-     jusqu'à 13,5 px) */
-  if(usp) usp.style.setProperty("--usp-k",String(Math.max(1,Math.min(1.25,W/900)).toFixed(3)));
-  L.forEach(function(o){ o.w=o.b.offsetWidth; o.h=o.b.offsetHeight; });
+     jusqu'à 13,5 px), les épingles avec elles */
+  var K=Math.max(1,Math.min(1.25,W/900));
+  if(usp) usp.style.setProperty("--usp-k",String(K.toFixed(3)));
+  L.forEach(function(o){ o.w=o.b.offsetWidth; o.h=o.b.offsetHeight; o.moi=!!o.b.querySelector(".usp-moi");
+    /* l'épingle (USP_EPINGLE) : --pw de large, 31/22 de --pw de haut */
+    o.pw=(o.moi?23:20)*K; o.ph=o.pw*31/22; });
   /* COMME UN SUIVI EN DIRECT (le client, le 03/11/2026 : « que les
      trigrammes soient affichés de manière à ce que ça fasse penser à un
-     live de l'emplacement des opérateurs ») : chaque poste a son point,
-     qui pulse, à sa couleur (ambre s'il y manque quelqu'un) ; ses
-     trigrammes en étiquette juste au-dessus, reliés par un trait fin. Une
-     étiquette qui en recouvre une autre monte au-dessus d'elle (ou
-     descend, en haut de la photo), sans quitter la photo ; son trait la
-     suit. */
-  var G=12; L.sort(function(a,b){ return b.y-a.y; }); var poses=[];
+     live de l'emplacement des opérateurs ») : chaque poste a son épingle,
+     à sa couleur (ambre s'il y manque quelqu'un), dont l'onde pulse au
+     sol ; ses trigrammes en étiquette juste au-dessus de sa tête, reliés
+     par un trait fin. Une étiquette qui en recouvre une autre, ou une
+     épingle, monte au-dessus d'elle (ou descend, en haut de la photo),
+     sans quitter la photo ; son trait la suit. */
+  var G=6; L.sort(function(a,b){ return b.y-a.y; }); var poses=[];
   /* au-dessus de la bande d'état (ses pastilles, sur deux rangs quand la
      photo est étroite) : un trigramme du bas de la photo s'y posait, dans
      le widget au trois quarts d'un écran de 900 px (04/11/2026) */
@@ -24059,24 +24150,29 @@ function uspPlacer(){
   /* la pastille « En direct », en haut à gauche : un obstacle comme les
      autres étiquettes (une photo réduite y posait un trigramme) */
   var lv=document.getElementById("uspLive"); if(lv&&lv.offsetWidth) poses.push({x0:lv.offsetLeft, x1:lv.offsetLeft+lv.offsetWidth, y0:lv.offsetTop, y1:lv.offsetTop+lv.offsetHeight});
+  /* les épingles, des obstacles aussi : une étiquette ne couvre aucune
+     tête, la sienne comprise (elle se pose G au-dessus) */
+  L.forEach(function(o){ poses.push({x0:o.x-o.pw/2, x1:o.x+o.pw/2, y0:o.y-o.ph, y1:o.y+2}); });
   /* la place libre la plus proche, cherchée parmi les bords des étiquettes
      déjà posées (dessus ou dessous), dans les bornes : l'ancien va-et-vient
      (au-dessus de l'obstacle, sinon dessous) oscillait entre deux voisins et
      s'arrêtait sur l'un d'eux (04/11/2026, sur « En direct ») */
-  L.forEach(function(o){ var cx=Math.max(o.w/2+4,Math.min(W-o.w/2-4,o.x)), lo=o.h/2+4, hi=Math.max(lo,H-bande-o.h/2-4), cy0=Math.max(lo,Math.min(hi,o.y-G-o.h/2)), cy=cy0;
+  L.forEach(function(o){ var cx=Math.max(o.w/2+4,Math.min(W-o.w/2-4,o.x)), lo=o.h/2+4, hi=Math.max(lo,H-bande-o.h/2-4), cy0=Math.max(lo,Math.min(hi,o.y-o.ph-G-o.h/2)), cy=cy0;
     function libre(y){ return !poses.some(function(p){ return cx-o.w/2<p.x1+4&&cx+o.w/2>p.x0-4&&y-o.h/2<p.y1+4&&y+o.h/2>p.y0-4; }); }
     if(!libre(cy0)){ var cand=[]; poses.forEach(function(p){ cand.push(p.y0-o.h/2-4,p.y1+o.h/2+4); });
       cand=cand.filter(function(y){ return y>=lo&&y<=hi&&libre(y); }).sort(function(a,b){ return Math.abs(a-cy0)-Math.abs(b-cy0); });
       if(cand.length) cy=cand[0]; }
     poses.push({x0:cx-o.w/2, x1:cx+o.w/2, y0:cy-o.h/2, y1:cy+o.h/2}); o.cx=cx; o.cy=cy;
     o.b.style.transform="translate("+Math.round(cx)+"px,"+Math.round(cy)+"px) translate(-50%,-50%)"; });
-  var traits="", pts="";
-  L.forEach(function(o,i){ var f=(o.b.className.match(/usp-f-(\w+)/)||[])[1]||"gris", sel=o.b.classList.contains("usp-sel"), mq=o.b.classList.contains("usp-manque"),
-      bout=o.cy<o.y?o.cy+o.h/2:o.cy-o.h/2, moi=!!o.b.querySelector(".usp-moi");
-    if(Math.abs(o.y-bout)>2) traits+='<path class="usp-tr-h" d="M'+Math.round(o.cx)+" "+Math.round(bout)+"L"+Math.round(o.x)+" "+Math.round(o.y)+'"/><path class="usp-tr'+(sel?' usp-sel':'')+'" d="M'+Math.round(o.cx)+" "+Math.round(bout)+"L"+Math.round(o.x)+" "+Math.round(o.y)+'"/>';
-    pts+='<span class="usp-pin usp-f-'+f+(mq?' usp-pin-mq':'')+(sel?' usp-sel':'')+(moi?' usp-pin-moi':'')+'" style="left:'+Math.round(o.x)+'px;top:'+Math.round(o.y)+'px;--d:'+((i*0.37)%2.4).toFixed(2)+'s"></span>'; });
+  /* le trait va du bord de l'étiquette au centre de la tête, sous
+     l'épingle : seul en paraît le bout entre les deux ; les épingles du
+     bas de la photo passent devant celles du haut, comme sur une carte */
+  var traits="";
+  L.forEach(function(o){ var sel=o.b.classList.contains("usp-sel"), bout=o.cy<o.y?o.cy+o.h/2:o.cy-o.h/2, tete=o.y-o.pw*20/22;
+    if(Math.abs(tete-bout)>2||Math.abs(o.cx-o.x)>2) traits+='<path class="usp-tr-h" d="M'+Math.round(o.cx)+" "+Math.round(bout)+"L"+Math.round(o.x)+" "+Math.round(tete)+'"/><path class="usp-tr'+(sel?' usp-sel':'')+'" d="M'+Math.round(o.cx)+" "+Math.round(bout)+"L"+Math.round(o.x)+" "+Math.round(tete)+'"/>';
+  });
   if(tr){ tr.classList.add("usp-pc"); tr.setAttribute("style","top:0; height:"+H+"px"); tr.setAttribute("viewBox","0 0 "+W+" "+H); tr.innerHTML=traits; }
-  if(pins) pins.innerHTML=pts;
+  if(pins) pins.innerHTML=uspEpingles(L);
   Array.prototype.forEach.call(document.querySelectorAll("#uspEtat .usp-st"),function(b){ b.classList.toggle("usp-sel",b.getAttribute("data-k")===US_SEL); });
   /* LA BULLE DU POSTE (le même jour) : au toucher d'une étiquette, la fiche
      vient sur la photo, à côté du point — qui est là, la relève, comment le
@@ -24142,14 +24238,17 @@ function uspBandes(L,W,H,usp,tr){
     cout+=3*(bh.h+bb.h);
     for(var a=0;a<tous.length;a++) for(var b=a+1;b<tous.length;b++) if(coupe(tous[a],tous[b])) cout+=1e3;
     if(!mieux||cout<mieux.cout) mieux={cout:cout, it:tous, hh:bh.h, hb:bb.h}; }
-  var hH=0, hB=0, traits="", points="";
+  var hH=0, hB=0, traits="", points=[];
   mieux.it.forEach(function(t){ var b=t.o.b; b.style.width=Math.ceil(t.w+.5)+"px"; t.hr=b.offsetHeight; if(t.haut) hH=Math.max(hH,t.hr); else hB=Math.max(hB,t.hr); });
   var off=hH+G;
   mieux.it.forEach(function(t){ var b=t.o.b, cy=t.haut?-G-t.hr/2:H+G+t.hr/2, f=(b.className.match(/usp-f-(\w+)/)||[])[1]||"gris", sel=b.classList.contains("usp-sel");
     b.style.transform="translate("+Math.round(t.c)+"px,"+Math.round(cy)+"px) translate(-50%,-50%)";
     var d="M"+Math.round(t.ax)+" "+Math.round(t.ay+off)+"L"+Math.round(t.x)+" "+Math.round(t.y+off);
     traits+='<path class="usp-tr-h'+(sel?' usp-sel':'')+'" d="'+d+'"/><path class="usp-tr'+(sel?' usp-sel':'')+'" d="'+d+'"/>';
-    points+='<circle class="usp-pt usp-f-'+f+(sel?' usp-sel':'')+'" cx="'+Math.round(t.x)+'" cy="'+Math.round(t.y+off)+'" r="'+(sel?4.5:3.5)+'"/>'; });
+    /* l'épingle (le client, le 05/11/2026 : « comme des points GPS »), sa
+       pointe sur le point, son ombre au sol ; plus grande, choisie */
+    points.push({y:t.y, h:'<g class="usp-pt usp-f-'+f+(sel?' usp-sel':'')+'" transform="translate('+Math.round(t.x)+' '+Math.round(t.y+off)+') scale('+(sel?0.8:0.66)+')"><ellipse class="usp-pt-sol" rx="7" ry="2.6"/>'+USP_EPINGLE+'</g>'}); });
+  points=points.sort(function(a,b){ return a.y-b.y; }).map(function(p){ return p.h; }).join("");
   if(usp){ usp.style.setProperty("--usp-haut",(hH?hH+G+8:8)+"px"); usp.style.setProperty("--usp-bas",(hB?hB+G+8:8)+"px"); }
   if(tr){ tr.setAttribute("style","top:"+(-off)+"px; height:"+(H+off+hB+G)+"px"); tr.setAttribute("viewBox","0 0 "+W+" "+(H+off+hB+G)); tr.innerHTML=traits+points; }
 }
@@ -37640,8 +37739,10 @@ var ACC_W=[
   /* une demande et ses étapes : moyen ; grand, la liste */
   {k:"demandes",     nom:"Demandes de congé",   l:6,  f:["M","L"], h:1},
   {k:"afaire",       nom:"À faire",             l:6,  f:["S","M","L"], h:1},
-  /* des titres et le début de leur texte : moyen et grand */
-  {k:"annonces",     nom:"Annonces",            l:6,  f:["M","L"], h:1, si:"compte"},
+  /* des titres et le début de leur texte : moyen et grand ; petit (le
+     client, le 05/11/2026 : « que Annonces puisse être réduit en 1x1
+     aussi ») : la dernière annonce, son titre et sa date */
+  {k:"annonces",     nom:"Annonces",            l:6,  f:["S","M","L"], h:1, si:"compte"},
   {k:"presents",     nom:"Effectif du jour",    l:6,  f:["S","M","L"], h:1, si:"saisie"},
   /* des pastilles en grille : moyen, grand, très grand */
   {k:"site",         nom:"Sur site",            l:6,  f:["M","L","XL"], h:2},

@@ -12854,7 +12854,10 @@ d'autres à 23 h 10, en poste, et à 7 h 40) :
 - **L'usine en direct au téléphone** (grand, 341 × 341 au lieu de 620 de
   haut) :
   - la photo entière, sans ses bandes de trigrammes, qui ne lui
-    laissaient que 55 px de haut ;
+    laissaient que 55 px de haut. Les points des postes devaient rester ;
+    c'était faux : ils se dessinaient dans le calque caché avec les
+    bandes, et la photo n'avait plus aucun voyant (constaté et corrigé en
+    v1390, par des épingles) ;
   - la légende en tuiles serrées, le crédit sur une ligne ;
   - la fiche du poste touché vient par-dessus le widget, avec sa croix
     (Échap la ferme aussi). Sous la légende, elle passait sous le bord.
@@ -13364,3 +13367,111 @@ désormais l'ordre et les formats, à l'état d'avant le mode.
 6 demandes : 40 mesures, 0 faute. Le widget seul, à 9 largeurs, avec 1, 2
 et 3 demandes : aucun débord. Parcours : 112 essais, 0 faute ;
 statique : 0.
+
+### Les voyants de « L'usine en direct » en épingles GPS ; « Annonces » en petit ; la bannière de « Mon profil » entière (05/11/2026, `nfdm-v1390`)
+
+Le client, sur sa capture du PC à 0 h 58 : « J'aimerais que les voyants de
+la carte live soient comme des points GPS, et que ceux de la meunerie
+soient au niveau de mon pointeur. Ceux du gluten légèrement plus bas
+qu'actuellement ; chaudières, le centre entre les deux cheminées ; le
+terrain arrière un rien plus à gauche. » Puis, sur une seconde capture :
+« J'aimerais que Annonces puisse être réduit en 1x1 aussi, et que la
+bannière soit complètement visible même en 1x1. » Son « 1x1 » est le petit
+format (2 × 2 icônes), comme son « 2x1 » de la v1389 était le moyen.
+
+**Des épingles GPS.** Chaque voyant était un rond de 11 px qui pulsait,
+centré sur la place du poste. C'est désormais une épingle de carte : sa
+pointe sur la place, sa tête à la couleur du poste (ambre s'il y manque
+quelqu'un) et son point blanc ; à son pied, une ombre et l'onde qui
+pulse au sol. Elle grandit avec la photo, comme les étiquettes (20 px de
+large à 900 px de photo, 25 au plus). Celle de votre poste est un peu
+plus grande, son point au cyan de « vous ».
+- **les étiquettes** se posent au-dessus de la tête, et non plus 12 px
+  au-dessus du point. Les épingles sont des obstacles : une étiquette
+  n'en couvre aucune (`uspPlacer`) ;
+- **le trait** va de l'étiquette au centre de la tête, sous l'épingle :
+  seul en paraît le bout entre les deux ;
+- **les épingles du bas** de la photo passent devant celles du haut, comme
+  sur une carte.
+
+**Au téléphone, aucun voyant ne se voyait.** Le widget du téléphone cache
+les bandes de trigrammes et leurs traits (`#uspEt`, `#uspTraits`). Or les
+points du téléphone étaient dessinés dans ce même calque des traits. Le
+commentaire disait pourtant « les points de couleur disent les postes » :
+c'était faux depuis que les bandes sont cachées. Les épingles s'y posent
+désormais sur la photo, sans étiquette, plus petites (15 px).
+
+**Les places**, relevées sur la photo de 1600 × 840 :
+
+| Poste | Avant | Désormais | Pourquoi |
+|---|---|---|---|
+| Gluten | 300, 470 | 302, 500 | à mi-hauteur des six silos (de y 450 à 550) |
+| Chaudières | 500, 232 | 648, 259 | au milieu des deux cheminées : leurs axes en x 626 et 670, de leur sommet (y 184) à leur pied (334) |
+| Terrain arrière | 740, 470 | 720, 470 | 20 px plus à gauche |
+| Meunerie | 222, 215 | inchangée | question au client |
+
+**La meunerie attend une réponse.** Le pointeur ne figure pas sur la
+capture : Windows ne le photographie pas. Seul indice, la zone de la
+meunerie allumée en jaune (`usp-vu`, au survol). Le pointeur était donc
+quelque part dans ses deux rectangles. Ce n'était pas sur l'étiquette :
+son nom serait apparu au-dessus. Ce rectangle couvre tout le bâtiment.
+Une question au client (QCM), avec une image de quatre places numérotées,
+plutôt qu'une place devinée.
+
+**Contrôle neuf**, `carte-epingles.js` (carnet de la session) :
+- il vérifie que la pointe de chaque épingle est sur sa place (à 1 px
+  près) ;
+- et qu'aucune étiquette ne couvre une tête ni une autre étiquette ;
+- à 8 largeurs (1100 à 2560 px, puis 393 et 360) et à trois heures (la
+  nuit, l'après-midi, le matin) : 24 mesures, 0 faute.
+
+Il a été éprouvé sur une copie sabotée (étiquette posée sur sa tête,
+épingles sans obstacle, pointe décalée de 3 unités) : 21 fautes.
+
+**« Annonces » en petit.** Le widget n'avait que le moyen et le grand. Il a
+désormais aussi le petit (`ACC_W`).
+- À droite, la pastille « Nouveau » serrait le titre sur quatre lignes.
+  À 393 et 320 px d'écran, elle le chevauchait.
+- Elle passe au-dessus du titre.
+- Le titre tient en trois lignes au plus, deux sous 150 px de large.
+- « Épinglée » s'efface : l'épinglée vient en tête.
+- Ce qui ne tient pas cède sa place à « + N autres ».
+- Au PC de 1 920 px, trois annonces tiennent. À l'iPhone, une, puis
+  « + 2 autres ».
+
+**La bannière de « Mon profil » entière**, en petit comme en moyen, au
+téléphone comme au PC. Elle garde ses proportions (2170 × 540) sur toute
+la largeur du widget, et rien n'est posé dessus. Avant, mesuré sur la
+v1389 :
+- en petit, elle prenait la place que le nom lui laissait : 36 % de sa
+  largeur au PC de 1 920 px, 47 % à l'iPhone, sans le logo. La roue et
+  l'avatar étaient posés dessus ;
+- en moyen, au PC, 70 % de sa hauteur : le bas du logo coupé. À
+  l'iPhone, 88 % de sa largeur, et la roue posée dessus.
+
+Dessous, la place qui reste : la hauteur du widget moins celle de la
+bannière, lues en unités de conteneur. Le widget est un conteneur de
+taille ; ses enfants seuls le lisent, pas lui-même.
+- **en moyen**, une ligne : l'avatar, le poste et le binôme, la cloche, la
+  roue. Au téléphone, la roue passée dans la ligne serrait le poste
+  (« Contremaî… » à 393 px). Sous 420 px de widget, le poste passe à
+  16 px et la roue à 34 px ; sous 340 px, le statut s'efface ;
+- **en petit**, l'avatar et la roue, puis le poste et le binôme ;
+- l'avatar prend la taille que la place lui laisse : de 30 à 60 px en
+  petit, de 32 à 64 px en moyen.
+
+**Contrôle neuf**, `banniere-test.js` :
+- il calcule la part visible de l'image d'après `background-size` ;
+- il vérifie que la bannière prend toute la largeur et que rien n'est
+  posé dessus ;
+- à 10 largeurs, en petit et en moyen : 20 mesures, 100 % × 100 %
+  partout ;
+- sur la v1389, il trouve 11 fautes à 393 et 1920 px.
+
+**Mesuré.**
+- La matrice de « Mon profil » et d'« Annonces », à 10 largeurs et à
+  chaque format : 60 mesures, 0 faute (coupé, vide, chevauché, rogné,
+  écrasé).
+- Parcours : 112 essais, 0 faute ; statique : 0. Repassés sur le fichier
+  final avec les contrôles de la bannière (20 mesures), des épingles
+  (24) et la matrice (60) : 0 faute.
