@@ -14110,3 +14110,25 @@ la sienne, au lieu de sa rangée. Corrigé, puis éprouvé sur une copie
 sans le calage : « 2 cadre(s) d'horaire hors de leur rangée ». L'essai
 des pages tient compte du Planning déjà à droite. Résultat : 157 essais,
 0 faute.
+
+### v1415 — Le Planning sur la page de droite, annulé (05/11/2026)
+
+Le client, après la v1414 : « annule cette demande ». La v1414 est
+défaite (`git revert`) : le Planning redevient un widget du seul PC
+(1 100 px et plus), le téléphone retrouve ses formats, et la page de
+droite est vide par défaut. Une disposition enregistrée sous la v1414
+garde dans `p` et `x` une trace du Planning ; la v1415 ignore `x`, et
+le Planning ne se montre pas au téléphone. Cette trace est donc sans
+effet.
+
+**Un seul morceau gardé : le calage des cadres d'horaire.** Il est
+mesuré au PC sur la version annulée : dans le widget Planning de
+l'Accueil (1 280 px), 2 cadres d'horaire sur 2 débordaient de leur
+rangée. `ajusterLignesJour` ne fait rien quand l'onglet est caché, donc
+jamais dans l'Accueil. Il cale désormais le tableau du widget
+(`alignerFusions`) : 0 cadre hors de sa rangée.
+
+**Essai permanent** (`parcours.js`, PC, contremaître) : chaque cadre
+d'horaire du Planning de l'Accueil reste dans sa rangée. Éprouvé sur la
+v1413, sans le calage : « 2 cadre(s) d'horaire hors de leur rangée ».
+Sur la v1415 : 153 essais, 0 faute.

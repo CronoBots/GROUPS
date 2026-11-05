@@ -316,7 +316,7 @@ function constater(){
       await aller(page,"tab-horaire");
       await page.evaluate(()=>{ const b=document.querySelector("[data-acc-editer]"); if(b) b.click(); }); await page.waitForTimeout(500);
       const k=await page.evaluate(()=>{ const b=[...document.querySelectorAll(".acc-b:not(.app)")].find(x=>x.getClientRects().length); return b?b.getAttribute("data-acc-pour"):null; });
-      const etat=()=>page.evaluate(k=>{ const pts=document.getElementById("accPoints"), vis=[...document.querySelectorAll("#v-horaire [data-w]")].filter(e=>e.getClientRects().length&&e.getAttribute("data-w")!=="planning").map(e=>e.getAttribute("data-w"));
+      const etat=()=>page.evaluate(k=>{ const pts=document.getElementById("accPoints"), vis=[...document.querySelectorAll("#v-horaire [data-w]")].filter(e=>e.getClientRects().length).map(e=>e.getAttribute("data-w"));
         return {pts:pts&&!pts.hidden?pts.children.length:0, cur:pts?[...pts.children].findIndex(x=>x.getAttribute("aria-current")==="page"):-1, seul:vis.length===1&&vis[0]===k, vis:vis.length}; },k);
       if(!k) lignes.push("Pages : aucun widget à déplacer en mode Modifier");
       else {
@@ -424,26 +424,16 @@ function constater(){
       if(await page.evaluate(()=>!!document.querySelector(".cfm-ov"))){ lignes.push("Modifier : après Échap tenu, Échap demande une confirmation"); await page.keyboard.press("Escape"); }
       if(await page.evaluate(()=>document.getElementById("v-horaire").classList.contains("acc-edit"))) await page.click("#accOk").catch(()=>{});
     }
-    /* Le Planning, widget de la page de droite (le client, le 05/11/2026 :
-       « sur mobile, le Planning doit devenir un widget, situé à droite de
-       l'Accueil normal ») : au téléphone (contremaître), deux points ; le
-       second ouvre la page de droite, où le Planning est montré, dans
-       l'Accueil ; ses cadres d’horaire restent dans leur rangée et dans le
-       widget (dessinés page cachée, ils avaient 0 px et débordaient) */
-    if(role==="hierarchie"&&ecran.mobile){ n++;
-      await aller(page,"tab-horaire"); await page.evaluate(()=>scrollTo(0,0));
-      /* couché, l'Accueil large n'a pas de pages : le Planning y est dans la grille */
-      const ok=await page.evaluate(()=>{ if(document.getElementById("v-horaire").classList.contains("acc-large")){ const w=document.getElementById("accPlanning"); if(w) w.scrollIntoView({block:"center"}); return true; }
-        const b=document.querySelector('#accPoints [data-acc-page="1"]'); if(!b) return false; b.click(); return true; });
-      await page.waitForTimeout(900);
-      const r=await page.evaluate(()=>{ const w=document.getElementById("accPlanning"), c=w&&document.getElementById("jourCard");
-        if(!w||!w.getClientRects().length||!c||c.parentNode!==w) return {vu:false};
-        const rw=w.getBoundingClientRect(), s=[...w.querySelectorAll(".eqseg")].filter(e=>e.getClientRects().length);
-        return {vu:true, plats:s.filter(e=>{ const tr=e.closest("tr"), q=e.getBoundingClientRect(); return !!tr&&q.bottom>tr.getBoundingClientRect().bottom+1; }).length, sortis:s.filter(e=>{ const q=e.getBoundingClientRect(); return q.bottom>rw.bottom+1||q.right>rw.right+1; }).length}; });
-      if(!ok) lignes.push("Planning : pas de page de droite au téléphone");
-      else if(!r.vu) lignes.push("Planning : la page de droite ne le montre pas");
-      else if(r.plats||r.sortis) lignes.push("Planning de l'Accueil : "+r.plats+" cadre(s) d'horaire hors de leur rangée, "+r.sortis+" hors du widget");
-      await page.evaluate(()=>{ const b=document.querySelector('#accPoints [data-acc-page="0"]'); if(b) b.click(); }); await page.waitForTimeout(500);
+    /* Les cadres d'horaire du Planning de l'Accueil, au PC (05/11/2026) :
+       chacun reste dans sa rangée (jamais calés hors de l'onglet, ils
+       avaient 0 px de rangée et débordaient sur la suivante) */
+    if(role==="hierarchie"&&!ecran.mobile){ n++;
+      await aller(page,"tab-horaire");
+      const r=await page.evaluate(()=>{ const w=document.getElementById("accPlanning"); if(!w||!w.getClientRects().length) return null; w.scrollIntoView({block:"center"});
+        const s=[...w.querySelectorAll(".eqseg")].filter(e=>e.getClientRects().length);
+        return s.filter(e=>{ const tr=e.closest("tr"); return !!tr&&e.getBoundingClientRect().bottom>tr.getBoundingClientRect().bottom+1; }).length; });
+      if(r===null) lignes.push("Planning de l'Accueil : absent au PC");
+      else if(r) lignes.push("Planning de l'Accueil : "+r+" cadre(s) d'horaire hors de leur rangée");
     }
     /* LE DOCK AUX ÉCARTS ÉGAUX (le client, le 05/11/2026) : au téléphone,
        debout ou couché, chaque icône est dans le dock, et l'écart est le

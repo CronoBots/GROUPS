@@ -34570,10 +34570,10 @@ function alignerFusions(tbl){
 }
 function ajusterLignesJour(){
   var view=document.getElementById("v-jour");
-  /* LE PLANNING DE L'ACCUEIL (05/11/2026) : les cadres d'horaire (les
-     Chaudières, « SPS 18-06 ») n'y étaient jamais calés, l'onglet étant
-     caché ; à 0 px de haut, ils débordaient sur la rangée suivante. Le
-     widget ne prend que ce calage : ses hauteurs sont les siennes
+  /* LE PLANNING DE L'ACCUEIL, AU PC (05/11/2026) : les cadres d'horaire
+     (les Chaudières, « SPS 18-06 ») n'y étaient jamais calés, l'onglet
+     étant caché ; à 0 px de haut, ils débordaient sur la rangée suivante.
+     Le widget ne prend que ce calage : ses hauteurs sont les siennes
      (accPlanningAjuster) */
   if(!view||view.hidden){ var ap=document.getElementById("accPlanning"), ta=ap&&!ap.hidden&&ap.getClientRects().length&&ap.querySelector("#jourCorps .eqp2");
     if(ta) alignerFusions(ta); return; }
@@ -37849,7 +37849,7 @@ var ACC_W=[
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
   /* une grille de sept jours : moyen (la semaine), grand et très grand
      (six semaines) */
-  {k:"cycle",        nom:"Mon cycle",           l:6,  f:{tel:["M","L"], large:["M","L","XL"]}, h:2},
+  {k:"cycle",        nom:"Mon cycle",           l:6,  f:["M","L","XL"], h:2},
   /* quelques pastilles : petit, une ligne */
   {k:"polyvalences", nom:"Polyvalences",        l:3,  f:["S"], h:1},
   /* tirés des autres onglets (04/11/2026) ; si : à qui ils s'adressent */
@@ -37857,12 +37857,12 @@ var ACC_W=[
   {k:"dates",        nom:"À retenir",           l:6,  f:["S","M","L"], h:1},
   /* au PC seulement (pc) : la carte de l'onglet Planning (accPlanningPlacer) ;
      son tableau (dix postes, trois pauses) tient en très grand, resserré */
-  {k:"planning",     nom:"Planning",            l:12, f:["XL"], h:2},
+  {k:"planning",     nom:"Planning",            l:12, f:["XL"], pc:true, h:2},
   /* la photo et ses trigrammes : très grand au PC ; au téléphone, grand,
      la photo seule et sa légende, la fiche par-dessus */
   {k:"usine",        nom:"L’usine en direct",   l:12, f:{tel:["L"], large:["XL"]}, h:2},
   /* le mois en grand ; au PC, très grand l'élargit */
-  {k:"calendrier",   nom:"Calendrier",          l:6,  f:{tel:["M","L"], large:["M","L","XL"]}, h:2},
+  {k:"calendrier",   nom:"Calendrier",          l:6,  f:["M","L","XL"], h:2},
   /* une ligne montre tous les compteurs, leurs jours et le total ; deux
      lignes n'étiraient que leurs barres : petit et moyen ; moyen au PC
      (en petit, il laissait un trou de 2 × 2 sous le calendrier) */
@@ -37876,12 +37876,12 @@ var ACC_W=[
   {k:"annonces",     nom:"Annonces",            l:6,  f:["S","M","L"], h:1, si:"compte"},
   {k:"presents",     nom:"Effectif du jour",    l:6,  f:["S","M","L"], h:1, si:"saisie"},
   /* des pastilles en grille : moyen, grand, très grand */
-  {k:"site",         nom:"Sur site",            l:6,  f:{tel:["M","L"], large:["M","L","XL"]}, h:2},
+  {k:"site",         nom:"Sur site",            l:6,  f:["M","L","XL"], h:2},
   {k:"messages",     nom:"Messages",            l:6,  f:["M","L"], h:1},
   /* petit : la mise en page réduite (requête de conteneur « anc »,
      04/11/2026) */
   {k:"conges",       nom:"Mon année",           l:6,  f:["S","M","L"], h:2},
-  {k:"rythme",       nom:"Mon rythme",          l:6,  f:{tel:["M","L"], large:["M","L","XL"]}, h:2}
+  {k:"rythme",       nom:"Mon rythme",          l:6,  f:["M","L","XL"], h:2}
 ];
 /* au téléphone, l'ordre de la page d'avant : le héros, puis le suivi, puis
    les demandes et le calendrier */
@@ -37914,7 +37914,7 @@ var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle",
 var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","usine","calendrier","site","messages","rythme"];
 var ACC_DEFAUT={
   tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S",
-    calendrier:"L", usine:"L", site:"M", messages:"M", rythme:"M", planning:"XL"},
+    calendrier:"L", usine:"L", site:"M", messages:"M", rythme:"M"},
   large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S",
     usine:"XL", calendrier:"L", site:"M", messages:"L", rythme:"XL"}
 };
@@ -37924,12 +37924,6 @@ var ACC_DEFAUT={
    widgets de 2, 4 ou 8 icônes de large. Une taille retirée qu'un appareil
    avait gardée revient à la taille d'origine du widget (accTaille). */
 var ACC_TAILLES={large:[3,6,9,12], tel:[1,2]};
-/* LES PAGES DE LA VUE PAR DÉFAUT (le client, le 05/11/2026 : « sur
-   mobile, le Planning doit devenir un widget, situé à droite de l'Accueil
-   normal ») : le Planning seul sur la page de droite. Une disposition déjà
-   réglée le reçoit une fois (ACC.x, les ajouts déjà faits) ; ramené
-   ensuite sur la page principale, il y reste */
-var ACC_PAGE_DEFAUT={tel:{planning:1}};
 var ACC={mode:"", cols:4, o:[], t:{}, m:{}, hh:{}, pg:{}, page:0, edit:false, gap:16, rg:16, p:96, style:null, ro:null, items:[], scanT:0, drag:null, etire:false,
   calque:null, anims:[], t0:0, jig:{}, placeT:0};
 /* CHAQUE ACCÈS RAPIDE EST UNE APP (le client, le 04/11/2026 : « pour les
@@ -37966,9 +37960,7 @@ function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return AC
 /* et le mini, 2 × 1 icônes : la largeur du petit, une seule rangée (le
    client, le 05/11/2026), pour un coup d'œil : le trigramme et la
    fonction, la température et le ciel */
-/* le très grand du téléphone (05/11/2026) : le Planning seul, toute la
-   largeur et trois lignes, sur sa page à droite de l'Accueil */
-var ACC_FORMATS={tel:{R:[1,0.5], B:[2,0.5], S:[1,1], M:[2,1], L:[2,2], XL:[2,3]}, large:{R:[3,0.5], B:[6,0.5], S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
+var ACC_FORMATS={tel:{R:[1,0.5], B:[2,0.5], S:[1,1], M:[2,1], L:[2,2]}, large:{R:[3,0.5], B:[6,0.5], S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
 var ACC_FORMAT_NOM={R:"Mini", B:"Bandeau", S:"Petit", M:"Moyen", L:"Grand", XL:"Très grand"};
 function accFormats(k){ var d=accDef(k), m=ACC.mode||"tel", F=ACC_FORMATS[m], f=d&&!d.app&&d.f; if(!f) return null; if(!(f instanceof Array)) f=f[m]||[];
   return f.filter(function(x){ return F[x]; }).map(function(x){ return {n:x, t:F[x][0], h:F[x][1]}; }); }
@@ -38043,13 +38035,7 @@ function accCharger(mode,defaut){
      elle, où qu'elle ait été placée */
   if(neufs.indexOf("soldes")>=0&&o.indexOf("conges")>=0){ o.splice(o.indexOf("soldes"),1); o.splice(o.indexOf("conges"),0,"soldes"); }
   ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{}; ACC.hh=sv.h&&typeof sv.h==="object"?sv.h:{};
-  ACC.pg=sv.p&&typeof sv.p==="object"?sv.p:{}; ACC.x=sv.x&&typeof sv.x==="object"?sv.x:{};
-  var Pd=ACC_PAGE_DEFAUT[mode]||{};
-  Object.keys(Pd).forEach(function(k){ if(ACC.x[k]) return; ACC.x[k]=1;
-    /* une disposition réglée : le widget arrive sur sa page, à son format
-       par défaut, et non masqué (au téléphone, il ne s'y montrait pas) */
-    ACC.pg[k]=Pd[k]; delete ACC.m[k];
-    if(sv.o&&sv.o.length){ var f=ACC_FORMATS[mode][(ACC_DEFAUT[mode]||{})[k]]; if(f){ ACC.t[k]=f[0]; ACC.hh[k]=f[1]; } } });
+  ACC.pg=sv.p&&typeof sv.p==="object"?sv.p:{};
   /* une disposition neuve (ou rétablie) prend les formats de la vue par
      défaut ; une disposition réglée garde les siens */
   if(!(sv.o&&sv.o.length)){ var Fm=ACC_FORMATS[mode], D=ACC_DEFAUT[mode]||{};
@@ -38061,9 +38047,9 @@ function accCharger(mode,defaut){
    pendant le mode Modifier, rien ne s'enregistre ; « ✓ » enregistre
    (accTerminer), Échap demande s'il faut annuler (accQuitter). Une page
    rechargée en plein mode retrouve donc la disposition d'avant. */
-function accSauver(){ if(ACC.edit) return; lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh, p:ACC.pg, x:ACC.x||{}}); }
-function accEtat(){ return JSON.stringify({o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh, p:ACC.pg, x:ACC.x||{}}); }
-function accRemettre(l){ var s=JSON.parse(l); ACC.o=s.o; ACC.t=s.t; ACC.m=s.m; ACC.hh=s.h; ACC.pg=s.p||{}; ACC.x=s.x||{}; }
+function accSauver(){ if(ACC.edit) return; lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh, p:ACC.pg}); }
+function accEtat(){ return JSON.stringify({o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh, p:ACC.pg}); }
+function accRemettre(l){ var s=JSON.parse(l); ACC.o=s.o; ACC.t=s.t; ACC.m=s.m; ACC.hh=s.h; ACC.pg=s.p||{}; }
 /* UN BROUILLON PAR FORME D'ÉCRAN (audit du 05/11/2026) : en plein mode,
    une fenêtre qui passe le seuil des 700 px d'Accueil (une moitié d'écran
    de PC, un iPhone Plus ou Pro Max tourné) rechargeait la disposition
@@ -38084,7 +38070,7 @@ function accTerminer(garder){
   if(!ACC.edit) return;
   var av=ACC.av||{}, br=ACC.brou||{}, change=accChange(); ACC.av=null; ACC.brou=null;
   if(garder){ accEditer(false); accSauver();
-    Object.keys(br).forEach(function(m){ if(m!==ACC.mode&&br[m]!==av[m]){ var x=JSON.parse(br[m]); lsSet("ui/accueil/"+m,{v:1, o:x.o, t:x.t, m:x.m, h:x.h, p:x.p||{}, x:x.x||{}}); } });
+    Object.keys(br).forEach(function(m){ if(m!==ACC.mode&&br[m]!==av[m]){ var x=JSON.parse(br[m]); lsSet("ui/accueil/"+m,{v:1, o:x.o, t:x.t, m:x.m, h:x.h, p:x.p||{}}); } });
     accAnnoncer("Accueil enregistré."); return; }
   if(av[ACC.mode]!==undefined) accRemettre(av[ACC.mode]); else accCharger(ACC.mode);
   accEditer(false); accScan(); accStyle(); try{ majBadgeNotif(); }catch(e){}
@@ -39069,19 +39055,7 @@ function accEtirer(ev,k,el,g){
    sélecteur « #v-jour … » a son double « #accPlanning … »). */
 function accPlanningPlacer(v){
   var c=document.getElementById("jourCard"), vj=document.getElementById("v-jour"), w=document.getElementById("accPlanning"); if(!c||!vj||!w) return;
-  /* au téléphone aussi, depuis le 05/11/2026 (le client : « sur mobile,
-     le Planning doit devenir un widget, situé à droite de l'Accueil
-     normal ») : la page de droite (ACC_PAGE_DEFAUT) */
-  var ici=(v||st.view)==="horaire"&&!!ACC.style;
-  /* LE PLANNING DESSINÉ SUR UNE PAGE CACHÉE (05/11/2026) : au téléphone,
-     il vit sur la page de droite, cachée (display:none) quand on regarde
-     l'Accueil ; les cadres d'horaire des Chaudières y étaient mesurés à
-     0 px de haut, et débordaient sur la rangée suivante une fois la page
-     montrée. Dès que la carte reprend une largeur, on le redessine */
-  if(window.ResizeObserver&&!c.__accVu){ c.__accVu=1; var larg0=0;
-    new ResizeObserver(function(es){ var l=es[0].contentRect.width;
-      if(l&&!larg0&&c.parentNode===w) (window.requestAnimationFrame||setTimeout)(function(){ try{ renderEquipe(); }catch(e){} });
-      larg0=l; }).observe(c); }
+  var ici=(v||st.view)==="horaire"&&!!ACC.style&&!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches);
   if(ici){
     if(c.parentNode!==w){ w.appendChild(c); w.hidden=false;
       (window.requestIdleCallback||function(f){ setTimeout(f,40); })(function(){ try{ renderEquipe(); }catch(e){} }); }
