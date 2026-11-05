@@ -14202,3 +14202,13 @@ widget « Mon cycle » les montre toujours (`cycleAvec`). `_pfBinomeEquipe`,
 qui ne servait qu'à cette ligne, est retiré. Le binôme d'un cadre
 (« Binôme · … ») reste : la demande vise les équipes de 5 semaines.
 Résultat : 177 essais, 0 faute.
+
+### v1419 — « Assistant usine » dans le profil (05/11/2026)
+
+Le client : « Assistant usine peut être marqué pour ces gens-là ». Le
+classeur des polyvalences donne cette fonction (`poly.statut`) à
+4 personnes, une par équipe (2 à 5), toutes polyvalentes sur les cinq
+postes de production. Leur profil lit « Assistant usine » à la place de
+« Opérateur » et d'un poste du jour, titre du lecteur d'écran compris.
+Leur statut reste « Employé ». Mesuré au navigateur sur les quatre, et
+sur deux témoins inchangés. Résultat : 177 essais, 0 faute.

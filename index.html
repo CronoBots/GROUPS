@@ -18700,15 +18700,21 @@ function _pfHead(db,p){
   }
   /* « de production » se tait là où la place manque (le mini, les écrans
      de 320 px) : « Contremaître » reste entier plutôt que coupé */
+  /* « ASSISTANT USINE » (le client, le 05/11/2026 : « Assistant usine peut
+     être marqué pour ces gens-là ») : la fonction que le classeur des
+     polyvalences leur donne (poly.statut), une par équipe, polyvalents sur
+     tous les postes ; à la place de « Opérateur » et d'un poste du jour */
+  var assU=!cadre&&p.poly&&/assistant\s+usine/i.test(p.poly.statut||"");
+  if(assU) role="Assistant usine";
   /* « OPÉRATEUR » PUIS LE POSTE (le client, le 05/11/2026, en réponse à
      l'inventaire : « Opérateur » suivi du nom du poste) ; là où la place manque, le
      poste seul, qui dit le plus */
   var bio=role==="Contremaître de production"?'Contremaître<span class="pf-de"> de production</span>'
-    :(!cadre&&role!=="Opérateur")?'<span class="pf-de">Opérateur </span>'+esc(role):esc(role);
+    :(!cadre&&!assU&&role!=="Opérateur")?'<span class="pf-de">Opérateur </span>'+esc(role):esc(role);
   /* un titre pour le lecteur d'écran : le trigramme de l'avatar lui est
      caché, et le héros n'avait pas de titre (audit du 23/10/2026) */
   return '<div class="pf-hero">'
-    +'<h2 class="sr-only">Mon profil · '+esc(tri)+', '+esc((!cadre&&role!=="Opérateur")?"Opérateur "+role:role)+'</h2>'
+    +'<h2 class="sr-only">Mon profil · '+esc(tri)+', '+esc((!cadre&&!assU&&role!=="Opérateur")?"Opérateur "+role:role)+'</h2>'
     /* L'ÉCRAN D'ACCUEIL D'UN IPHONE (le client, le 03/11/2026 : « je veux
        que tout le contenu soit comme des widgets ou des icônes du menu de
        l'iPhone ») : le profil est un widget à lui seul, la couverture en
