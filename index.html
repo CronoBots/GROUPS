@@ -37927,26 +37927,77 @@ function accGlisseEls(){
 function accDecaler(L,x,ms){ L.forEach(function(el){ el.style.transition=ms?"translate "+ms+"ms cubic-bezier(.25,.8,.3,1)":"none"; el.style.translate=x?x+"px 0":""; }); }
 function accDecalerFin(L){ L.forEach(function(el){ el.style.transition=""; el.style.translate=""; }); }
 function accAnime(){ return !!(window.CSS&&CSS.supports&&CSS.supports("translate","1px 0"))&&!(window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches); }
-/* aller à la page p ; L : ce que le doigt a déjà décalé */
-function accAllerPage(p,L,garderVue){
-  var pv=accPagesVues(), W=document.documentElement.clientWidth||innerWidth;
-  if(ACC.glisse) return;
-  if(pv.indexOf(p)<0||p===ACC.page){ if(L&&L.length){ accDecaler(L,0,200); setTimeout(function(){ accDecalerFin(L); },220); } return; }
-  var sens=p>ACC.page?1:-1;
-  function changer(){
-    ACC.page=p; accStyle(); if(ACC.edit) accOutils(false);
-    if(!garderVue){ var v=document.getElementById("v-horaire"), top=v?v.getBoundingClientRect().top+scrollY-80:0; if(scrollY>top) window.scrollTo(0,Math.max(0,top)); }
-    var nb=pv.indexOf(p)+1;
-    accAnnoncer(ACC_PAGE_NOM[p]+" de l’Accueil, "+nb+" sur "+pv.length+(ACC.edit&&accPageVide(p)?" : vide.":"."));
-  }
-  if(!accAnime()){ if(L) accDecalerFin(L); changer(); return; }
+/* LA PAGE VOISINE VISIBLE PENDANT LE GESTE (le client, le 05/11/2026,
+   capture de son iPhone à l'appui : « il ne faut pas que le swipe soit
+   totalement terminé pour que le contenu apparaisse ; comme sur l'iPhone,
+   le contenu doit être déjà visible lors du swipe »). Avant, la page
+   neuve n'entrait qu'au lâcher. Désormais, dès que le doigt part vers une
+   page, on la place à côté (accVoisine) : on la montre un instant dans la
+   grille, à la place de la page actuelle, le temps de mesurer chacun de
+   ses éléments, puis la page actuelle revient — tout cela avant que
+   l'écran ne se peigne. Ses éléments restent montrés, sortis de la grille
+   (position absolue, à leur place et à leur taille mesurées), et décalés
+   d'une largeur d'écran : les deux pages glissent ensemble sous le doigt.
+   Ce sont les éléments eux-mêmes, non des copies : leur contenu, leur
+   style et leur taille sont ceux qu'ils auront, et au lâcher la page neuve
+   tombe exactement à sa place. Ses noms (sous les widgets) suivent, sur
+   une couche à part. */
+function accVoisine(p,garderVue){
+  var v=document.getElementById("v-horaire"), av=ACC.page, vt=v.getBoundingClientRect().top+scrollY-80,
+      T=(!garderVue&&scrollY>vt)?Math.max(0,vt):scrollY, dy=scrollY-T;
+  ACC.page=p; accStyle();
+  var mes=ACC.items.filter(function(el){ return el.id!=="accPied"&&el.getClientRects().length; }).map(function(el){
+    var r=el.getBoundingClientRect();
+    return {el:el, d:getComputedStyle(el).display, x:(r.left+r.right)/2-el.offsetWidth/2, y:(r.top+r.bottom)/2-el.offsetHeight/2, w:el.offsetWidth, h:el.offsetHeight}; });
+  ACC.page=av; accStyle();
+  var els=mes.map(function(m){ return m.el; });
+  var haut=mes.filter(function(m){ for(var q=m.el.parentElement;q&&q!==v;q=q.parentElement){ var i=els.indexOf(q); if(i>=0&&mes[i].d!=="contents") return false; } return true; });
+  mes.forEach(function(m){ m.el.__voisin=1; m.el.style.setProperty("display",m.d,"important"); });
+  haut.forEach(function(m){ var st=m.el.style;
+    [["position","absolute"],["left","0px"],["top","0px"],["width",m.w+"px"],["height",m.h+"px"],["min-height","0"],["margin","0"],["pointer-events","none"]].forEach(function(x){ st.setProperty(x[0],x[1],"important"); }); });
+  haut.forEach(function(m){ var r=m.el.getBoundingClientRect(), cx=(r.left+r.right)/2-m.w/2, cy=(r.top+r.bottom)/2-m.h/2;
+    m.el.style.setProperty("left",(m.x-cx)+"px","important"); m.el.style.setProperty("top",(m.y-cy+dy)+"px","important"); });
+  /* les noms de ses widgets */
+  var c=document.createElement("div"); c.className="acc-noms acc-noms-v"; c.setAttribute("aria-hidden","true"); v.insertBefore(c,document.getElementById("accPied"));
+  var h=[];
+  mes.forEach(function(m){ var k=m.el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!m.w) return;
+    var q=accDans(m.el,c); h.push('<span class="acc-nom" style="left:'+q.x.toFixed(2)+'px;top:'+(q.y+m.h).toFixed(2)+'px;width:'+m.w+'px">'+esc(d.nom)+'</span>'); });
+  c.innerHTML=h.join("");
+  return {p:p, mes:mes, L:haut.map(function(m){ return m.el; }).concat([c]), noms:c, T:T};
+}
+function accVoisineFin(vo){
+  if(!vo) return;
+  vo.mes.forEach(function(m){ m.el.__voisin=0; ["display","position","left","top","width","height","min-height","margin","pointer-events","translate","transition"].forEach(function(x){ m.el.style.removeProperty(x); }); });
+  if(vo.noms.parentNode) vo.noms.parentNode.removeChild(vo.noms);
+}
+/* la fin du glissement : g = {L (la page actuelle), vo (la voisine), sens} ;
+   garder : la voisine devient la page, sinon tout revient */
+function accGlisserFin(g,garder,ms){
+  var W=document.documentElement.clientWidth||innerWidth;
   ACC.glisse=true;
-  L=L||accGlisseEls(); accDecaler(L,-sens*W,180);
+  if(garder){ accDecaler(g.L,-g.sens*W,ms); if(g.vo) accDecaler(g.vo.L,0,ms); }
+  else { accDecaler(g.L,0,ms); if(g.vo) accDecaler(g.vo.L,g.sens*W,ms); }
   setTimeout(function(){
-    accDecalerFin(L); changer();
-    var M=accGlisseEls(); accDecaler(M,sens*W,0); void document.body.offsetWidth; accDecaler(M,0,240);
-    setTimeout(function(){ accDecalerFin(M); ACC.glisse=false; accCalqueBientot(); accNomsBientot(); },260);
-  },180);
+    var p=g.vo&&g.vo.p, T=g.vo&&g.vo.T;
+    accVoisineFin(g.vo);
+    if(garder&&p!==undefined){
+      ACC.page=p; accStyle(); if(ACC.edit) accOutils(false);
+      if(T!==scrollY) window.scrollTo(0,T);
+      var pv=accPagesVues();
+      accAnnoncer(ACC_PAGE_NOM[p]+" de l’Accueil, "+(pv.indexOf(p)+1)+" sur "+pv.length+(ACC.edit&&accPageVide(p)?" : vide.":"."));
+    }
+    accDecalerFin(g.L); ACC.glisse=false; accCalqueBientot(); accNomsBientot();
+  },ms+20);
+}
+/* aller à la page p sans le doigt (les points, le pavé, le bord pendant
+   un déplacement) : la même glissade, menée seule */
+function accAllerPage(p,garderVue){
+  var pv=accPagesVues();
+  if(ACC.glisse||pv.indexOf(p)<0||p===ACC.page) return;
+  if(!accAnime()){ var vo0=accVoisine(p,garderVue); accVoisineFin(vo0); ACC.page=p; accStyle(); if(ACC.edit) accOutils(false); if(vo0.T!==scrollY) window.scrollTo(0,vo0.T); return; }
+  var W=document.documentElement.clientWidth||innerWidth, sens=p>ACC.page?1:-1, L=accGlisseEls(), vo=accVoisine(p,garderVue);
+  accDecaler(vo.L,sens*W,0); void document.body.offsetWidth;
+  accGlisserFin({L:L, vo:vo, sens:sens},true,300);
 }
 function accStyle(){
   if(!ACC.style) return;
@@ -38260,7 +38311,7 @@ function accNoms(){
   var h=[];
   ACC.items.forEach(function(el){
     var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!el.offsetWidth||!el.getClientRects().length) return;
-    if(el.classList.contains("acc-vide")||(ACC.drag&&ACC.drag.parti&&ACC.drag.k===k)) return;
+    if(el.__voisin||el.classList.contains("acc-vide")||(ACC.drag&&ACC.drag.parti&&ACC.drag.k===k)) return;
     var q=accDans(el,c);
     h.push('<span class="acc-nom" data-acc-nom-pour="'+k+'" style="left:'+q.x.toFixed(2)+'px;top:'+(q.y+el.offsetHeight).toFixed(2)+'px;width:'+el.offsetWidth+'px">'+esc(d.nom)+'</span>');
   });
@@ -38565,7 +38616,7 @@ function accTirer(ev,k,el,attendre){
       if(!sens||np<-1||np>1){ d.bord=0; }
       else if(d.bord!==sens){ d.bord=sens; d.bordT=accMaint(); }
       else if(accMaint()-d.bordT>650&&!ACC.glisse){
-        d.bordT=accMaint()+400; accPagePoser(d.k,np); accAllerPage(np,null,true); d.cible="";
+        d.bordT=accMaint()+400; accPagePoser(d.k,np); accStyle(); accAllerPage(np,true); d.cible="";
         try{ if(navigator.vibrate&&ev.pointerType!=="mouse") navigator.vibrate(6); }catch(e){}
       }
       cibler();
@@ -38822,24 +38873,31 @@ function accInit(){
   },{passive:true});
   document.addEventListener("touchmove",function(e){
     if(!sw||sw.etat==="v") return;
-    if(ACC.drag||ACC.etire){ if(sw.L) accDecaler(sw.L,0,0); sw=null; return; }
+    if(ACC.drag||ACC.etire){ if(sw.L){ accDecalerFin(sw.L); accVoisineFin(sw.vo); } sw=null; return; }
     var q=e.touches[0], dx=q.clientX-sw.x, dy=q.clientY-sw.y;
     if(!sw.etat){ if(Math.abs(dy)>10&&Math.abs(dy)>=Math.abs(dx)){ sw.etat="v"; return; }
       if(Math.abs(dx)<12||Math.abs(dx)<1.5*Math.abs(dy)) return;
-      sw.etat="h"; sw.L=accGlisseEls(); lpStop(); }
+      sw.etat="h"; sw.L=accGlisseEls(); sw.vo=null; lpStop(); }
     if(e.cancelable) e.preventDefault();
-    var pv=accPagesVues(), np=ACC.page+(dx<0?1:-1);
-    sw.dx=dx; accDecaler(sw.L,pv.indexOf(np)>=0?dx:dx/3,0);
+    var pv=accPagesVues(), np=ACC.page+(dx<0?1:-1), ok=pv.indexOf(np)>=0&&accAnime(), W=document.documentElement.clientWidth||innerWidth;
+    /* la voisine du côté où va le doigt, posée dès le départ ; changée si
+       le doigt repart de l'autre côté */
+    if(sw.vo&&(!ok||sw.vo.p!==np)){ accVoisineFin(sw.vo); sw.vo=null; }
+    if(ok&&!sw.vo){ sw.vo=accVoisine(np); sw.L=accGlisseEls().filter(function(el){ return !el.__voisin; }); }
+    sw.dx=dx; accDecaler(sw.L,ok?dx:dx/3,0);
+    if(sw.vo) accDecaler(sw.vo.L,dx+(np>ACC.page?W:-W),0);
   },{passive:false});
   function swFin(){
     if(!sw||sw.etat!=="h"){ sw=null; return; }
     var s0=sw; sw=null; accBloqueClic=accMaint();
-    var W=document.documentElement.clientWidth||innerWidth, vite=accMaint()-s0.t<300&&Math.abs(s0.dx)>40;
-    if(Math.abs(s0.dx)>W*0.2||vite) accAllerPage(ACC.page+(s0.dx<0?1:-1),s0.L);
-    else { accDecaler(s0.L,0,200); setTimeout(function(){ accDecalerFin(s0.L); },220); }
+    var W=document.documentElement.clientWidth||innerWidth, vite=accMaint()-s0.t<300&&Math.abs(s0.dx)>40,
+        sens=s0.dx<0?1:-1, garder=!!s0.vo&&s0.vo.p===ACC.page+sens&&(Math.abs(s0.dx)>W*0.2||vite);
+    /* le reste du chemin, au rythme du doigt : jamais plus de 300 ms */
+    var reste=garder?W-Math.abs(s0.dx):Math.abs(s0.dx);
+    accGlisserFin({L:s0.L, vo:s0.vo, sens:sens},garder,Math.max(140,Math.min(300,Math.round(reste*0.9))));
   }
   document.addEventListener("touchend",swFin,{passive:true});
-  document.addEventListener("touchcancel",function(){ if(sw&&sw.L){ accDecaler(sw.L,0,0); accDecalerFin(sw.L); } sw=null; },{passive:true});
+  document.addEventListener("touchcancel",function(){ if(sw&&sw.L){ accDecalerFin(sw.L); accVoisineFin(sw.vo); } sw=null; },{passive:true});
   /* au PC : le glissement de côté du pavé tactile (deux doigts), ou Maj et
      la molette, hors d'un bloc qui défile de côté ; une page par geste */
   var wh={s:0, t:0, fin:0};

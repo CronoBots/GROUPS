@@ -13636,3 +13636,36 @@ la même hauteur, comme dans les autres postes, et le vide passe au-dessus des
 cadres. La rangée des cadres au-dessus de la ligne du contremaître
 (`eqdessus`) ne change pas. Photographié avant et après sur le jeudi
 05/11, au téléphone.
+
+### La page voisine visible pendant le geste, comme sur l'iPhone (05/11/2026, `nfdm-v1400`)
+
+Le client, capture de son écran d'accueil à mi-geste à l'appui : « il ne
+faut pas que le swipe soit totalement terminé pour que le contenu
+apparaisse ; comme sur l'iPhone, le contenu doit être déjà visible lors du
+swipe ». Depuis la v1397, seule la page actuelle suivait le doigt ; la
+page neuve n'entrait qu'au lâcher.
+
+Désormais, dès que le doigt part vers une page, celle-ci est posée à côté
+(`accVoisine`). On la montre un instant dans la grille, à la place de la
+page actuelle, pour mesurer chacun de ses éléments, puis la page actuelle
+revient, le tout avant que l'écran ne se peigne. Ses éléments restent
+montrés, sortis de la grille (position absolue, à leur place et à leur
+taille mesurées), et décalés d'une largeur d'écran : les deux pages glissent
+ensemble sous le doigt. Ce sont les éléments eux-mêmes, et non des copies :
+leur contenu et leur style sont ceux qu'ils auront, et au lâcher la page
+neuve tombe exactement à sa place (`accGlisserFin`). Ses noms suivent, sur
+une couche à part. Le reste du chemin se fait au rythme du doigt (de 140 à
+300 ms). Les points et le bord pendant un déplacement mènent la même
+glissade.
+
+Mesuré au téléphone (390 px) : à mi-geste, « Mon profil » et « Heure et
+poste » sortent à gauche pendant que « Ma paie », « À retenir » et
+« Congés restants » entrent à droite. Au lâcher, la page de droite est en
+place et plus aucun élément ne garde de style posé par le geste. Un geste
+trop court revient, sans reste. Une fausse alerte : les noms de la page
+voisine semblaient manquer à mi-geste ; ils étaient centrés sous des
+widgets à moitié entrés, donc encore hors de l'écran.
+Contrôle permanent (`parcours.js`) : à mi-geste, au quatrième pas du doigt,
+un élément de la page voisine doit se voir à l'écran. Éprouvé sur une copie
+où la voisine n'est plus posée : 2 fautes, dont « à mi-geste, la page
+voisine n'est pas visible ». Le parcours : 130 essais, 0 faute.

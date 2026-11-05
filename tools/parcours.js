@@ -332,7 +332,13 @@ function constater(){
           /* le doigt part du bord gauche de l'Accueil (couché, un menu est à sa gauche) */
           const c=await page.context().newCDPSession(page), o=await page.evaluate(()=>{ const r=document.getElementById("v-horaire").getBoundingClientRect(); return {x:Math.round(Math.max(0,r.left)+20), w:r.width, y:Math.round(innerHeight*0.6)}; }), y=o.y, pas=Math.round(o.w*0.6/8);
           await c.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:o.x,y}]});
-          for(let j=1;j<=8;j++){ await c.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:o.x+pas*j,y}]}); await page.waitForTimeout(16); }
+          for(let j=1;j<=8;j++){ await c.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:o.x+pas*j,y}]}); await page.waitForTimeout(16);
+            /* À MI-GESTE, LA PAGE VOISINE EST DÉJÀ LÀ (le client, le
+               05/11/2026 : « comme sur l'iPhone, le contenu doit être déjà
+               visible lors du swipe ») : au quatrième pas, un autre élément
+               que « k » se voit à l'écran */
+            if(j===4){ const vu=await page.evaluate(k=>[...document.querySelectorAll("#v-horaire [data-w]")].some(e=>{ if(e.getAttribute("data-w")===k||!e.getClientRects().length) return false; const r=e.getBoundingClientRect(); return r.right>4&&r.left<innerWidth-4&&r.bottom>0&&r.top<innerHeight; }),k);
+              if(!vu) lignes.push("Pages : à mi-geste, la page voisine n'est pas visible"); } }
           await c.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]}); await page.waitForTimeout(700);
           const e2=await etat(); if(e2.cur!==1||e2.seul) lignes.push("Pages : le balayage vers la droite ne ramène pas à la page principale (page "+e2.cur+")");
           /* le point de droite y retourne */
