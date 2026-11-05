@@ -13543,3 +13543,62 @@ les voici, chacun mesuré sur la page en ligne (v1395) puis sur la nouvelle.
 - **UI-9, le reste** (les pastilles d'absent à 21 px, le bandeau de
   l'Horaire production à 22 px). L'exception d'espacement du critère 2.5.8
   les couvre : un cercle de 24 px centré sur chacune ne touche pas sa voisine.
+
+### Les pages de l'Accueil, à gauche et à droite, comme sur l'iPhone (05/11/2026, `nfdm-v1397`)
+
+Le client : « J'aimerais que l'on puisse mettre des widgets à gauche et à
+droite du menu principal en swipant comme sur iPhone. » Trois pages, comme
+les écrans d'accueil de l'iPhone : à gauche, la principale (celle d'avant,
+où tout reste par défaut), à droite.
+
+- **Le modèle.** Chaque widget et chaque icône a sa page (`ACC.pg`, la
+  principale si rien n'est dit), gardée avec le reste de la disposition, par
+  forme d'écran (`p` dans `ui/accueil/tel` et `ui/accueil/large`). Les
+  brouillons du mode Modifier, « ✓ », Échap et « Rétablir la disposition
+  d'origine » la portent comme l'ordre et les tailles. La grille reste
+  une : ce qui n'est pas sur la page montrée est masqué par `accStyle`.
+- **Passer d'une page à l'autre.** Au doigt, un balayage de côté : le
+  contenu suit le doigt, et passe au-delà d'un cinquième de l'écran ou d'un
+  coup sec ; sans page voisine, il résiste (un tiers du geste). Au PC, le
+  glissement de côté du pavé tactile, ou Maj et la molette (une page par
+  geste : l'élan qui suit ne tourne pas la suivante). Partout, les points
+  du bas, comme sur l'iPhone, au-dessus de la barre d'onglets et au milieu
+  de l'Accueil.
+- **Ce qui glisse.** Chaque élément montré, le calque du mode Modifier et
+  les noms, par la propriété `translate`, qui s'ajoute au tremblement (une
+  animation de `transform`) sans l'écraser. L'Accueil lui-même ne bouge
+  pas : « + » et « ✓ », fixes, glisseraient avec lui.
+- **Une page vide** ne se montre qu'en mode Modifier, avec « Page vide ·
+  glissez ici un widget… » ; hors du mode, les points ne comptent que les
+  pages qui ont quelque chose. Un widget masqué faute de données (la
+  météo sans réseau) ne compte pas : une page où il est seul disparaît le
+  temps qu'il revienne. Mesuré au banc d'essai, hors réseau : la météo seule à
+  droite, la page n'avait plus de point.
+- **Y porter un widget.** Comme sur l'iPhone, on le tient contre le bord
+  gauche ou droit (deux tiers de seconde à moins de 28 px du bord de
+  l'Accueil) : il passe sur la page voisine, qui s'ouvre. Au clavier, sur
+  « Déplacer », Maj et ← ou →. « + » pose ce qu'on remet sur la page
+  montrée.
+
+**Un geste déjà pris.** Depuis le 09/10/2026, un balayage n'importe où sur
+l'Accueil changeait de mois, parce que le sélecteur de mois y est rangé (dans
+le Calendrier). Le balayage change désormais de page ; le mois ne change plus
+qu'en balayant le Calendrier lui-même. Rien ne change dans le Salaire.
+
+**Une erreur de mesure, d'abord.** Le premier essai d'un balayage « ne
+marchait pas » : le doigt simulé partait de l'arc de taille d'un widget, que
+le balayage ignore exprès. Puis, sur la page vide, plus rien ne marchait :
+l'Accueil y finissait à 242 px, et le doigt posé plus bas touchait le fond de
+la page, hors de l'Accueil. Tout l'écran de l'Accueil écoute désormais
+(hors barres, menus et fenêtres).
+
+**Contrôle permanent** (`parcours.js`, rôle hiérarchie, à chaque écran) :
+un widget passe à droite (Maj et →) et y est seul, avec trois points ; au
+téléphone, un balayage vers la droite ramène à la page principale et le
+point de droite y retourne ; Maj et ← le ramène ; Échap ferme alors sans
+rien demander.
+Éprouvé sur une copie sabotée : le balayage débranché donne 1 faute au
+téléphone (« ne ramène pas à la page principale ») ; `accPagePoser` vidé en
+donne 5. Le parcours entier : 130 essais, 0 faute. (Le premier passage
+avait 2 fautes, en couché : le doigt simulé partait du menu de gauche, que
+le geste exclut à raison ; il part désormais du bord de l'Accueil.)
