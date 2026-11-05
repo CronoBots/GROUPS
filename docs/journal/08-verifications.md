@@ -3611,6 +3611,9 @@ la base comparée au dépôt fonction par fonction : 67 identiques sur 72, les
 - **SEC-1, connu** — le code personnel de 6 chiffres du compte du client,
   de rôle RH : c'est sa demande du 31/10, et son prix lui a été dit
   (journal 02). Un code de 8 chiffres ou plus entre dans les mêmes cases.
+  Le client, le 05/11/2026, en QCM, après l'audit : « Garder 6 chiffres ».
+  Le risque reste celui qu'il a accepté le 31/10 ; on n'y revient pas sans
+  lui.
 - **SEC-3, à faire dans l'éditeur SQL** — `pg_net` : ses fonctions restent
   exécutables par `anon` et `authenticated`. Aucune n'est exposée par
   l'API (PostgREST ne sert pas le schéma `net`) : c'est une défense en
