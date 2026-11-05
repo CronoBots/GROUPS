@@ -13865,3 +13865,30 @@ celle de l'iPhone. La bannière est désormais entière à chaque format.
 Vérifié à chaque format (bandeau, petit, moyen), téléphone 390 et 320 px,
 PC 1280 et 1920 px : rien ne déborde, rien n'est coupé, aucun texte sous
 11 px.
+
+### « Mon profil » à 100 % ? Le cas de l'ouvrier (05/11/2026, `nfdm-v1407`)
+
+Le client : « 100 % ce widget ? » Avant de répondre, deux cas encore jamais
+photographiés : le téléphone couché (852 × 393, la grille de six colonnes)
+et le profil d'un ouvrier (`tools/widget-photos.js` prend désormais le
+trigramme en troisième argument, et photographie aussi le couché). Le
+couché était propre ; l'ouvrier, non.
+
+Son profil a une troisième ligne, la formation en cours (« En formation ·
+Distillation ») :
+- **en bandeau**, trois lignes ne tenaient pas dans 64 px : la fonction
+  était coupée en haut. Il garde la fonction, le statut et l'équipe ; la
+  formation se lit en petit et en moyen ;
+- **à 320 px**, l'équipe et ses deux trigrammes, puis la formation,
+  débordaient du widget (en bandeau comme en moyen). Chaque ligne s'arrête
+  désormais par « … » ; sous 300 px de large, le moyen laisse la formation.
+
+Mesuré : les deux profils (contremaître, ouvrier) à chaque format et à
+chaque écran (téléphone 390 et 320 px, couché 852 px, PC 1280 et 1920 px) :
+rien ne déborde, rien n'est coupé, aucun texte sous 11 px.
+
+**Ce qui reste, et pourquoi** : au petit format d'un PC (217 à 240 px de
+haut), un vide de 60 à 80 px sous la bannière : le texte est calé au bas,
+comme dans un widget de l'iPhone ; le remplir demanderait une information
+de plus, que le client n'a pas demandée. À 320 px, le statut ne tient pas
+en bandeau ni en petit (règles d'avant, gardées).
