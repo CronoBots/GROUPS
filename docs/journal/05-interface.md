@@ -15127,3 +15127,17 @@ nom, passant dessous seulement s'ils ne tiennent pas, les huit tiennent
 à 390 px. À 320 px, cinq seulement : sous 360 px de large, le numéro
 s'efface (le bouton appelle toujours et le dit au lecteur d'écran) et la
 station s'écrit « STEP » ; les huit tiennent. Parcours 188, 0 faute.
+
+### v1470 — « Canaux radio » et « Mon rythme » retirés (06/11/2026)
+
+Le client : « supprimer le widget canal qui ne sert à rien et mon rythme
+aussi ». Les deux sortent d'`ACC_W`, des ordres et des formats d'origine ;
+une disposition déjà réglée les perd d'elle-même (`accCharger` ne garde
+que les clés connues). « Canaux radio » est retiré entier (carte, code,
+styles) ; le canal reste dans la fiche de « L'usine en direct ». La carte
+« Mon rythme » reste, cachée et sans `data-w` : `renderRythme` garnit
+aussi le héros (« Mon profil »), et lui ôter sa carte l'aurait fait
+s'arrêter en tête. Erreur commise en retirant les styles de la radio : la
+coupe a emporté les deux règles du numéro à 320 px (« STEP », numéro
+effacé), remises aussitôt ; la photo à 320 px le confirme. Parcours 188,
+0 faute.
