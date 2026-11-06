@@ -14947,3 +14947,20 @@ chemins.
     du navigateur la referme.
 
   Parcours : 188 essais, 0 faute.
+
+### v1459 : une icône « Historique » à l'Accueil (06/11/2026)
+
+Le client : « historique personnel et, pour la RH, historique complet ».
+Une question en QCM (le trouver ? ne marche toujours pas ? un onglet à
+part ?) ; réponse : « une icône à l'Accueil ». Les accès d'avant (cloche,
+Réglages, espace RH) restaient trop cachés.
+
+- **Les accès rapides** ont une icône « Historique » : une horloge sur le
+  gris de `--ip-historique`, comme la section de l'espace RH. Elle ouvre
+  l'historique de son horaire, ou celui de tous les trigrammes pour un
+  compte RH (`histoRH`). Comme chaque icône, elle se déplace et se retire.
+- **Au PC**, le menu a l'entrée « Historique » au-dessus de « Infos et
+  aide » (`data-histo="auto"`).
+- Éprouvé au téléphone (390 px) et au PC (1280 px) : l'icône est là et
+  ouvre l'historique de VBN (59 journées, 18 classeurs). Parcours : 188
+  essais, 0 faute.

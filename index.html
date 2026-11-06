@@ -8389,6 +8389,7 @@ html body #racCard .ctl-cm em svg{width:20px; height:20px; color:var(--sur-in)}
 #tab-jour{--ic:var(--ip-planning)}
 #tab-equipe{--ic:var(--ip-equipes)}
 #tab-salaire,[data-go="salaire"],[data-ctl="paie"]{--ic:var(--ip-salaire)}
+[data-ctl="histo"],.side-lien[data-histo]{--ic:var(--ip-historique)}
 #tab-rh,[data-go="rh"]{--ic:var(--ip-effectifs)}
 #tab-recherche,[data-go="recherche"]{--ic:var(--ip-recherche)}
 #tab-direction,[data-go="direction"]{--ic:var(--ip-direction)}
@@ -10542,6 +10543,7 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
          le dit ; l'aide, à côté, en tuile seule. La roue reste la même que
          celle du héros (audit du 23/10/2026) ; la feuille Plus la reprend. -->
     <button type="button" class="side-lien side-moi" id="sideMoi" data-go="reglages" title="Mes réglages"><span class="sm-av" id="sideMoiTri" aria-hidden="true"></span><span class="sm-txt"><b id="sideMoiL1">Réglages</b><span id="sideMoiL2"></span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <button type="button" class="side-lien" data-histo="auto" title="Historique des changements de l'horaire"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Historique</span></button>
     <button type="button" class="side-lien side-aide" data-go="aide" title="Infos et aide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Infos et aide</span><span class="side-nb" id="sideAideNb" hidden></span></button>
   </div>
 </header>
@@ -19589,6 +19591,8 @@ function histoRendre(){
   card.innerHTML=h;
   if(foc){ var fi=document.getElementById("histoFiltre"); if(fi){ fi.focus(); try{ fi.setSelectionRange(pos,pos); }catch(e){} } }
 }
+/* la RH voit tous les trigrammes ; les autres, le leur */
+function histoRH(){ var a=st.account||lsGet("account/current")||{}; return a.role==="rh"; }
 /* qui : le trigramme ; tous : la RH (tous les trigrammes) */
 function histoOuvrir(opt){
   var ov=document.getElementById("histoOv"); if(!ov) return;
@@ -19625,7 +19629,7 @@ function histoFermer(parRetour){
 })();
 document.addEventListener("click",function(e){
   var t=e.target;
-  if(t.closest&&t.closest("[data-histo]")){ var q=t.closest("[data-histo]").getAttribute("data-histo"), cede=false;
+  if(t.closest&&t.closest("[data-histo]")){ var q=t.closest("[data-histo]").getAttribute("data-histo"), cede=false; if(q==="auto") q=histoRH()?"tous":"perso";
     /* depuis la cloche, l'historique prend son étape de navigation (navCeder) :
        la refermer par un « retour » refermait aussi l'historique à peine ouvert */
     if(!document.getElementById("notifOv").hidden){ navCeder("n","h"); fermerNotif(true); cede=true; }
@@ -27151,6 +27155,7 @@ document.addEventListener("click",function(e){
      poste, est passée le jour même dans le billet du héros : c'était un
      second « prochain poste ».) */
 var CTL_ICO={
+  histo:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   conge:'<path d="M8 2v4M16 2v4"/><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M9 15l2 2 4-4"/>',
   rec:'<path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/>',
   paie:'<rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19M6 15h4"/>',
@@ -27282,6 +27287,9 @@ function renderCentre(db,person){
   if(cb) rac.push(["plan","Horaire "+auj0.getFullYear(),"plan","","Horaire de production "+auj0.getFullYear()]);
   rac.push(["jour","Horaire du jour","eq","","Horaire du jour : l'équipe au planning"]);
   rac.push(["certif","Certificat médical","certif","","Envoyer le certificat médical à la RH"]);
+  /* L'HISTORIQUE À L'ACCUEIL (le client, le 06/11/2026, en QCM : « une
+     icône à l'Accueil ») : le sien pour chacun, tous les trigrammes pour la RH */
+  rac.push(["histo","Historique","histo","",histoRH()?"Historique des changements : tous les trigrammes":"Historique de mon horaire"]);
   /* à faire : ce qui attend une action, puis ce qui est en route */
   var L=GR.demandes||[], R=GR.recyclages||[], faire=[], route=[];
   /* LE CHANGEMENT D'HORAIRE N'EST PAS UNE ACTION (le client, le 30/10/2026 :
@@ -27460,6 +27468,7 @@ document.addEventListener("click",function(e){
   else if(k==="paie"){ if(auj.getFullYear()!==st.y||auj.getMonth()!==st.m) loadMonth(auj.getFullYear(),auj.getMonth()); accVers("salaire"); }
   else if(k==="eq"){ eqDate=new Date(auj.getFullYear(),auj.getMonth(),auj.getDate()); eqAuto=true; accVers("jour"); }
   else if(k==="plan") ouvrirGrille("planning");
+  else if(k==="histo") histoOuvrir(histoRH()?{tous:true}:null);
   else if(k==="ag") abonnerAgenda();
   else if(k==="annonce") accVers("aide");
   else if(k==="signer"){ GR.onglet="remplace"; ouvrirGrille("demandes"); }
