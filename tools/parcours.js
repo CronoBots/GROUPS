@@ -435,6 +435,28 @@ function constater(){
       if(r===null) lignes.push("Planning de l'Accueil : absent au PC");
       else if(r) lignes.push("Planning de l'Accueil : "+r+" cadre(s) d'horaire hors de leur rangée");
     }
+    /* LE PLANNING, À CHAQUE ÉCRAN (refonte du 06/11/2026) : aucun badge hors
+       de sa case ni sur un autre, ni sur le trait de couleur de droite ; et
+       l'état de chaque pause dans son en-tête. Le jour courant et le 10/02,
+       où « ATR » et « AFA 11-15h30 » débordaient à 360 et 390 px avant la
+       refonte (et vingt badges à 320 px). */
+    if(role==="hierarchie"){ n++;
+      await aller(page,"tab-jour");
+      const defauts=[];
+      for(const jour of [null,"2026-02-10"]){
+        if(jour){ await page.evaluate(j=>{ const p=document.getElementById("jourPick"); if(!p) return; p.value=j; p.dispatchEvent(new Event("change",{bubbles:true})); },jour); await page.waitForTimeout(900); }
+        const r=await page.evaluate(()=>{ const out=[]; const R=e=>e.getBoundingClientRect();
+          document.querySelectorAll("#jourCorps tbody td:not(.fusion)").forEach(td=>{ const t=R(td); const bs=[...td.querySelectorAll(".eqn")].filter(b=>b.getClientRects().length);
+            bs.forEach(b=>{ const q=R(b); if(q.left<t.left-0.5||q.right>t.right+0.5) out.push(b.textContent+" hors de sa case"); });
+            for(let i=0;i<bs.length;i++) for(let j=i+1;j<bs.length;j++){ const a=R(bs[i]),c=R(bs[j]); if(a.left<c.right-0.5&&c.left<a.right-0.5&&a.top<c.bottom-0.5&&c.top<a.bottom-0.5) out.push(bs[i].textContent+" sur "+bs[j].textContent); }
+            if(td.matches(":last-child")){ const af=getComputedStyle(td,"::after"); if(af.content!=="none"){ const x=t.right-parseFloat(af.right)-parseFloat(af.width); bs.forEach(b=>{ if(R(b).right>x+0.5) out.push(b.textContent+" sur le trait de couleur"); }); } } });
+          const st=document.querySelectorAll("#jourCorps thead th[data-k] .plan-st").length;
+          if(st!==3) out.push(st+" état(s) de pause dans l'en-tête au lieu de 3");
+          return out; });
+        r.forEach(x=>defauts.push((jour||"aujourd'hui")+" : "+x));
+      }
+      if(defauts.length) lignes.push("Planning : "+defauts.slice(0,6).join(" ; ")+(defauts.length>6?" (+"+(defauts.length-6)+")":""));
+    }
     /* Le widget profil (le client, le 05/11/2026) : le trigramme dans la
        police du logo, chargée depuis la page ; le statut, quand il se
        montre, au bout de la dernière ligne, aligné sur elle, à la même

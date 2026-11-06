@@ -14547,3 +14547,60 @@ lieu de rouge. »
   retirée. Épingles : gluten (260,545), distillation (515,460), terrain
   arrière (695,470), fermentation (611,642), chaudières (648,299) —
   « un rien » lu 15 px, « plus » 25 px.
+
+### v1438 — Le Planning refait au thème des widgets (06/11/2026)
+
+Le client : « j'aimerais bien que tu retravailles complètement la
+présentation du planning ; il n'est pas du tout en accord avec le thème
+et les widgets actuels. Je veux quelque chose de professionnel, de
+complet, d'intuitif et… » (le message s'arrête là).
+
+Photographié à 320, 390 et 1280 px, puis relevé bloc par bloc :
+quadrillage de tableur (traits pleins entre toutes les cases), rangées
+zébrées, lignes en manque peintes en brique, colonne de la pause en cours
+bleuie, postes en petites capitales grises, date soulignée, flèches
+carrées, et aucun état des pauses. Corrigé par une couche CSS en tête de
+cascade (`html body #jourCard …`), sans toucher au tableau que lisent
+`coherence-planning.js` et `verifier-recherche.js` :
+
+- rangées séparées d'un filet, fond du tableau en voile, en-tête opaque
+  (il colle en haut quand un jour chargé défile) ;
+- manque et proposition en voile léger : le « ? » rouge et le badge
+  orange disent déjà l'essentiel ;
+- la pause en cours : son nom en cyan et « · en cours » (un point au
+  téléphone), plus de colonne bleuie ;
+- l'état de chaque pause dans son en-tête (`planEtats`) : « Complet »,
+  « N vides », « N proposés », tiré des « ? » que le tableau montre déjà
+  (rien n'est recompté) ;
+- postes en casse normale, blancs et plus grands ;
+- barre de date : titre net avec un chevron (le sélecteur de date),
+  flèches rondes.
+
+**Gardé, parce que ce sont des décisions du client** : les traits de
+couleur des deux côtés (05/10/2026), mais en barres arrondies détachées
+du bord ; le nom du poste centré (05/10/2026) ; la rangée de « vous » en
+cyan (04/10/2026) ; pas de légende au PC (le client l'avait retirée) ;
+les conventions des badges (formation, journée, « ? », proposé).
+
+**Défauts d'avant la refonte, trouvés par la mesure et corrigés** :
+
+- à 320 px, une case faisait 63 px et deux badges en demandent 68 :
+  vingt badges hors de leur case le 10/02 (mesuré sur une copie de la
+  version d'avant). Colonne des postes ramenée à 46 px, marges du
+  tableau à 4 px, badges serrés ; les heures restent à 11 px ;
+- à 360 et 390 px, « ATR » et « AFA 11-15h30 » côte à côte débordaient
+  (le 10/02) : une case à horaires passe à la ligne au lieu de forcer
+  deux colonnes ;
+- dans le widget de l'Accueil, au PC, l'horaire des cadres d'une rangée
+  d'horaires (« ? 06-10 », « JBA 10-22 ») sortait sous le cadre : il
+  passe sur la même ligne, comme les autres badges du widget.
+
+Contrôle permanent ajouté à `parcours.js`, à chaque écran : aucun badge
+hors de sa case, sur un autre ou sur le trait de couleur, et trois états
+de pause dans l'en-tête, le jour courant et le 10/02. Éprouvé sur la
+version d'avant : 6 fautes (débordements et états absents) ; sur la
+nouvelle : 183 essais, 0 faute. `coherence-planning.js` → 0.
+
+Erreur commise en chemin : la première règle « téléphone » n'avait que
+`(max-width:760px)` ; `parcours.js` l'a refusée (le téléphone couché est
+aussi un téléphone dans toute l'application), reprise à l'identique.

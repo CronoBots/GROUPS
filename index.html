@@ -10100,6 +10100,122 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
 @media (min-width:1100px){
   html body .top.menu-serre .tabs button svg,html body .top.menu-serre #sideGestion button svg{width:24px; height:24px; padding:4px; border-radius:6px}
 }
+
+/* ═══ REFONTE DU PLANNING (le client, le 06/11/2026 : « retravaille
+   complètement la présentation du planning ; il n'est pas du tout en
+   accord avec le thème et les widgets actuels ; professionnel, complet,
+   intuitif ») ═══
+   Le tableau, ses badges et leurs conventions (vous en cyan, formation
+   en jaune, journée en pointillé, « ? » rouge, proposé orange) ne
+   changent pas : ce sont des décisions du client. Change ce qui
+   l'habillait comme un tableur :
+   - le quadrillage (traits pleins entre toutes les cases, bords de
+     couleur des deux côtés) devient des rangées séparées d'un filet ;
+     le poste garde son liseré à gauche, arrondi, seul ;
+   - les rangées zébrées et les lignes en manque PEINTES EN BRIQUE
+     deviennent un voile léger : le « ? » rouge suffit à dire le manque ;
+   - la colonne de la pause en cours n'est plus bleuie : une pastille
+     « En cours » dans son en-tête, et un voile à peine visible ;
+   - les postes, en petites capitales grises, se lisent en casse normale,
+     blanche et plus grande, comme les rangées des widgets ; ils restent
+     centrés (le client, le 05/10/2026) et la rangée de « vous » reste
+     en cyan (le 04/10/2026) ;
+   - l'en-tête de chaque pause dit son état (planEtats) ;
+   - la barre de date : titre net (plus souligné), flèches rondes comme
+     les boutons de l'Accueil. */
+html body #jourCard .eqnav{border:0!important; background:none!important; box-shadow:none!important; padding:12px 14px 10px!important}
+html body #jourCard #jourLabel{text-decoration:none!important; border:0!important; font-weight:700; letter-spacing:-.01em; color:var(--ink)}
+html body #jourCard .jourdatewrap{border:0!important; text-decoration:none!important}
+html body #jourCard .jourdatewrap::after{content:""; display:inline-block; width:7px; height:7px; margin-left:8px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:translateY(-3px) rotate(45deg)}
+html body #jourCard :is(#jourPrev,#jourNext){width:36px; height:36px; border-radius:50%!important; border:0!important; background:rgba(255,255,255,.07)!important; color:var(--ink); box-shadow:none!important}
+html body #jourCard :is(#jourPrev,#jourNext):hover{background:rgba(255,255,255,.12)!important}
+html body #jourCard #jourCorps .eqgrille{border:1px solid rgba(255,255,255,.06)!important; background:rgba(8,12,22,.22)!important; box-shadow:none!important}
+html body #jourCard .eqp2{border-collapse:separate!important; border-spacing:0!important}
+html body #jourCard .eqp2 :is(th,td){border:0!important; border-bottom:1px solid rgba(255,255,255,.055)!important; background:transparent!important}
+html body #jourCard .eqp2 tbody tr:last-child>:is(th,td),html body #jourCard .eqp2 tbody tr:has(+tr.eqbande)>th[rowspan]{border-bottom:0!important}
+html body #jourCard .eqp2 tbody tr:has(+tr.eqbande)>td{border-bottom:0!important}
+html body #jourCard .eqp2 tbody tr:last-child>th[rowspan]{border-bottom:0!important}
+/* l'en-tête des pauses */
+html body #jourCard .eqp2 thead th{border-bottom:1px solid rgba(255,255,255,.09)!important; padding:8px 4px 9px!important; vertical-align:top}
+html body #jourCard .eqp2 thead th b{display:block; font-size:15px; font-weight:800; letter-spacing:.02em; color:var(--ink)}
+html body #jourCard .eqp2 thead th .eqeq{display:block; font-style:normal; font-size:11px; font-weight:500; color:var(--muted); margin-top:1px}
+html body #jourCard .eqp2 thead th.live b{color:var(--in)}
+html body #jourCard .eqp2 thead th.live .eqeq::after{content:" · en cours"; color:var(--in)}
+.plan-st{display:flex; flex-wrap:wrap; justify-content:center; gap:4px; margin-top:6px}
+.plan-st i{font-style:normal; font-size:11px; font-weight:700; line-height:1; padding:4px 8px; border-radius:99px; white-space:nowrap}
+.plan-st .plan-ok{color:var(--good); background:color-mix(in srgb,var(--good) 14%,transparent)}
+.plan-st .plan-vide{color:var(--at-rouge); background:color-mix(in srgb,var(--at-rouge) 16%,transparent)}
+.plan-st .plan-prop{color:#F2994A; background:color-mix(in srgb,#F2994A 16%,transparent)}
+/* la pause en cours : un voile à peine visible, plus de bleu */
+html body #jourCard .eqhote .eqp2[data-mck="AM"] tr>[data-k~="AM"],
+html body #jourCard .eqhote .eqp2[data-mck="PM"] tr>[data-k~="PM"],
+html body #jourCard .eqhote .eqp2[data-mck="N"] tr>[data-k~="N"]{box-shadow:inset 0 0 0 999px rgba(120,200,255,.025)!important}
+html body #jourCard .eqhote .eqp2 tr>td.fusion{box-shadow:none!important}
+/* manque et proposition : un voile, plus un pavé */
+html body #jourCard .eqp2 tbody td.manque{background:color-mix(in srgb,var(--at-rouge) 7%,transparent)!important}
+html body #jourCard .eqp2 tbody td.propose{background:color-mix(in srgb,#F2994A 8%,transparent)!important}
+html body #jourCard .eqp2 tbody td.fusion :is(.eqfus-mq,.eqfus-maint){opacity:.35}
+/* les postes : à gauche, en casse normale, le liseré arrondi */
+html body #jourCard .eqp2 tbody th.eqposte{padding-left:12px!important; padding-right:8px!important; position:relative; border-left:0!important}
+html body #jourCard .eqp2 tbody th.eqposte b{text-transform:none!important; letter-spacing:0!important; font-size:13.5px; font-weight:650; color:var(--ink)}
+/* les traits de couleur des deux côtés (le client, le 05/10/2026) restent,
+   en barres arrondies, détachées du bord comme dans les widgets */
+html body #jourCard .eqp2 tbody tr th.eqposte::before{left:6px!important; top:10px!important; bottom:10px!important; width:3px!important; border-radius:3px}
+html body #jourCard .eqp2 tbody tr td:last-child::after{right:6px!important; top:10px!important; bottom:10px!important; width:3px!important; border-radius:3px}
+html body #jourCard .eqp2 thead th:is(.eqposte,:last-child)::before,html body #jourCard .eqp2 thead th:is(.eqposte,:last-child)::after{top:12px!important; bottom:12px!important; border-radius:3px}
+html body #jourCard .eqp2 tbody tr[data-z="jaune"] th.eqposte::before{background:var(--bordj)}
+html body #jourCard .eqp2 tbody tr[data-z="vert"] th.eqposte::before{background:var(--bordv)}
+html body #jourCard .eqp2 tbody tr[data-z="rouge"] th.eqposte::before{background:var(--bordr)}
+html body #jourCard .eqp2 tbody tr[data-z="bleu"] th.eqposte::before{background:var(--bordb)}
+html body #jourCard .eqp2 thead th.eqposte{vertical-align:middle}
+/* l'en-tête colle en haut quand un jour chargé défile : fond opaque */
+html body #jourCard .eqp2 thead th{background:#1C2538!important}
+/* le widget « Planning » de l'Accueil : ses rangées sont basses, et les
+   cadres d'horaire (« ? 06-10 », « JBA 10-22 ») gardaient l'horaire sous
+   le trigramme, hors du cadre (défaut d'avant la refonte) : sur une
+   ligne, comme les autres badges du widget */
+html body #accPlanning #jourCorps .eqfus>.eqseg{flex-direction:row!important; align-items:center!important; justify-content:center; gap:6px; padding-top:0!important; padding-bottom:0!important}
+html body #accPlanning #jourCorps .eqfus>.eqseg>b,html body #accPlanning #jourCorps .eqfus>.eqseg>small{line-height:1!important}
+/* une case sans personne : un point discret plutôt qu'un tiret */
+html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
+@media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
+  html body #jourCard .eqp2 tbody th.eqposte{padding-left:9px!important; padding-right:4px!important}
+  html body #jourCard .eqp2 tbody tr th.eqposte::before{left:3px!important}
+  html body #jourCard .eqp2 tbody tr td:last-child::after{right:3px!important}
+  html body #jourCard .eqp2 tbody td:last-child:not(.fusion){padding-right:8px!important}
+  /* une case à horaires passe à la ligne plutôt que de déborder (ci-dessous) */
+  html body #jourCard #jourCorps .eqp2 td .eqc:has(.eqhd){display:flex!important; flex-wrap:wrap; justify-content:center}
+  html body #jourCard #jourCorps .eqp2 td .eqc:has(.eqhd) .eqtrou{display:none!important}
+  html body #jourCard .eqp2 tbody th.eqposte b{font-size:12px}
+  html body #jourCard .eqp2 thead th b{font-size:14px}
+  html body #jourCard .eqp2 thead th.live .eqeq::after{content:""}
+  html body #jourCard .eqp2 thead th.live b::after{content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--in); margin-left:5px; vertical-align:2px}
+  .plan-st i{font-size:10.5px; padding:3px 6px}
+}
+/* 320 px : une case faisait 63 px, deux badges côte à côte en demandent
+   68 — ils se chevauchaient (défaut d'avant la refonte). La colonne des
+   postes passe de 64 à 46 px, les marges du tableau de 10 à 4 px. */
+@media (max-width:360px){
+  html body #jourCard .eqp2 :is(th,td).eqposte{width:46px!important; min-width:46px!important; max-width:46px!important; padding-left:7px!important; padding-right:1px!important}
+  html body #jourCard #jourCorps .eqgrille{margin-left:4px!important; margin-right:4px!important}
+  html body #jourCard .eqp2 tbody td:not(.fusion){padding-left:0!important; padding-right:0!important}
+  /* deux badges à horaire côte à côte (« GDT 06-12 », « ? 12-14 ») : 2 × 38 px
+     pour 72 ; les heures restent à 11 px (lisibilité), le badge se serre */
+  html body #jourCard #jourCorps.eqhote .eqp2 tbody td .eqn{padding-left:1px!important; padding-right:1px!important}
+  html body #jourCard #jourCorps.eqhote .eqp2 td .eqn .eqhd{letter-spacing:-.03em}
+  html body #jourCard #jourCorps.eqhote .eqp2 tbody td>.eqn{margin-left:0!important; margin-right:0!important}
+  html body #jourCard #jourCorps .eqp2 td .eqrel{gap:2px!important; column-gap:2px!important}
+  html body #jourCard #jourCorps .eqp2 td .eqrel>.eqn{margin-left:0!important; margin-right:0!important}
+  /* une case à horaires (« AFA 11-15h30 » à côté de « ATR ») : la grille à
+     deux colonnes forçait la paire au-delà de la case ; elle passe à la
+     ligne, centrée (le 10/02, défaut d'avant la refonte à 360 et 390 px) */
+  html body #jourCard #jourCorps .eqp2 td .eqc:has(.eqhd){display:flex!important; flex-wrap:wrap; justify-content:center}
+  html body #jourCard #jourCorps .eqp2 td .eqc:has(.eqhd) .eqtrou{display:none!important}
+  html body #jourCard #jourCorps .eqp2 td .eqc{gap:3px}
+  html body #jourCard .eqp2 tbody th.eqposte b{font-size:11.5px}
+  html body #jourCard .eqp2 tbody td:last-child:not(.fusion){padding-right:5px!important}
+  html body #jourCard .eqp2 tbody tr td:last-child::after{right:1px!important}
+}
 </style>
 </head>
 <body>
@@ -30649,6 +30765,7 @@ function renderEquipe(){
            il y a une ligne de plus. Une ligne est « mono » si aucune de ses cases
            ne porte plus d'une étiquette ; elle cède alors sa part d'étirement aux
            lignes à deux ou trois trigrammes. */
+        planEtats();
         ajusterHauteurJour();
         ajusterLignesJour();
         /* Seconde passe à la frame suivante, une fois la mise en page posée. */
@@ -34716,6 +34833,31 @@ function alignerFusions(tbl){
   var eqcR=tbl.querySelector("tbody td:not(.fusion) .eqc"), gapR=eqcR?parseFloat(getComputedStyle(eqcR).rowGap)||4:4;
   Array.prototype.forEach.call(tbl.querySelectorAll("tr.eqbande:not(.eqdessus)>td"),function(td){ td.style.paddingTop=gapR+"px"; });
   Array.prototype.forEach.call(tbl.querySelectorAll("tr.eqdessus+tr>td"),function(td){ td.style.paddingTop=gapR+"px"; });
+}
+/* L'ÉTAT DE CHAQUE PAUSE DANS SON EN-TÊTE (refonte du 06/11/2026, le
+   client : « un planning professionnel, complet, intuitif ») : « Complet »
+   en vert, ou le nombre de places vides en rouge (« ? » du tableau) et de
+   places qu'un changement proposé comblerait en orange. Rien n'est
+   recompté : ce sont les badges « ? » que le tableau montre déjà, ceux
+   d'une rangée d'horaires rangés à la pause de leur début. */
+function planEtats(){
+  var tbl=document.querySelector("#jourCorps .eqp2"); if(!tbl) return;
+  var n={AM:{v:0,p:0},PM:{v:0,p:0},N:{v:0,p:0}};
+  function compte(k,e){ if(!n[k]) return; if(e.classList.contains("propose")) n[k].p++; else n[k].v++; }
+  ["AM","PM","N"].forEach(function(k){
+    Array.prototype.forEach.call(tbl.querySelectorAll('tbody td[data-k="'+k+'"] .eqn.manque'),function(e){ compte(k,e); }); });
+  Array.prototype.forEach.call(tbl.querySelectorAll("tbody td.fusion .eqseg.manque"),function(e){
+    var h=parseFloat(String(e.getAttribute("data-h")||"").split(" ")[0]);
+    if(isNaN(h)) return; h=((h%24)+24)%24;
+    compte(h>=6&&h<14?"AM":h>=14&&h<22?"PM":"N",e); });
+  Array.prototype.forEach.call(tbl.querySelectorAll("thead th[data-k]"),function(th){
+    var k=th.getAttribute("data-k"), c=n[k]; if(!c) return;
+    var old=th.querySelector(".plan-st"); if(old) old.parentNode.removeChild(old);
+    var h='<span class="plan-st">';
+    if(!c.v&&!c.p) h+='<i class="plan-ok">Complet</i>';
+    if(c.v) h+='<i class="plan-vide">'+c.v+' vide'+(c.v>1?'s':'')+'</i>';
+    if(c.p) h+='<i class="plan-prop">'+c.p+' proposé'+(c.p>1?'s':'')+'</i>';
+    th.insertAdjacentHTML("beforeend",h+'</span>'); });
 }
 function ajusterLignesJour(){
   var view=document.getElementById("v-jour");
