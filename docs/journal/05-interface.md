@@ -14530,3 +14530,6 @@ lieu de rouge. »
   poste (au toucher) porte la même encre.
 - **Épingles** (le client : « un rien plus bas ») : meunerie et
   chaudières 15 px plus bas, gluten 14 px à gauche et 15 px plus bas.
+- **v1432** (même jour) : la fermentation, que le message laissait en
+  suspens, réglée en QCM par le client : « un rien à gauche et plus
+  bas », comme le gluten (650,612 → 636,627).
