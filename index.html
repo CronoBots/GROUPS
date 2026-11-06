@@ -9222,6 +9222,19 @@ html body #v-horaire.acc-perso #siteCard{container:sitec / inline-size}
    en deux lignes, l'un au-dessus de l'autre, sur toute la hauteur (au PC,
    côte à côte, ils laissaient 182 px vides) */
 @container sitec (max-width:749px){ html body #v-horaire.acc-perso #siteCard[data-acc-h="1"] .site-salon~.site-salon{display:none} }
+/* SUR SITE À 320 PX (relevé widget-photos du 07/11/2026) : « Matin
+   Équipe 1 » et la pastille « en cours » ne tenaient plus sur une ligne,
+   chaque pause en gagnait une, et la relève sortait par le bas du
+   widget. Sous 300 px de large, l'équipe s'efface (la pastille de la pause
+   et le nom suffisent), la pastille d'état se resserre. */
+@container sitec (max-width:299px){
+  html body #v-horaire.acc-perso #siteCard .site-st .site-eq{display:none}
+  html body #v-horaire.acc-perso #siteCard .site-sn{gap:0 6px}
+  /* 311 px de contenu pour 290 : les pauses se rapprochent */
+  html body #v-horaire.acc-perso #siteCard .site-salons{gap:10px}
+  html body #v-horaire.acc-perso #siteCard .site-rel{margin-top:6px; padding-top:8px}
+  html body #v-horaire.acc-perso #siteCard .site-st{padding-bottom:5px}
+}
 html body #v-horaire.acc-perso #siteCard[data-acc-h="2"] .site-salons:has(>.site-salon~.site-salon){display:flex; flex-direction:column; justify-content:space-between; align-items:stretch; flex:1 1 auto; min-height:0}
 #v-horaire.acc-perso .pf-pw>.pf-bloc{flex:1 1 auto}
 #v-horaire.acc-perso .pf-pvw{display:flex; flex-direction:column}
@@ -10225,6 +10238,45 @@ html body #calCard .mnav :is(#prev,#next):hover{background:rgba(255,255,255,.12)
 html body #calCard .mnav .mlabel{text-decoration:none!important; border:0!important; font-weight:700; color:var(--ink)}
 html body #calCard .mnav .mlabelwrap{border:0!important; text-decoration:none!important}
 html body #calCard .mnav .mlabelwrap::after{content:""; display:inline-block; width:7px; height:7px; margin-left:8px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:translateY(-3px) rotate(45deg)}
+/* LES WIDGETS VIDES (le client, le 07/11/2026 : « optimise tous les
+   widgets de l'Accueil ») : « À faire » et « Annonces » sans rien
+   n'étaient qu'une phrase grise dans un grand carré. Comme les widgets de
+   l'iPhone : une pastille d'icône à la couleur du sujet, un titre, la
+   phrase dessous ; en bandeau (une demi-rangée), l'icône et le titre
+   côte à côte, sans la phrase. */
+html body .aw-etat{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; margin:auto; padding:6px 10px; font-size:inherit; color:inherit}
+html body .aw-etat>i{display:grid; place-items:center; width:46px; height:46px; border-radius:50%; flex:none; background:color-mix(in srgb,var(--c) 17%,transparent); color:var(--c)}
+html body .aw-etat>i svg{width:22px; height:22px}
+html body .aw-etat>b{font-size:15px; font-weight:650; color:var(--ink); line-height:1.2}
+html body .aw-etat>span{font-size:12.5px; color:var(--muted); line-height:1.35; max-width:22ch}
+html body .aw-etat-vert{--c:var(--good)} html body .aw-etat-bleu{--c:#5AA9F0} html body .aw-etat-gris{--c:var(--muted)}
+/* le petit carré du téléphone (132 px à 320 px de large : la phrase
+   n'y tient pas) — conteneurs en largeur seule, d'où la largeur */
+@container awc (max-width:150px){ html body .aw-etat>i{width:38px; height:38px} html body .aw-etat>i svg{width:19px; height:19px} html body .aw-etat>span{display:none} html body .aw-etat>b{font-size:14px} }
+@container ctlc (max-width:150px){ html body .aw-etat>i{width:38px; height:38px} html body .aw-etat>i svg{width:19px; height:19px} html body .aw-etat>span{display:none} }
+/* en large et bas (moyen, « B ») : l'icône à gauche, le titre et la
+   phrase à sa droite — empilés, ils sortaient du widget à 320 px */
+html body #v-horaire.acc-perso :is([data-acc-f="M"],[data-acc-f="B"]) .aw-etat{display:grid; grid-template-columns:auto auto; grid-template-rows:auto auto; column-gap:14px; row-gap:2px; align-items:center; justify-content:center; text-align:left}
+html body #v-horaire.acc-perso :is([data-acc-f="M"],[data-acc-f="B"]) .aw-etat>i{grid-row:1 / span 2}
+html body #v-horaire.acc-perso :is([data-acc-f="M"],[data-acc-f="B"]) .aw-etat>b{align-self:end}
+html body #v-horaire.acc-perso :is([data-acc-f="M"],[data-acc-f="B"]) .aw-etat>span{align-self:start; display:block; max-width:28ch}
+/* en bandeau : l'icône et le titre côte à côte */
+html body #v-horaire.acc-perso [data-acc-f="R"] .aw-etat{flex-direction:row; gap:10px; text-align:left}
+html body #v-horaire.acc-perso [data-acc-f="R"] .aw-etat>i{width:32px; height:32px}
+html body #v-horaire.acc-perso [data-acc-f="R"] .aw-etat>i svg{width:17px; height:17px}
+html body #v-horaire.acc-perso [data-acc-f="R"] .aw-etat>span{display:none}
+/* MON CYCLE ET LE CALENDRIER (relevé du 07/11/2026, widget-photos) :
+   - le 1er du mois (« 1 nov ») : l'anneau du jour férié ou de la place
+     prochaine est un rond taillé pour le chiffre ; le mois en débordait,
+     « 1nov » collé, l'anneau dessus (320 px). Il devient une pilule qui
+     enveloppe les deux ;
+   - un code long (« CPPT », « 8+FT ») tombait à 10, 9,5 et 8,5 px : il
+     reste à 11 px, plus serré, la pastille moins rembourrée. */
+html body #v-horaire :is(.mc-hero,#calCard) .mc-n:has(>small){width:auto!important; min-width:0!important; padding:0 7px!important; border-radius:999px; white-space:nowrap}
+@media (max-width:360px){ html body #v-horaire :is(.mc-hero,#calCard) .mc-n:has(>small){padding:0 4px!important} }
+html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{font-size:11px!important; letter-spacing:-.04em!important}
+html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t{width:auto!important; min-width:30px; max-width:100%; padding-left:4px!important; padding-right:4px!important; box-sizing:border-box}
+html body #v-horaire :is(#calCard,.mc-hero) .mc-j .mc-t.long{min-width:0; padding-left:2px!important; padding-right:2px!important}
 /* une case sans personne : un point discret plutôt qu'un tiret */
 html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
 @media (max-width:760px), (orientation:landscape) and (max-height:500px) and (max-width:1099px){
@@ -18729,7 +18781,9 @@ function awAnnonces(){
         /* le début du texte, montré à 2 lignes (les règles de #annCard) */
         +(x.corps?'<span class="aw-ex">'+esc(String(x.corps).replace(/\s+/g," ").slice(0,600))+'</span>':'')+'</span>'
         +(nl[x.id]?'<em class="aw-q aw-q-on">Nouveau</em>':'')+'</li>'; }).join("")+'</ul>'
-    :'<p class="aw-vide">'+(AIDE&&AIDE.err&&AIDE.liste==null?"Les annonces se liront au retour du réseau.":"Aucune annonce pour l’instant.")+'</p>';
+    :(AIDE&&AIDE.err&&AIDE.liste==null
+      ?'<div class="aw-vide aw-etat aw-etat-gris"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0"/><path d="M3 3l18 18"/></svg></i><b>Hors ligne</b><span>Les annonces se liront au retour du réseau.</span></div>'
+      :'<div class="aw-vide aw-etat aw-etat-bleu"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></i><b>Rien de neuf</b><span>Aucune annonce pour l’instant.</span></div>');
   c.hidden=false;
 }
 /* Effectif du jour (contremaîtres et RH) : les présents, par pause, puis les
@@ -26938,7 +26992,7 @@ function renderCentre(db,person){
   else if(!cb) fa+='<p class="ctl-ok">Connectez-vous dans Réglages pour vos demandes.</p>';
   /* rien n'attend : une seule phrase, une seule fois (le titre ne le
      redit pas) */
-  else fa+='<p class="ctl-ok ctl-rien"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Aucune action ne vous attend.</p>';
+  else fa+='<div class="ctl-ok ctl-rien aw-etat aw-etat-vert"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></i><b>Tout est à jour</b><span>Aucune action ne vous attend.</span></div>';
   /* « En cours », comme « 2 en cours » des demandes de congé (« En route »
      ne se disait nulle part ailleurs) */
   if(route.length) fa+='<section class="ctl-bloc"><h3>En cours</h3><div class="ctl-l">'+route.map(function(f){ return '<button type="button" class="ctl-i" data-ctl="'+f[0]+'"><span><b>'+esc(f[1])+'</b></span>'+f[2]+'<em aria-hidden="true">›</em></button>'; }).join("")+'</div></section>';

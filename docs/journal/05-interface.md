@@ -14670,3 +14670,48 @@ Le client envoie cinq captures de l'Accueil, sans mot. Relevé :
   capture injecté : rien ne déborde à 320, 390 et 430 px.
 - **L'usine en direct** n'était pas coupée : la barre d'onglets du bas
   recouvrait la fin de l'écran de la capture.
+
+### v1446 — Tous les widgets de l'Accueil, un par un, à chaque format (07/11/2026)
+
+Le client : « optimise tous les widgets de l'accueil ». Méthode de la
+règle « optimise tout » : `tools/widget-photos.js` sur les 20 widgets, à
+chaque format offert (bandeau à très grand), à 390 et 320 px (zones de
+l'iPhone simulées), couché (852) et au PC (1280, 1920) — 520 photos, et
+pour chacune les débordements, coupures et textes sous 11 px ; plus
+l'Accueil entier photographié à 390 px.
+
+**Lecture du relevé.** L'outil crie aussi pour des éléments cachés exprès :
+l'icône d'un titre placé hors champ (`déborde:svg/path/rect`), les textes
+du lecteur d'écran (« Mon cycle », « Avancement », « Jour par jour »,
+« Équipe du jour — … », « , pause en cours »), et les `aw-long` des
+titres cachés d'Effectif du jour et de Congés restants. Vérifiés un par
+un : aucun ne se voit. « Invisible » : Accès rapides (devenus des
+icônes), Demandes de congé (rien à montrer sans demande), Planning
+(widget du PC seul, le client l'a annulé au téléphone), Polyvalences
+(les opérateurs). Restaient, vrais :
+
+- **Mon cycle et Calendrier** : « RJF » coupé dès 390 px (pastille de
+  32 px à 6 px de marge pour 22 de texte) ; « 8+FT », « CPPT » coupés et à
+  10, 9,5 et 8,5 px à 320 px (sous le plancher de 11 px) ; le 1er du mois
+  (« 1 nov ») collé, l'anneau du jour férié par-dessus le mois. Pastille à
+  sa largeur, 4 px de marge (2 pour un code long), codes longs à 11 px
+  resserrés ; l'anneau du 1er devient une pilule qui enveloppe le chiffre
+  et le mois.
+- **Sur site à 320 px** : 311 px de contenu pour 290 ; la relève sortait
+  par le bas. Sous 300 px de large, l'équipe s'efface de l'en-tête des
+  pauses (la pastille et le nom suffisent), les pauses se rapprochent.
+- **À faire et Annonces vides** : une phrase grise dans un grand carré.
+  Comme les widgets de l'iPhone : pastille d'icône à la couleur du sujet
+  (coche verte, haut-parleur bleu, hors ligne en gris), titre (« Tout est
+  à jour », « Rien de neuf », « Hors ligne »), la phrase dessous ; en
+  large et bas, l'icône à gauche ; en petit carré à 320 px, l'icône et le
+  titre seuls. Première tentative par `@container (max-height)` : sans
+  effet, ces cadres ne sont conteneurs qu'en largeur — remesuré, corrigé
+  par la largeur et l'attribut de format.
+
+Mesuré après : le relevé complet ne montre plus que les fausses alertes
+ci-dessus ; `parcours.js` 188 essais, 0 faute.
+
+Erreur commise en chemin : le serveur de test, lancé en arrière-plan, a
+atteint sa limite de durée pendant le relevé ; seize widgets ont été
+« mesurés » contre une page absente. Repéré au nombre de lignes, relancé.
