@@ -2313,3 +2313,42 @@ mesuré.
 opaques est retirée. Elle laissait passer les polices de Google, quand
 elles en venaient ; le handler fetch ne traite plus que notre origine, et
 elle n'avait plus rien à laisser passer.
+
+## Les e-mails du robot : lisibles, comptés, et une boîte qui se vide (06/11/2026)
+
+Le client : « optimise la présentation des mails que je reçois du robot
+avec les changements […] les espaces et les mises à la ligne sont
+bizarres. J'aimerais aussi que tu dises combien de changements ont été
+faits ». Le rapport partait tel que `comparer-horaire.py` l'écrit : les
+cellules en JSON (`["7h-15h", "RTT"]`), des flèches `->`, un alignement
+en espaces que l'application de messagerie du téléphone casse.
+
+- `comparer-horaire.py` ne change pas (d'autres outils le lisent). Le
+  rapport se met en forme à l'envoi, dans `horaire-auto.py`
+  (`mettre_en_forme`) : un e-mail en deux versions, texte propre et
+  HTML (un tableau par personne : date, avant barré → après en gras, le
+  commentaire en italique dessous ; « commentaire modifié » quand seule
+  la note change). Les compteurs se lisent « RTT prévus : 40 → 56 », la
+  date du classeur « reçu le 06/11 à 12 h 51 », le bloc « manques
+  commentés » devient un titre et sa liste. Le détail brut des « autres
+  champs » (du JSON) est omis : le nom du champ et les trigrammes suffisent.
+- **Le nombre de changements**, en tête de l'e-mail et dans son sujet :
+  « BIOWANZE · horaire du … installé · 320 journées modifiées chez 65
+  personnes · compteurs de 35 personnes ». Les motifs de sujet que les
+  purges lisent (« rien de changé », « horaire AAAA ») sont intacts.
+- Seul le rapport de l'horaire est mis en forme (il porte « Ce qui
+  change » et « Journées modifiées ») ; les recyclages et les alertes
+  partent tels quels.
+- **La boîte du robot** : les rapports à soi-même se purgeaient déjà
+  (7 jours) ; les envois à d'AUTRES adresses (codes de connexion, avis),
+  jamais. `purger_envoyes` met à la corbeille ceux de plus de 7 jours.
+  À la main, le même jour : les deux alertes de sécurité Google
+  (18 et 21/10) et l'avis de partage du 24/10, lus avant d'être jetés.
+- Épreuve : `python3 tools/horaire-auto.py --epreuve-courrier` (fausse
+  boîte IMAP pour la purge ; rapport type pour la mise en forme). Sabotée
+  (le JSON des cellules non lu), elle rend 1. Mesurée sur le vrai
+  rapport du 30/10 → 06/11 (576 lignes) : aucune cellule JSON ni flèche
+  `->` ne reste.
+- Erreur commise : la liste de polices du HTML (deux noms de police collés par une virgule) a
+  été prise pour des noms par `verifier-depot.py` ; remplacée par
+  `system-ui`.

@@ -283,6 +283,58 @@ def purger_rapports(imap, moi, garde=GARDE_RAPPORTS):
     return len(retirer)
 
 
+def purger_envoyes(imap, moi, garde=GARDE_RAPPORTS):
+    """Les e-mails que le robot ENVOIE à d'autres (codes de connexion, avis)
+    restaient à jamais dans « Envoyés » : le robot ne nettoyait que sa boîte
+    de réception (le client, le 06/11/2026, « optimise tout cela » : une
+    trentaine du 21 au 29/10, des codes périmés). Ceux de plus de `garde`
+    jours, adressés à un autre que lui, vont à la corbeille ; ses rapports et
+    ses sauvegardes, adressés à lui-même, gardent leurs règles. Le dossier
+    se trouve par son attribut \\Sent, quelle que soit la langue du compte.
+    Rend le nombre d'e-mails retirés ; la boîte de réception est resélectionnée."""
+    import datetime
+    nom = None
+    typ, boites = imap.list()
+    for b in boites or []:
+        ligne = b.decode("utf-8", "replace") if isinstance(b, bytes) else str(b)
+        if "\\Sent" in ligne:
+            m = re.search(r'"([^"]+)"\s*$', ligne) or re.search(r'(\S+)\s*$', ligne)
+            nom = m.group(1) if m else None
+            break
+    if not nom:
+        return 0
+    n = 0
+    try:
+        imap.select('"%s"' % nom)
+        avant = (datetime.date.today() - datetime.timedelta(days=garde)).strftime("%d-%b-%Y")
+        typ, data = imap.uid("search", None, '(FROM "%s" NOT TO "%s" BEFORE %s)' % (moi, moi, avant))
+        uids = (data[0] or b"").split()
+        if uids:
+            corbeille(imap, uids)
+        n = len(uids)
+    finally:
+        imap.select("INBOX")
+    return n
+
+
+def _epreuve_purge_envoyes():
+    """Une boîte simulée : deux vieux envoyés à un autre, un récent, un
+    rapport à soi-même vieux ; seuls les deux premiers partent."""
+    class Faux:
+        def __init__(s): s.choisie, s.retires = None, []
+        def list(s): return ("OK", [b'(\\HasNoChildren) "/" "INBOX"',
+                                    b'(\\HasNoChildren \\Sent) "/" "[Gmail]/Messages envoy&AOk-s"'])
+        def select(s, b): s.choisie = b
+        def uid(s, cmd, *a):
+            if cmd == "search":
+                assert 'NOT TO "moi@x"' in a[1] and "BEFORE" in a[1]
+                return ("OK", [b"11 12"])
+            s.retires.append(a[0]); return ("OK", [])
+        def expunge(s): pass
+    f = Faux()
+    assert purger_envoyes(f, "moi@x") == 2 and f.retires == [b"11", b"12"] and f.choisie == "INBOX"
+
+
 def genre_sans_changement(sujet):
     """Le classeur dont parle un rapport « rien de changé » : « horaire
     2027 », « recyclages » ; None pour tout autre rapport. Les rapports
@@ -329,13 +381,241 @@ def purger_sans_changement(imap, moi):
     return len(retirer)
 
 
-def envoyer(user, mdp, sujet, corps):
+# LES RAPPORTS LISIBLES (le client, le 06/11/2026 : « optimise la
+# présentation des mails […] les espaces et les mises à la ligne sont
+# bizarres ; dis combien de changements ont été faits »). Le rapport était
+# la sortie brute de comparer-horaire.py : cellules en JSON (["7h-15h",
+# "RTT"]), flèches « -> », alignement en espaces que le téléphone casse.
+# comparer-horaire.py reste tel quel (d'autres outils le lisent) ; le
+# rapport se met en forme à l'envoi : une version texte propre et une
+# version HTML (tableaux), et le nombre de changements en tête et dans le
+# sujet.
+import html as _html
+
+_SEC = {"prevision": "prévus", "restant": "restants", "pris": "pris", "flex": "flex",
+        "droit": "droit", "planifie": "planifiés", "consomme": "consommés", "conges": "congés"}
+
+
+def _cellule(brut):
+    """'["AM", "R-CM", "remplace YPE"]' → ('AM · R-CM', 'remplace YPE')."""
+    try:
+        v = json.loads(brut)
+    except Exception:
+        return (brut.strip(), "")
+    if v is None:
+        return ("vide", "")
+    if not isinstance(v, list):
+        return (str(v), "")
+    v = [str(x) for x in v]
+    return (" · ".join(x for x in v[:2] if x.strip()) or "vide", " ".join(v[2:]).strip())
+
+
+def _quand_court(t):
+    m = re.match(r"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)", t or "")
+    return "%s/%s à %s h %s" % (m.group(3), m.group(2), m.group(4), m.group(5)) if m else t
+
+
+def _compteur(ecart):
+    """'prevision.RTT 40 -> 56' → 'RTT prévus : 40 → 56'."""
+    m = re.match(r"(\w+)\.(\S+) (.*) -> (.*)$", ecart.strip())
+    if not m:
+        return ecart.replace(" -> ", " → ")
+    return "%s %s : %s → %s" % (m.group(2), _SEC.get(m.group(1), m.group(1)), m.group(3), m.group(4))
+
+
+def lire_rapport(corps):
+    """Découpe le corps d'un rapport en blocs : ('p', texte), ('titre', t),
+    ('jours', [(qui, n, [(date, avant, apres), …], reste)]), ('liste', [lignes])."""
+    blocs, L, i = [], corps.split("\n"), 0
+    sec = None
+    while i < len(L):
+        l = L[i].rstrip()
+        if not l.strip():
+            i += 1; sec = None if sec != "jours" else sec; continue
+        m = re.match(r"^Journées modifiées : (\d+), chez (\d+) personne", l)
+        if m:
+            sec = "jours"; blocs.append(("titre", "Journées modifiées"))
+            blocs.append(("jours", [])); i += 1; continue
+        if sec == "jours":
+            mp = re.match(r"^  (\S+) — (\d+) journée", l)
+            md = re.match(r"^\s{4,}(\d\d/\d\d)\s+(.*)$", l)
+            me = re.match(r"^\s+… et (\d+) autre", l)
+            if mp:
+                blocs[-1][1].append([mp.group(1), int(mp.group(2)), [], 0]); i += 1; continue
+            if md and blocs[-1][1]:
+                apres = L[i + 1].strip() if i + 1 < len(L) else "null"
+                blocs[-1][1][-1][2].append((md.group(1), _cellule(md.group(2)), _cellule(apres)))
+                i += 2; continue
+            if me and blocs[-1][1]:
+                blocs[-1][1][-1][3] = int(me.group(1)); i += 1; continue
+            sec = None
+        mt = re.match(r"^(En-tête|Personnes|Changements de groupe|Compteurs|Polyvalence|Autres champs|Commentaires à relire)\b[^:]*:\s*(.*)$", l)
+        if mt and not l.startswith(" "):
+            sec = mt.group(1); blocs.append(("titre", {"En-tête": "Classeur", "Commentaires à relire": "Commentaires à relire (date d'un autre jour)"}.get(sec, sec)))
+            blocs.append(("liste", [])); i += 1; continue
+        if sec and l.startswith(" ") and blocs and blocs[-1][0] == "liste":
+            t = re.sub(r"\s{2,}", " ", l.strip())
+            if t.startswith("[") or '{"' in t:
+                i += 1; continue   # le détail brut d'un champ : le nom du champ suffit
+            mm = re.match(r"^maj (\S+) -> (\S+)$", t)
+            if mm:
+                t = "reçu le %s (avant : %s)" % (_quand_court(mm.group(2)), _quand_court(mm.group(1)))
+            elif sec == "Commentaires à relire":
+                mm = re.match(r"^(\S+) (\d\d/\d\d) (\[.*\])\s*→\s*(.*)$", t)
+                if mm:
+                    c, com = _cellule(mm.group(3))
+                    t = "%s, %s : %s%s (date citée : %s)" % (mm.group(1), mm.group(2), c,
+                                                             (" « %s »" % com) if com else "", mm.group(4))
+            elif sec == "Compteurs":
+                q, _, r = t.partition(" ")
+                t = q + " : " + ", ".join(_compteur(e) for e in r.split(" · "))
+            elif sec == "Personnes":
+                mm = re.match(r"^([+-])\s+(\S+)\s+(.*?)\s+(\d+) journées$", t)
+                if mm:
+                    t = "%s %s (%s)" % ("arrivée :" if mm.group(1) == "+" else "départ :", mm.group(2), mm.group(3))
+            t = re.sub(r"\s{2,}", " ", t).replace(" -> ", " → ")
+            blocs[-1][1].append(t); i += 1; continue
+        sec = None
+        # une ligne suivie de lignes en retrait (« manques commentés — … ») :
+        # un titre et sa liste, les cellules JSON rendues lisibles
+        if i + 1 < len(L) and L[i + 1].startswith("  ") and L[i + 1].strip():
+            titre, _, reste_t = l.strip().partition(" — ")
+            blocs.append(("titre", titre[:1].upper() + titre[1:]))
+            if reste_t:
+                blocs.append(("p", reste_t[:1].upper() + reste_t[1:]))
+            lignes = []
+            i += 1
+            while i < len(L) and L[i].startswith("  ") and L[i].strip():
+                t = re.sub(r"\[[^\[\]]*\]", lambda m: "%s%s" % (
+                    _cellule(m.group(0))[0], (" « %s »" % _cellule(m.group(0))[1]) if _cellule(m.group(0))[1] else ""),
+                    L[i].strip())
+                t = re.sub(r"\s{2,}", " ", t).replace(" : ", " : ", 1)
+                lignes.append(("   " if L[i].startswith("    ") else "") + t)
+                i += 1
+            blocs.append(("liste", lignes))
+            continue
+        # un paragraphe : les lignes jusqu'à la prochaine ligne vide
+        par = [l.strip()]
+        i += 1
+        while i < len(L) and L[i].strip() and not re.match(r"^(Journées modifiées|En-tête|Personnes|Compteurs|Polyvalence|Autres champs|Changements de groupe)\b", L[i]):
+            par.append(L[i].strip()); i += 1
+        blocs.append(("p", " ".join(par).replace(" -> ", " → ")))
+    return blocs
+
+
+def compter(corps):
+    """(journées modifiées, personnes, arrivées, départs, compteurs) d'un rapport."""
+    m = re.search(r"Journées modifiées : (\d+), chez (\d+)", corps)
+    mc = re.search(r"(?m)^Compteurs : (\d+) personne", corps)
+    arr = len(re.findall(r"(?m)^  \+ \S", corps)); dep = len(re.findall(r"(?m)^  - \S", corps))
+    return (int(m.group(1)) if m else 0, int(m.group(2)) if m else 0, arr, dep, int(mc.group(1)) if mc else 0)
+
+
+def resume(corps):
+    """« 4 journées modifiées chez 3 personnes · 1 arrivée » ; '' si rien."""
+    j, p, a, d, c = compter(corps)
+    morceaux = []
+    if j:
+        morceaux.append("%d journée%s modifiée%s chez %d personne%s" % (j, "s" * (j > 1), "s" * (j > 1), p, "s" * (p > 1)))
+    if a:
+        morceaux.append("%d arrivée%s" % (a, "s" * (a > 1)))
+    if d:
+        morceaux.append("%d départ%s" % (d, "s" * (d > 1)))
+    if c and morceaux:
+        morceaux.append("compteurs de %d personne%s" % (c, "s" * (c > 1)))
+    return " · ".join(morceaux)
+
+
+def mettre_en_forme(corps):
+    """(texte, html) d'un rapport."""
+    blocs = lire_rapport(corps)
+    t, h = [], []
+    def e(x):   # « 12 h 51 » ne se coupe pas au téléphone
+        return re.sub(r"(\d) h (\d)", "\\1&nbsp;h&nbsp;\\2", _html.escape(x))
+    h.append('<div style="font-family:system-ui,-apple-system,sans-serif;'
+             'font-size:15px;line-height:1.45;color:#1d2433;max-width:640px">')
+    r = resume(corps)
+    if r:
+        t += [r, ""]
+        h.append('<p style="margin:0 0 14px;padding:10px 14px;background:#eef3fb;border-radius:10px;'
+                 'font-weight:600">%s</p>' % e(r))
+    for k, v in blocs:
+        if k == "p":
+            t += [v, ""]
+            fort = v.startswith("À RELIRE") or "NON " in v[:40]
+            h.append('<p style="margin:0 0 12px%s">%s</p>' % (";color:#a3361f;font-weight:600" if fort else "", e(v)))
+        elif k == "titre":
+            t += [v.upper()]
+            h.append('<h3 style="margin:18px 0 6px;font-size:13px;letter-spacing:.06em;'
+                     'text-transform:uppercase;color:#5b6475">%s</h3>' % e(v))
+        elif k == "liste":
+            t += [("     " + x.strip()) if x.startswith("   ") else "• " + x for x in v] + [""]
+            h.append('<ul style="margin:0 0 8px;padding-left:20px">%s</ul>'
+                     % "".join(('<li style="margin:0 0 2px;list-style:none;color:#5b6475">%s</li>' if x.startswith("   ")
+                                else '<li style="margin:6px 0 2px">%s</li>') % e(x.strip()) for x in v))
+        elif k == "jours":
+            for qui, n, jours, reste in v:
+                t.append("%s — %d journée%s" % (qui, n, "s" * (n > 1)))
+                h.append('<p style="margin:10px 0 4px;font-weight:700">%s <span style="font-weight:400;'
+                         'color:#5b6475">· %d journée%s</span></p>' % (e(qui), n, "s" * (n > 1)))
+                h.append('<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%">')
+                for date, (av, avc), (ap, apc) in jours:
+                    if av == ap:
+                        ligne = "%s, commentaire %s" % (ap, ("« %s »" % apc) if apc else "retiré")
+                    else:
+                        ligne = "%s → %s%s" % (av, ap, (" (« %s »)" % apc) if apc else "")
+                    t.append("   %s : %s" % (date, ligne))
+                    if av == ap:
+                        cellule = '<b>%s</b> <span style="color:#5b6475">· commentaire %s</span>' % (
+                            e(ap), "modifié" if apc else "retiré")
+                    else:
+                        cellule = ('<span style="color:#8a92a3;text-decoration:line-through">%s</span>'
+                                   ' &rarr; <b>%s</b>' % (e(av), e(ap)))
+                    if apc:
+                        cellule += '<br><i style="color:#5b6475">« %s »</i>' % e(apc)
+                    h.append('<tr><td style="padding:5px 10px 5px 0;white-space:nowrap;vertical-align:top;'
+                             'color:#5b6475;width:48px">%s</td><td style="padding:5px 0;vertical-align:top;'
+                             'border-bottom:1px solid #eef0f4">%s</td></tr>' % (e(date), cellule))
+                if reste:
+                    t.append("   … et %d autre%s" % (reste, "s" * (reste > 1)))
+                    h.append('<tr><td></td><td style="padding:4px 0;color:#5b6475">… et %d autre%s</td></tr>'
+                             % (reste, "s" * (reste > 1)))
+                h.append("</table>")
+            t.append("")
+    h.append("</div>")
+    return ("\n".join(t).strip() + "\n", "".join(h))
+
+
+def _epreuve_mise_en_forme():
+    corps = ("L'application est à jour (classeur du 06/11/2026 à 07 h 42, horaire 2026).\n\nCe qui change :\n\n"
+             "En-tête :\n  maj 2026-11-05T15:48 -> 2026-11-06T07:42\n\n"
+             "Journées modifiées : 4, chez 3 personne(s)\n  AAA — 2 journée(s)\n"
+             "      09/11  [\"7h-15h\"]\n             [\"7h-15h\", \"RTT\"]\n"
+             "      10/11  [\"7h-15h\"]\n             [\"7h-15h\", \"RTT\"]\n"
+             "  BBB — 1 journée(s)\n      11/11  [\"AM\"]\n             [\"AM\", \"R-CM\", \"remplace CCC\"]\n\n"
+             "Compteurs : 1 personne(s)\n  AAA    prevision.RTT 40 -> 56 · restant.RTT 18 -> 2\n")
+    t, h = mettre_en_forme(corps)
+    assert resume(corps).startswith("4 journées modifiées chez 3 personnes · "), resume(corps)
+    assert "09/11 : 7h-15h → 7h-15h · RTT" in t, t
+    assert "11/11 : AM → AM · R-CM (« remplace CCC »)" in t, t
+    assert resume(corps).endswith("compteurs de 1 personne"), resume(corps)
+    assert "RTT prévus : 40 → 56" in t and "reçu le 06/11 à 07 h 42" in t, t
+    assert "->" not in t and '["' not in t and "<table" in h, t
+    return t
+
+
+def envoyer(user, mdp, sujet, corps, forme=False):
     if not (user and mdp):
         print("\n" + sujet + "\n" + corps)       # essai local : à l'écran
         return
     msg = EmailMessage()
     msg["From"], msg["To"], msg["Subject"] = user, user, sujet
-    msg.set_content(corps)
+    if forme:
+        texte, page = mettre_en_forme(corps)
+        msg.set_content(texte)
+        msg.add_alternative(page, subtype="html")
+    else:
+        msg.set_content(corps)
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
         s.login(user, mdp)
         s.send_message(msg)
@@ -800,6 +1080,12 @@ def identites_base(source, annee):
 def main():
     if "--epreuve-expediteur" in sys.argv:
         return _epreuve_expediteur()
+    if "--epreuve-courrier" in sys.argv:
+        # la purge des envoyés et la mise en forme des rapports (06/11/2026)
+        _epreuve_purge_envoyes()
+        print(_epreuve_mise_en_forme())
+        print("épreuves du courrier : ok")
+        return 0
     user, mdp = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
     avant_h, avant_r = horaires_installes(), _lire(RECYC)
     pousser = "--sans-pousser" not in sys.argv
@@ -823,6 +1109,12 @@ def main():
         n = purger_rapports(imap, user)
         if n:
             etat("%d rapport(s) de plus de %d jours mis à la corbeille." % (n, GARDE_RAPPORTS))
+        try:
+            n = purger_envoyes(imap, user)
+            if n:
+                etat("%d e-mail(s) envoyé(s) de plus de %d jours mis à la corbeille." % (n, GARDE_RAPPORTS))
+        except Exception as e:               # le ménage ne fait jamais échouer un passage
+            etat("Envoyés : ménage non fait (%s)." % type(e).__name__)
         n = purger_sans_changement(imap, user)
         if n:
             etat("%d rapport(s) « rien de changé » remplacé(s) mis à la corbeille." % n)
@@ -928,7 +1220,13 @@ def main():
                      " transmettre à Claude.\n\n" + corps)
         if imap is not None and uids:
             corbeille(imap, uids)
-        envoyer(user, mdp, sujet, corps)
+        # le nombre de changements dans le sujet (06/11/2026)
+        r = resume(corps)
+        if r and inst:
+            sujet = sujet.replace(" installé", " installé · " + r, 1)
+        # la mise en forme ne vaut que pour le rapport de l'horaire (ses
+        # sections sont celles de comparer-horaire.py) ; les autres partent tels quels
+        envoyer(user, mdp, sujet, corps, forme="\nCe qui change :\n" in corps and "Journées modifiées" in corps)
         code = max(code, c)
     return code
 
