@@ -14533,3 +14533,6 @@ lieu de rouge. »
 - **v1432** (même jour) : la fermentation, que le message laissait en
   suspens, réglée en QCM par le client : « un rien à gauche et plus
   bas », comme le gluten (650,612 → 636,627).
+- **v1433** (même jour, le client : « un rien plus bas ») : meunerie
+  14 px à droite et 15 px plus bas (136,375), gluten 14 px à gauche et
+  15 px plus bas (274,530), distillation 15 px plus bas (515,445).
