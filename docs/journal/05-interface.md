@@ -14630,3 +14630,10 @@ aussi un téléphone dans toute l'application), reprise à l'identique.
   1280 px : le cadre du Planning a le fond, les coins (22 px) et l'ombre
   exacts des widgets. Seul écart trouvé : les coins des badges, 7 px au
   PC contre 6 au téléphone et sur la carte en direct ; alignés à 6 px.
+- **v1443** (07/11/2026). Le client envoie une capture du 06/11, sans
+  mot : les cases en manque (Fermentation AM, la rangée des Chaudières)
+  gardaient un voile qui redessinait des rectangles, et la rangée
+  d'horaires des Chaudières ses fonds de pause et un trait vertical.
+  Retirés : plus aucun fond de case, le « ? » rouge et le badge orange
+  disent le manque et la proposition. Le trait de couleur de droite d'une
+  rangée sur deux lignes est d'un seul tenant, comme celui de gauche.
