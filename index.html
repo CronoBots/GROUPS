@@ -8739,9 +8739,9 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-ch .btn{height:36px; align-self:end; border-radius:10px; font-weight:650}
 /* Numéros des postes (06/11/2026) */
 .aw-jn-c{display:none}
-/* au plus petit téléphone (320 px), le numéro s'efface (le bouton vert
-   appelle toujours, et le dit au lecteur d'écran) et la STEP s'abrège */
-@media (max-width:359px){ #telCard .aw-jt em{display:none} .aw-jt .aw-jn-l{display:none} .aw-jt .aw-jn-c{display:inline} }
+#siteCard{display:none!important}
+/* au plus petit téléphone (320 px), la STEP s'abrège */
+@media (max-width:359px){ .aw-jt .aw-jn-l{display:none} .aw-jt .aw-jn-c{display:inline} .aw-jt-tete .site-eq,.aw-jt-tete .site-etat,.aw-jt-tete .site-qd>span{display:none} }
 #telCard>header{--ic:var(--ip-cm)}
 .aw-jt>li>a,.aw-jt>li>.aw-jl{display:flex; align-items:center; gap:10px; width:100%; color:inherit; text-decoration:none}
 #telCard .aw-l>li{min-height:34px; padding:2px 0}
@@ -8751,10 +8751,13 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-jt .aw-t b{font-size:14px; font-weight:650; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .aw-jt .aw-t small{font-size:11.5px; color:var(--muted)}
 /* le nom et ses trigrammes sur une ligne ; ils passent dessous s'ils ne tiennent pas */
-#telCard .aw-jt .aw-t{flex-direction:row; flex-wrap:wrap; align-items:center; column-gap:8px; row-gap:3px}
-.aw-jg{display:flex; flex-wrap:wrap; gap:4px}
-.aw-jg>i{font-style:normal; font-size:11.5px; font-weight:700; letter-spacing:.02em; line-height:17px; padding:0 6px; border-radius:6px; background:color-mix(in srgb,var(--us-c,var(--muted)) 22%,transparent); color:var(--ink)}
-.aw-jg>i.form{color:#F5C542} .aw-jg>i.moi{box-shadow:inset 0 0 0 1.5px var(--us-c,var(--muted))}
+#telCard .aw-jt .aw-t{flex:1 1 auto}
+/* les trigrammes à droite, contre le bouton, à la couleur du poste */
+.aw-jg{flex:0 1 auto; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px; min-width:0}
+.aw-ja-vide{visibility:hidden}
+.aw-jt-tete{flex:none; margin-bottom:4px}
+.aw-jg>i{font-style:normal; font-size:11.5px; font-weight:750; letter-spacing:.02em; line-height:18px; padding:0 6px; border-radius:6px; background:color-mix(in srgb,var(--us-c,var(--muted)) 18%,transparent); color:var(--us-c,var(--ink))}
+.aw-jg>i.moi{box-shadow:inset 0 0 0 1.5px var(--us-c,var(--muted))}
 .aw-jg-0{font-size:11.5px; color:var(--muted)}
 .aw-jt em{flex:none; font-style:normal; font-size:13px; color:var(--ink2); font-variant-numeric:tabular-nums}
 .aw-jt small:empty{display:none}
@@ -10797,7 +10800,7 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg><span><span class="aw-long">Mes </span>repos</span></h2><span class="sub" id="reposSub"></span></header>
       <div class="aw-corps" id="reposCorps"></div>
     </div>
-    <div class="card" id="siteCard" data-w="site" hidden>
+    <div class="card" id="siteCard" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.3.2 4.2 1.8 4.9 4.8"/></svg>Sur site<span class="site-live" aria-hidden="true"></span><span class="site-quand" id="siteQuand"></span></h2><span class="sub" id="siteSub"></span></header>
       <div class="pad" id="siteCorps"></div>
     </div>
@@ -19196,6 +19199,18 @@ function awRecyc(){
    avec Sur site afin d'avoir les personnes présentes près du téléphone ») :
    les trigrammes de chaque poste en ce moment, comptés comme « L'usine en
    direct » (usineEtat : ceux qui y sont, pas ceux qui arrivent) */
+/* LA PAUSE EN COURS EN TÊTE (le client, le 06/11/2026 : « mettre la partie
+   du dessus du widget qui est en dessous, puis supprimer le widget Sur
+   site ») : la ligne de titre du bloc de la pause en cours de « Sur site »
+   (siteSalonsHTML) — la pause, l'équipe, « en cours », le jour, les heures
+   et le nombre de présents */
+function awTelTete(){
+  try{ var h=siteSalonsHTML(surSite(new Date()),{moi:trigCourant()}); if(!h) return "";
+    var d=document.createElement("div"), pz=cmDePause().pz, st=null; d.innerHTML=h;
+    [].forEach.call(d.querySelectorAll(".site-salon>.site-st"),function(p){ var a=p.querySelector(".pl-pa"); if(!st&&a&&a.textContent===pz) st=p; });
+    st=st||d.querySelector(".site-salon>.site-st"); if(!st) return "";
+    st.classList.add("aw-jt-tete"); return st.outerHTML; }catch(e){ return ""; }
+}
 function awJoindre(){
   var E=null; try{ E=usineEtat(); }catch(e){}
   var moi=null; if(E) USINE_ZONES.forEach(function(z){ if(!moi&&E.Z[z.k].gens.concat(E.Z[z.k].arrivent).some(function(o){ return o.moi; })) moi=z.k; });
@@ -19214,9 +19229,9 @@ function awJoindre(){
     if(!L.length) tc.hidden=true;
     else {
       document.getElementById("telSub").textContent=L.length+" poste"+(L.length>1?"s":"");
-      var h='<ul class="aw-l aw-jt" data-acc-fit>'+L.map(function(z){ var o=TL[z.k];
-        if(o.tel) return '<li class="us-f-'+z.f+'"><a href="tel:'+esc(o.tel)+'" aria-label="Appeler '+esc(z.t)+', '+esc(o.vu)+'"><span class="aw-jp" aria-hidden="true"></span><span class="aw-t"><b>'+nom(z)+vous(z)+'</b>'+gens(z)+'</span><em>'+esc(o.vu)+'</em><span class="aw-ja">'+ico+'</span></a></li>';
-        return '<li class="us-f-'+z.f+'"><span class="aw-jl"><span class="aw-jp" aria-hidden="true"></span><span class="aw-t"><b>'+nom(z)+vous(z)+'</b>'+gens(z)+'</span></span></li>';
+      var h=awTelTete()+'<ul class="aw-l aw-jt" data-acc-fit>'+L.map(function(z){ var o=TL[z.k];
+        if(o.tel) return '<li class="us-f-'+z.f+'"><a href="tel:'+esc(o.tel)+'" aria-label="Appeler '+esc(z.t)+', '+esc(o.vu)+'"><span class="aw-jp" aria-hidden="true"></span><span class="aw-t"><b>'+nom(z)+vous(z)+'</b></span>'+gens(z)+'<span class="aw-ja">'+ico+'</span></a></li>';
+        return '<li class="us-f-'+z.f+'"><span class="aw-jl"><span class="aw-jp" aria-hidden="true"></span><span class="aw-t"><b>'+nom(z)+vous(z)+'</b></span>'+gens(z)+'<span class="aw-ja aw-ja-vide" aria-hidden="true"></span></span></li>';
       }).join("")+'</ul>';
       /* chaque minute (accueilTic) : ne réécrire que ce qui a changé */
       if(tb._h!==h){ tb._h=h; tb.innerHTML=h; try{ accAjusterBientot(); }catch(e){} }
@@ -38953,7 +38968,9 @@ var ACC_W=[
   {k:"cherche",      nom:"Congé possible ?",    l:6,  f:["M"], h:1},
   {k:"numeros",      nom:"Numéros des postes",  l:6,  f:["M","L"], h:2, si:"compte"},
   /* des pastilles en grille : moyen, grand, très grand */
-  {k:"site",         nom:"Sur site",            l:6,  f:["M","L","XL"], h:2},
+  /* (« Sur site » retiré le 06/11/2026, sa tête passée dans « Numéros des
+     postes » : sa carte reste, cachée — renderSiteAccueil fait aussi
+     vivre « L'usine en direct ») */
   /* trop petit (le client, le 06/11/2026) : très grand au PC ; au
      téléphone, la page de gauche de l'Accueil, à toute la hauteur
      (accChatPlein) */
@@ -38992,13 +39009,13 @@ var ACC_W=[
    faisaient une rangée presque vide quand rien n'attend : en petit, à côté
    de « Mon cycle » ; la paie, les congés, l'effectif ou les polyvalences
    et « Mon année », quatre petits sur une rangée */
-var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle","paie","soldes","repos","stats","recyclage","dates","demandes","presents","polyvalences","conges","cherche","planning","calendrier","usine","numeros","site","messages"];
-var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","cherche","repos","stats","recyclage","usine","numeros","calendrier","site","messages"];
+var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle","paie","soldes","repos","stats","recyclage","dates","demandes","presents","polyvalences","conges","cherche","planning","calendrier","usine","numeros","messages"];
+var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","cherche","repos","stats","recyclage","usine","numeros","calendrier","messages"];
 var ACC_DEFAUT={
   tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S", repos:"S", stats:"S", recyclage:"M", numeros:"L", cherche:"M",
-    calendrier:"L", usine:"L", site:"M", messages:"M"},
+    calendrier:"L", usine:"L", messages:"M"},
   large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S", repos:"M", stats:"M", recyclage:"M", numeros:"M", cherche:"M",
-    usine:"XL", calendrier:"L", site:"M", messages:"L"}
+    usine:"XL", calendrier:"L", messages:"L"}
 };
 /* LES LARGEURS, DES MULTIPLES D'UNE ICÔNE (04/11/2026) : au PC, une icône
    fait un huitième ; ¼, ½, ¾ et 1 tombent sur ses colonnes, ⅓ et ⅔ non

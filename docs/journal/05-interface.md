@@ -15141,3 +15141,29 @@ s'arrêter en tête. Erreur commise en retirant les styles de la radio : la
 coupe a emporté les deux règles du numéro à 320 px (« STEP », numéro
 effacé), remises aussitôt ; la photo à 320 px le confirme. Parcours 188,
 0 faute.
+
+### v1471 — « Numéros des postes » prend la tête de « Sur site », qui est retiré (06/11/2026)
+
+Le client : « laisse juste le bouton appeler et supprime les numéros ; les
+trigrammes doivent être alignés à droite et de la couleur du poste ; dans
+ce cadre, au-dessus, il faut mettre la partie du dessus du widget qui est
+en dessous, puis supprimer le widget Sur site ».
+
+- Plus de numéro écrit : le bouton vert appelle (le numéro reste dans le
+  lien et dans ce que dit le lecteur d'écran).
+- Les trigrammes à droite, contre le bouton, encre et fond à la couleur
+  du poste (la formation n'a plus son encre jaune : la couleur est celle
+  du poste) ; une rangée sans bouton (terrain arrière) garde la place du
+  bouton, pour que tout s'aligne.
+- En tête, la ligne de titre du bloc de la pause en cours de « Sur site »
+  (`awTelTete`, tirée de `siteSalonsHTML`) : la pause, l'équipe,
+  « en cours », le jour, les heures et le nombre de présents.
+- « Sur site » sort d'`ACC_W` ; sa carte reste, cachée
+  (`#siteCard{display:none!important}`, sans `data-w`), parce que
+  `renderSiteAccueil` fait aussi vivre « L'usine en direct ».
+
+Mesuré : à 390 px les huit postes tiennent en grand sous la tête. À
+320 px, la tête faisait trois lignes (équipe, « en cours », date) : sous
+360 px elle se réduit à la pause, ses heures et les présents ; il reste
+« + 2 autres » en grand à 320 px (huit rangées de 34 px et la tête ne
+tiennent pas dans 293 px). Parcours 188, 0 faute.
