@@ -14609,3 +14609,10 @@ aussi un téléphone dans toute l'application), reprise à l'identique.
   question au lieu du gris ». Le filet de chaque badge prend la couleur
   de son poste (`--zp`, celle du liseré) : formation, journée (en
   pointillés) et place libre compris ; seul « vous » reste cerné de cyan.
+- **v1440** (même jour), carte en direct. Le client : « soit le côté
+  gauche plus gros fait partie du bord qui fait le contour du trigramme,
+  soit on le retire, parce que là on dirait qu'il y a deux morceaux de
+  contour ». Retiré : depuis la v1439, le contour porte déjà la couleur
+  du poste, le liseré de 3 px à gauche (une ombre intérieure, détachée
+  du filet) faisait doublon. Un seul contour, régulier, et le trigramme
+  recentré (marges de 8 px des deux côtés, 5 px au téléphone).
