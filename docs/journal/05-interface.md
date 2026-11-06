@@ -14840,3 +14840,18 @@ l'Accueil (les pages comme l'iPhone, v1397), où l'on arrive d'un balayage.
 - **Au PC** : le format très grand (toute la largeur) s'ajoute à moyen et
   grand ; la vue par défaut reste grand.
 - Parcours : 188 essais, 0 faute.
+
+### v1453 : le titre du chat restait éteint pendant le balayage (06/11/2026)
+
+Le client, deux captures : « le titre apparaît puis disparaît ? ». La
+seconde montrait le chat sans titre, alors que le point de la page
+principale était encore allumé, et un reste d'étiquette près des points.
+C'était le chat pendant le geste. Il entre alors comme page voisine
+(`accVoisine`) : sa taille est mesurée sur sa page, mais la marque
+`acc-chat-plein`, qui affichait son titre et masquait son nom, suivait la
+page montrée. La marque est désormais sur le chat lui-même
+(`#filCard[data-plein]`, « seul sur sa page », quelle que soit la page
+montrée), et son nom n'est plus posé, ni sur la page ni sur la voisine.
+Seule la place fixe suit encore la page montrée. Mesuré au milieu d'un
+geste au doigt (CDP) : titre de 49 px, contre 0 avant. Parcours : 188
+essais, 0 faute.

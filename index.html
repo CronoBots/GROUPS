@@ -9033,8 +9033,8 @@ html body #v-horaire.acc-perso .card[data-w]>header>h2{position:absolute!importa
 html body #v-horaire.acc-perso .card[data-w]>header>:not(h2){display:none!important}
 /* le chat à toute la hauteur (accChatPlein, 06/11/2026) : seul sur sa page
    et sans nom dessous, il reprend son titre en tête, comme une messagerie */
-html body #v-horaire.acc-perso.acc-chat-plein #filCard[data-w]>header{position:static; display:flex; align-items:center; height:auto; padding:14px 16px 10px; border-bottom:1px solid var(--line2); pointer-events:auto}
-html body #v-horaire.acc-perso.acc-chat-plein #filCard[data-w]>header>h2{position:static!important; width:auto!important; height:auto!important; margin:0!important; overflow:visible!important; clip:auto!important; white-space:nowrap!important}
+html body #v-horaire.acc-perso #filCard[data-w][data-plein]>header{position:static; display:flex; align-items:center; height:auto; padding:14px 16px 10px; border-bottom:1px solid var(--line2); pointer-events:auto}
+html body #v-horaire.acc-perso #filCard[data-w][data-plein]>header>h2{position:static!important; width:auto!important; height:auto!important; margin:0!important; overflow:visible!important; clip:auto!important; white-space:nowrap!important}
 /* le Planning (la carte de l'onglet, posée dans l'Accueil au PC) : son
    titre s'efface aussi, sa barre de dates reste */
 html body #v-horaire.acc-perso #accPlanning #jourCard>header.jour-acc-t{position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important}
@@ -38795,7 +38795,7 @@ function accVoisine(p,garderVue){
   /* les noms de ses widgets */
   var c=document.createElement("div"); c.className="acc-noms acc-noms-v"; c.setAttribute("aria-hidden","true"); v.insertBefore(c,document.getElementById("accPied"));
   var h=[];
-  mes.forEach(function(m){ var k=m.el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!m.w) return;
+  mes.forEach(function(m){ var k=m.el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!m.w||m.el.hasAttribute("data-plein")) return;
     var q=accDans(m.el,c); h.push('<span class="acc-nom" style="left:'+q.x.toFixed(2)+'px;top:'+(q.y+m.h).toFixed(2)+'px;width:'+m.w+'px">'+esc(d.nom)+'</span>'); });
   c.innerHTML=h.join("");
   /* SA DISTANCE (05/11/2026) : non pas une largeur d'écran, mais juste de
@@ -38871,9 +38871,18 @@ function accStyle(){
    défile plus, le fil défile dans le cadre et la saisie reste en bas. En
    mode Modifier, il reprend son format, qu'on règle comme les autres. */
 function accChatPlein(){
-  var v=document.getElementById("v-horaire");
-  if(!v||!accPagesOn()||ACC.edit||ACC.m.messages||accPageDe("messages")!==ACC.page||!accVisible("messages")) { if(v) v.classList.remove("acc-chat-plein"); return ""; }
-  if(ACC.o.some(function(k){ return k!=="messages"&&accPageDe(k)===ACC.page&&accVisible(k); })){ v.classList.remove("acc-chat-plein"); return ""; }
+  var v=document.getElementById("v-horaire"), fc=document.getElementById("filCard"), pm=accPageDe("messages");
+  /* SEUL SUR SA PAGE, quelle que soit la page montrée (le client, le
+     06/11/2026, deux captures : « le titre apparaît puis disparaît ? ») :
+     pendant le balayage, le chat entre comme page voisine (accVoisine) alors
+     que la page montrée est encore l'autre ; son titre et son nom suivaient
+     la page montrée, et s'éteignaient le temps du geste. La marque est
+     désormais sur le chat lui-même (data-plein), la place fixe seule suit
+     la page montrée. */
+  var seul=!!v&&!!fc&&accPagesOn()&&!ACC.edit&&!ACC.m.messages&&accVisible("messages")
+    &&!ACC.o.some(function(k){ return k!=="messages"&&accPageDe(k)===pm&&accVisible(k); });
+  if(fc){ if(seul) fc.setAttribute("data-plein",""); else fc.removeAttribute("data-plein"); }
+  if(!seul||pm!==ACC.page){ if(v) v.classList.remove("acc-chat-plein"); return ""; }
   /* FIXE (le client : « toute la hauteur d'écran fixe ») : posé hors du
      flux, entre le haut de l'Accueil et les points des pages, aux bords de
      la grille ; la page n'a plus rien à faire défiler. Le geste vers une
@@ -39248,7 +39257,7 @@ function accNoms(){
   var h=[];
   ACC.items.forEach(function(el){
     var k=el.getAttribute("data-w"), d=k&&accDef(k); if(!d||d.app||!el.offsetWidth||!el.getClientRects().length) return;
-    if(el.__voisin||el.classList.contains("acc-vide")||(ACC.drag&&ACC.drag.parti&&ACC.drag.k===k)) return;
+    if(el.__voisin||el.classList.contains("acc-vide")||el.hasAttribute("data-plein")||(ACC.drag&&ACC.drag.parti&&ACC.drag.k===k)) return;
     var q=accDans(el,c);
     h.push('<span class="acc-nom" data-acc-nom-pour="'+k+'" style="left:'+q.x.toFixed(2)+'px;top:'+(q.y+el.offsetHeight).toFixed(2)+'px;width:'+el.offsetWidth+'px">'+esc(d.nom)+'</span>');
   });
