@@ -15072,3 +15072,30 @@ Mis à jour quand les infos arrivent (`aideMaj` → `awJoindre`).
 
 Photographiés à 320, 390 et 1280 px avec des numéros fabriqués ;
 parcours 188 essais, 0 faute.
+
+### v1467 — « Congé possible ? » et le contremaître sans recyclage (06/11/2026)
+
+**Le widget de recherche de congé.** Le client : « un widget pour faire
+une recherche pour prendre congé, lié au trigramme connecté pour les
+opérateurs, pour tout le monde pour contremaître et adjoint ». Deux dates
+(« Au » facultatif) et « Vérifier » ; il remplit le module « Congé » de
+l'onglet Recherche (qui, jour ou période, dates), l'ouvre et lance le même
+calcul (`chLancer` → `caGo`) : une seule lecture, un seul résultat. Le
+choix « Qui » ne paraît que pour un cadre (`estCadre`) ou un adjoint
+(`wsAdjoint`) ; un opérateur cherche pour lui seul. Moyen seul. Éprouvé
+au navigateur : VBN choisit « Qui », LCI non ; du 24 au 26/12, l'onglet
+s'ouvre sur la période remplie et son résultat.
+
+**Le contremaître titulaire n'a pas de recyclage.** Le client : « comment
+ça se fait que moi VBN j'ai des recyclages ? Je suis CM maintenant,
+logiquement je ne dois pas en avoir ». Le classeur RH des recyclages du
+06/11 le garde « Adj CM », 30 à faire. Dans l'horaire, les adjoints
+(ATR, FPA, JBI, VGG, YBT) tiennent le poste Contremaître ET leurs postes
+Shift ; VBN, comme les autres titulaires, le seul poste Contremaître.
+`cmTitulaire(p)` le reconnaît ainsi, et `recycRH` ne lui rend rien : plus
+de widget « Mon recyclage », plus de compteurs au héros, plus de ligne
+dans l'onglet. `--polyvalence` identique à l'octet.
+
+**Le plan en direct au téléphone** (question, rien de changé) : les
+trigrammes ne sont pas posés sur la photo (trop petite) ; on touche une
+épingle ou une tuile de poste, et la fiche dit qui est là.
