@@ -934,3 +934,47 @@ une personne en formation.
 `verifier-calendrier.js` (défaut, `--manques 0926`, `--polyvalence`,
 `--compteurs`) : les sorties sont identiques à l'octet avant et après.
 Aucun de ces outils ne lit l'équipe d'une personne.
+
+## Le mode RH : l'application de la RH, séparée de celle des travailleurs (06/11/2026)
+
+Le client : « il faut absolument séparer l'application qui sera utilisée
+par les travailleurs de celle qui sera utilisée par le RH : les
+historiques, les modifications d'horaire, les widgets liés à un opérateur
+ne sont pas utiles pour le RH, qui ne s'occupe que des horaires ». Une
+question en QCM : même application avec un mode RH, deux applications
+séparées, ou mode RH plus une application des travailleurs allégée
+jusque chez les contremaîtres. Réponse : « même appli, mode RH ».
+
+- **Qui est RH** : le compte dont le rôle est `rh` (la marque `data-rh`,
+  posée par `appliquerCompte`, existait déjà ; `modeRH()` la lit). Les
+  contremaîtres (`hierarchie`) restent du côté des travailleurs, avec
+  leurs outils de gestion.
+- **L'Accueil d'un compte RH est le tableau de bord de l'espace RH** : à
+  l'ouverture comme à chaque appui sur « Accueil ». Une autre vue
+  (le Planning, les Équipes, les Effectifs, la Recherche, les Réglages, les Infos) le referme,
+  et « Accueil » le rouvre. Les boutons « Revenir à l'application » et ×
+  de l'espace s'effacent : pour la RH, l'espace est l'application.
+- **Rien de personnel** :
+  - plus d'onglet Salaire, ni de « Mes demandes » (au menu de l'espace
+    comme parmi les onglets) ;
+  - plus de cloche des changements ;
+  - dans les Réglages, plus de contrat, de « Qui je suis », de primes de
+    rappel, de barèmes, d'« Historique de mon horaire » ni de guide de la
+    paie. Restent : le compte, la vue direction, l'espace RH, les
+    classeurs, les données et les codes.
+- **Le pied du menu du PC** disait « Choisissez qui vous êtes » (un compte
+  RH n'a pas de ligne dans l'horaire) : il dit « Espace RH · compte XXX ».
+- **Erreurs commises, prises par le parcours** :
+  1. une règle CSS à `:has` imbriqués, refusée par le navigateur
+     (5 461 règles écrites, 5 460 retenues) ;
+  2. l'espace RH restait ouvert par-dessus « Infos et aide » au
+     téléphone (le cadre « sous la barre ») ;
+  3. dans un commentaire, deux mots à majuscule séparés par une
+     virgule (l'onglet du salaire, puis « mes demandes »), une forme de
+     nom pour le garde-fou.
+
+  Toutes corrigées. Éprouvé au navigateur avec un compte RH dont le
+  trigramme n'est pas dans l'horaire (un compte sans trigramme est
+  déconnecté par `baseVerifierCompte`) : arrivée sur le tableau de bord,
+  menu « Tableau de bord, Horaire production, À valider, Personnel,
+  Absences et congés, Historique ». Parcours : 188 essais, 0 faute.

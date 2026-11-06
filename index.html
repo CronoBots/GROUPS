@@ -5826,6 +5826,12 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 :root[data-rh="1"] .rh-only{display:revert}
 #tab-direction{display:none}
 :root[data-rh="1"] #tab-direction{display:flex}
+/* LE MODE RH (06/11/2026, voir modeRH) : rien de personnel */
+:root[data-rh="1"] #tab-salaire,:root[data-rh="1"] .side-ws-inj[data-side-ws="demandes"],:root[data-rh="1"] #pfNotif,:root[data-rh="1"] #notifDot,
+:root[data-rh="1"] #grille [data-fermer-ws],
+:root[data-rh="1"] #v-reglages .notifreg:has([data-histo="perso"]),
+:root[data-rh="1"] #v-reglages details:has(>summary:is([data-g="contrat"],[data-g="moi"],[data-g="primes"],[data-g="baremes"],[data-g="guide"])){display:none!important}
+:root[data-rh="1"] #v-reglages .card:has(>details>summary[data-g="guide"]){display:none!important}
 .compte-info{display:flex; flex-direction:column; gap:3px; font-size:12.5px; color:var(--ink2)}
 .compte-info b{color:var(--ink); font-weight:600}
 /* ---------- « Mon rythme » (tableau de bord Accueil) ---------- */
@@ -14863,6 +14869,15 @@ function majBrandsub(){
     b.setAttribute("aria-label","Mes réglages \u00b7 "+[id?idLisible(id):"",l1,l2].filter(Boolean).join(" \u00b7 "));
     b.title=[l1,l2].filter(Boolean).join(" \u00b7 ")+" \u00b7 Mes réglages";
   }
+  /* un compte RH n'a pas de ligne dans l'horaire : son compte, et non
+     l'invitation à choisir qui l'on est (le mode RH, 06/11/2026) */
+  if(!id&&typeof modeRH==="function"&&modeRH()){
+    var ac=st.account||lsGet("account/current")||{}, tr=String(ac.tri||"").toUpperCase();
+    el.innerHTML='<span class="idate">Espace RH</span><em>'+esc(tr||"compte RH")+'</em>';
+    moi("Espace RH",tr?"compte "+tr:"compte RH");
+    var av=document.getElementById("sideMoiTri"); if(av) av.textContent=tr||"RH";
+    return;
+  }
   if(!id){
     el.innerHTML='<span class="idate">Choisissez qui vous êtes</span><em>dans Réglages</em>';
     moi("Choisissez qui vous êtes","dans Réglages");
@@ -15105,6 +15120,8 @@ function setView(v,keepScroll){
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="horaire";
   if(v==="direction"&&st.account&&st.account.role!=="rh") v="horaire";
+  /* le mode RH : l'Accueil est l'espace RH ; une autre vue le referme */
+  if(v!=="horaire"&&typeof modeRH==="function"&&modeRH()){ var gR=document.getElementById("grille"); if(gR&&!gR.hidden) fermerGrille(); }
   var change=(st.view!==v);
   /* Réglages s'ouvre en sous-page « ‹ Accueil » : « retour » y ramène au
      lieu de quitter l'application ; la quitter autrement retire l'étape
@@ -15169,6 +15186,7 @@ function setView(v,keepScroll){
   try{ accPlanningPlacer(v); }catch(e){}
   if(v==="jour"||v==="rh"||v==="equipe") renderEquipe();
   if(v==="horaire") renderRythme();
+  if(v==="horaire"&&modeRH()) setTimeout(function(){ var g=document.getElementById("grille"); if(st.view==="horaire"&&g&&g.hidden) ouvrirGrille("tdb"); },0);
   /* Les équipes se peignent d'abord ; la polyvalence (premier calcul ≈1,4 s
      au téléphone) suit à l'image d'après (audit du 23/10/2026). */
   if(v==="equipe"){ renderOrganisation(); requestAnimationFrame(function(){ setTimeout(renderPolyvalence,0); }); }
@@ -19597,7 +19615,7 @@ function histoRendre(){
   if(foc){ var fi=document.getElementById("histoFiltre"); if(fi){ fi.focus(); try{ fi.setSelectionRange(pos,pos); }catch(e){} } }
 }
 /* la RH voit tous les trigrammes ; les autres, le leur */
-function histoRH(){ var a=st.account||lsGet("account/current")||{}; return a.role==="rh"; }
+function histoRH(){ var a=st.account||lsGet("account/current")||{}; return a.role==="rh"||modeRH(); }
 /* qui : le trigramme ; tous : la RH (tous les trigrammes) */
 function histoOuvrir(opt){
   var ov=document.getElementById("histoOv"); if(!ov) return;
@@ -19659,7 +19677,7 @@ document.addEventListener("keydown",function(e){ if(e.key==="Escape") fermerNoti
 function renderNotif(db,p){
   var card=document.getElementById("notifCard"), dot=document.getElementById("notifDot");
   if(!card) return;
-  if(!db||!p){ NOTIF_NB=0; majBadgeNotif(); fermerNotif(); card.innerHTML=""; if(dot) dot.hidden=true; return; }
+  if(!db||!p||modeRH()){ NOTIF_NB=0; majBadgeNotif(); fermerNotif(); card.innerHTML=""; if(dot) dot.hidden=true; return; }
   var xs=[], n=0, an0=Number(db.year), k;
   var ans=[an0]; for(k in HORAIRES) if(HORAIRES.hasOwnProperty(k) && Number(k)>an0) ans.push(Number(k));
   ans.sort().forEach(function(an){
@@ -23839,7 +23857,20 @@ var WS_SECTIONS=[
 GR.section=lsGet("ui/wsSection")||"tdb";
 GR.horizon=7;
 function wsIcone(i){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+i+'</svg>'; }
-function wsSections(){ var rh=peutSaisir(), va=rh||wsNbValider()>0; return WS_SECTIONS.filter(function(x){ return (rh||!x.rh)&&(va||!x.val); }); }
+function wsSections(){ var rh=peutSaisir(), va=rh||wsNbValider()>0, mrh=modeRH();
+  /* LE MODE RH (le client, le 06/11/2026) : la RH ne fait pas de demande à
+     elle ; « Mes demandes » et ses sous-sections ne sont qu'aux travailleurs */
+  return WS_SECTIONS.filter(function(x){ return (rh||!x.rh)&&(va||!x.val)&&!(mrh&&(x.s==="demandes"||x.s==="recyclages"||x.s==="heures")); }); }
+/* LE MODE RH (le client, le 06/11/2026, en QCM : « même appli, mode RH » ;
+   « il faut absolument séparer l'application des travailleurs de celle de
+   la RH : les historiques, les modifications d'horaire, les widgets liés à
+   un opérateur ne sont pas utiles pour la RH, qui ne s'occupe que des
+   horaires ») : un compte RH (data-rh, appliquerCompte) a pour Accueil le
+   tableau de bord de l'espace RH ; rien de personnel (l'Accueil d'un
+   opérateur, l'onglet du salaire, ses demandes, la cloche, le contrat, les
+   primes, les barèmes, le guide de la paie, son historique) ne s'y montre. Les contremaîtres restent du côté
+   des travailleurs. */
+function modeRH(){ return document.documentElement.getAttribute("data-rh")==="1"; }
 /* les entrées des menus : sans les sous-sections */
 function wsMenuSections(){ return wsSections().filter(function(x){ return !x.sous; }); }
 function wsActif(x,s){ return x.s===s||(x.s==="demandes"&&(s==="recyclages"||s==="heures"))||(x.s==="valider"&&(s==="valider-rc"||s==="valider-hs")); }
@@ -37998,6 +38029,7 @@ function gateFinaliser(partial){
 function appliquerCompte(acc){
   st.account=acc;
   document.documentElement.setAttribute("data-rh", acc&&acc.role==="rh"?"1":"");
+  if(acc&&acc.role==="rh"&&st.view==="horaire") setTimeout(function(){ var g=document.getElementById("grille"); if(st.view==="horaire"&&g&&g.hidden&&typeof ouvrirGrille==="function") ouvrirGrille("tdb"); },0);
   /* Le pli « Vue direction » se cache là où setView le refuse — un compte
      non RH — et reste le seul accès sans compte (audit du 23/10/2026) */
   var df=document.getElementById("dirFold"); if(df) df.hidden=!!(acc&&acc.role!=="rh");
