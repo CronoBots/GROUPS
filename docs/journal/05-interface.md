@@ -14434,3 +14434,39 @@ Sur ce fond, « Équipe 3 » (en `--faint`) tombait à 4,46 : 1 de
 contraste : le parcours l'a refusé, et ce texte passe en `--muted`.
 Relevé final : aucun pavé, aucun widget sans relief. Résultat :
 177 essais, 0 faute.
+
+### v1429 — Le relief partout, et les largeurs au PC (06/11/2026)
+
+Le client : « tous les menus et cadres de mon app doivent avoir ce style
+et avoir des largeurs optimisées à l'écran ».
+
+**Relevé d'abord** (au navigateur, 15 vues, 390, 1280 et 1920 px). Il
+liste chaque cadre (fond, coins arrondis, au moins 140 × 44 px, le plus
+extérieur), son style (plat ou en relief) et la place occupée. Hors de
+l'Accueil, tout était plat : le Planning, les Équipes, le Salaire, les
+Effectifs, la Recherche, les Réglages, l'Aide, les pages de gestion, le dock du téléphone et
+le menu du PC. Au PC, trois plafonds anciens et voulus laissaient des
+vides à 1920 px : le Planning à 1000 px (« l'œil traverse des vides »,
+audit d'octobre), la Recherche à 1100 px (« un formulaire à taille de
+formulaire ») et les Réglages à 880 px (« une colonne de lecture »).
+
+**Le style.** Les jetons `--relief-fond`, `--relief-ombre` et
+`--relief-voile` s'appliquent aux cadres (`.card`, `.ws-carte`, les
+panneaux des pages de gestion `.grille .ws-s`, le panneau des fiches
+`.pl-panneau`), aux fenêtres (`.cfm`, `.sheet-boite`), au dossier
+« Plus » (`.plusfeuille`), au dock et au menu du PC (`.navwrap>.tabs`),
+et à la carte « moi » du menu. Dedans, `--surface` devient un voile, comme
+dans les widgets : sans lui, des pavés plats sur le dégradé. Les
+en-têtes de tableau, collants pour la plupart, restent opaques
+(`#1E273B`) : une ligne passerait dessous au défilement. Le relevé de
+contrôle cherchait, outre les cadres plats, les pièces flottantes
+devenues translucides : il les a trouvées (en-têtes du Planning et des
+Équipes), puis plus aucune. Le sélecteur de segments des Effectifs
+garde son style : c'est une commande, pas un cadre.
+
+**Les largeurs.** Les trois plafonds tombent : le Planning et la
+Recherche prennent la largeur de la page, comme les autres vues ; les
+Réglages passent sur deux colonnes, comme le Salaire (l'en-tête et un
+volet ouvert reprennent toute la largeur), sans quoi des lignes de
+1 450 px seraient illisibles. Au téléphone, tout occupait déjà la
+largeur utile (358 px sur 390). Résultat : 177 essais, 0 faute.

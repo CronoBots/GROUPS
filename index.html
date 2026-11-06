@@ -6832,8 +6832,13 @@ html .pvt tbody tr.pvhead th{font-size:11px}
   #v-salaire{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:16px}
   #v-salaire > *{min-width:0}
   #v-salaire > #salVide,#v-salaire > .card:has(details[open]),#v-salaire > :not(.card){grid-column:1 / -1}
-  /* Réglages : une colonne de lecture, centrée */
-  #v-reglages > *{width:100%; max-width:880px; margin-left:auto; margin-right:auto}
+  /* Réglages : toute la largeur, sur deux colonnes comme le Salaire (le
+     client, le 06/11/2026 : « des largeurs optimisées à l'écran » ; une
+     colonne de 880 px laissait au PC de 1920 px plus de la moitié vide).
+     L'en-tête et un volet ouvert reprennent toute la largeur */
+  #v-reglages{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:16px}
+  #v-reglages > *{min-width:0}
+  #v-reglages > :not(.card),#v-reglages > .card:has(details[open]){grid-column:1 / -1}
   /* Effectifs : les journées en grille */
   /* #apCorps en grille seulement s'il a des fiches : vide, « Rien à signaler »
      tombait dans la première colonne (audit du 23/10/2026) */
@@ -7096,7 +7101,10 @@ html .eqleg-souris{display:none}
    un poste à ses trigrammes. Les pastilles gardent la taille du PC. */
 @media (min-width:1100px){
   html .eqleg{display:none}
-  html body[data-view="jour"] #v-jour .card,html body[data-view="jour"] #accPlanning .card{max-width:1000px; width:100%; margin-left:auto; margin-right:auto}
+  /* toute la largeur de la page (le client, le 06/11/2026 : « des
+     largeurs optimisées à l'écran ») : la colonne de 1000 px laissait au
+     PC de 1920 px près de 600 px vides de part et d'autre */
+  html body[data-view="jour"] #v-jour .card,html body[data-view="jour"] #accPlanning .card{max-width:none; width:100%; margin-left:auto; margin-right:auto}
   html #jourCorps .eqp2 th.eqposte{width:150px}
 }
 /* UN FILET SOUS LA BARRE DE TITRE (le client, le 22/10/2026) : au PC, le
@@ -7587,8 +7595,10 @@ html .hp-fab:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2
      redire le logo du menu */
   html #v-direction .dir-in{max-width:none}
   html #v-direction .dir-logo{display:none}
-  /* Recherche : un formulaire à taille de formulaire */
-  html #v-recherche>.card{max-width:1100px; margin-left:auto; margin-right:auto; width:100%}
+  /* Recherche : toute la largeur de la page, comme les autres vues (le
+     client, le 06/11/2026) ; à 1100 px, elle restait collée à gauche au
+     PC de 1920 px */
+  html #v-recherche>.card{max-width:none; margin-left:auto; margin-right:auto; width:100%}
   /* Effectifs : des fiches de jour au même rythme partout */
   html #mqCorps .mqmois.ouvert>.mqmc{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
   html #eqAbsCard .mqmois.ouvert>.mqmc{grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); column-gap:24px}
@@ -9756,6 +9766,30 @@ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-st2{display:none}
 /* sur ce fond, un peu plus clair que l'ancien, « Équipe 3 » en --faint
    tombait à 4,46 : 1 (parcours) : --muted, au-dessus de 4,5 */
 #accPlanning .eqp2 thead th em{color:var(--muted)}
+/* LE RELIEF PARTOUT (le client, le 06/11/2026 : « tous les menus et
+   cadres de mon app doivent avoir ce style ») : le style des widgets de
+   l'Accueil pour chaque cadre (.card), les cartes des pages de gestion
+   (.ws-carte), les fenêtres de confirmation (.cfm), les feuilles qui
+   montent du bas (.sheet-boite), le dossier « Plus » (.plusfeuille), le
+   panneau des fiches de gestion (.pl-panneau), le dock du
+   téléphone et le menu du PC (.navwrap>.tabs), la carte « moi » du menu.
+   Dedans, le jeton du fond devient un voile, comme dans les widgets : les
+   pièces qu'il peignait en aplat feraient des pavés sur le dégradé. */
+:root{--relief-fond:linear-gradient(180deg,#232C41 0%,#1A2336 100%);
+  --relief-ombre:inset 0 1px 0 rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.35),0 10px 28px rgba(0,0,0,.32);
+  --relief-voile:rgba(255,255,255,.035)}
+html body .card,html body .ws-carte,html body .cfm,html body .sheet-boite,html body #sideMoi,
+html body .plusfeuille,html body .pl-panneau{background:var(--relief-fond)!important;
+  border-color:transparent!important; box-shadow:var(--relief-ombre)!important; --surface:var(--relief-voile)}
+html body .navwrap>.tabs{background:var(--relief-fond)!important; border-color:transparent!important; box-shadow:var(--relief-ombre)!important}
+/* les panneaux des pages de gestion (le tableau de bord, mes demandes,
+   à valider, les absences, le personnel, l'historique, l'horaire de
+   production) : un cadre qui contient des cartes */
+html body .grille .ws-s{background:var(--relief-fond)!important; border-color:transparent!important; box-shadow:var(--relief-ombre)!important; --surface:var(--relief-voile)}
+/* les en-têtes de tableau restent opaques : collants (Planning, Équipes,
+   pages de gestion), une ligne passerait dessous au défilement ; à la
+   couleur du fond des cadres, #1E273B */
+html body :is(.card,.ws-carte,.ws-s,.sheet-boite,.pl-panneau) th{--surface:#1E273B}
 /* le nom sous chaque widget (accNoms) : le style de l'étiquette d'une icône */
 .acc-noms{position:absolute; inset:0; z-index:2; pointer-events:none}
 /* les deux couches posées sur la grille (le calque du mode Modifier, les
