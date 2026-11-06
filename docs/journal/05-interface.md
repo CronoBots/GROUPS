@@ -14805,3 +14805,38 @@ qui manquait : l'année cumulée, et ce qui vient côté repos.
   services avec leur propre horaire. Les deux widgets ne lisent que
   l'horaire de la personne (`_pfJour`) : ils serviront tels quels quand
   ces horaires arriveront.
+
+## v1452 : le chat sur la page de gauche, à toute la hauteur (06/11/2026)
+
+Le client : « il faut améliorer le widget chat car il est trop petit et
+sur mobile je pense que le chat devrait être automatiquement dans le menu
+à gauche de la vue principale en utilisant toute la hauteur d'écran
+fixe ». « Le menu à gauche de la vue principale » : la page de gauche de
+l'Accueil (les pages comme l'iPhone, v1397), où l'on arrive d'un balayage.
+
+- **Automatiquement** : au téléphone, « Messages » va sur la page de
+  gauche dans une disposition neuve ou rétablie, et une fois dans une
+  disposition déjà réglée (`ui/accueil/chatG`, posé au premier
+  enregistrement : le ramener ailleurs reste possible et se garde).
+- **Toute la hauteur, fixe** (`accChatPlein`) : seul sur sa page, le chat
+  est posé hors du flux (`position:fixed`) entre le haut de l'Accueil et
+  les points des pages, aux bords de la grille ; le fil défile dans le
+  cadre, la saisie reste en bas. Son titre revient en tête (« Messages »,
+  comme une messagerie) ; le nom sous le widget et « Modifier l'Accueil »
+  s'effacent sur cette page (l'appui long ouvre toujours le mode
+  Modifier, où le chat reprend son format). Le geste vers une autre page
+  le prend comme les autres : `accVoisine` écrit sa place en ligne, plus
+  forte que la règle. La place se refait quand l'écran change de taille.
+- Une première version calculait un nombre de rangées de la grille :
+  arrondi à la rangée, il laissait ~100 px vides en bas, et « Modifier
+  l'Accueil » chevauchait les points des pages (photo à 390 px).
+- Mesuré à 390 et 320 px (zones de l'iPhone simulées), avec des messages
+  fabriqués : cadre de 87 à 687 px, saisie au bas du cadre, points et
+  barre d'onglets dégagés ; retour à la page principale : le chat n'y est
+  pas, le style en ligne est levé. Les 59 px que la page peut encore
+  défiler sont ceux de toute l'application (la hauteur minimale ajoutée
+  pour la barre d'état translucide de l'iPhone, 30/09/2026) ; le chat,
+  fixe, ne bouge pas.
+- **Au PC** : le format très grand (toute la largeur) s'ajoute à moyen et
+  grand ; la vue par défaut reste grand.
+- Parcours : 188 essais, 0 faute.

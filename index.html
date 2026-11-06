@@ -9031,6 +9031,10 @@ html body #v-horaire.acc-perso .card[data-w]{position:relative}
 html body #v-horaire.acc-perso .card[data-w]>header{position:absolute; top:0; left:0; right:0; height:0; min-height:0; padding:0; margin:0; border:0; overflow:visible; z-index:2; pointer-events:none}
 html body #v-horaire.acc-perso .card[data-w]>header>h2{position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important}
 html body #v-horaire.acc-perso .card[data-w]>header>:not(h2){display:none!important}
+/* le chat à toute la hauteur (accChatPlein, 06/11/2026) : seul sur sa page
+   et sans nom dessous, il reprend son titre en tête, comme une messagerie */
+html body #v-horaire.acc-perso.acc-chat-plein #filCard[data-w]>header{position:static; display:flex; align-items:center; height:auto; padding:14px 16px 10px; border-bottom:1px solid var(--line2); pointer-events:auto}
+html body #v-horaire.acc-perso.acc-chat-plein #filCard[data-w]>header>h2{position:static!important; width:auto!important; height:auto!important; margin:0!important; overflow:visible!important; clip:auto!important; white-space:nowrap!important}
 /* le Planning (la carte de l'onglet, posée dans l'Accueil au PC) : son
    titre s'efface aussi, sa barre de dates reste */
 html body #v-horaire.acc-perso #accPlanning #jourCard>header.jour-acc-t{position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important}
@@ -38472,7 +38476,10 @@ var ACC_W=[
   {k:"repos",        nom:"Mes repos",           l:6,  f:["S","M","L"], h:1},
   /* des pastilles en grille : moyen, grand, très grand */
   {k:"site",         nom:"Sur site",            l:6,  f:["M","L","XL"], h:2},
-  {k:"messages",     nom:"Messages",            l:6,  f:["M","L"], h:1},
+  /* trop petit (le client, le 06/11/2026) : très grand au PC ; au
+     téléphone, la page de gauche de l'Accueil, à toute la hauteur
+     (accChatPlein) */
+  {k:"messages",     nom:"Messages",            l:6,  f:["M","L","XL"], h:1},
   /* petit : la mise en page réduite (requête de conteneur « anc »,
      04/11/2026) */
   {k:"conges",       nom:"Mon année",           l:6,  f:["S","M","L"], h:2},
@@ -38631,6 +38638,14 @@ function accCharger(mode,defaut){
   if(neufs.indexOf("soldes")>=0&&o.indexOf("conges")>=0){ o.splice(o.indexOf("soldes"),1); o.splice(o.indexOf("conges"),0,"soldes"); }
   ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{}; ACC.hh=sv.h&&typeof sv.h==="object"?sv.h:{};
   ACC.pg=sv.p&&typeof sv.p==="object"?sv.p:{};
+  /* LE CHAT À GAUCHE DE LA PAGE PRINCIPALE (le client, le 06/11/2026 :
+     « sur mobile, le chat devrait être automatiquement dans le menu à
+     gauche de la vue principale en utilisant toute la hauteur d'écran
+     fixe ») : au téléphone, « Messages » va sur la page de gauche — dans
+     une disposition neuve ou rétablie, et une fois dans une disposition
+     déjà réglée (le repère « ui/accueil/chatG », posé au premier
+     enregistrement : le déplacer ensuite reste le choix de chacun) */
+  if(mode==="tel"&&(defaut||!(sv.o&&sv.o.length)||!lsGet("ui/accueil/chatG"))) ACC.pg.messages=-1;
   /* une disposition neuve (ou rétablie) prend les formats de la vue par
      défaut ; une disposition réglée garde les siens */
   if(!(sv.o&&sv.o.length)){ var Fm=ACC_FORMATS[mode], D=ACC_DEFAUT[mode]||{};
@@ -38642,7 +38657,7 @@ function accCharger(mode,defaut){
    pendant le mode Modifier, rien ne s'enregistre ; « ✓ » enregistre
    (accTerminer), Échap demande s'il faut annuler (accQuitter). Une page
    rechargée en plein mode retrouve donc la disposition d'avant. */
-function accSauver(){ if(ACC.edit) return; lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh, p:ACC.pg}); }
+function accSauver(){ if(ACC.edit) return; lsSet("ui/accueil/"+ACC.mode,{v:1, o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh, p:ACC.pg}); if(ACC.mode==="tel") lsSet("ui/accueil/chatG",1); }
 function accEtat(){ return JSON.stringify({o:ACC.o, t:ACC.t, m:ACC.m, h:ACC.hh, p:ACC.pg}); }
 function accRemettre(l){ var s=JSON.parse(l); ACC.o=s.o; ACC.t=s.t; ACC.m=s.m; ACC.hh=s.h; ACC.pg=s.p||{}; }
 /* UN BROUILLON PAR FORME D'ÉCRAN (audit du 05/11/2026) : en plein mode,
@@ -38844,10 +38859,41 @@ function accStyle(){
   /* le reste (l'invitation à choisir son identité, l'installation) n'est
      que sur la page principale */
   if(ACC.page!==0) c.push("html body #v-horaire.acc-perso[class] [data-acc-plein]:not(#accPied):not(#accPageVide){display:none!important}");
+  var pl=accChatPlein(); if(pl) c.push(pl);
   ACC.style.textContent=c.join("\n");
   accPagesMaj();
   accMarquer(); accCalqueBientot(); accAjusterBientot(); accNomsBientot();
 }
+/* LE CHAT À TOUTE LA HAUTEUR (le client, le 06/11/2026) : au téléphone,
+   seul sur sa page, « Messages » prend toute la largeur et autant de
+   rangées de la grille que l'écran en tient entre le haut de l'Accueil et
+   les points des pages (au-dessus de la barre d'onglets) : la page ne
+   défile plus, le fil défile dans le cadre et la saisie reste en bas. En
+   mode Modifier, il reprend son format, qu'on règle comme les autres. */
+function accChatPlein(){
+  var v=document.getElementById("v-horaire");
+  if(!v||!accPagesOn()||ACC.edit||ACC.m.messages||accPageDe("messages")!==ACC.page||!accVisible("messages")) { if(v) v.classList.remove("acc-chat-plein"); return ""; }
+  if(ACC.o.some(function(k){ return k!=="messages"&&accPageDe(k)===ACC.page&&accVisible(k); })){ v.classList.remove("acc-chat-plein"); return ""; }
+  /* FIXE (le client : « toute la hauteur d'écran fixe ») : posé hors du
+     flux, entre le haut de l'Accueil et les points des pages, aux bords de
+     la grille ; la page n'a plus rien à faire défiler. Le geste vers une
+     autre page le prend comme les autres (accVoisine écrit sa place en
+     ligne, plus forte que cette règle). */
+  var cs=getComputedStyle(v), vr=v.getBoundingClientRect(),
+      haut=Math.round(vr.top+(window.scrollY||0)+(parseFloat(cs.paddingTop)||0)),
+      g=Math.round(vr.left+(parseFloat(cs.paddingLeft)||0)), d=Math.round(innerWidth-vr.right+(parseFloat(cs.paddingRight)||0)),
+      nav=document.querySelector("nav.tabs"), bas=innerHeight;
+  if(nav&&nav.getClientRects().length){ var r=nav.getBoundingClientRect(); if(r.top>innerHeight/2) bas=r.top; }
+  /* la place des points des pages (accPoints, 8 px au-dessus de la barre) */
+  var pts=document.getElementById("accPoints"), hp=pts&&!pts.hidden&&pts.offsetHeight?pts.offsetHeight+14:30;
+  v.classList.add("acc-chat-plein");
+  return 'html body #v-horaire.acc-perso[class] [data-w="messages"]{position:fixed!important; top:'+haut+'px!important; bottom:'+Math.round(innerHeight-bas+hp)+'px!important; left:'+g+'px!important; right:'+d+'px!important; width:auto!important; height:auto!important; min-height:0!important; max-height:none!important; margin:0!important; z-index:2}'
+    /* le bouton « Modifier l'Accueil » et le nom sous le widget : l'appui long
+       sur le chat ouvre toujours le mode Modifier */
+    +'\nhtml body #v-horaire.acc-chat-plein #accPied,html body #v-horaire.acc-chat-plein [data-acc-nom-pour="messages"]{display:none!important}';
+}
+/* au téléphone qu'on tourne, au clavier qui s'ouvre : la place se refait */
+(function(){ var tm=null; window.addEventListener("resize",function(){ var v=document.getElementById("v-horaire"); if(!v||!v.classList.contains("acc-chat-plein")) return; clearTimeout(tm); tm=setTimeout(function(){ try{ accStyle(); }catch(e){} },150); }); })();
 /* La grille fixe, comme l'iPhone (le client, le 04/11/2026, capture à
    l'appui : « les largeurs et hauteurs doivent respecter des tailles fixes
    pour rester alignées l'une l'autre selon le redimensionnement »). Avant,
