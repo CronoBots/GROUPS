@@ -978,3 +978,18 @@ jusque chez les contremaîtres. Réponse : « même appli, mode RH ».
   déconnecté par `baseVerifierCompte`) : arrivée sur le tableau de bord,
   menu « Tableau de bord, Horaire production, À valider, Personnel,
   Absences et congés, Historique ». Parcours : 188 essais, 0 faute.
+
+### Et l'inverse : un opérateur sans Effectifs (06/11/2026)
+
+Le client : « et vice-versa, un opérateur ne doit pas voir ce que voit le
+RH ». Mesuré avec un compte opérateur : ses Réglages ne montraient déjà
+rien de la RH (ni espace RH, ni vue direction, ni gestion). Restaient
+deux écrans de gestion : l'onglet Effectifs (à prévenir, incohérences de
+l'horaire et des postes, sous-effectif, rappels évitables) et Horaire
+production. Une question en QCM ; réponse : « retirer Effectifs seul ».
+
+- La marque `data-op` (`appliquerCompte`, un compte de base `operateur`)
+  cache l'onglet, l'entrée de la feuille « Plus » et la vue. `setView`
+  renvoie « rh » vers l'Accueil.
+- Horaire production lui reste. Les contremaîtres (`hierarchie`) gardent
+  tout, Effectifs compris : vérifié au PC. Parcours : 188 essais, 0 faute.

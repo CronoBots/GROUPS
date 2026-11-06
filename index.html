@@ -5826,6 +5826,8 @@ html .orgn,html .pvqui-b{display:inline-flex; align-items:center; justify-conten
 :root[data-rh="1"] .rh-only{display:revert}
 #tab-direction{display:none}
 :root[data-rh="1"] #tab-direction{display:flex}
+/* un opérateur : pas d'Effectifs (voir appliquerCompte, data-op) */
+:root[data-op="1"] #tab-rh,:root[data-op="1"] [data-go="rh"],:root[data-op="1"] #v-rh{display:none!important}
 /* LE MODE RH (06/11/2026, voir modeRH) : rien de personnel */
 :root[data-rh="1"] #tab-salaire,:root[data-rh="1"] .side-ws-inj[data-side-ws="demandes"],:root[data-rh="1"] #pfNotif,:root[data-rh="1"] #notifDot,
 :root[data-rh="1"] #grille [data-fermer-ws],
@@ -15120,6 +15122,7 @@ function setView(v,keepScroll){
   if(VUES_MIGREES[v]) v=VUES_MIGREES[v];
   if(VIEWS.indexOf(v)<0) v="horaire";
   if(v==="direction"&&st.account&&st.account.role!=="rh") v="horaire";
+  if(v==="rh"&&document.documentElement.getAttribute("data-op")==="1") v="horaire";
   /* le mode RH : l'Accueil est l'espace RH ; une autre vue le referme */
   if(v!=="horaire"&&typeof modeRH==="function"&&modeRH()){ var gR=document.getElementById("grille"); if(gR&&!gR.hidden) fermerGrille(); }
   var change=(st.view!==v);
@@ -38029,6 +38032,11 @@ function gateFinaliser(partial){
 function appliquerCompte(acc){
   st.account=acc;
   document.documentElement.setAttribute("data-rh", acc&&acc.role==="rh"?"1":"");
+  /* ET L'INVERSE (le client, le 06/11/2026 : « un opérateur ne doit pas voir
+     ce que voit le RH » ; en QCM : « retirer Effectifs seul ») : un compte
+     opérateur (base « operateur ») n'a pas l'onglet Effectifs, outil de
+     gestion ; Horaire production lui reste. Les contremaîtres gardent tout. */
+  document.documentElement.setAttribute("data-op", acc&&acc.role!=="rh"&&acc.base==="operateur"?"1":"");
   if(acc&&acc.role==="rh"&&st.view==="horaire") setTimeout(function(){ var g=document.getElementById("grille"); if(st.view==="horaire"&&g&&g.hidden&&typeof ouvrirGrille==="function") ouvrirGrille("tdb"); },0);
   /* Le pli « Vue direction » se cache là où setView le refuse — un compte
      non RH — et reste le seul accès sans compte (audit du 23/10/2026) */
