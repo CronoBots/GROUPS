@@ -14470,3 +14470,38 @@ Réglages passent sur deux colonnes, comme le Salaire (l'en-tête et un
 volet ouvert reprennent toute la largeur), sans quoi des lignes de
 1 450 px seraient illisibles. Au téléphone, tout occupait déjà la
 largeur utile (358 px sur 390). Résultat : 177 essais, 0 faute.
+
+### v1430 — Meunerie à l'heure du consignateur, photo de l'usine, coins du Planning (06/11/2026)
+
+Le client signale trois choses.
+
+**« En meunerie, le plan en direct montre quelqu'un d'absent entre 6 h et
+7 h 30 alors que c'est normal à ce moment-là : il faut se fier à
+l'horaire du consignateur. »** Reproduit avec l'horloge fixée (Playwright,
+`clock.install`), le 06/11 à 6 h 45 : « Meunerie 1/2 », une place libre.
+La case du matin attend le consignateur (BLR ou YRS, ou qui le remplace :
+`meunDepuisD`), mais sa journée commence après 6 h. Dans `usineEtat`,
+avant son heure de début (lue dans `sitePlans`), sa place n'est plus
+attendue. Après : 1/1 à 6 h 05 et 6 h 45, 2/2 dès son arrivée (7 h 25).
+Contre-épreuves : le 05/11, 1/1 à 6 h 30 et 2/2 à 8 h 30 ; le 19/10, le
+remplaçant du consignateur, présent dès 6 h 30, compte comme avant
+(2/2). Seul le plan en direct change : le Planning et les manques ne
+sont pas touchés.
+
+**« Supprimer l'indication sous la photo du plan en direct, et il faut
+un écart entre la photo et les bords du widget, car en haut cela
+n'existe pas. »** Le crédit (« Photo aérienne : globalview.be… ») passe
+dans le libellé de la photo (`alt` et `title`) ; ses styles, morts, sont
+retirés. Mesuré avant : 1 px en haut, contre 9 sur les côtés au
+téléphone et 17 au PC. Après : 9 px des quatre côtés au téléphone (le
+bas sous la liste des postes), 17 au PC.
+
+**« Le widget Planning a un coin bizarre au bord du widget. »** Les filets
+de couleur des zones, au bord gauche et droit du tableau, descendaient
+dans les coins arrondis du bas de la carte et y suivaient la courbe, en
+croissant. Depuis le relief (v1428), la bordure de la carte,
+transparente, ne les masquait plus. Le tableau (`#jourCorps .eqgrille`)
+a désormais sa marge (10 px) et ses propres coins (14 px) : les filets
+restent droits. Le bas utile du tableau, pour `accPlanningAjuster`
+(le « + N »), est désormais celui du tableau et non celui de la carte.
+Résultat : 177 essais, 0 faute.

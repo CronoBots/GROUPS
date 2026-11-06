@@ -2550,7 +2550,6 @@ html #grille .ws-site{margin-bottom:14px}
 .usp-et.usp-sel{background:rgba(16,22,32,.35); box-shadow:0 0 0 2px #fff}
 .usp-et:focus-visible{outline:2px solid var(--in); outline-offset:3px}
 @media (prefers-reduced-motion:reduce){ .usp-et::before{transition:none} }
-.usp-credit{margin:4px 16px 0; font-size:11px; color:var(--muted); text-align:right}
 /* EN DIRECT (le client, le 03/11/2026) : au PC, chaque poste a son point
    qui pulse, ses trigrammes en étiquette au-dessus, un trait fin entre
    les deux ; le badge « En direct » et l'heure, en haut à gauche */
@@ -2638,7 +2637,7 @@ html #grille .ws-site{margin-bottom:14px}
 @media (prefers-reduced-motion:reduce){ .usp-pin::after,.usp-live i::after{animation:none} }
 @media (max-width:699px){
   /* la photo entière entre ses deux bandes de trigrammes */
-  .usp{margin:0 8px; padding:var(--usp-haut,0px) 0 var(--usp-bas,0px); background:var(--surface2)} .usp-credit{margin:4px 8px 0}
+  .usp{margin:0 8px; padding:var(--usp-haut,0px) 0 var(--usp-bas,0px); background:var(--surface2)}
   .usp-defil{overflow:visible} .usp-traits{display:block}
   .usp-et{gap:2px; padding:1px; border-radius:10px; align-content:center}
   .usp-et::before{display:none}
@@ -4678,6 +4677,14 @@ body[data-view="jour"] .wrap{padding-top:16px; padding-bottom:16px}
    uniquement, on peut scroller pour voir le bas »). Jamais de défilement
    latéral, et aucun les jours qui tiennent. */
 #jourCorps .eqgrille{flex:1 1 auto; min-height:0; overflow-x:hidden; overflow-y:auto}
+/* LE TABLEAU ENCADRÉ DANS SA CARTE (le client, le 06/11/2026 : « le widget
+   Planning a un coin bizarre au bord du widget ») : les filets de couleur
+   des zones, au bord gauche et droit du tableau, descendaient dans les
+   coins arrondis du bas de la carte et y suivaient la courbe, en
+   croissant ; depuis le relief, la bordure de la carte, transparente, ne
+   les masquait plus. Le tableau a désormais sa marge et ses propres coins :
+   les filets restent droits */
+#jourCard #jourCorps .eqgrille{margin:0 10px 10px; border-radius:14px}
 /* PAS DE BARRE DE DÉFILEMENT SUR LE PLANNING (le client, le 25/10/2026 :
    « bordure à gauche de FLI plus grande qu'à droite de JBI ? »). Mesuré sur
    sa capture : 15 px des deux côtés de la case, mais la barre de l'iPhone
@@ -9443,8 +9450,6 @@ html body #v-horaire.acc-perso.acc-tel #usineCard.us-fiche-ouverte .us-panneau{d
 html body #v-horaire.acc-perso.acc-tel #usineCard.us-fiche-ouverte .us-panneau-x{display:grid; place-items:center; position:absolute; top:8px; right:8px; z-index:1; width:30px; height:30px;
   border:0; border-radius:50%; background:var(--surface3); color:var(--ink); cursor:pointer}
 html body #v-horaire.acc-perso.acc-tel #usineCard.us-fiche-ouverte .us-fiche{padding-right:46px}
-html body #v-horaire.acc-perso.acc-tel #usineCard .usp-credit{margin:3px 10px 0; font-size:11px}
-html body #v-horaire.acc-perso.acc-tel #usineCard .usp-credit-n{display:none}
 html body #v-horaire.acc-perso.acc-tel #usineCard>#usineCorps{padding-bottom:0}
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-liste{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; margin:6px 8px 8px}
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp-li{min-height:24px; padding:5px 8px; gap:6px; font-size:12px; line-height:1.15; border-radius:8px}
@@ -9455,6 +9460,14 @@ html body #v-horaire.acc-perso.acc-tel #usineCard .usp-li b{overflow-wrap:normal
    d'abord, était faux : ces points se dessinaient dans #uspTraits, caché
    avec les bandes ; la photo n'avait aucun voyant jusqu'à la v1390.) */
 html body #v-horaire.acc-perso.acc-tel #usineCard .usp{padding:0!important; margin:0 8px; background:var(--surface2)}
+/* LA PHOTO À DISTANCE ÉGALE DES BORDS (le client, le 06/11/2026 : « il
+   faut un écart entre la photo et les bords du widget, car en haut cela
+   n'existe pas ») : mesuré, 1 px en haut contre 9 sur les côtés au
+   téléphone, 17 au PC ; le haut prend l'écart des côtés, et au PC le bas
+   aussi (15 px). Le crédit sous la photo est retiré (le même jour : « supprimer
+   l'indication sous la photo ») : il reste dans le libellé de la photo */
+html body #v-horaire.acc-perso #usineCard .usp{margin-top:16px; margin-bottom:2px}
+html body #v-horaire.acc-perso.acc-tel #usineCard .usp{margin-top:8px; margin-bottom:0}
 html body #v-horaire.acc-perso.acc-tel #usineCard :is(#uspEt,#uspTraits,.usp-etat,.usp-pop){display:none!important}
 /* le badge du direct, compact et à droite, comme dans le bloc 699 px : la
    même forme quand la fenêtre le dépasse (iPhone couché) */
@@ -24129,7 +24142,18 @@ function usineEtat(){
   try{
     var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()-(t.getHours()<6?1:0)), e=rcEquipe(dmIso(d)), l=e&&e.par[cp.pz];
     if(l&&l.length){ var vue=postesDePause(e.db,l,cp.pz,pad2(e.d.getMonth()+1)+pad2(e.d.getDate()),cp.pz==="AM"?e.par.D:null);
-      vue.postes.forEach(function(q){ var k=zk(q.P.k); if(Z[k]) Z[k].attendu+=q.attendu||0; }); }
+      vue.postes.forEach(function(q){ var k=zk(q.P.k); if(!Z[k]) return; var att=q.attendu||0;
+        /* LA CONSIGNATION À SES HEURES (le client, le 06/11/2026 : « en
+           meunerie, le plan en direct montre quelqu'un d'absent entre 6 h
+           et 7 h 30, alors que c'est normal : il faut se fier à l'horaire
+           du consignateur ») : la case du matin attend le consignateur (ou
+           qui le remplace, meunDepuisD), mais sa journée commence après
+           6 h. Avant son heure, sa place n'est pas attendue ; mesuré le
+           06/11 à 6 h 45 : « Meunerie 1/2, place libre » */
+        if(cp.pz==="AM"&&q.P.k==="meun") (q.gens||[]).forEach(function(x){ if(!x||!x.depuisD||!(x.consign||x.remplCons)) return;
+          var pd=plans.filter(function(o){ return o.id===x.p.id&&o.pz==="D"; })[0];
+          if(pd&&pd.a>h+1e-6) att=Math.max(0,att-1); });
+        Z[k].attendu+=att; }); }
   }catch(er){}
   /* LA PROCHAINE RELÈVE de chaque poste : ceux qui sont déjà là pour leur
      remise, sinon la première arrivée prévue. L'heure est celle de la
@@ -24532,12 +24556,12 @@ function usinePhotoRendre(corps,E,cw){
        indicatives */
     corps.innerHTML='<div class="us-plan">'
       +'<div class="usp'+(E.nuit?' usp-nuit':'')+'" id="usp"><div class="usp-defil" id="uspDefil"><div class="usp-cadre" id="uspCadre">'
-      +'<img src="usine-photo.jpg" width="1600" height="840" decoding="async" alt="Vue aérienne de l’usine BioWanze, prise du sud : la Meuse au fond, le quai à gauche, la sucrerie voisine le long de l’eau">'
+      +'<img src="usine-photo.jpg" width="1600" height="840" decoding="async" alt="Vue aérienne de l’usine BioWanze, prise du sud : la Meuse au fond, le quai à gauche, la sucrerie voisine le long de l’eau ; photo aérienne de globalview.be, pour biowanze.be" title="Photo aérienne : globalview.be, pour biowanze.be · zones indicatives, présents d’après l’horaire">'
       +'<svg class="usp-zones" id="uspZones" viewBox="0 0 1600 840" preserveAspectRatio="none" aria-hidden="true"><defs>'+defs+'</defs>'+zs
       +'</svg><svg class="usp-traits" id="uspTraits" aria-hidden="true"></svg><div class="usp-pins" id="uspPins" aria-hidden="true"></div><div class="usp-ets" id="uspEt"></div>'
       +'<div class="usp-live" id="uspLive" aria-hidden="true"></div><div class="usp-etat" id="uspEtat" role="group" aria-label="État des postes"></div>'
       +'<div class="usp-pop" id="uspPop" role="dialog" aria-label="Le poste choisi" hidden></div></div></div></div>'
-      +'<p class="usp-credit">Photo aérienne : globalview.be, pour biowanze.be<span class="usp-credit-n"> · zones indicatives, présents d’après l’horaire</span></p><div class="usp-liste" id="uspListe"></div></div>'
+      +'<div class="usp-liste" id="uspListe"></div></div>'
       +'<div class="us-panneau"><button type="button" class="us-panneau-x" data-us-ferme aria-label="Fermer la fiche">\u00d7</button><div id="usFiche"></div></div>';
     usineBrancher(corps);
     var cad=document.getElementById("uspCadre");
@@ -38813,7 +38837,9 @@ function accPlanningNet(c){ if(!c) return;
 function accPlanningAjuster(w){
   accPlanningNet(w);
   var h=w.querySelector("#jourCorps"); if(!h||!w.getClientRects().length||h.classList.contains("paging")) return;
-  var c=w.querySelector("#jourCard")||w, lim=c.getBoundingClientRect().bottom-1.5, garde=0;
+  /* le bas utile : celui du tableau, encadré dans la carte depuis le
+     06/11/2026 (sa marge du bas), et non celui de la carte */
+  var c=w.querySelector("#jourCorps .eqgrille")||w.querySelector("#jourCard")||w, lim=c.getBoundingClientRect().bottom-1.5, garde=0;
   function trop(){ var r=h.querySelectorAll(".eqp2 tbody tr"), d=null; for(var i=r.length-1;i>=0&&!d;i--) if(r[i].getClientRects().length) d=r[i]; return !!d&&d.getBoundingClientRect().bottom>lim+0.5; }
   function vus(q){ return [].filter.call(q.children,function(e){ return ((e.classList.contains("eqn")&&!e.classList.contains("acc-cache"))||e.classList.contains("pl-plus"))&&e.getClientRects().length; }); }
   function lignes(l){ var t={}, n=0; l.forEach(function(e){ var y=Math.round(e.getBoundingClientRect().top); if(!t[y]){ t[y]=1; n++; } }); return n; }
