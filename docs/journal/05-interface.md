@@ -15167,3 +15167,7 @@ Mesuré : à 390 px les huit postes tiennent en grand sous la tête. À
 360 px elle se réduit à la pause, ses heures et les présents ; il reste
 « + 2 autres » en grand à 320 px (huit rangées de 34 px et la tête ne
 tiennent pas dans 293 px). Parcours 188, 0 faute.
+
+**v1472** (même jour, le client : « trigrammes en blanc ; ne pas mettre
+“personne” ») : l'encre des trigrammes passe au blanc, le fond garde la
+couleur du poste ; un poste vide n'écrit plus rien. Parcours 188, 0 faute.
