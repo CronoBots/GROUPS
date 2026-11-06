@@ -15171,3 +15171,15 @@ tiennent pas dans 293 px). Parcours 188, 0 faute.
 **v1472** (même jour, le client : « trigrammes en blanc ; ne pas mettre
 “personne” ») : l'encre des trigrammes passe au blanc, le fond garde la
 couleur du poste ; un poste vide n'écrit plus rien. Parcours 188, 0 faute.
+
+**v1473** (même jour, le client : « opérateur en formation texte jaune ;
+pour tous, la bordure de la même couleur que le poste ; supprimer “en
+cours”, avec un petit témoin live dans le coin ; la ligne du haut
+optimisée et sans retour à la ligne »). Chaque trigramme a son trait à la
+couleur du poste (plus épais pour soi), l'encre jaune en formation. La
+tête est recomposée sur une ligne (`awTelTete`) : pause, nom, « Éq. 3 »,
+heures, présents, et le point vivant de « Sur site » au bout ; le jour et
+« en cours » sortent. À 320 px, l'équipe et le mot « présents » se
+taisent (le nombre reste, et son infobulle le dit) ; première photo : le
+point, posé en absolu dans le coin, était rogné par l'arrondi du cadre —
+il ferme la ligne. Parcours 188, 0 faute.

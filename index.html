@@ -8741,7 +8741,7 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-jn-c{display:none}
 #siteCard{display:none!important}
 /* au plus petit téléphone (320 px), la STEP s'abrège */
-@media (max-width:359px){ .aw-jt .aw-jn-l{display:none} .aw-jt .aw-jn-c{display:inline} .aw-jt-tete .site-eq,.aw-jt-tete .site-etat,.aw-jt-tete .site-qd>span{display:none} }
+@media (max-width:359px){ .aw-jt .aw-jn-l{display:none} .aw-jt .aw-jn-c{display:inline} .aw-jt-eq,.aw-jt-pw{display:none} }
 #telCard>header{--ic:var(--ip-cm)}
 .aw-jt>li>a,.aw-jt>li>.aw-jl{display:flex; align-items:center; gap:10px; width:100%; color:inherit; text-decoration:none}
 #telCard .aw-l>li{min-height:34px; padding:2px 0}
@@ -8755,9 +8755,16 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 /* les trigrammes à droite, contre le bouton, à la couleur du poste */
 .aw-jg{flex:0 1 auto; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px; min-width:0}
 .aw-ja-vide{visibility:hidden}
-.aw-jt-tete{flex:none; margin-bottom:4px}
-.aw-jg>i{font-style:normal; font-size:11.5px; font-weight:750; letter-spacing:.02em; line-height:18px; padding:0 6px; border-radius:6px; background:color-mix(in srgb,var(--us-c,var(--muted)) 22%,transparent); color:#fff}
-.aw-jg>i.moi{box-shadow:inset 0 0 0 1.5px var(--us-c,var(--muted))}
+.aw-jt-tete{position:relative; flex:none; display:flex; align-items:center; gap:8px; margin:0 0 4px; padding:0 2px 8px 0; border-bottom:1px solid var(--line); white-space:nowrap; overflow:hidden; font-size:13px; color:var(--ink2)}
+.aw-jt-tete .pl-pa{flex:none; min-width:34px; text-align:center}
+.aw-jt-tete>b{font-size:14px; font-weight:650; color:var(--ink)}
+.aw-jt-eq{color:var(--muted); font-size:12.5px}
+.aw-jt-h{font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
+.aw-jt-tete em{margin-left:auto; font-style:normal; font-size:12px; color:var(--muted)} .aw-jt-tete em b{font-size:15px; font-weight:700; color:var(--ink)}
+.aw-jt-live{flex:none; margin:0 0 0 2px; width:7px; height:7px}
+.aw-jg>i{font-style:normal; font-size:11.5px; font-weight:750; letter-spacing:.02em; line-height:18px; padding:0 6px; border-radius:6px; background:color-mix(in srgb,var(--us-c,var(--muted)) 22%,transparent); color:#fff; box-shadow:inset 0 0 0 1.5px var(--us-c,var(--muted))}
+/* en formation : l'encre jaune (le client, le 06/11/2026) ; soi : un trait plus épais */
+.aw-jg>i.form{color:#F5C542} .aw-jg>i.moi{box-shadow:inset 0 0 0 2.5px var(--us-c,var(--muted))}
 .aw-jt em{flex:none; font-style:normal; font-size:13px; color:var(--ink2); font-variant-numeric:tabular-nums}
 .aw-jt small:empty{display:none}
 .aw-ja{flex:none; display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--ip-cm); color:#fff}
@@ -19208,7 +19215,16 @@ function awTelTete(){
     var d=document.createElement("div"), pz=cmDePause().pz, st=null; d.innerHTML=h;
     [].forEach.call(d.querySelectorAll(".site-salon>.site-st"),function(p){ var a=p.querySelector(".pl-pa"); if(!st&&a&&a.textContent===pz) st=p; });
     st=st||d.querySelector(".site-salon>.site-st"); if(!st) return "";
-    st.classList.add("aw-jt-tete"); return st.outerHTML; }catch(e){ return ""; }
+    /* SUR UNE SEULE LIGNE (le client, le 06/11/2026 : « supprimer “en
+       cours”, avec un petit témoin live dans le coin ; la ligne du haut
+       optimisée et sans retour à la ligne ») : la pause, son nom, l'équipe,
+       les heures, puis les présents ; le jour (aujourd'hui) et « en cours »
+       laissent la place au témoin vivant */
+    function t(sel){ var e=st.querySelector(sel); return e?e.textContent.trim():""; }
+    var pa=st.querySelector(".pl-pa"), eq=t(".site-eq").replace(/^Équipe\s*/,""), n=t("em>b");
+    return '<p class="aw-jt-tete">'+(pa?pa.outerHTML:'')+'<b>'+esc(t(".site-sn>b"))+'</b>'
+      +(eq?'<span class="aw-jt-eq">Éq. '+esc(eq)+'</span>':'')+'<span class="aw-jt-h">'+esc(t(".site-qd>b"))+'</span>'
+      +(n?'<em title="'+esc(n+" "+t("em>small"))+'"><b>'+esc(n)+'</b><span class="aw-jt-pw"> '+esc(t("em>small"))+'</span></em>':'')+'<span class="site-live aw-jt-live" title="En direct" aria-label="En direct"></span></p>'; }catch(e){ return ""; }
 }
 function awJoindre(){
   var E=null; try{ E=usineEtat(); }catch(e){}
