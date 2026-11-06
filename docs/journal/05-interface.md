@@ -14964,3 +14964,13 @@ Réglages, espace RH) restaient trop cachés.
 - Éprouvé au téléphone (390 px) et au PC (1280 px) : l'icône est là et
   ouvre l'historique de VBN (59 journées, 18 classeurs). Parcours : 188
   essais, 0 faute.
+
+### v1460 : les deux historiques de l'espace RH, chacun son titre (06/11/2026)
+
+Le client, capture à l'appui : « c'est quoi ça ? ». La section
+« Historique » de l'espace RH montrait la carte « Changements des
+classeurs » (v1456), puis, sans titre, un cadre « Aucune modification
+encore… ». C'est l'historique d'avant : les journées corrigées à la main
+dans le Planning. Sans titre, il se lisait comme le premier. Il porte
+désormais son titre, « Modifications faites dans l'application », et une
+ligne qui dit ce qu'il garde. Parcours : 188 essais, 0 faute.
