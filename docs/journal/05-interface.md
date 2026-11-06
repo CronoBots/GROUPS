@@ -14855,3 +14855,37 @@ montrée), et son nom n'est plus posé, ni sur la page ni sur la voisine.
 Seule la place fixe suit encore la page montrée. Mesuré au milieu d'un
 geste au doigt (CDP) : titre de 49 px, contre 0 avant. Parcours : 188
 essais, 0 faute.
+
+## v1455 : le chat, optimisé de bout en bout (06/11/2026)
+
+Le client : « optimise au max le chat » (la photo de profil, proposée
+puis annulée par lui le même jour : rien n'est envoyé). Photographié
+avec un fil réaliste (plusieurs jours, des séries d'un même auteur, un
+message long, un lien), à 390 et 320 px. Six défauts relevés, tous
+corrigés :
+
+1. **Le clavier de l'iPhone** aurait couvert la saisie du cadre fixe :
+   tant qu'on écrit, le cadre tient dans la partie visible
+   (`visualViewport`), la saisie juste au-dessus du clavier, et se replace
+   quand le clavier se ferme. Chromium n'a pas de clavier : cette partie
+   n'est éprouvée que par le calcul ; à vérifier sur l'iPhone.
+2. **Rien ne disait qu'un message était arrivé** quand le chat est sur la
+   page de gauche : leur nombre en pastille rouge sur le point de sa page
+   (le dernier vu, `ui/fil/lu`, sur l'appareil ; « vu » = le fil à
+   l'écran, l'application au premier plan).
+3. **Relu toutes les 30 s** : toutes les 5 s quand le fil est à l'écran,
+   30 s sinon, et dès le retour au premier plan.
+4. **L'envoi ne montrait rien avant l'accord de la base** : le message
+   paraît tout de suite, pâle, le champ se vide ; refusé, il disparaît et
+   le texte revient dans le champ. Une relecture partie pendant l'envoi le
+   garde à l'écran.
+5. **En lisant plus haut**, un message arrivé ne se signalait pas : « ↓ N
+   nouveaux messages » (sans faire sauter le fil) ; son propre message
+   ramène toujours en bas.
+6. **Les liens** se touchent (`filLiens`, sur le texte déjà échappé).
+
+Mesuré au navigateur (messages fabriqués) : pastille « 1 » sur le point
+de la page de gauche après une arrivée, effacée sur le chat ; pendant
+l'envoi, message pâle et champ vide, puis remplacé ; lu en haut, « ↓ 2
+nouveaux messages », qui disparaît au clic. Le bouton passait sur deux
+lignes à 390 px : tenu sur une. Parcours : 188 essais, 0 faute.

@@ -8571,6 +8571,14 @@ html body #v-horaire .card>header h2>.cc-ico{box-sizing:border-box; width:24px; 
 #filCard .fil-env:disabled{background:var(--surface3); color:var(--muted); cursor:default}
 #filCard .fil-nb{flex:none; align-self:center; font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
 #filCard .fil-err{margin:0 14px 12px; font-size:12.5px; color:var(--tx-rouge-vif2)}
+/* le message en cours d'envoi, montré tout de suite (pâle jusqu'à l'accord de la base) */
+#filCard .fil-m.envoi{opacity:.55}
+#filCard .fil-b a{color:var(--marque-vif); text-decoration:underline; overflow-wrap:anywhere}
+/* « ↓ N nouveaux » : en lisant plus haut, ce qui arrive se signale sans faire sauter le fil */
+#filCard{position:relative}
+#filCard .fil-nouv{position:absolute; left:50%; transform:translateX(-50%); bottom:84px; z-index:3; display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border:0; border-radius:99px;
+  background:var(--marque-vif); color:var(--tx-sur-vif); font:600 13px/1.2 system-ui,sans-serif; white-space:nowrap; box-shadow:0 6px 18px rgba(0,0,0,.35); cursor:pointer}
+#filCard .fil-nouv[hidden]{display:none}
 
 /* — L'ACCUEIL PERSONNALISABLE (le client, le 04/11/2026 : « j'aimerais que
    l'accueil soit complètement personnalisable, comme des widgets, avec un
@@ -9664,6 +9672,12 @@ html body #v-horaire.acc-perso.acc-tel #usineCard .usp-pin.usp-pin-moi{--pw:17px
 .acc-points button{display:grid; place-items:center; width:22px; height:22px; padding:0; border:0; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent}
 .acc-points button::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--ink); opacity:.35; transition:opacity .2s}
 .acc-points button[aria-current="page"]::before{opacity:1}
+/* LES MESSAGES NON LUS (le client, le 06/11/2026 : « optimise au max le
+   chat ») : leur nombre sur le point de la page du chat, comme la pastille
+   d'une app d'iPhone */
+.acc-points button{position:relative}
+.acc-points button[data-nb]::after{content:attr(data-nb); position:absolute; top:-7px; left:50%; min-width:17px; height:17px; padding:0 5px; box-sizing:border-box; border-radius:9px;
+  background:var(--rouge,#e5484d); color:#fff; font:700 11px/17px system-ui,sans-serif; text-align:center; pointer-events:none}
 .acc-points button:focus-visible{outline:2px solid var(--marque-vif); outline-offset:-2px; border-radius:50%}
 @media (pointer:coarse){ .acc-points button{width:26px; height:30px} }
 .acc-page-vide{min-height:180px; display:grid; place-items:center; padding:24px; border:1.5px dashed var(--line); border-radius:var(--rj);
@@ -10678,6 +10692,7 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
         <button type="submit" class="fil-env" id="filEnvoyer" aria-label="Envoyer" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       </form>
       <p class="fil-err" id="filErr" role="status" hidden></p>
+      <button type="button" class="fil-nouv" id="filNouv" hidden></button>
     </div>
     </div>
     <!-- L'USINE EN DIRECT (le client, le 01/11/2026 : « représenter l'usine
@@ -24288,7 +24303,9 @@ function filCharger(){
   function relire(){ return FIL.lu===FIL.ecrit?FIL.liste:filCharger(); }
   p=FIL.charge=baseRpc("biowanze_messages",{p_apres:null}).then(function(l){
     if(perimee()) return relire();
-    FIL.liste=(l||[]).filter(function(x){ return x && !x.efface; }); FIL.lu=n; FIL.absente=false; FIL.panne=false; if(FIL.charge===p) FIL.charge=null; lsSet("ui/fil",FIL.liste); filRendre(); return FIL.liste;
+    /* un message encore en route reste montré (pâle) jusqu'à la relecture qui le contient */
+    var enRoute=FIL.envoi?(FIL.liste||[]).filter(function(x){ return x&&x._envoi; }):[];
+    FIL.liste=(l||[]).filter(function(x){ return x && !x.efface; }); lsSet("ui/fil",FIL.liste); if(enRoute.length) FIL.liste=FIL.liste.concat(enRoute); FIL.lu=n; FIL.absente=false; FIL.panne=false; if(FIL.charge===p) FIL.charge=null; filRendre(); return FIL.liste;
   }).catch(function(e){
     if(perimee()) return relire();
     /* la fonction absente : base/36 n'est pas encore passée ; sinon la
@@ -24326,23 +24343,60 @@ function filRendre(){
     var hh='<time datetime="'+esc(String(x.cree_le))+'" title="'+esc(d.toLocaleString("fr-BE"))+'">'+pad2(d.getHours())+":"+pad2(d.getMinutes())+'</time>';
     var peut=mien||rh;
     var opt=(suite?hh:"")+(peut?'<button type="button" class="fil-x" data-fil-x="'+esc(String(x.id))+'" aria-label="Effacer ce message">Effacer</button>':'');
-    h.push('<div class="fil-m'+(suite?"":" prem")+(mien?" moi":"")+'"'+(peut?' tabindex="0"':'')+'>'
+    h.push('<div class="fil-m'+(suite?"":" prem")+(mien?" moi":"")+(x._envoi?" envoi":"")+'"'+(peut?' tabindex="0"':'')+'>'
       +(suite?"":'<span class="fil-av" aria-hidden="true">'+esc(aut)+'</span><div class="fil-t"><b class="fil-n">'+esc(aut)+'</b>'+hh+'</div>')
-      +'<span class="fil-b">'+esc(x.corps)+(opt?'<span class="fil-o">'+opt+'</span>':'')+'</span>'
+      +'<span class="fil-b">'+filLiens(esc(x.corps))+(opt?'<span class="fil-o">'+opt+'</span>':'')+'</span>'
       +'</div>');
   });
-  var bas=l.scrollHeight-l.scrollTop-l.clientHeight<40;
-  if(l.__h!==h.join("")){ l.__h=h.join(""); l.innerHTML=l.__h; if(bas||!l.__vu){ l.scrollTop=l.scrollHeight; l.__vu=1; } }
+  var bas=l.scrollHeight-l.scrollTop-l.clientHeight<40, dern=m.length?m[m.length-1]:null;
+  if(l.__h!==h.join("")){ l.__h=h.join(""); l.innerHTML=l.__h;
+    /* son propre message ramène toujours en bas */
+    if(bas||!l.__vu||(dern&&dern._envoi)){ l.scrollTop=l.scrollHeight; l.__vu=1; } }
+  filNouveaux(); filNonLus();
+}
+/* un lien dans un message se touche (le texte est déjà échappé) */
+function filLiens(t){ return t.replace(/\bhttps?:\/\/[^\s<]+[^\s<.,;:!?)\]»]/g,function(u){ return '<a href="'+u+'" target="_blank" rel="noopener noreferrer">'+u+'</a>'; }); }
+/* LES NON LUS : le dernier message vu (ui/fil/lu, sur l'appareil) ; vu,
+   c'est le fil montré à l'écran, l'application au premier plan. Leur
+   nombre, sur le point de la page du chat (téléphone) ; « ↓ N nouveaux »
+   dans le fil quand on lit plus haut. */
+function filVu(){
+  var c=document.getElementById("filCard"); if(!c||c.hidden||document.hidden||st.view!=="horaire"||!c.getClientRects().length) return false;
+  var r=c.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight&&!c.__voisin;
+}
+function filSigne(x){ return String(x.cree_le||"")+"|"+String(x.id||""); }
+function filNonLus(){
+  var m=filListe().filter(function(x){ return !x._envoi; }), moi=filMoi(), lu=lsGet("ui/fil/lu");
+  if(m.length&&(lu==null||filVu())){ var d=filSigne(m[m.length-1]); if(d!==lu){ lsSet("ui/fil/lu",d); lu=d; } }
+  var n=0; if(lu!=null) for(var i=m.length-1;i>=0&&filSigne(m[i])>lu;i--) if(String(m[i].auteur||"").toUpperCase()!==moi) n++;
+  FIL.nonLus=n;
+  var b=document.querySelector('#accPoints button[data-acc-page="'+(typeof accPageDe==="function"?accPageDe("messages"):0)+'"]');
+  [].forEach.call(document.querySelectorAll("#accPoints button[data-nb]"),function(x){ if(x!==b||!n) x.removeAttribute("data-nb"); });
+  if(b&&n) b.setAttribute("data-nb",n>99?"99+":String(n));
+}
+function filNouveaux(){
+  var l=document.getElementById("filListe"), bt=document.getElementById("filNouv"); if(!l||!bt) return;
+  var m=filListe(), moi=filMoi(), n=0;
+  if(l.__haut){ for(var i=m.length-1;i>=0&&(!l.__vuJusque||filSigne(m[i])>l.__vuJusque);i--) if(String(m[i].auteur||"").toUpperCase()!==moi) n++; }
+  else l.__vuJusque=m.length?filSigne(m[m.length-1]):"";
+  bt.hidden=!n; if(n) bt.textContent="↓ "+n+" nouveau"+(n>1?"x":"")+" message"+(n>1?"s":"");
 }
 function filEnvoyer(){
   var t=document.getElementById("filTexte"), b=document.getElementById("filEnvoyer"), e=document.getElementById("filErr");
   var v=String(t&&t.value||"").trim(); if(!v || FIL.envoi) return;
   FIL.envoi=true; if(b) b.disabled=true; if(e) e.hidden=true;
+  /* montré tout de suite, pâle, en bas du fil (le client, le 06/11/2026 :
+     « optimise au max le chat ») ; la relecture le remplace */
+  var tmp={id:"envoi-"+Date.now(), auteur:filMoi(), corps:v, cree_le:new Date().toISOString(), _envoi:1};
+  if(FIL.liste==null) FIL.liste=[]; FIL.liste=FIL.liste.concat([tmp]); t.value=""; t.style.height=""; filRendre();
+  function retirer(){ FIL.liste=(FIL.liste||[]).filter(function(x){ return x!==tmp; }); }
   baseRpc("biowanze_ecrire_message",{p_corps:v}).then(function(){
     /* une écriture de plus : la relecture déjà en route, partie avant,
        est jetée (filCharger) */
-    FIL.ecrit++; t.value=""; t.style.height=""; FIL.envoi=false; filChamp(); return filCharger();
+    FIL.ecrit++; FIL.envoi=false; filChamp(); return filCharger();
   }).catch(function(er){
+    /* refusé : le texte revient dans le champ */
+    retirer(); if(!t.value) t.value=v; filRendre();
     FIL.envoi=false; filChamp(); if(e){ e.textContent="Message non envoyé : "+baseMsg(er)+"."; e.hidden=false; }
   });
 }
@@ -24359,7 +24413,8 @@ function filInit(){
   if(!f || f.__init) return; f.__init=1;
   f.addEventListener("submit",function(ev){ ev.preventDefault(); filEnvoyer(); });
   /* lu plus haut que le dernier message : l'Accueil ne le ramène pas en bas (accAjuster) */
-  if(l) l.addEventListener("scroll",function(){ l.__haut=l.scrollHeight-l.scrollTop-l.clientHeight>40; },{passive:true});
+  if(l) l.addEventListener("scroll",function(){ l.__haut=l.scrollHeight-l.scrollTop-l.clientHeight>40; if(!l.__haut) filNouveaux(); },{passive:true});
+  var nv=document.getElementById("filNouv"); if(nv) nv.addEventListener("click",function(){ l.scrollTo?l.scrollTo({top:l.scrollHeight,behavior:"smooth"}):(l.scrollTop=l.scrollHeight); l.__haut=false; filNouveaux(); });
   /* Entrée envoie, Maj+Entrée va à la ligne ; le champ grandit jusqu'à 5 lignes */
   t.addEventListener("keydown",function(ev){ if(ev.key==="Enter" && !ev.shiftKey && !ev.isComposing){ ev.preventDefault(); filEnvoyer(); } });
   t.addEventListener("input",function(){ t.style.height="auto"; t.style.height=Math.min(120,t.scrollHeight)+"px"; filChamp(); });
@@ -24393,7 +24448,11 @@ function filInit(){
 }
 function filAccueil(){
   filInit(); filRendre(); filCharger();
-  if(!FIL.tic) FIL.tic=setInterval(function(){ if(st.view==="horaire"&&!document.hidden&&compteBase()) filCharger(); },30000);
+  /* toutes les 5 s quand le fil est à l'écran, toutes les 30 s sinon (le
+     client, le 06/11/2026 : « optimise au max le chat ») ; et dès le retour
+     au premier plan */
+  if(!FIL.tic){ var n=0; FIL.tic=setInterval(function(){ n++; if(st.view!=="horaire"||document.hidden||!compteBase()) return; if(filVu()||n%6===0) filCharger(); else filNonLus(); },5000);
+    document.addEventListener("visibilitychange",function(){ if(!document.hidden&&st.view==="horaire"&&compteBase()) filCharger(); }); }
 }
 var SITE_TIC=null;
 function renderSiteAccueil(){
@@ -38740,6 +38799,7 @@ function accPointsMaj(){
   if(b.__sig!==sig){ b.__sig=sig;
     b.innerHTML=pv.map(function(p){ return '<button type="button" data-acc-page="'+p+'" aria-label="'+ACC_PAGE_NOM[p]+'"'+(p===ACC.page?' aria-current="page"':'')+'></button>'; }).join(""); }
   b.hidden=pv.length<2;
+  try{ if(typeof filNonLus==="function"&&FIL.liste) filNonLus(); }catch(e){}
   /* au-dessus de la barre d'onglets du bas (téléphone), sinon au bas de l'écran */
   var nav=document.querySelector("nav.tabs"), pb="";
   if(nav&&nav.getClientRects().length){ var r=nav.getBoundingClientRect(); if(r.top>innerHeight/2&&r.width>innerWidth/2) pb=Math.round(innerHeight-r.top+8)+"px"; }
@@ -38894,15 +38954,28 @@ function accChatPlein(){
       nav=document.querySelector("nav.tabs"), bas=innerHeight;
   if(nav&&nav.getClientRects().length){ var r=nav.getBoundingClientRect(); if(r.top>innerHeight/2) bas=r.top; }
   /* la place des points des pages (accPoints, 8 px au-dessus de la barre) */
-  var pts=document.getElementById("accPoints"), hp=pts&&!pts.hidden&&pts.offsetHeight?pts.offsetHeight+14:30;
+  var pts=document.getElementById("accPoints"), hp=pts&&!pts.hidden&&pts.offsetHeight?pts.offsetHeight+14:30, bs=Math.round(innerHeight-bas+hp);
+  /* LE CLAVIER OUVERT (06/11/2026) : le cadre fixe, posé au-dessus des
+     onglets, aurait eu sa saisie sous le clavier ; tant que l'on écrit, il
+     tient dans la partie visible de l'écran (visualViewport), la saisie
+     juste au-dessus du clavier */
+  var vv=window.visualViewport, tx=document.getElementById("filTexte");
+  if(vv&&tx&&document.activeElement===tx){ var kb=Math.round(innerHeight-(vv.offsetTop+vv.height));
+    if(kb>60){ bs=kb+8; haut=Math.max(Math.round(vv.offsetTop)+8,Math.min(haut,Math.round(vv.offsetTop+vv.height)-260)); } }
   v.classList.add("acc-chat-plein");
-  return 'html body #v-horaire.acc-perso[class] [data-w="messages"]{position:fixed!important; top:'+haut+'px!important; bottom:'+Math.round(innerHeight-bas+hp)+'px!important; left:'+g+'px!important; right:'+d+'px!important; width:auto!important; height:auto!important; min-height:0!important; max-height:none!important; margin:0!important; z-index:2}'
+  return 'html body #v-horaire.acc-perso[class] [data-w="messages"]{position:fixed!important; top:'+haut+'px!important; bottom:'+bs+'px!important; left:'+g+'px!important; right:'+d+'px!important; width:auto!important; height:auto!important; min-height:0!important; max-height:none!important; margin:0!important; z-index:2}'
     /* le bouton « Modifier l'Accueil » et le nom sous le widget : l'appui long
        sur le chat ouvre toujours le mode Modifier */
     +'\nhtml body #v-horaire.acc-chat-plein #accPied,html body #v-horaire.acc-chat-plein [data-acc-nom-pour="messages"]{display:none!important}';
 }
-/* au téléphone qu'on tourne, au clavier qui s'ouvre : la place se refait */
-(function(){ var tm=null; window.addEventListener("resize",function(){ var v=document.getElementById("v-horaire"); if(!v||!v.classList.contains("acc-chat-plein")) return; clearTimeout(tm); tm=setTimeout(function(){ try{ accStyle(); }catch(e){} },150); }); })();
+/* au téléphone qu'on tourne, au clavier qui s'ouvre ou se ferme : la place se refait */
+(function(){ var tm=null;
+  function refaire(d){ var v=document.getElementById("v-horaire"); if(!v||!v.classList.contains("acc-chat-plein")) return; clearTimeout(tm); tm=setTimeout(function(){ try{ accStyle(); }catch(e){} },d); }
+  window.addEventListener("resize",function(){ refaire(150); });
+  if(window.visualViewport){ visualViewport.addEventListener("resize",function(){ refaire(30); }); visualViewport.addEventListener("scroll",function(){ refaire(30); }); }
+  document.addEventListener("focusin",function(e){ if(e.target&&e.target.id==="filTexte") refaire(300); });
+  document.addEventListener("focusout",function(e){ if(e.target&&e.target.id==="filTexte") refaire(300); });
+})();
 /* La grille fixe, comme l'iPhone (le client, le 04/11/2026, capture à
    l'appui : « les largeurs et hauteurs doivent respecter des tailles fixes
    pour rester alignées l'une l'autre selon le redimensionnement »). Avant,

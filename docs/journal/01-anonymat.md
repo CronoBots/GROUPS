@@ -823,3 +823,7 @@ rend 1. Les deux formes sont de la famille de « Rempace », « Rempalce » et
 les étapes 1, 2 et 4 du même rapport, qui cherchent les noms de la source
 dans la sortie, n'en trouvent aucun. Admises dans `formes-admises.txt`
 avec leur raison ; le robot réinstalle au passage suivant.
+Une fois le classeur installé (15 h 59), le garde-fou du dépôt a encore
+signalé « Remlace » seul : LDY les 18 et 20/11, « Remlace CDE RCO et SPS
+présents ». C'est la même faute de frappe, suivie de trigrammes ; lue dans
+son contexte et admise.
