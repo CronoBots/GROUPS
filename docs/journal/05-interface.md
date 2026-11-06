@@ -14360,3 +14360,35 @@ suit. La bordure (`--cadre` `#394052`) était déjà alignée : sa version
 exacte, `#384053`, ne se distingue pas. Elle reste. Mesuré au navigateur :
 widget `rgb(30,39,59)` sur un fond `rgb(20,28,47)`. Le contraste de
 chaque texte est contrôlé par le parcours : 177 essais, 0 faute.
+
+### v1426 — Le style des widgets, à l'essai : actuel, relief ou verre (06/11/2026)
+
+Le client, après une planche de six rendus (A à F, injectés au
+navigateur et non publiés) : « pour les widgets, j'aimerais bien Liquid
+Glass ou ta recommandation ; fais-moi un test et je te dirai quoi ».
+Avant cela, il a demandé si c'était « illégal ». Non : les styles
+(translucidité, flou, reflets) sont libres. Ce qui ne l'est pas : le nom
+« Liquid Glass » d'Apple, ses icônes et ses polices. L'application n'en
+contient aucun.
+
+Un réglage d'essai, « Style des widgets » (dans les Réglages, rubrique « Mon compte ») : trois
+segments, gardés sur l'appareil (`ui/widgets-style`) et posés sur
+`<html data-wst>` :
+- **Relief** (la recommandation, D sur la planche) : un dégradé du haut
+  (#232C41) vers le bas (#1A2336), calculé en OKLCH autour de #1E273B,
+  dans la teinte du fond ; un reflet en haut, une ombre douce ;
+- **Verre** (C, façon iOS) : translucide, flou de 28 px, un reflet sur
+  le bord haut et une ombre portée.
+
+**Erreur trouvée sur la planche et évitée ici.** En B et C, « Heure et
+poste » perdait ses coins arrondis. Son fond n'est pas peint par le
+widget (`.pf-pw`, sans rayon) mais par son bloc (`.pf-bloc`, 22 px). Le
+style vise donc le bloc. La bordure garde sa largeur, transparente :
+rien ne bouge d'un pixel. Le flou du verre ne se voit que là où quelque
+chose passe derrière : sur le fond uni, le verre est surtout un voile
+clair et un reflet.
+
+Éprouvé au navigateur : les boutons changent l'Accueil aussitôt, le
+choix survit au rechargement, sans erreur. Le parcours (style par
+défaut) donne 177 essais, 0 faute. Le réglage est à retirer une fois le
+choix fait.
