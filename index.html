@@ -19594,7 +19594,7 @@ function histoOuvrir(opt){
   var ov=document.getElementById("histoOv"); if(!ov) return;
   HISTO.tous=!!(opt&&opt.tous); HISTO.qui=(opt&&opt.qui)||trigCourant()||""; HISTO.filtre=""; HISTO.n=12;
   if(!HISTO.tous&&!HISTO.qui) return;
-  if(ov.hidden) navPousser("h");
+  if(ov.hidden&&!(opt&&opt.cede)) navPousser("h");
   HISTO.retour=document.activeElement; ov.hidden=false; document.documentElement.classList.add("nt-ouverte");
   requestAnimationFrame(function(){ ov.classList.add("vis"); });
   histoRendre(); histoCharger().then(histoRendre);
@@ -19604,11 +19604,16 @@ function histoFermer(parRetour){
   var ov=document.getElementById("histoOv"); if(!ov||ov.hidden) return;
   if(parRetour!==true) navRetirer("h");
   ov.classList.remove("vis"); ov.hidden=true;
-  if(document.getElementById("notifOv").hidden) document.documentElement.classList.remove("nt-ouverte");
+  document.documentElement.classList.remove("nt-ouverte");
   if(HISTO.retour&&HISTO.retour.focus) try{ HISTO.retour.focus({preventScroll:true}); }catch(e){}
 }
 (function(){
   var ov=document.getElementById("histoOv"), c=document.getElementById("histoCard"); if(!ov||!c) return;
+  /* À LA RACINE DE LA PAGE (le client, le 06/11/2026 : « ouvrir l'historique
+     fait planter l'app ») : posée dans l'Accueil, à côté de la cloche, la
+     feuille ouverte depuis les Réglages restait cachée avec l'Accueil, et
+     l'écran, déjà verrouillé derrière elle (nt-ouverte), ne répondait plus */
+  if(ov.parentNode!==document.body) document.body.appendChild(ov);
   c.addEventListener("keydown",piegeTab(c));
   ov.addEventListener("click",function(e){
     var t=e.target;
@@ -19620,7 +19625,11 @@ function histoFermer(parRetour){
 })();
 document.addEventListener("click",function(e){
   var t=e.target;
-  if(t.closest&&t.closest("[data-histo]")){ var q=t.closest("[data-histo]").getAttribute("data-histo"); if(q==="perso"&&!document.getElementById("notifOv").hidden) fermerNotif(); histoOuvrir(q==="tous"?{tous:true}:null); return; }
+  if(t.closest&&t.closest("[data-histo]")){ var q=t.closest("[data-histo]").getAttribute("data-histo"), cede=false;
+    /* depuis la cloche, l'historique prend son étape de navigation (navCeder) :
+       la refermer par un « retour » refermait aussi l'historique à peine ouvert */
+    if(!document.getElementById("notifOv").hidden){ navCeder("n","h"); fermerNotif(true); cede=true; }
+    histoOuvrir(q==="tous"?{tous:true,cede:cede}:{cede:cede}); return; }
   if(t.closest&&t.closest("#pfNotif")){ ouvrirNotif(); return; }
   if(t.id==="notifOv"||(t.closest&&t.closest("#notifX"))) fermerNotif();
 });

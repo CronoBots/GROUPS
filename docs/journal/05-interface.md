@@ -14924,3 +14924,26 @@ pixel de trop de chaque côté. La marge lui est rendue, et les bords
 gardent leurs décimales. Mesuré : 24 / 89 / 342 px de large à 390, comme
 « Mon profil » et les widgets larges ; 20 / 89 / 280 px à 320. Parcours :
 188 essais, 0 faute.
+
+### v1458 : ouvrir l'historique bloquait l'application (06/11/2026)
+
+Le client : « ouvrir l'historique fait planter l'app ». Mesuré : ouverte
+depuis les Réglages, la feuille était dans le DOM (52 lignes), mais sa
+croix « n'était pas visible ». Cause : la feuille avait été posée dans
+l'Accueil, à côté de celle de la cloche, et l'Accueil est caché quand les
+Réglages s'affichent. Elle restait donc invisible, alors que l'écran,
+déjà verrouillé derrière elle (`nt-ouverte`, défilement coupé), ne
+répondait plus. Erreur commise : l'épreuve de la v1456 ouvrait la feuille
+depuis l'Accueil seulement, par un bouton fabriqué, jamais par les vrais
+chemins.
+
+- La feuille va à la racine de la page à l'ouverture de l'application.
+  Elle est au niveau 420, au-dessus de l'espace RH (niveau 95).
+- Depuis la cloche, l'historique prend l'étape de navigation de la cloche
+  (`navCeder`) au lieu d'en retirer une puis d'en poser une autre.
+- Éprouvé par les vrais chemins, au navigateur :
+  - Réglages → « Ouvrir » : la feuille s'ouvre, puis se ferme ;
+  - cloche → « Tout l'historique » : la feuille s'ouvre, puis le retour
+    du navigateur la referme.
+
+  Parcours : 188 essais, 0 faute.
