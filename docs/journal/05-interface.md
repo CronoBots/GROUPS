@@ -14889,3 +14889,25 @@ de la page de gauche après une arrivée, effacée sur le chat ; pendant
 l'envoi, message pâle et champ vide, puis remplacé ; lu en haut, « ↓ 2
 nouveaux messages », qui disparaît au clic. Le bouton passait sur deux
 lignes à 390 px : tenu sur une. Parcours : 188 essais, 0 faute.
+
+## v1456 : « Historique de mon horaire » et, pour la RH, de tous les trigrammes (06/11/2026)
+
+La feuille de la cloche, plus haute (`histoOuvrir`), lit
+`data/historique-AAAA.json` (journal 02, même date). Un titre par classeur
+reçu, « Classeur du 06/11/2026 à 15 h 59 », reste collé en haut pendant le
+défilement. Dessous, chaque journée : le jour en mots, la cellule d'avant
+→ celle d'après (pastilles de la cloche) et le commentaire. Quand seule
+la note change, on lit « commentaire ajouté / retiré / modifié », et
+l'ancienne note est barrée. Les douze derniers classeurs s'affichent
+d'abord, puis « Classeurs plus anciens (N) ».
+- **Chacun** : dans la feuille de la cloche (« Tout l'historique », à côté
+  de « Vu, effacer ») et dans les Réglages, « Mon compte » (« Historique
+  de mon horaire »). VBN : 59 journées, sur 18 classeurs.
+- **La RH** : Espace RH, « Historique », la carte « Changements des
+  classeurs » ; tous les trigrammes, le trigramme en tête de ligne, et un
+  filtre (« LD » → LDY, 17 journées). En tout : 3 072 journées, 42
+  classeurs.
+- Mesuré à 390 px : trois défauts corrigés. (1) Une journée dont seule la
+  note changeait se lisait « AM Abs → AM Abs ». (2) Le sous-titre se
+  coupait. (3) Le texte d'aide du filtre était en majuscules. Parcours :
+  188 essais, 0 faute.

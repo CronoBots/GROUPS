@@ -254,6 +254,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 |---|---|
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
 | `data/horaire-AAAA.json` | horaire d'équipe anonymisé d'une année (2026, 2027), pour le pré-remplissage |
+| `data/historique-AAAA.json` | chaque classeur reçu et ses journées changées (avant, après, date du classeur), écrit par `tools/historique.py` ; le robot y ajoute chaque classeur installé |
 | `data/classeur-AAAA-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application, hors dépôt (copie dans le dépôt privé) |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |

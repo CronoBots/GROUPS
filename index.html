@@ -4165,6 +4165,27 @@ html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
   border-radius:0 6px 6px 0; background:var(--surface2); font-size:12px; line-height:1.4; color:var(--muted);
   overflow-wrap:anywhere}
 .nt-sv{font-size:18px; line-height:1; color:var(--faint)}
+/* L'HISTORIQUE (06/11/2026) : la feuille de la cloche, plus haute ; un
+   titre par classeur reçu, puis ses journées ; pour la RH, le trigramme
+   en tête de ligne et un filtre */
+.hi-feuille{max-height:min(88vh,760px)}
+.hi-cl{position:sticky; top:0; z-index:1; display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:9px 14px 7px;
+  background:var(--surface); border-top:1px solid var(--trait); font-size:12px; font-weight:700; letter-spacing:.02em; color:var(--ink2)}
+.hi-cl small{font-weight:500; color:var(--muted)}
+.hi-tri{display:inline-grid; place-items:center; min-width:38px; height:22px; padding:0 5px; margin-right:6px; border-radius:6px; background:var(--surface3);
+  font:700 11.5px/1 "IBM Plex Mono",ui-monospace,monospace; color:var(--ink)}
+.hi-pe{padding:8px 14px; font-size:12.5px; color:var(--muted)}
+.hi-filtre{display:flex; gap:8px; padding:0 14px 10px}
+.hi-filtre input{flex:1; min-width:0; min-height:38px; padding:0 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); color:var(--ink); font:inherit; font-size:14px; text-transform:uppercase}
+.hi-plus{display:block; width:calc(100% - 28px); margin:10px 14px; min-height:40px; border-radius:12px}
+.hi-vide{padding:22px 14px; text-align:center; font-size:13px; color:var(--muted)}
+.hi-feuille .nt-j{cursor:default}
+.hi-filtre input::placeholder{text-transform:none}
+.hi-m{font-size:11px; color:var(--muted)}
+.hi-feuille .nt-com s{opacity:.7}
+.nt-pied.nt-pied2{display:flex; gap:8px} .nt-pied.nt-pied2>*{flex:1}
+.hi-ws{display:flex; align-items:center; justify-content:space-between; gap:12px} .hi-ws>div{display:flex; flex-direction:column; gap:3px; min-width:0}
+.hi-ws b{font-size:14px; color:var(--ink)} .hi-ws span{font-size:12.5px; color:var(--muted)}
 @media (hover:hover){ .nt-j:hover{background:var(--surface2)} .nt-vu:hover{color:var(--ink); border-color:var(--trait-fort)} }
 .notifreg{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0 2px; border-top:1px solid var(--trait)}
 /* une ligne de réglage qui est À ELLE SEULE le corps d'un volet (« Vue
@@ -10595,6 +10616,10 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
          (« Mon rythme »), le relevé et les codes — du plus consulté au moins. -->
     <p class="lede" id="resumeVide" data-acc-plein hidden>Choisissez votre identité dans <b>Réglages</b> pour voir votre profil et votre rythme sur l'année d'horaire.</p>
     <div class="nt-ov" id="notifOv" hidden><div class="notifcard nt-feuille" id="notifCard" role="dialog" aria-modal="true" aria-label="Horaire modifié"></div></div>
+    <!-- L'HISTORIQUE DES CHANGEMENTS (le client, le 06/11/2026) : chaque
+         classeur reçu, ses journées changées ; les siennes pour chacun, tous
+         les trigrammes pour la RH (histoOuvrir) -->
+    <div class="nt-ov" id="histoOv" hidden><div class="notifcard nt-feuille hi-feuille" id="histoCard" role="dialog" aria-modal="true" aria-label="Historique des changements"></div></div>
     <div class="pvtete pf-carte" id="rythmeTete" hidden></div>
     <!-- LE CENTRE DE CONTRÔLE (le client, le 22/10/2026, puis le 23/10/2026 :
          « faire de l'Accueil un vrai centre de contrôle pour les travailleurs,
@@ -11112,6 +11137,10 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
           <div class="notifreg">
             <div><b>Notifications de cet appareil</b><span id="notifEtat"></span></div>
             <button type="button" class="btn sm" id="notifBtn">Activer</button>
+          </div>
+          <div class="notifreg">
+            <div><b>Historique de mon horaire</b><span>Chaque changement reçu des classeurs, avec sa date</span></div>
+            <button type="button" class="btn sm" data-histo="perso">Ouvrir</button>
           </div>
           <div class="notifreg">
             <div><b>Application sur l'écran d'accueil</b><span id="installEtat"></span></div>
@@ -19493,8 +19522,105 @@ function fermerNotif(parRetour){
   ov.classList.remove("vis"); document.documentElement.classList.remove("nt-ouverte"); ov.hidden=true;
   if(notifRetour&&notifRetour.focus) try{ notifRetour.focus({preventScroll:true}); }catch(e){}
 }
+/* ── L'HISTORIQUE DES CHANGEMENTS (le client, le 06/11/2026 : « pour
+   chaque trigramme, un historique complet personnel avec les changements
+   effectués, et pour la RH un historique complet de tous les trigrammes,
+   reprenant les changements (+ date de modification) »). La source est
+   data/historique-AAAA.json (tools/historique.py) : chaque classeur reçu
+   depuis le 22/09/2026 (2026) et le 19/10/2026 (2027), daté de son
+   enregistrement, et ses journées changées telles que le classeur les dit
+   — avant, après, le commentaire. Le robot y ajoute chaque classeur qu'il
+   installe. La cloche, elle, ne dit que ce que l'appareil n'a pas encore
+   vu ; l'historique de l'espace RH, les corrections faites dans l'app. ── */
+var HISTO={d:{}, charge:null, qui:null, tous:false, filtre:"", n:12, retour:null};
+function histoCharger(){
+  if(HISTO.charge) return HISTO.charge;
+  HISTO.charge=Promise.all(HORAIRE_ANNEES.map(function(an){
+    return fetch("data/historique-"+an+".json",{cache:"no-cache"}).then(function(r){ return r.ok?r.json():null; }).then(function(j){ if(j) HISTO.d[an]=j; },function(){});
+  })).then(function(){ HISTO.charge=null; return HISTO.d; });
+  return HISTO.charge;
+}
+/* une cellule, comme la cloche la dit : la pause en pastille, puis l'annotation */
+function histoCel(c){ if(!c) return "vide"; if(typeof c==="string") c=[c]; return [c[0],c[1]].filter(function(x){ return x&&String(x).trim(); }).join(" · ")||"vide"; }
+function histoCom(c){ return c&&typeof c!=="string"&&c[2]?comNotif(c):""; }
+/* les classeurs, les plus récents d'abord ; chacun avec ses lignes filtrées */
+function histoBlocs(){
+  var L=[], f=HISTO.filtre;
+  Object.keys(HISTO.d).forEach(function(an){ (HISTO.d[an].classeurs||[]).forEach(function(c){
+    var ch=(c.ch||[]).filter(function(x){ return HISTO.tous?(!f||x[0].indexOf(f)===0):x[0]===HISTO.qui; }),
+        pe=HISTO.tous?(c.pe||[]).filter(function(x){ return !f||x[1].indexOf(f)===0; }):[];
+    if(ch.length||pe.length) L.push({an:Number(an), maj:c.maj, ch:ch, pe:pe});
+  }); });
+  /* un même classeur reçu pour deux années : côte à côte, 2027 après 2026 */
+  return L.sort(function(a,b){ return a.maj<b.maj?1:a.maj>b.maj?-1:a.an-b.an; });
+}
+function histoRendre(){
+  var card=document.getElementById("histoCard"); if(!card) return;
+  var B=histoBlocs(), tot=0, depuis=[]; B.forEach(function(b){ tot+=b.ch.length; });
+  Object.keys(HISTO.d).forEach(function(an){ if(HISTO.d[an].depuis) depuis.push(HISTO.d[an].depuis); }); depuis.sort();
+  var ju=jourUsine(), t0=Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate()), vis=B.slice(0,HISTO.n);
+  var titre=HISTO.tous?"Historique des changements":"Historique de mon horaire";
+  var sous=(HORAIRE_ANNEES.some(function(an){ return HISTO.d[an]; })?tot+" journée"+(tot>1?"s":"")+" · "+B.length+" classeur"+(B.length>1?"s":""):"Chargement…")
+    +(depuis[0]?" · depuis le "+majCourte(depuis[0]).replace(/ à .*$/,""):"");
+  var h='<div class="nt-poignee" aria-hidden="true"></div><div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>'
+    +'<div class="nt-t"><b>'+titre+'</b><span>'+esc(sous)+'</span></div><button type="button" class="nt-x" id="histoX" aria-label="Fermer">&times;</button></div>'
+    +(HISTO.tous?'<div class="hi-filtre"><input id="histoFiltre" type="search" inputmode="text" autocomplete="off" maxlength="3" placeholder="Trigramme (tous)" aria-label="Filtrer par trigramme" value="'+esc(HISTO.filtre)+'"></div>':'')
+    +'<div class="nt-l" id="histoListe">';
+  if(!B.length) h+='<p class="hi-vide">'+(HORAIRE_ANNEES.some(function(an){ return HISTO.d[an]; })?(HISTO.tous&&HISTO.filtre?"Aucun changement pour « "+esc(HISTO.filtre)+" ».":"Aucun changement reçu depuis le premier classeur."):"Chargement de l’historique…")+'</p>';
+  vis.forEach(function(b){
+    h+='<div class="hi-cl"><span>Classeur du '+esc(majCourte(b.maj,b.an))+'</span><small>'+(HORAIRE_ANNEES.length>1?"horaire "+b.an+" · ":"")+b.ch.length+' journée'+(b.ch.length>1?'s':'')+'</small></div><ul class="nt-l">';
+    b.ch.slice().sort(function(x,y){ return x[0]<y[0]?-1:x[0]>y[0]?1:(x[1]<y[1]?-1:1); }).forEach(function(x){
+      var m=Number(x[1].slice(0,2)), j=Number(x[1].slice(2)), dm=dateEnMots(b.an,m,j,t0), mot=/<b>(.*?)<\/b><small>(.*?)<\/small>/.exec(dm.html)||["",dm.titre||"",""],
+          av=histoCel(x[2]), ap=histoCel(x[3]), cAp=histoCom(x[3]), cAv=histoCom(x[2]), com=cAp||cAv,
+          /* la cellule ne change pas : c'est le commentaire qui a changé, on montre l'avant */
+          meme=av===ap;
+      h+='<li><div class="nt-j" role="group" aria-label="'+esc((HISTO.tous?x[0]+", ":"")+(dm.titre||mot[1])+" : "+av+" devient "+ap+(com?" · "+com:""))+'">'
+        +'<span class="nt-d"><b>'+(HISTO.tous?'<span class="hi-tri">'+esc(x[0])+'</span>':'')+mot[1]+'</b><small>'+mot[2]+'</small></span>'
+        +'<span class="nt-ch">'+(meme?'<small class="hi-m">commentaire '+(!cAv?"ajouté":!cAp?"retiré":cAv===cAp?"":"modifié")+'</small>':pastilleNotif(av,true)+'<i class="nt-fl" aria-hidden="true">→</i>')+pastilleNotif(ap)+'</span><span></span>'
+        +(meme&&cAv!==cAp?'<span class="nt-com">'+(cAv?'<s>'+esc(cAv)+'</s><br>':'')+(cAp?esc(cAp):'<i>commentaire retiré</i>')+'</span>':(com?'<span class="nt-com">'+esc(com)+'</span>':''))+'</div></li>';
+    });
+    h+='</ul>';
+    if(b.pe.length) h+='<p class="hi-pe">'+b.pe.map(function(x){ return (x[0]==="+"?"Arrivée de ":"Départ de ")+esc(x[1]); }).join(" · ")+'</p>';
+  });
+  if(B.length>vis.length) h+='<button type="button" class="btnlike hi-plus" id="histoPlus">Classeurs plus anciens ('+(B.length-vis.length)+')</button>';
+  h+='</div>';
+  var foc=document.activeElement&&document.activeElement.id==="histoFiltre", pos=foc?document.activeElement.selectionStart:0;
+  card.innerHTML=h;
+  if(foc){ var fi=document.getElementById("histoFiltre"); if(fi){ fi.focus(); try{ fi.setSelectionRange(pos,pos); }catch(e){} } }
+}
+/* qui : le trigramme ; tous : la RH (tous les trigrammes) */
+function histoOuvrir(opt){
+  var ov=document.getElementById("histoOv"); if(!ov) return;
+  HISTO.tous=!!(opt&&opt.tous); HISTO.qui=(opt&&opt.qui)||trigCourant()||""; HISTO.filtre=""; HISTO.n=12;
+  if(!HISTO.tous&&!HISTO.qui) return;
+  if(ov.hidden) navPousser("h");
+  HISTO.retour=document.activeElement; ov.hidden=false; document.documentElement.classList.add("nt-ouverte");
+  requestAnimationFrame(function(){ ov.classList.add("vis"); });
+  histoRendre(); histoCharger().then(histoRendre);
+  var x=document.getElementById("histoX"); if(x) try{ x.focus({preventScroll:true}); }catch(e){}
+}
+function histoFermer(parRetour){
+  var ov=document.getElementById("histoOv"); if(!ov||ov.hidden) return;
+  if(parRetour!==true) navRetirer("h");
+  ov.classList.remove("vis"); ov.hidden=true;
+  if(document.getElementById("notifOv").hidden) document.documentElement.classList.remove("nt-ouverte");
+  if(HISTO.retour&&HISTO.retour.focus) try{ HISTO.retour.focus({preventScroll:true}); }catch(e){}
+}
+(function(){
+  var ov=document.getElementById("histoOv"), c=document.getElementById("histoCard"); if(!ov||!c) return;
+  c.addEventListener("keydown",piegeTab(c));
+  ov.addEventListener("click",function(e){
+    var t=e.target;
+    if(t===ov||(t.closest&&t.closest("#histoX"))){ histoFermer(); return; }
+    if(t.closest&&t.closest("#histoPlus")){ HISTO.n+=12; histoRendre(); }
+  });
+  c.addEventListener("input",function(e){ if(e.target.id!=="histoFiltre") return; HISTO.filtre=String(e.target.value||"").toUpperCase().replace(/[^A-Z]/g,""); HISTO.n=12; histoRendre(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!ov.hidden) histoFermer(); });
+})();
 document.addEventListener("click",function(e){
   var t=e.target;
+  if(t.closest&&t.closest("[data-histo]")){ var q=t.closest("[data-histo]").getAttribute("data-histo"); if(q==="perso"&&!document.getElementById("notifOv").hidden) fermerNotif(); histoOuvrir(q==="tous"?{tous:true}:null); return; }
   if(t.closest&&t.closest("#pfNotif")){ ouvrirNotif(); return; }
   if(t.id==="notifOv"||(t.closest&&t.closest("#notifX"))) fermerNotif();
 });
@@ -19558,7 +19684,7 @@ function renderNotif(db,p){
         +'<span class="nt-ch">'+(a.avant?pastilleNotif(a.avant,true)+'<i class="nt-fl" aria-hidden="true">→</i>':'')
         +pastilleNotif(a.apres)+'</span><span class="nt-sv" aria-hidden="true">›</span>'
         +(com?'<span class="nt-com">'+esc(com)+'</span>':'')+'</button></li>'; }).join(""); }).join("")
-    +'</ul><div class="nt-pied"><button type="button" class="nt-vu" id="notifVu">Vu, effacer</button></div>';
+    +'</ul><div class="nt-pied nt-pied2"><button type="button" class="nt-vu" data-histo="perso">Tout l’historique</button><button type="button" class="nt-vu" id="notifVu">Vu, effacer</button></div>';
   document.getElementById("notifVu").onclick=function(){
     xs.forEach(function(x){ lsSet("notif/attente/"+x.cle,{}); });
     NOTIF_NB=0; majBadgeNotif(); fermerNotif(); card.innerHTML=""; if(dot) dot.hidden=true;
@@ -23316,7 +23442,7 @@ window.addEventListener("popstate",function(){
   else if(k==="rdp") fermerDatesRecyclage(true);
   /* la Direction : le filtre puis l'écran d'avant (le client, le 23/10/2026) */
   else if(k==="d") dirRetour(true);
-  else if(k==="n") fermerNotif(true); else if(k==="plus") document.getElementById("plusFond").click();
+  else if(k==="n") fermerNotif(true); else if(k==="h") histoFermer(true); else if(k==="plus") document.getElementById("plusFond").click();
   else if(k==="inst"){ if(guideFermer) guideFermer(true); }
   else if(k==="r"&&sousPage(st.view)) setView("horaire");
   /* un écran ouvert depuis l'Accueil (prochain poste, fiche de paie, équipe
@@ -26234,7 +26360,10 @@ function wsHistoListe(l){
 }
 function renderHisto(){
   var hote=document.getElementById("wsHisto");
-  hote.innerHTML=wsTete("Historique","Chaque modification, son auteur et son heure. Rien ne s'efface : une annulation est elle aussi tracée.")+'<div class="ws-carte"><div id="wsHistoL"><p class="ws-vide">Chargement…</p></div></div>';
+  hote.innerHTML=wsTete("Historique","Chaque modification, son auteur et son heure. Rien ne s'efface : une annulation est elle aussi tracée.")
+    /* les changements des classeurs reçus, tous les trigrammes (06/11/2026) */
+    +'<div class="ws-carte"><div class="hi-ws"><div><b>Changements des classeurs</b><span>Chaque classeur reçu, ses journées changées, pour tous les trigrammes, avec la date.</span></div><button type="button" class="btn sm" data-histo="tous">Ouvrir</button></div></div>'
+    +'<div class="ws-carte"><div id="wsHistoL"><p class="ws-vide">Chargement…</p></div></div>';
   wsChargerHisto(200).then(function(l){ var el=document.getElementById("wsHistoL"); if(el) el.innerHTML=wsHistoListe(l); });
 }
 (function(){

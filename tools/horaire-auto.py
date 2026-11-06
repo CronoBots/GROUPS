@@ -48,6 +48,7 @@ import imaplib
 import json
 import os
 import re
+import shutil
 import smtplib
 import subprocess
 import sys
@@ -739,6 +740,11 @@ def traiter_horaire(source):
         annonce = ("Nouvel intérimaire : " if len(interims) == 1 else "Nouveaux intérimaires : ") \
             + ", ".join("%s (%s)" % (t, (par_id.get(t) or {}).get("cat", "?")) for t in interims) + ".\n\n"
         etat("Horaire : %s confirmé(s) d'office comme intérimaire(s)." % ", ".join(interims))
+    # L'HISTORIQUE DES CHANGEMENTS (le client, le 06/11/2026) : l'horaire
+    # d'avant, gardé le temps de l'installation, pour data/historique-AAAA.json
+    avant = os.path.join(tempfile.gettempdir(), "biowanze-horaire-avant-%d.json" % annee)
+    if os.path.exists(installe):
+        shutil.copyfile(installe, avant)
     r = subprocess.run([sys.executable, os.path.join(OUTILS, "mettre-a-jour.py"), source,
                         "--installer"], cwd=RACINE, capture_output=True, text=True)
     sortie = (r.stdout or "") + (r.stderr or "")
@@ -749,6 +755,10 @@ def traiter_horaire(source):
                 " sont en place. À transmettre à Claude tel quel.\n\n" + sortie[-12000:],
                 False, quand, annee)
     etat("Horaire du %s installé." % quand)
+    if os.path.exists(avant):
+        h = subprocess.run([sys.executable, os.path.join(OUTILS, "historique.py"), "--ajouter", avant, installe],
+                           cwd=RACINE, capture_output=True, text=True)
+        etat(((h.stdout or "") + (h.stderr or "")).strip() or "Historique : rien dit.")
     n, texte = relire_commentaires(installe)
     alerte, suffixe = "", ""
     if n:
@@ -1174,11 +1184,14 @@ def main():
         for x in installes:
             if x[0] == "horaire":
                 fichiers += ["data/horaire-%d.json" % x[7], "cal", "tools/arrivees-confirmees.txt",
+                             "data/historique-%d.json" % x[7],
                              "index.html"]      # HORAIRE_ANNEES, si l'année est nouvelle
                 titres.append("Classeur du %s" % x[6])
             else:
                 fichiers.append("data/recyclages-2026.json")
                 titres.append("Recyclages enregistrés le %s" % x[6])
+        # un historique pas encore écrit (une année neuve) ne s'ajoute pas
+        fichiers = [f for f in fichiers if os.path.exists(os.path.join(RACINE, f))]
         git("add", *fichiers)
         message = ("%s (mise à jour automatique)\n\nPortes de mettre-a-jour.py et de"
                    " mettre-a-jour-recyclage.py ouvertes, installé par"

@@ -2364,3 +2364,35 @@ la session (403, « Resource not accessible by integration ») : c'est le
 commit suivant sur `main`, celui de cette note, qui redéploie. À
 retenir : après un « pages build and deployment » rouge, lire `V` dans le
 `sw.js` publié avant de dire au client que la version est en ligne.
+
+## L'historique des changements, classeur par classeur (06/11/2026)
+
+Le client : « pour chaque trigramme, est-ce possible d'avoir un
+historique complet personnel avec les changements effectués, et pour le
+RH un historique complet de tous les trigrammes, reprenant les
+changements (+ date de modification) ».
+
+Avant cela, l'application gardait deux traces, et aucune ne suffisait :
+- la cloche ne dit que ce que le téléphone n'a pas encore vu (un
+  instantané par appareil) ;
+- l'historique de l'espace RH ne garde que les journées corrigées dans
+  l'application.
+
+La source complète est l'historique git de `data/horaire-AAAA.json` : 49
+versions pour 2026 depuis le 22/09, 8 pour 2027 depuis le 19/10. Une
+version dont le « maj » ne change pas est une relecture (une règle de
+lecture changée), pas un classeur : 12 sur 2026. Elle sert de point de
+comparaison, sans entrée dans l'historique.
+
+- `tools/historique.py --git` écrit `data/historique-AAAA.json` : chaque
+  classeur (`maj`), ses journées changées (trigramme, jour, cellule avant,
+  cellule après, telles que l'horaire anonymisé les dit) et les arrivées
+  et départs. Résultat : 2026, 36 classeurs, 2 149 journées, 141 Ko ;
+  2027, 6 classeurs, 923 journées, 34 Ko. Aucun identifiant de connexion
+  ni adresse (cherchés), et le garde-fou du dépôt passe.
+- Le robot ne télécharge pas l'historique git (`fetch-depth` 1). Il garde
+  donc l'horaire d'avant le temps de l'installation, puis lance
+  `historique.py --ajouter AVANT NEUF`, et committe le fichier avec
+  l'horaire (pour une année neuve, sans fichier encore, il n'est pas
+  ajouté). Épreuve : `historique.py --epreuve` (un changement, une
+  arrivée, un départ ; une relecture et un doublon ne s'ajoutent pas).
