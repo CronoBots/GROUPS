@@ -15044,3 +15044,31 @@ qu'il est modifié, pas dans les détails) ».
   que gardent la cloche et l'historique. L'entrée est la même pour tous,
   RH comprise.
 - Photographiés à 390 px, à chaque format. Parcours : 188 essais, 0 faute.
+
+### v1466 — « Numéros des postes » et « Canaux radio » (06/11/2026)
+
+Le client : « un widget avec les numéros de téléphone de chaque poste, un
+widget avec les canaux de radio de chaque poste ». Les deux lisent l'info
+« Salles de contrôle » que la RH tient dans la base (`usineTels`, déjà lue
+par la fiche de « L'usine en direct ») : aucun numéro n'entre dans la
+page ni dans le dépôt, et sans compte ils se cachent (`si:"compte"`).
+Mis à jour quand les infos arrivent (`aideMaj` → `awJoindre`).
+
+- **Numéros des postes** (moyen, grand ; grand au téléphone) : chaque
+  poste, sa pastille de couleur, son numéro et un bouton d'appel ; le
+  terrain arrière « par fermentation ou distillation », le contremaître
+  « gsm du poste ». Le poste où « L'usine en direct » me place en ce
+  moment passe en tête, marqué « vous ». Première photo : des rangées de
+  62 px, deux postes en moyen et « + 3 autres » en grand ; resserrées
+  (34 px, sans « salle de contrôle » sous chaque nom, que le titre dit
+  déjà), les huit tiennent en grand. À 320 px, « Station d'épuration »
+  était coupée : « STEP » au plus étroit.
+- **Canaux radio** (moyen seul) : un canal par colonne, son numéro puis
+  ses postes, un par ligne ; le mien en tête et coloré. En liste, les
+  noms se coupaient en petit et trois lignes flottaient dans le grand :
+  ces deux formats sont retirés. Les colonnes prennent la largeur de leur
+  contenu (à 320 px, des colonnes égales collaient « Fermentation » à
+  « Chaudières »).
+
+Photographiés à 320, 390 et 1280 px avec des numéros fabriqués ;
+parcours 188 essais, 0 faute.
