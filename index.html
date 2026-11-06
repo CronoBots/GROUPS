@@ -2838,6 +2838,12 @@ html #grille .ws-carte.ws-panne>*{margin:0}
    pause » en Congé et en Absence, et « #caCorps:empty{display:none} »,
    plus bas, la cachait (audit du 23/10/2026). */
 #caCorps:empty::before{content:"Choisissez la personne et la date, puis «\00a0Vérifier\00a0»\00a0: vous saurez si le congé est possible, et ce qu’il faut changer sinon."}
+/* l'opérateur, sans « Qui » (caRestreindre, 06/11/2026) : la durée prend
+   la place du choix, et l'invite ne parle plus de « la personne » */
+#caCard.ca-seul #caCorps:empty::before{content:"Choisissez la date, puis «\00a0Vérifier\00a0»\00a0: vous saurez si votre congé est possible, et ce qu’il faut changer sinon."}
+#caCard.ca-seul #caForm:not(.conge):not(.rech) ~ #caCorps:empty::before{content:"Choisissez la date, puis «\00a0Vérifier\00a0»\00a0: vous verrez qui peut vous remplacer."}
+html body #caCard.ca-seul .caform:not(.rech) .caduree{grid-column:1 / -1; margin-top:20px}
+@media (min-width:761px) and (min-height:500.01px), (min-width:761px) and (orientation:portrait), (min-width:1100px){ html body #caCard.ca-seul .caform:not(.rech) .caduree{grid-column:1 / 3; margin-top:0} }
 #caForm:not(.conge):not(.rech) ~ #caCorps:empty::before{content:"Choisissez la personne et la date, puis «\00a0Vérifier\00a0»\00a0: vous verrez qui peut la remplacer."}
 #caForm.rech ~ #caCorps:empty::before{content:"Choisissez le poste, la pause et la date, puis «\00a0Vérifier\00a0»\00a0: vous verrez qui tient le poste et qui peut y venir."}
 .caduree{position:relative}
@@ -15276,7 +15282,7 @@ function setView(v,keepScroll){
   /* Les équipes se peignent d'abord ; la polyvalence (premier calcul ≈1,4 s
      au téléphone) suit à l'image d'après (audit du 23/10/2026). */
   if(v==="equipe"){ renderOrganisation(); requestAnimationFrame(function(){ setTimeout(renderPolyvalence,0); }); }
-  if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); });
+  if(v==="recherche") fetchHoraireDB().then(function(db){ if(db) caInit(db); try{ caRestreindre(); }catch(e){} });
   if(v==="direction"){ if(change) ouvrirDirection(); } else clearInterval(dirTic);
   /* « Plus » allumé ou non : sideMaj (ongletCache) */
   try{ sideMaj(); }catch(e){}
@@ -36760,6 +36766,16 @@ function caGroupes(t,large,sansUrgence){
   return g;
 }
 var caDB=null;
+/* L'OPÉRATEUR NE CHERCHE QUE POUR LUI (le client, le 06/11/2026, comme le
+   widget « Congé possible ? ») : « Qui » est fixé à son trigramme et
+   caché ; contremaître et adjoint (chPourTous) gardent le choix. */
+function caRestreindre(){
+  var sel=document.getElementById("caQui"), id=trigCourant(); if(!sel||!id) return;
+  var seul=!chPourTous(), l=sel.closest("label");
+  if(seul){ sel.value=id; lsSet("ui/caQui",id); }
+  if(l) l.hidden=seul;
+  var c=document.getElementById("caCard"); if(c) c.classList.toggle("ca-seul",seul);
+}
 function caInit(db){
   caDB=db;
   var sel=document.getElementById("caQui"); if(!sel || sel.options.length) return;
@@ -36777,6 +36793,7 @@ function caInit(db){
   }).join("");
   var moi=lsGet("ui/caQui")||lsGet("ui/prefillId");
   if(moi) sel.value=moi;
+  caRestreindre();
   document.getElementById("caPoste").innerHTML=POSTES_TRAVAIL.filter(function(P){ return P.k!=="adj"; })
     .map(function(P){ return '<option value="'+P.k+'">'+esc(P.t)+"</option>"; }).join("");
   var rc=String(lsGet("ui/caRech")||"").split("/");
@@ -36873,7 +36890,7 @@ function caCalculer(){
   var rech=caMode==="recherche", id=document.getElementById("caQui").value;
   var rg=document.getElementById("caPause").value, rk=document.getElementById("caPoste").value;
   if(rech){ lsSet("ui/caRech",rg+"/"+rk); }
-  else { if(!id) return; lsSet("ui/caQui",id); }
+  else { if(!chPourTous()&&trigCourant()){ id=trigCourant(); document.getElementById("caQui").value=id; } if(!id) return; lsSet("ui/caQui",id); }
   var du=caLire("caDu"), au=(caDureeEff()!=="periode")?du:(caLire("caAu")||du), an=Number(db.year);
   var elDu=document.getElementById("caDu"), etat=document.getElementById("caEtat");
   /* La date manquante se dit au lecteur d'écran, et le focus va au champ

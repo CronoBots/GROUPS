@@ -15099,3 +15099,12 @@ dans l'onglet. `--polyvalence` identique à l'octet.
 **Le plan en direct au téléphone** (question, rien de changé) : les
 trigrammes ne sont pas posés sur la photo (trop petite) ; on touche une
 épingle ou une tuile de poste, et la fiche dit qui est là.
+
+**Même règle dans l'onglet de recherche** (le client : « Ok », à la proposition de
+faire de même dans l'onglet). Pour un opérateur (ni cadre ni adjoint),
+`caRestreindre` fixe « Qui » à son trigramme et le cache ; `caCalculer`
+le reprend, même si un choix ancien (`ui/caQui`) nommait quelqu'un
+d'autre. La durée prend la place laissée (`#caCard.ca-seul`), et l'invite
+dit « choisissez la date » au lieu de « la personne ». Éprouvé : LCI
+(opérateur) ouvert avec un « ui/caQui » à VBN → LCI, sans « Qui » ; VBN
+garde le choix. `verifier-recherche.js` 0 faute, parcours 188, 0 faute.
