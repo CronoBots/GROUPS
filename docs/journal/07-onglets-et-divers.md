@@ -993,3 +993,16 @@ production. Une question en QCM ; réponse : « retirer Effectifs seul ».
   renvoie « rh » vers l'Accueil.
 - Horaire production lui reste. Les contremaîtres (`hierarchie`) gardent
   tout, Effectifs compris : vérifié au PC. Parcours : 188 essais, 0 faute.
+
+### Les comptes du client repassent en contremaître (06/11/2026)
+
+Le client : « je veux voir le mode normal en étant connecté comme un autre
+travailleur ; je te ferai la demande pour me connecter spécialement avec
+une autre adresse pour la RH ». Ses trois adresses (pro Biowanze, pro
+CropEnergies, Gmail) étaient toutes au rôle `rh` : le mode RH s'appliquait
+donc à chacune. En QCM : « Contremaître » (et non « Opérateur »). Les trois
+passent à `hierarchie` dans `biowanze.comptes` (SQL direct, sans
+migration : une donnée, pas la structure) ; au prochain lancement en
+ligne, `baseVerifierCompte` applique le rôle seul. Il ne reste alors
+AUCUN compte RH : valider un compte ou changer un rôle se fait par la
+base, jusqu'à ce que le client désigne l'adresse réservée à la RH.
