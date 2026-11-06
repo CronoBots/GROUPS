@@ -14328,3 +14328,16 @@ plus longue des couples à égalité.
 L'image passe à 1600 × 698 ; la hauteur du fond suit (698/1600).
 L'outil la refait à l'octet. Mesuré au téléphone (390, 320) et au PC :
 mêmes places pour le texte qu'en v1422. Résultat : 177 essais, 0 faute.
+
+### v1424 — Le fondu annulé, la bannière au logo réduit gardée (06/11/2026)
+
+Le client : « finalement, annule ce flou, garde cette bannière mais
+remets comme avant ». `index.html` et `CLAUDE.md` reviennent à
+l'identique de la v1420 (vérifié par `git diff` : 0 ligne). Le widget
+reprend sa bande de bannière au-dessus, le texte dessous, sans fondu ni
+liseré. Sont retirés : `banniere-widget.jpg`, `tools/banniere-widget.py`
+et leur entrée dans le cache (`sw.js`). Sont gardés : `banniere.jpg` et
+`banniere-biowanze-usine.png`, avec le logo réduit à 70 % (v1421). Ce
+que les v1421 à v1423 ont appris est dans les sections ci-dessus.
+Mesuré : marges de 17 px, statut aligné. Résultat : 177 essais,
+0 faute.
