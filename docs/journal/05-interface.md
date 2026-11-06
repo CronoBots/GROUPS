@@ -14505,3 +14505,28 @@ a désormais sa marge (10 px) et ses propres coins (14 px) : les filets
 restent droits. Le bas utile du tableau, pour `accPlanningAjuster`
 (le « + N »), est désormais celui du tableau et non celui de la carte.
 Résultat : 177 essais, 0 faute.
+
+### v1431 — La carte en direct : formation à l'encre jaune, épingles à la couleur du poste (06/11/2026)
+
+Le client : « on ne distingue pas bien la différence entre les gens en
+poste et les gens en formation. Le point GPS des chaudières est jaune au
+lieu de rouge. »
+
+- **L'épingle d'un poste en manque gardait l'ambre** (`.usp-pin-mq`
+  repeignait sa tête) : aux chaudières (2/3), elle était jaune. Elle
+  garde maintenant la couleur du poste ; le manque se dit par l'onde au
+  sol, ambre et plus rapide. Mesuré à 6 h 30, 10 h, 14 h et 20 h : tête
+  des chaudières au rouge du poste.
+- **Formation.** Un premier essai (toque devant le trigramme, fond et
+  filet ambre) a été refusé : « il ne faut pas de contour différent, mais
+  juste les lettres en jaune comme avant ». Retiré. La vraie faute était
+  ailleurs : « LCO aussi, pourquoi il ne l'est pas ? ». La carte ne lisait
+  la formation (`compteAuPoste`) que pour un poste compté ; en journée
+  (D), elle ne la lisait pas, alors que le Planning colore en jaune toute
+  personne en formation pas encore comptée au poste (`enFormation` et non
+  `compteAuPoste`). Un drapeau `form` reprend cette règle, journée
+  comprise ; il ne sert qu'à la couleur, le compte ne change pas. Le
+  06/11 à 10 h : SVE et LCO en jaune (avant : SVE seul). La fiche du
+  poste (au toucher) porte la même encre.
+- **Épingles** (le client : « un rien plus bas ») : meunerie et
+  chaudières 15 px plus bas, gluten 14 px à gauche et 15 px plus bas.

@@ -2565,7 +2565,10 @@ html #grille .ws-site{margin-bottom:14px}
 .usp-pins{position:absolute; inset:0; pointer-events:none}
 .usp-pin{--zc:var(--us-f-gris); --pw:calc(20px*var(--usp-k,1)); position:absolute; width:0; height:0}
 .usp-pin.usp-f-jaune{--zc:var(--us-f-jaune)} .usp-pin.usp-f-vert{--zc:var(--us-f-vert)} .usp-pin.usp-f-rouge{--zc:var(--us-f-rouge)} .usp-pin.usp-f-bleu{--zc:var(--us-f-bleu)}
-.usp-pin.usp-pin-mq{--zc:#F5C451}
+/* le manque ne repeint plus la tête : elle garde la couleur du poste
+   (le client, le 06/11/2026 : « le point des chaudières est jaune au lieu
+   de rouge ») ; il se dit par l'onde, ambre et plus rapide */
+.usp-pin.usp-pin-mq::after{border-color:#F5C451}
 .usp-pin.usp-pin-moi{--pw:calc(23px*var(--usp-k,1))}
 .usp-pin svg{position:absolute; left:calc(var(--pw)/-2); bottom:calc(var(--pw)/-22); width:var(--pw); height:calc(var(--pw)*32/22); overflow:visible; filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
 .usp-pin-c{fill:var(--zc); stroke:#fff; stroke-width:2; stroke-linejoin:round}
@@ -2606,7 +2609,10 @@ html #grille .ws-site{margin-bottom:14px}
   background:var(--surface3); color:var(--ink); border:1px solid var(--bord-pause); font:700 calc(11.5px*var(--usp-k,1))/1 "IBM Plex Mono",monospace; letter-spacing:0;
   box-shadow:inset 3px 0 0 var(--zp),0 2px 6px rgba(0,0,0,.5)}
 .usp .usp-et .us-tri-b.usp-hors{color:var(--ink2)}
+/* en formation : les seules lettres en jaune, le badge comme les autres
+   (le client, le 06/11/2026, après un essai de toque et de fond ambre) */
 .usp .usp-et .us-tri-b.usp-form{color:var(--at-jaune); border-color:var(--trait-fort)}
+.us-gens .us-tri-b.usp-form{color:var(--at-jaune)}
 .usp .usp-et .us-tri-b.usp-jour{border-style:dashed; border-color:var(--bord-jour)}
 .usp .usp-et .us-tri-b.usp-moi{outline:none; text-decoration:none; border-color:var(--in); background:var(--in-soft); color:var(--in)}
 .usp .usp-et .us-tri-b.usp-trou{color:var(--at-rouge); border-color:var(--at-rouge); background:var(--manque-fond); box-shadow:0 2px 6px rgba(0,0,0,.5)}
@@ -24099,7 +24105,11 @@ function usineEtat(){
      « 4 » en vert au contremaître, sans contremaître du matin. */
   function nouveau(x,pl,arrive,cmp){ var id=x.p.id, P=posteK(pl.pk), app=false, cpt=!arrive&&pl.pz!=="D"&&pl.pk!=="adj";
     if(cpt&&P){ try{ cpt=compteAuPoste(x,P,jourP); app=!cpt; }catch(e){} }
-    return {id:id, tri:idLisible(id), x:x, pl:pl, arrive:arrive, moi:!!moi&&id===moi, cmp:!!cmp, adj:pl.pk==="adj", jour:pl.pz==="D", app:app, compte:cpt,
+    /* l'encre jaune comme au Planning (le client, le 06/11/2026 : « LCO
+       aussi, pourquoi il ne l'est pas ? ») : en formation et pas encore
+       compté au poste, même en journée (D), où compteAuPoste n'était pas lu */
+    var form=app; if(!form&&pl.pz==="D"&&P){ try{ form=enFormation(x.p,jourP)&&!compteAuPoste(x,P,jourP); }catch(e){} }
+    return {id:id, tri:idLisible(id), x:x, pl:pl, arrive:arrive, moi:!!moi&&id===moi, cmp:!!cmp, adj:pl.pk==="adj", jour:pl.pz==="D", app:app, form:form, compte:cpt,
             fin:x.fin+24*(x.dj||0), deb:x.deb+24*(x.dj||0)}; }
   s.sur.forEach(function(x){
     var id=x.p.id, pl=sitePlace(plans,id,h), arrive=false;
@@ -24201,7 +24211,7 @@ function usineFiche(E,k){
     return [r, o.pl.relais?sitePlage(Math.max(o.pl.a,o.deb),Math.min(o.pl.b,o.fin)):"jusqu’à "+siteH(o.fin)];
   }
   Zk.gens.concat(Zk.arrivent).forEach(function(o){ var r=role(o);
-    li.push('<li class="'+(o.arrive?'us-l-arr':'')+(o.moi?' us-l-moi':'')+((o.jour||o.app||(o.adj&&!o.cmp))&&!o.arrive?' us-l-plus':'')+'"><span class="us-tri-b us-f-'+z.f+'">'+esc(o.tri)+'</span><span class="us-l-t"><b>'+esc(r[0])+(o.moi?' <i>vous</i>':'')+'</b><small>'+esc(r[1])+'</small></span></li>'); });
+    li.push('<li class="'+(o.arrive?'us-l-arr':'')+(o.moi?' us-l-moi':'')+((o.jour||o.app||(o.adj&&!o.cmp))&&!o.arrive?' us-l-plus':'')+'"><span class="us-tri-b us-f-'+z.f+(o.form?' usp-form':'')+'">'+esc(o.tri)+'</span><span class="us-l-t"><b>'+esc(r[0])+(o.moi?' <i>vous</i>':'')+'</b><small>'+esc(r[1])+'</small></span></li>'); });
   for(var i=n;i<att;i++) li.push('<li class="us-l-vide"><span class="us-tri-b">?</span><span class="us-l-t"><b>Place libre</b><small>'+att+' attendu'+(att>1?'s':'')+' à ce poste d’après le Planning</small></span></li>');
   if(!li.length) li.push('<li class="us-l-nul"><span class="us-l-t"><b>Personne en ce moment</b><small>'+(att?'':'Ce poste n’est pas tenu à cette pause')+'</small></span></li>');
   var tel=usineTel(k), TL=usineTels(), me=TL[k]||{}, ico='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>';
@@ -24311,8 +24321,10 @@ function uspRectangles(pieces){
    QCM, sur une image de quatre places numérotées : son pointeur ne
    figurait pas sur la capture) : le bâtiment bas à gauche de la tour du
    moulin (x 222 → 122, y 215 → 345 ; elle était sur la tête de la bande
-   transporteuse qui monte du quai) */
-var USP_POINTS={meun:[122,345], glut:[302,500], chau:[648,259], dist:[515,430], ferm:[650,612], terr:[720,470], cm:[1100,650], step:[1320,352]};
+   transporteuse qui monte du quai). Le 06/11/2026 (le client : « un rien plus
+   bas ») : meunerie et chaudières 15 px plus bas, gluten 14 px à gauche
+   et 15 px plus bas */
+var USP_POINTS={meun:[122,360], glut:[288,515], chau:[648,274], dist:[515,430], ferm:[650,612], terr:[720,470], cm:[1100,650], step:[1320,352]};
 /* l'épingle : sa pointe en (0, 0), sa tête de 20 de large, centrée en
    (0, -20) ; 31 de haut avec son trait */
 var USP_EPINGLE='<path class="usp-pin-c" d="M0 0C-2.5-3.5-10-12-10-20A10 10 0 0 1 10-20C10-12 2.5-3.5 0 0Z"/><circle class="usp-pin-o" cx="0" cy="-20" r="4"/>';
@@ -24331,7 +24343,7 @@ var USP_CLE="";
 function usinePhotoCartes(E){
   return USINE_ZONES.map(function(z){ var Zk=E.Z[z.k], g=Zk?Zk.gens:[], n=Zk?Zk.n:0, att=Zk?Zk.attendu:0, manque=att>n, max=6, f=z.f||"gris";
     g=g.filter(function(o){ return o.compte; }).concat(g.filter(function(o){ return !o.compte; }));
-    var tri=g.slice(0,max).map(function(o){ return '<span class="us-tri-b us-f-'+f+(o.moi?' usp-moi':'')+(o.compte?'':' usp-hors')+(o.app?' usp-form':'')+(o.jour?' usp-jour':'')+'">'+esc(o.tri)+'</span>'; }).join("")
+    var tri=g.slice(0,max).map(function(o){ return '<span class="us-tri-b us-f-'+f+(o.moi?' usp-moi':'')+(o.compte?'':' usp-hors')+(o.form?' usp-form':'')+(o.jour?' usp-jour':'')+'">'+esc(o.tri)+'</span>'; }).join("")
       +(g.length>max?'<span class="usp-plus">+'+(g.length-max)+'</span>':'');
     for(var i=n;i<att;i++) tri+='<span class="us-tri-b usp-trou">?</span>';
     if(!tri) return "";
