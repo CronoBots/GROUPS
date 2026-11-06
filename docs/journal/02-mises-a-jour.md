@@ -2352,3 +2352,15 @@ en espaces que l'application de messagerie du téléphone casse.
 - Erreur commise : la liste de polices du HTML (deux noms de police collés par une virgule) a
   été prise pour des noms par `verifier-depot.py` ; remplacée par
   `system-ui`.
+
+### Le déploiement de GitHub Pages bloqué chez GitHub (06/11/2026)
+
+Le déploiement du commit des widgets « Mes stats » et « Mes repos »
+(v1451) a échoué : « Timeout reached, aborting! », après dix minutes en
+`deployment_queued` puis `syncing_files`. Ni le code ni les vérifications
+(« Vérifications de base » vertes) n'étaient en cause, et le site servait
+toujours la v1450 (`sw.js` lu en ligne). La relance du job est refusée à
+la session (403, « Resource not accessible by integration ») : c'est le
+commit suivant sur `main`, celui de cette note, qui redéploie. À
+retenir : après un « pages build and deployment » rouge, lire `V` dans le
+`sw.js` publié avant de dire au client que la version est en ligne.
