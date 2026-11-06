@@ -15108,3 +15108,22 @@ d'autre. La durée prend la place laissée (`#caCard.ca-seul`), et l'invite
 dit « choisissez la date » au lieu de « la personne ». Éprouvé : LCI
 (opérateur) ouvert avec un « ui/caQui » à VBN → LCI, sans « Qui » ; VBN
 garde le choix. `verifier-recherche.js` 0 faute, parcours 188, 0 faute.
+
+### v1469 — qui est là, à côté du numéro (06/11/2026)
+
+Le client, capture de son téléphone : « j'aime beaucoup cette
+présentation ; est-ce possible de combiner avec Sur site afin d'avoir les
+personnes présentes près du téléphone ? Ne pas mettre la phrase en dessous
+de terrain arrière, ni gsm du poste ». Chaque poste porte ses trigrammes
+du moment, à la couleur du poste (encre jaune en formation, cerclé pour
+soi), comptés comme « L'usine en direct » (`usineEtat`, ceux qui y sont et
+non ceux qui arrivent), ou « personne ». « Par fermentation ou
+distillation » et « gsm du poste » sont retirés. Remis à jour chaque
+minute (`accueilTic`), réécrit seulement s'il a changé.
+
+Mesuré : sous le nom, les trigrammes faisaient passer les rangées à
+45 px, et le contremaître sortait du grand (« + 1 autre ») ; à côté du
+nom, passant dessous seulement s'ils ne tiennent pas, les huit tiennent
+à 390 px. À 320 px, cinq seulement : sous 360 px de large, le numéro
+s'efface (le bouton appelle toujours et le dit au lecteur d'écran) et la
+station s'écrit « STEP » ; les huit tiennent. Parcours 188, 0 faute.
