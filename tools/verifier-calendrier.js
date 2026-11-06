@@ -150,6 +150,7 @@ const MORCEAUX=[
   ["function cotePolyvalent(","\n}"],
   ["function roleDeFeuille(","\n}"],
   ["function posteLigne9(","\n}"],
+  ["function postesCedes(","\n}"],
   ["function atelierDuRemplace(","\n}"],
   ["function rempSeulementHoraire(","\n}"],
   ["function ecritDesDeuxCotes(","\n}"],

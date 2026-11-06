@@ -14637,3 +14637,13 @@ aussi un téléphone dans toute l'application), reprise à l'identique.
   Retirés : plus aucun fond de case, le « ? » rouge et le badge orange
   disent le manque et la proposition. Le trait de couleur de droite d'une
   rangée sur deux lignes est d'un seul tenant, comme celui de gauche.
+- **v1444** (07/11/2026). Le client : « pourquoi VGG est mis en terrain
+  arrière aujourd'hui ? » (06/11). Son commentaire, « Remplace SBZ suivi
+  F6 ; conserver prime de nuit. Remplacé par GKT sur terr arr », donnait
+  le poste de SBZ ; le même commentaire le confie à GKT. Le client, en
+  QCM : ligne de cadre, en journée. Règle dans `docs/conversion-horaire.md`
+  (« le poste cédé n'est pas le sien ») et `postesCedes()`. Erreur commise :
+  la question disait « contremaître », alors que l'application range VGG
+  parmi les adjoints (hors `CONTREMAITRES`) ; il va donc à la ligne
+  « Adjoint », celle des cadres non contremaîtres, conforme à la règle du
+  client sur les adjoints.

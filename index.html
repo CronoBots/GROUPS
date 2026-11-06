@@ -28015,6 +28015,21 @@ function posteHabituel(person,jour){
    Elle rend l'ATELIER de la personne remplacée ; posteDuRemplace(), plus
    haut, rend sa PAUSE. Deux questions, deux noms — la version d'essai les
    appelait pareil, et la seconde déclaration écrasait la première. */
+/* LE POSTE CÉDÉ (le client, le 07/11/2026, en QCM, sur VGG le 06/11 :
+   « Remplace SBZ suivi F6 ; conserver prime de nuit. Remplacé par GKT sur
+   terr arr ») : le même commentaire qui dit « remplace X » confie le poste
+   de X à un autre, « remplacé par Y sur/en/au <poste> ». Ce poste-là n'est
+   pas le sien ce jour-là — GKT le confirme de son côté, « remplace VGG qui
+   remplaçait SBZ ». VGG fait de 7 h à 15 h le suivi des travaux : il reste
+   à sa ligne de contremaître, en journée. Une seule journée de 2026 a
+   cette forme, aucune de 2027. */
+function postesCedes(com){
+  var out={}, m, rx=/remplac[\w\u00e0-\u00ff]*\s+par\s+[A-Za-z]{3}\s+(?:sur|en|au|aux|\u00e0|a)\s+(?:la\s+|le\s+|l')?([\w\u00e0-\u00ff.'-]+(?:\s+[\w\u00e0-\u00ff.'-]+)?)/gi;
+  while((m=rx.exec(String(com||"")))){
+    var k=posteDepuisNom(m[1])||posteDepuisNom(m[1].split(/\s+/)[0]);
+    if(k) out[k]=1; }
+  return out;
+}
 function atelierDuRemplace(raw,parId,qui,ce){
   /* La casse était ignorée du motif, pas du classeur : « Remplace GPS »
      avec une majuscule lui échappait. 568 mentions sur 2 031 — près de
@@ -28030,7 +28045,7 @@ function atelierDuRemplace(raw,parId,qui,ce){
          22/10/2026, « son commentaire indique bien remplace YRS pour
          aller en meunerie ») */
       rx=/\bremp[\w\u00e0-\u00ff]*\.?\s+(?:(?:en|au|aux|le|la|les|de|du|des|a|\u00e0)\s+[\w\u00e0-\u00ff'-]+\s+){0,2}([A-Za-z]{3})\b/gi,
-      m, cible, k, i, P;
+      m, cible, k, i, P, cede=postesCedes(com);
   while((m=rx.exec(com))){
     var trig=m[1].toUpperCase();
     if(trig==="PAR") continue;            /* passif : « remplacé PAR XXX » */
@@ -28046,7 +28061,7 @@ function atelierDuRemplace(raw,parId,qui,ce){
        polyvalence reste exigée. */
     var apres=/^\s*(?:en|au|aux|\u00e0|a)\s+(?:la\s+|le\s+|l')?([\w\u00e0-\u00ff.'-]+)/i.exec(com.slice(rx.lastIndex)),
         kn=apres?posteDepuisNom(apres[1]):null;
-    if(kn && kn!=="cm" && kn!=="adj"){
+    if(kn && kn!=="cm" && kn!=="adj" && !cede[kn]){
       if(kn==="terr"){ if(tientTerrainArriere(qui)) return kn; }
       else for(i=0;i<POSTES_TRAVAIL.length;i++){ P=POSTES_TRAVAIL[i]; if(P.k===kn && P.rx && aLAtelier(qui,P.rx)) return kn; }
     }
@@ -28055,7 +28070,7 @@ function atelierDuRemplace(raw,parId,qui,ce){
        CONTREMAÎTRE. Le client, le 13/10/2026, sur JBI le 23/10 (« Remplace
        AFA ») : la solution est écrite dans son commentaire. */
     if(k==="cm" && estCadre(qui) && !estContremaitre(qui)) return k;
-    if(!k || k==="cm" || k==="adj") continue;
+    if(!k || k==="cm" || k==="adj" || cede[k]) continue;
     if(k==="terr"){ if(tientTerrainArriere(qui)) return k; continue; }
     for(i=0;i<POSTES_TRAVAIL.length;i++){
       P=POSTES_TRAVAIL[i];

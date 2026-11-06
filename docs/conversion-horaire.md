@@ -1127,6 +1127,26 @@ la règle « le commentaire prime sur le cycle » était morte, et
 découpe `index.html` avec `indexOf`, donc il rejouait la PREMIÈRE des deux.
 Il refuse désormais de travailler sur un nom déclaré deux fois.
 
+### « Remplace X … Remplacé par Y sur <poste> » : le poste cédé n'est pas le sien (07/11/2026)
+
+VGG le 06/11/2026 : `["N", "7h-15h", "Remplace SBZ suivi F6; conserver
+prime de nuit. Remplacé par GKT sur terr arr"]`. « Remplace SBZ » donnait à
+VGG le poste de SBZ, le terrain arrière ; mais le même commentaire confie ce
+poste à GKT, qui l'écrit de son côté (« remplace VGG qui remplaçait SBZ »).
+VGG fait de 7 h à 15 h le suivi des travaux du F6.
+
+Le client, en QCM, le 07/11/2026 : VGG reste à sa ligne de cadre, en
+journée, sans compter pour un poste. `postesCedes()` relève, dans le
+commentaire, chaque « remplacé par Y sur/en/au <poste> » ;
+`atelierDuRemplace()` ne rend jamais un poste cédé. VGG n'étant pas dans
+`CONTREMAITRES`, sa ligne de cadre est celle des adjoints (règle du client :
+un adjoint qui ne remplace pas un contremaître est rangé en « Adjoint »).
+
+Une seule journée de 2026 a cette forme, aucune de 2027. Mesuré : sorties de
+`verifier-calendrier.js` (défaut, `--manques 0926`, `--polyvalence`,
+`--compteurs`), `comparer-fiches.py VBN` et agendas identiques à l'octet ;
+`coherence-planning.js`, `verifier-recherche.js`, `--manques-commentes` → 0.
+
 ### Remplacé à son tour : sa place habituelle lui revient d'office
 
 Le client, le 22/10/2026, sur le Planning du 21/10 en AM : « ce genre de
