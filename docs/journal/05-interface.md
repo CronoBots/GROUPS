@@ -14536,3 +14536,14 @@ lieu de rouge. »
 - **v1433** (même jour, le client : « un rien plus bas ») : meunerie
   14 px à droite et 15 px plus bas (136,375), gluten 14 px à gauche et
   15 px plus bas (274,530), distillation 15 px plus bas (515,445).
+- **v1434** (même jour). Le client : « il ne faut pas des pointillés
+  autour des opérateurs en formation » — LCO, en journée, portait le
+  filet pointillé de la journée : en formation, le filet reste plein.
+  « La présentation du point d'interrogation comme les autres
+  trigrammes, avec le contour » : la place libre prend le badge des
+  autres (fond, filet, liseré du poste), seul le « ? » reste rouge ; dans
+  la fiche du poste, son contour pointillé ambre devient plein et rouge.
+  Une règle ancienne (fond sombre, filet ambre), déjà masquée, est
+  retirée. Épingles : gluten (260,545), distillation (515,460), terrain
+  arrière (695,470), fermentation (611,642), chaudières (648,299) —
+  « un rien » lu 15 px, « plus » 25 px.
