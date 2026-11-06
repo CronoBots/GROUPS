@@ -9729,41 +9729,33 @@ html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-notif{height:30px}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-hmeta{align-self:end; gap:1px; padding:0 10px 9px!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-poste{font-size:15px!important; flex-wrap:nowrap!important}
 html body #v-horaire.acc-perso .pf-wprof[data-acc-f="S"] .pf-st2{display:none}
-/* LE STYLE DES WIDGETS, À L'ESSAI (06/11/2026) : deux variantes du fond
-   des widgets, choisies dans les Réglages (« Style des widgets »), posées
-   sur <html data-wst>. Le fond est peint par le widget lui-même, sauf
-   « Heure et poste », peint par son bloc (.pf-bloc), et le Planning du
-   PC, par sa carte. La bordure garde sa largeur (transparente) : rien ne
-   bouge d'un pixel.
-   - relief : un dégradé du haut (#232C41) vers le bas (#1A2336) autour de
-     #1E273B, dans la teinte et la saturation du fond (OKLCH 266°,
-     0,039) ; un reflet en haut, une ombre douce dessous ;
-   - verre : translucide et flou (façon iOS), un reflet sur le bord haut
-     et une ombre portée. Teinté dans le bleu du fond (le client, le même
-     jour : « la couleur est spéciale ; mets une couleur en accord avec
-     mon fond ») : un voile blanc désaturait le bleu nuit (saturation
-     0,033 contre 0,039 au fond), d'où un gris ; le voile est #6E85BA
-     (OKLCH 0,62 · 0,085 · 266°), à 15 % puis 7,5 %, ce qui redonne la
-     même clarté (0,296 et 0,262), à 266°, saturation 0,047 et 0,043 ; le
-     reflet est bleuté. */
-:root[data-wst] #v-horaire.acc-perso [data-w]:not([data-w^="app:"]):not([data-w="poste"]),
-:root[data-wst] #v-horaire.acc-perso [data-w="poste"] .pf-bloc,
-:root[data-wst] #accPlanning .card{border-color:transparent!important}
-:root[data-wst="relief"] #v-horaire.acc-perso [data-w]:not([data-w^="app:"]):not([data-w="poste"]),
-:root[data-wst="relief"] #v-horaire.acc-perso [data-w="poste"] .pf-bloc,
-:root[data-wst="relief"] #accPlanning .card{background:linear-gradient(180deg,#232C41 0%,#1A2336 100%)!important;
+/* LE RELIEF DES WIDGETS (le client, le 06/11/2026, après l'essai des
+   styles « actuel », « relief » et « verre » : « finalement je préfère ta
+   recommandation ») : un dégradé du haut (#232C41) vers le bas (#1A2336)
+   autour de #1E273B, dans la teinte et la saturation du fond (OKLCH 266°,
+   0,039) ; un reflet en haut, une ombre douce dessous, sans bordure
+   visible (elle garde sa largeur, transparente : rien ne bouge d'un
+   pixel). Le fond est peint par le widget lui-même, sauf « Heure et
+   poste », peint par son bloc (.pf-bloc), et le Planning du PC, par sa
+   carte : les viser, et non leur enveloppe, garde leurs coins arrondis. */
+#v-horaire.acc-perso [data-w]:not([data-w^="app:"]):not([data-w="poste"]),
+#v-horaire.acc-perso [data-w="poste"] .pf-bloc,
+#accPlanning .card{border-color:transparent!important; background:linear-gradient(180deg,#232C41 0%,#1A2336 100%)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 1px 2px rgba(0,0,0,.35),0 10px 28px rgba(0,0,0,.32)!important}
-:root[data-wst="verre"] #v-horaire.acc-perso [data-w]:not([data-w^="app:"]):not([data-w="poste"]),
-:root[data-wst="verre"] #v-horaire.acc-perso [data-w="poste"] .pf-bloc,
-:root[data-wst="verre"] #accPlanning .card{background:linear-gradient(180deg,rgba(110,133,186,.15),rgba(110,133,186,.075))!important;
-  -webkit-backdrop-filter:blur(28px) saturate(160%); backdrop-filter:blur(28px) saturate(160%);
-  box-shadow:inset 0 1px 0 rgba(200,214,255,.30),inset 1px 0 0 rgba(200,214,255,.08),inset 0 -1px 0 rgba(0,0,0,.30),0 12px 32px rgba(0,0,0,.38)!important}
-/* le sélecteur, des segments comme les autres réglages */
-.wst-ligne{flex-wrap:wrap; row-gap:10px}
-.wst{display:inline-grid; grid-template-columns:repeat(3,auto); gap:2px; padding:2px; border-radius:10px; background:var(--surface3)}
-.wst button{min-height:32px; padding:0 12px; border:0; border-radius:8px; background:none; color:var(--muted); font:inherit; font-size:13px; font-weight:600; cursor:pointer}
-.wst button[aria-checked="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.25)}
-.wst button:focus-visible{outline:2px solid var(--marque-vif); outline-offset:1px}
+/* dedans, le jeton du fond (--surface) devient un voile : les pièces
+   qu'il peignait en aplat (le bouton qui remplit « Polyvalences », la
+   légende de l'usine, les flèches du calendrier, l'en-tête et les flèches
+   du Planning du PC) faisaient des pavés plats sur le dégradé, et
+   « Polyvalences » paraissait sans relief (relevé au navigateur, widget
+   par widget). Elles gardent leur contour ; le relief passe au travers */
+#v-horaire.acc-perso [data-w]:not([data-w^="app:"]),#accPlanning .card{--surface:rgba(255,255,255,.035)}
+/* sauf l'en-tête du Planning du PC, collant (sticky) : opaque, pour qu'une
+   ligne ne passe pas dessous si le tableau défile, à la couleur du
+   dégradé à sa hauteur (15 % de la carte : #222B3F) */
+#accPlanning .eqhote .eqp2 thead th{background:#222B3F}
+/* sur ce fond, un peu plus clair que l'ancien, « Équipe 3 » en --faint
+   tombait à 4,46 : 1 (parcours) : --muted, au-dessus de 4,5 */
+#accPlanning .eqp2 thead th em{color:var(--muted)}
 /* le nom sous chaque widget (accNoms) : le style de l'étiquette d'une icône */
 .acc-noms{position:absolute; inset:0; z-index:2; pointer-events:none}
 /* les deux couches posées sur la grille (le calque du mode Modifier, les
@@ -10748,15 +10740,6 @@ html body #grille .ws-site>header h3 .cc-ico{--ic:var(--ip-equipes); box-sizing:
           <div class="notifreg">
             <div><b>Notifications de cet appareil</b><span id="notifEtat"></span></div>
             <button type="button" class="btn sm" id="notifBtn">Activer</button>
-          </div>
-          <!-- LE STYLE DES WIDGETS, À L'ESSAI (le client, le 06/11/2026 :
-               « pour les widgets, j'aimerais bien Liquid Glass ou ta
-               recommandation ; fais-moi un test et je te dirai quoi ») -->
-          <div class="notifreg wst-ligne">
-            <div><b>Style des widgets</b><span>à l'essai : l'Accueil change aussitôt</span></div>
-            <div class="wst" role="radiogroup" aria-label="Style des widgets">
-              <button type="button" role="radio" data-wst="">Actuel</button><button type="button" role="radio" data-wst="relief">Relief</button><button type="button" role="radio" data-wst="verre">Verre</button>
-            </div>
           </div>
           <div class="notifreg">
             <div><b>Application sur l'écran d'accueil</b><span id="installEtat"></span></div>
@@ -11788,15 +11771,6 @@ var pending={};
 
 function lsGet(k){try{var v=localStorage.getItem(k); return v?JSON.parse(v):null;}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-/* le style des widgets à l'essai (voir le CSS « LE STYLE DES WIDGETS ») :
-   gardé sur l'appareil, posé sur <html data-wst> ; les boutons des
-   Réglages le changent aussitôt */
-function wstPoser(v){ v=(v==="relief"||v==="verre")?v:"";
-  if(v) document.documentElement.setAttribute("data-wst",v); else document.documentElement.removeAttribute("data-wst");
-  [].forEach.call(document.querySelectorAll(".wst [data-wst]"),function(b){ b.setAttribute("aria-checked",b.getAttribute("data-wst")===v?"true":"false"); }); }
-wstPoser(lsGet("ui/widgets-style"));
-document.addEventListener("click",function(e){ var b=e.target&&e.target.closest&&e.target.closest(".wst [data-wst]"); if(!b) return;
-  var v=b.getAttribute("data-wst"); lsSet("ui/widgets-style",v); wstPoser(v); });
 
 /* Ce qui vient d'être écrit, avant même que le délai de 700 ms ne le pose
    dans le stockage : netMoisPrecedent() relit le mois d'avant au moment où le

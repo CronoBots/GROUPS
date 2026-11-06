@@ -14405,3 +14405,32 @@ calculée pour redonner la même clarté (0,296 et 0,262), en restant dans
 la teinte (266,0°), un peu plus saturé (0,047 et 0,043). Le reflet du
 bord passe du blanc pur à un blanc bleuté, et la saturation du flou de
 180 à 160 %. Résultat : 177 essais, 0 faute.
+
+### v1428 — Le relief pour tous, et à 100 % (06/11/2026)
+
+Le client, après l'essai : « finalement je préfère ta recommandation ;
+est-elle faite à 100 % ? ». Le relief devient le style de tous les
+widgets. Le réglage d'essai, le verre et leur code sont retirés.
+
+« À 100 % » a été mesuré, pas supposé. Un relevé au navigateur,
+contremaître et opérateur, téléphone et PC, vérifie que chaque widget
+visible porte le dégradé et une bordure transparente : 16 au téléphone,
+17 au PC, aucun oublié. Il cherche aussi, dedans, les pièces encore
+peintes de l'ancien aplat (`rgb(30,39,59)`). Il en a trouvé :
+- « Polyvalences » : le bouton qui remplit le widget couvrait le
+  dégradé, et le widget paraissait sans relief ;
+- la légende de « L'usine en direct » (8 boutons) ;
+- les flèches du calendrier ;
+- l'en-tête et les flèches du Planning du PC.
+
+Toutes étaient peintes par le jeton `--surface`. Dans les widgets, il
+devient un voile (blanc à 3,5 %) : les pièces gardent leur contour et
+le relief passe au travers. Le relevé vérifie ensuite qu'aucune pièce
+flottante (absolue, fixe ou collante) n'est devenue translucide. Il en
+reste une : l'en-tête collant du Planning du PC. Il reprend un fond
+opaque, à la couleur du dégradé à sa hauteur (15 % : `#222B3F`).
+
+Sur ce fond, « Équipe 3 » (en `--faint`) tombait à 4,46 : 1 de
+contraste : le parcours l'a refusé, et ce texte passe en `--muted`.
+Relevé final : aucun pavé, aucun widget sans relief. Résultat :
+177 essais, 0 faute.
