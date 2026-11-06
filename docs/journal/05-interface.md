@@ -15027,3 +15027,20 @@ existaient déjà, mais pliés dans le petit widget « Polyvalences »
      `.acc-cache`.
 
   Parcours : 188 essais, 0 faute.
+
+### v1465 : le héros sans binôme ni statut ; « Horaire mis à jour » dans les annonces (06/11/2026)
+
+Le client : « ne pas indiquer le binôme ni le statut dans le héros. Dans
+les annonces, on peut indiquer les modifications du classeur (uniquement
+qu'il est modifié, pas dans les détails) ».
+
+- **Mon profil** perd la ligne de l'équipe ou du binôme (« Binôme · … »)
+  et l'étiquette de statut. Restent le trigramme, la fonction et la ligne
+  jaune de formation, sans statut.
+- **Annonces** : « Horaire mis à jour · classeur du 06/11 à 15 h 59 »
+  remplace « Horaire modifié · N journées changées » et son bouton « Voir ».
+  On y lit le dernier classeur reçu dans la semaine, avec « Nouveau »
+  pendant 24 h. On n'y lit ni nombre de journées, ni lien vers le détail,
+  que gardent la cloche et l'historique. L'entrée est la même pour tous,
+  RH comprise.
+- Photographiés à 390 px, à chaque format. Parcours : 188 essais, 0 faute.

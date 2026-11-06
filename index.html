@@ -18949,8 +18949,16 @@ function awDates(){
 function awAnnonces(){
   var c=document.getElementById("annCard"), corps=document.getElementById("annCorps"); if(!c||!corps) return;
   if(!compteBase()){ c.hidden=true; return; }
-  var hm=NOTIF_NB?'<li class="aw-r aw-hm"><button type="button" class="aw-hm-b" data-notif-ouvrir aria-haspopup="dialog"><span class="aw-t"><b>Horaire modifié</b><small>'
-      +NOTIF_NB+' journée'+(NOTIF_NB>1?'s':'')+' changée'+(NOTIF_NB>1?'s':'')+' dans le dernier classeur</small></span><em class="aw-q aw-q-on">Voir</em></button></li>':'';
+  /* Le classeur modifié, sans le détail (le client, le 06/11/2026 : « dans
+     les annonces, on peut indiquer les modifications du classeur, uniquement
+     qu'il est modifié, pas les détails ») : le dernier classeur reçu dans la
+     semaine, sa date, « Nouveau » pendant 24 h ; ni nombre de journées ni
+     lien vers les changements (la cloche et l'historique les gardent) */
+  var hm="", mj="", anM=0;
+  [HORAIRE_DB].concat(Object.keys(typeof HORAIRES==="object"&&HORAIRES||{}).map(function(k){ return HORAIRES[k]; })).forEach(function(d){ if(d&&d.maj&&d.maj>mj){ mj=d.maj; anM=Number(d.year)||0; } });
+  var mjD=mj?new Date(mj):null, ageH=mjD&&!isNaN(mjD)?(Date.now()-mjD.getTime())/36e5:1e9;
+  if(ageH<24*7) hm='<li class="aw-r aw-hm"><div class="aw-hm-b"><span class="aw-t"><b>Horaire mis à jour</b><small>classeur'
+      +(anM&&anM!==new Date().getFullYear()?' '+anM:'')+' du '+esc(majCourte(mj).replace(/\/\d{4}/,""))+'</small></span>'+(ageH<24?'<em class="aw-q aw-q-on">Nouveau</em>':'')+'</div></li>';
   var l=aideAnnonces().slice().sort(function(a,b){ return (b.epingle?1:0)-(a.epingle?1:0)||(new Date(b.cree_le)-new Date(a.cree_le)); }),
       nl={}; aideNonLues().forEach(function(x){ nl[x.id]=1; });
   document.getElementById("annSub").textContent=Object.keys(nl).length?Object.keys(nl).length+" non lue"+(Object.keys(nl).length>1?"s":""):"";
@@ -19376,8 +19384,9 @@ function _pfHead(db,p){
        la ligne de l'équipe, et celui de la ligne jaune de la formation
        quand elle se montre (pas en bandeau ni en petit) */
     +'<div class="pf-hmeta"><span class="pf-poste"><span class="pf-poste-n">'+bio+'</span></span>'
-    +((rg||st)?'<span class="pf-ou pf-rg"><span class="pf-l">'+rg+'</span>'+stH+'</span>':'')
-    +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span>'+stH+'</span>':'')
+    /* NI LE BINÔME NI LE STATUT (le client, le 06/11/2026 : « ne pas
+       indiquer le binôme ni le statut dans le héros ») : reste la formation */
+    +(fo?'<span class="pf-st2"><span class="pf-fo">'+ou+'</span></span>':'')
     +'</div></div></div>'+meteoWidgetHTML()
     +'<div class="pf-corps"><div class="pf-gauche"><div class="pf-pw" data-w="poste">'+h+'</div><div class="pf-rac" id="pfRac"'+(RAC_HTML?'':' hidden')+'>'+RAC_HTML+'</div></div><div class="ry-an pf-an" id="ryAn" data-w="cycle"></div>'+(pvH?'<div class="pf-pvw" data-w="polyvalences">'+pvH+'</div>':'')+'</div></div>';
 }
