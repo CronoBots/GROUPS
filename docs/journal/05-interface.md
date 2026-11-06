@@ -14647,3 +14647,26 @@ aussi un téléphone dans toute l'application), reprise à l'identique.
   parmi les adjoints (hors `CONTREMAITRES`) ; il va donc à la ligne
   « Adjoint », celle des cadres non contremaîtres, conforme à la règle du
   client sur les adjoints.
+
+### v1445 — Captures de l'Accueil au téléphone : Calendrier, Ma paie (07/11/2026)
+
+Le client envoie cinq captures de l'Accueil, sans mot. Relevé :
+
+- **Calendrier illisible** : douze mois empilés, chiffres et pastilles
+  superposés. Cause : le widget est fait pour le mois (semaines étirées à
+  sa hauteur, `.mc-sem{flex:1 1 0; min-height:0}`), et un choix « Année »
+  gardé d'avant le widget (`ui/calVue`) l'y mettait ; le sélecteur
+  Semaine/Mois/Année est masqué dans le widget, on ne pouvait plus en
+  sortir. Au passage en Accueil personnalisé, la vue revient au mois.
+  Essai permanent dans `parcours.js` (choix « Année » enregistré, page
+  rechargée : le mois) ; éprouvé sur la version d'avant, il crie.
+- La barre du mois du Calendrier prend le style du Planning refait :
+  flèches rondes voilées, titre net avec un chevron.
+- **Ma paie en petit** : étiquette sur deux lignes, écart sur trois, date
+  de l'avance coupée par le bas. Formes courtes en petit format
+  (« Net · nov. », « +312,48 € vs oct. », « Avance le 24 nov. · dans
+  18 j ») ; le montant suit la largeur du widget (`min(34px,17cqi)`) :
+  à 320 px, le « € » sortait du cadre. Mesuré avec le contenu de la
+  capture injecté : rien ne déborde à 320, 390 et 430 px.
+- **L'usine en direct** n'était pas coupée : la barre d'onglets du bas
+  recouvrait la fin de l'écran de la capture.

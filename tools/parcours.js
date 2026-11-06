@@ -457,6 +457,18 @@ function constater(){
       }
       if(defauts.length) lignes.push("Planning : "+defauts.slice(0,6).join(" ; ")+(defauts.length>6?" (+"+(defauts.length-6)+")":""));
     }
+    /* LE CALENDRIER DE L'ACCUEIL EST UN MOIS (07/11/2026) : un choix
+       « Année » gardé d'avant le widget y empilait douze mois illisibles,
+       sans sélecteur pour en sortir. Rechargée avec ce choix, la page
+       doit montrer le mois. */
+    if(role==="hierarchie"&&ecran.mobile){ n++;
+      await page.evaluate(()=>{ try{ localStorage.setItem("ui/calVue",JSON.stringify("annee")); }catch(e){} });
+      await page.reload(); await page.waitForTimeout(2500);
+      await aller(page,"tab-horaire");
+      const r=await page.evaluate(()=>{ const c=document.getElementById("calCard"); if(!c||!c.getClientRects().length) return "absent";
+        return c.querySelector(".mc-an")?"année":(c.querySelector(".mc-grille .mc-sem")?"mois":"vide"); });
+      if(r!=="mois"&&r!=="absent") lignes.push("Calendrier de l'Accueil : vue « "+r+" » au lieu du mois, après un choix « Année » enregistré");
+    }
     /* Le widget profil (le client, le 05/11/2026) : le trigramme dans la
        police du logo, chargée depuis la page ; le statut, quand il se
        montre, au bout de la dernière ligne, aligné sur elle, à la même
