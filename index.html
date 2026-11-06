@@ -4187,6 +4187,11 @@ html.nt-ouverte,html.nt-ouverte body{overflow:hidden}
 .hi-ws{display:flex; align-items:center; justify-content:space-between; gap:12px} .hi-ws>div{display:flex; flex-direction:column; gap:3px; min-width:0}
 .hi-ws b{font-size:14px; color:var(--ink)} .hi-ws span{font-size:12.5px; color:var(--muted)}
 .hi-ws-t{margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--trait)}
+/* les deux cadres de l'historique ne se touchent plus (le client, le 06/11/2026 : « ils sont collés ») */
+html body #grille #wsHisto>.ws-carte+.ws-carte{margin-top:14px}
+.hi-ws-n{display:block; margin-top:6px; font-style:normal; font-size:12.5px; font-weight:600; color:var(--marque-vif); font-variant-numeric:tabular-nums}
+.hi-ws-n:empty{display:none}
+.hi-ws .btn{flex:0 0 auto}
 @media (hover:hover){ .nt-j:hover{background:var(--surface2)} .nt-vu:hover{color:var(--ink); border-color:var(--trait-fort)} }
 .notifreg{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0 2px; border-top:1px solid var(--trait)}
 /* une ligne de réglage qui est À ELLE SEULE le corps d'un volet (« Vue
@@ -10544,7 +10549,6 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
          le dit ; l'aide, à côté, en tuile seule. La roue reste la même que
          celle du héros (audit du 23/10/2026) ; la feuille Plus la reprend. -->
     <button type="button" class="side-lien side-moi" id="sideMoi" data-go="reglages" title="Mes réglages"><span class="sm-av" id="sideMoiTri" aria-hidden="true"></span><span class="sm-txt"><b id="sideMoiL1">Réglages</b><span id="sideMoiL2"></span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
-    <button type="button" class="side-lien" data-histo="auto" title="Historique des changements de l'horaire"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Historique</span></button>
     <button type="button" class="side-lien side-aide" data-go="aide" title="Infos et aide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Infos et aide</span><span class="side-nb" id="sideAideNb" hidden></span></button>
   </div>
 </header>
@@ -19563,7 +19567,7 @@ function histoRendre(){
   Object.keys(HISTO.d).forEach(function(an){ if(HISTO.d[an].depuis) depuis.push(HISTO.d[an].depuis); }); depuis.sort();
   var ju=jourUsine(), t0=Date.UTC(ju.getFullYear(),ju.getMonth(),ju.getDate()), vis=B.slice(0,HISTO.n);
   var titre=HISTO.tous?"Historique des changements":"Historique de mon horaire";
-  var sous=(HORAIRE_ANNEES.some(function(an){ return HISTO.d[an]; })?tot+" journée"+(tot>1?"s":"")+" · "+B.length+" classeur"+(B.length>1?"s":""):"Chargement…")
+  var sous=(HORAIRE_ANNEES.some(function(an){ return HISTO.d[an]; })?tot.toLocaleString("fr-BE")+" journée"+(tot>1?"s":"")+" · "+B.length+" classeur"+(B.length>1?"s":""):"Chargement…")
     +(depuis[0]?" · depuis le "+majCourte(depuis[0]).replace(/ à .*$/,""):"");
   var h='<div class="nt-poignee" aria-hidden="true"></div><div class="nt-tete"><span class="nt-ico" aria-hidden="true">'
     +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>'
@@ -26374,13 +26378,17 @@ function wsHistoListe(l){
 }
 function renderHisto(){
   var hote=document.getElementById("wsHisto");
-  hote.innerHTML=wsTete("Historique","Chaque modification, son auteur et son heure. Rien ne s'efface : une annulation est elle aussi tracée.")
+  hote.innerHTML=wsTete("Historique","Ce qui a changé dans l’horaire : les classeurs reçus, puis les corrections faites dans l’application.")
     /* les changements des classeurs reçus, tous les trigrammes (06/11/2026) */
-    +'<div class="ws-carte"><div class="hi-ws"><div><b>Changements des classeurs</b><span>Chaque classeur reçu, ses journées changées, pour tous les trigrammes, avec la date.</span></div><button type="button" class="btn sm" data-histo="tous">Ouvrir</button></div></div>'
+    +'<div class="ws-carte"><div class="hi-ws"><div><b>Changements des classeurs</b><span>Chaque classeur reçu et ses journées changées, pour tous les trigrammes, avec la date.</span><em class="hi-ws-n" id="hiWsN"></em></div><button type="button" class="btn sm" data-histo="tous">Voir tout</button></div></div>'
     /* son titre (le client, le 06/11/2026, capture à l'appui : « c'est quoi
        ça ? ») : sans lui, ce cadre vide se lisait comme l'historique des
        classeurs, juste au-dessus */
     +'<div class="ws-carte"><div class="hi-ws hi-ws-t"><div><b>Modifications faites dans l’application</b><span>Les journées corrigées dans le Planning par un contremaître ou la RH : avant, après, auteur et heure.</span></div></div><div id="wsHistoL"><p class="ws-vide">Chargement…</p></div></div>';
+  /* le résumé des classeurs : combien, et le dernier reçu */
+  histoCharger().then(function(){ var el=document.getElementById("hiWsN"); if(!el) return; var j=0, c=0, der="";
+    Object.keys(HISTO.d).forEach(function(an){ (HISTO.d[an].classeurs||[]).forEach(function(x){ c++; j+=(x.ch||[]).length; if(x.maj>der) der=x.maj; }); });
+    el.textContent=c?j.toLocaleString("fr-BE")+" journée"+(j>1?"s":"")+" changée"+(j>1?"s":"")+" · "+c+" classeur"+(c>1?"s":"")+" · dernier le "+majCourte(der):""; });
   wsChargerHisto(200).then(function(l){ var el=document.getElementById("wsHistoL"); if(el) el.innerHTML=wsHistoListe(l); });
 }
 (function(){

@@ -14974,3 +14974,23 @@ encore… ». C'est l'historique d'avant : les journées corrigées à la main
 dans le Planning. Sans titre, il se lisait comme le premier. Il porte
 désormais son titre, « Modifications faites dans l'application », et une
 ligne qui dit ce qu'il garde. Parcours : 188 essais, 0 faute.
+
+### v1461 : la section « Historique » de l'espace RH, reprise (06/11/2026)
+
+Le client : « optimise-moi ces cadres ; en plus ils sont collés ? ».
+Photographiée à 390 et 1280 px (compte RH), la section avait quatre
+défauts, tous corrigés :
+1. **Les deux cadres se touchaient** (0 px entre eux) : 14 px désormais.
+2. **Le sous-titre de la section** (« Chaque modification, son auteur et
+   son heure ») ne disait que le second cadre. Il dit maintenant les deux :
+   « les classeurs reçus, puis les corrections faites dans l'application ».
+3. **Le premier cadre ne chiffrait rien** : « 3 072 journées changées · 42
+   classeurs · dernier le 06/11 à 15 h 59 », et « Voir tout ». Les nombres
+   sont groupés à la française, dans la feuille aussi.
+4. **L'entrée « Historique » du menu du PC (v1459)** était tombée dans le
+   pied du menu, à côté de l'avatar. Erreur commise : posée à côté de
+   « Infos et aide » sans regarder où ce bouton vit (le pied, pas la
+   liste des onglets). Elle est retirée. Au PC, l'icône des accès rapides
+   de l'Accueil reste, et la RH a « Gestion → Historique ».
+
+Parcours : 188 essais, 0 faute.
