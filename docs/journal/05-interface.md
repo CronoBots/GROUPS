@@ -14625,3 +14625,8 @@ aussi un téléphone dans toute l'application), reprise à l'identique.
   voile de la colonne en cours, qui dessinait un rectangle de plus, est
   retiré : l'en-tête dit la pause en cours (cyan, « en cours » ou un
   point). En-tête collant au fond du haut du widget (#212A3E).
+- **v1442** (07/11/2026). Le client : « 100 % pro et en accord avec le
+  thème des widgets de l'Accueil ? ». Mesuré au navigateur, 390 et
+  1280 px : le cadre du Planning a le fond, les coins (22 px) et l'ombre
+  exacts des widgets. Seul écart trouvé : les coins des badges, 7 px au
+  PC contre 6 au téléphone et sur la carte en direct ; alignés à 6 px.
