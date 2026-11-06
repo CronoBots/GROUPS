@@ -14392,3 +14392,16 @@ clair et un reflet.
 choix survit au rechargement, sans erreur. Le parcours (style par
 défaut) donne 177 essais, 0 faute. Le réglage est à retirer une fois le
 choix fait.
+
+### v1427 — Le verre teinté dans le bleu du fond (06/11/2026)
+
+Le client, sur l'essai : « j'aime bien le Liquid Glass, mais la couleur
+est spéciale ; essaie une couleur en accord avec mon fond ». Mesuré en
+OKLCH : le voile blanc du verre (8,5 % puis 3,5 %) désaturait le bleu
+nuit. La saturation tombait à 0,033 au haut du widget, contre 0,039 au
+fond : un gris. Le voile devient `#6E85BA` (clarté 0,62, saturation
+0,085, teinte 266°, celle du fond), à 15 % puis 7,5 %. L'opacité est
+calculée pour redonner la même clarté (0,296 et 0,262), en restant dans
+la teinte (266,0°), un peu plus saturé (0,047 et 0,043). Le reflet du
+bord passe du blanc pur à un blanc bleuté, et la saturation du flou de
+180 à 160 %. Résultat : 177 essais, 0 faute.
