@@ -14604,3 +14604,8 @@ nouvelle : 183 essais, 0 faute. `coherence-planning.js` → 0.
 Erreur commise en chemin : la première règle « téléphone » n'avait que
 `(max-width:760px)` ; `parcours.js` l'a refusée (le téléphone couché est
 aussi un téléphone dans toute l'application), reprise à l'identique.
+- **v1439** (même jour), carte en direct. Le client : « le contour des
+  bulles de trigramme doit être de la même couleur que le poste en
+  question au lieu du gris ». Le filet de chaque badge prend la couleur
+  de son poste (`--zp`, celle du liseré) : formation, journée (en
+  pointillés) et place libre compris ; seul « vous » reste cerné de cyan.
