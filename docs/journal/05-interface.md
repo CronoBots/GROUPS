@@ -14306,3 +14306,25 @@ Mesuré, entre le bas de la bannière et le texte : 16 px au téléphone de
 390 px (5 px pour un opérateur en formation, trois lignes), 10 px à
 320 px, 16 à 27 px au PC. L'image est refaite à l'octet par l'outil.
 Résultat : 177 essais, 0 faute.
+
+### v1423 — Un dégradé plus doux, au contraste près (06/11/2026)
+
+Le client : « qu'en penses-tu ? optimise cette transition (plus
+douce ?) ». Le dégradé de la v1422 fonçait très vite sous la bannière :
+219 px d'image et la puissance 5, soit une pente de départ de 0,023. Il
+le faisait pour que le texte blanc se lise.
+
+Une recherche, plutôt qu'un réglage à l'œil : chaque longueur de
+200 à 500 px et chaque puissance de 2 à 7. Le contraste est calculé
+(WCAG) pour le blanc du texte sur le mélange blanc → --surface, au
+milieu du titre (15 px sous la bannière à 390 px, 19 px à 320) et en
+haut de ses lettres (9 px). Il doit valoir au moins 4,5 : 1 au milieu
+et 3 : 1 en haut. Parmi les couples qui tiennent, on garde celui dont la
+pente de départ est la plus faible. Les meilleurs sont presque à égalité
+(0,0146 à 0,0152). Le choix : 300 px et la puissance 4,5 (0,015). C'est
+une pente de départ plus faible d'un tiers environ, avec la traîne la
+plus longue des couples à égalité.
+
+L'image passe à 1600 × 698 ; la hauteur du fond suit (698/1600).
+L'outil la refait à l'octet. Mesuré au téléphone (390, 320) et au PC :
+mêmes places pour le texte qu'en v1422. Résultat : 177 essais, 0 faute.
