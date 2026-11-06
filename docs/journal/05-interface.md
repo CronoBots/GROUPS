@@ -14911,3 +14911,16 @@ d'abord, puis « Classeurs plus anciens (N) ».
   note changeait se lisait « AM Abs → AM Abs ». (2) Le sous-titre se
   coupait. (3) Le texte d'aide du filtre était en majuscules. Parcours :
   188 essais, 0 faute.
+
+### v1457 : le chat aligné sur le premier widget, au pixel (06/11/2026)
+
+Le client : « le haut du chat n'est pas aligné avec le haut du premier
+onglet ; le thème est-il pareil ? ». Le thème l'est, mesuré : même fond
+dégradé, même arrondi (22 px), même bordure et même ombre que les autres
+widgets. La position ne l'était pas : posé fixe aux bords de la grille
+avec `margin:0`, le chat perdait la marge qui aligne chaque widget sur la
+grille des icônes (`accAligner`), soit 87 px au lieu de 89 en haut et un
+pixel de trop de chaque côté. La marge lui est rendue, et les bords
+gardent leurs décimales. Mesuré : 24 / 89 / 342 px de large à 390, comme
+« Mon profil » et les widgets larges ; 20 / 89 / 280 px à 320. Parcours :
+188 essais, 0 faute.
