@@ -15183,3 +15183,18 @@ heures, présents, et le point vivant de « Sur site » au bout ; le jour et
 taisent (le nombre reste, et son infobulle le dit) ; première photo : le
 point, posé en absolu dans le coin, était rogné par l'arrondi du cadre —
 il ferme la ligne. Parcours 188, 0 faute.
+
+### v1474 — « Postes en direct » : le compte à la place du bouton (06/11/2026)
+
+Le client : « au final supprime les badges téléphone, refais une vraie
+ligne de titre pour l'équipe en live, mets les mêmes points de couleur que
+le cadre au-dessus et indique l'effectif 1/1 comme au-dessus à la place du
+badge téléphone ». Le bouton vert disparaît ; chaque rangée porte le carré
+de couleur de « L'usine en direct » (`usp-carre`), ses trigrammes (trait
+aux jetons `--us-f-*`, les mêmes que le plan), puis tenus/attendus en
+ambre s'il manque quelqu'un, le compte du plan (`usinePhotoListe`). La
+tête devient un titre : le témoin vivant, « Équipe 3 » en gras, la pause
+et ses heures, les présents. Le widget s'appelle « Postes en direct » (il
+ne montre plus de numéro) et n'attend plus de compte : les huit postes y
+sont toujours. La rangée d'une salle qui a une ligne reste un lien
+d'appel : la toucher appelle. Parcours 188, 0 faute.
