@@ -810,3 +810,16 @@ Constats :
 
 Le dossier rejoint `TIERS` dans `tools/verifier-depot.py` : sa licence
 porte le prénom de son auteur, comme il se doit.
+
+## Deux formes admises après la porte 8 du robot (06/11/2026)
+
+Le classeur 2026 reçu à 15 h 15 n'a pas été installé : la porte 8
+(garde-fou du dépôt sur l'horaire neuf) a trouvé « Remlace + trigramme »
+(faute de frappe de « Remplace ») et « Remplacé + trigramme » (le
+participe sans « par »). Le robot l'a signalé par e-mail, et GitHub
+l'a signalé comme « Run failed », ce qui est voulu : une porte fermée
+rend 1. Les deux formes sont de la famille de « Rempace », « Rempalce » et
+« Remplace » + trigramme, déjà admises. Le mot de tête est du français, et
+les étapes 1, 2 et 4 du même rapport, qui cherchent les noms de la source
+dans la sortie, n'en trouvent aucun. Admises dans `formes-admises.txt`
+avec leur raison ; le robot réinstalle au passage suivant.
