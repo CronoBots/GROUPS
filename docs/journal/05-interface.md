@@ -14616,3 +14616,12 @@ aussi un téléphone dans toute l'application), reprise à l'identique.
   du poste, le liseré de 3 px à gauche (une ombre intérieure, détachée
   du filet) faisait doublon. Un seul contour, régulier, et le trigramme
   recentré (marges de 8 px des deux côtés, 5 px au téléphone).
+- **v1441** (07/11/2026). Le client, capture du téléphone à l'appui :
+  « il y a encore de bien mieux faire le tableau du planning ; ça ne doit
+  pas ressembler à un cadre dans un cadre, ça doit ressembler à un widget
+  professionnel ». Le tableau perd son bord, son fond voilé et ses coins
+  (`.eqgrille`, posée depuis la v1430 avec un rayon de 14 px pour le coin
+  du widget de l'Accueil) : ses rangées sont posées dans le widget. Le
+  voile de la colonne en cours, qui dessinait un rectangle de plus, est
+  retiré : l'en-tête dit la pause en cours (cyan, « en cours » ou un
+  point). En-tête collant au fond du haut du widget (#212A3E).
