@@ -14715,3 +14715,47 @@ ci-dessus ; `parcours.js` 188 essais, 0 faute.
 Erreur commise en chemin : le serveur de test, lancé en arrière-plan, a
 atteint sa limite de durée pendant le relevé ; seize widgets ont été
 « mesurés » contre une page absente. Repéré au nombre de lignes, relancé.
+
+### v1448 — Les widgets simulés avec de vraies données, chaque taille regardée (07/11/2026)
+
+Le client, capture à l'appui (Annonces en petit, « Voir » à gauche, le
+texte coupé) : « simule tous les widgets de toute taille d'écran […] la
+plupart du temps rien n'est optimisé pour une petite, grande ou moyenne
+taille ». Le relevé de la v1446 ne cherchait que les débordements, et
+ses données ne contenaient ni avis « Horaire modifié », ni annonces.
+
+**Méthode.** Simulation riche (avis d'horaire en attente, trois
+annonces, météo, l'heure fixée) de chaque widget à chaque format, à 390,
+320, 852, 1280 et 1920 px ; une planche par widget ; quatre relecteurs en
+parallèle, consigne « widget iOS professionnel » ; puis chaque constat
+remesuré avant d'être cru. **Écartés à la mesure** : les « formats
+identiques » à 852 (mon script n'y appliquait pas le format ; le relevé
+de l'outil du dépôt montrait des tailles différentes), la Météo vide (ma
+fausse météo, incomplète), les « R = S », « L = XL » (un widget retombe
+sur ses seuls formats offerts, `ACC_W`), les textes « trop petits au
+PC » (planches réduites de moitié), « Tout est à jour » malgré trois
+annonces (trois chargements, toujours juste : la charge de quatre
+navigateurs en parallèle), le vide sous la semaine du Calendrier moyen.
+
+**Corrigés** :
+- Annonces en petit : la ligne « Horaire modifié » est un bouton resté
+  en rangée quand les annonces passaient en colonne ; même colonne,
+  phrase en deux lignes (une sous 150 px).
+- Annonces en grand : « Nouveau » sur la ligne du titre, le texte de
+  l'annonce sur toute la largeur (3 annonces entières à 390 px au lieu
+  de 2).
+- Heure et poste en grand, 320 px : « Ensuite » s'effaçait (95 px
+  demandés pour 87) ; resserré, il tient (une ligne et « + N autres »).
+- À retenir : « 18 j » au lieu de « dans 18 j » sous 360 px, titre sur
+  une ligne en grand sous 300 px, sous-titre en deux lignes au plus
+  (4 dates en grand à 320 px au lieu de 3).
+- Effectif du jour en grand, au PC : chiffres des tuiles à 40 px.
+- Mon profil en petit, 320 px : « de production » s'efface, le statut
+  revient à côté du binôme (il était masqué depuis la v1416, choix à moi).
+- Mon cycle en très grand : grille bornée à 760 px, centrée ; les
+  marques du jour (cycle et calendrier, très grand) à côté du chiffre.
+
+Restent, dits au client : les grands formats qui montrent surtout la
+même chose en plus grand (le planning, l'usine et le rythme n'offrent qu'un
+format par écran ; L et XL du cycle) — un vrai contenu par taille est un
+chantier par widget.
