@@ -26,7 +26,7 @@ l'interface, les commentaires de code et les messages de commit.
 le 26/09/2026 un commit est passé avec `verifier-depot.py` à 1, parce que
 le crochet n'était pas installé — lire le code de retour ne suffit pas si
 la commande est enchaînée avec `;` au lieu de `&&`. En session cloud,
-`.claude/hooks/session-start.sh` le fait seul (et installe `playwright-cli`, puis PowerShell en arrière-plan).
+`.claude/hooks/session-start.sh` le fait seul (le reste : Structure).
 
 **Aucune demande d'autorisation.** Le client, le 18/10/2026 : « il faut
 que tu acceptes tout tout seul » (`.claude/settings.json` et le mode
@@ -79,9 +79,8 @@ python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx          
 python3 tools/mettre-a-jour-recyclage.py /chemin/Suivi_recyclages.xlsx --installer
 ```
 
-Durées (09/10/2026) : horaire **22 s à blanc, 0 s `--installer`**,
-recyclages **moins d'une seconde** ; nettement plus long, c'est une
-régression (journal 02, « Huit portes, et vite »).
+Durées : horaire **22 s à blanc, 0 s `--installer`**, recyclages
+**< 1 s** ; plus long, c'est une régression (journal 02).
 
 Les deux sources restent HORS du dépôt public. **Les fichiers
 confidentiels** (classeurs sources, exports bruts, règlement de travail,
@@ -254,7 +253,7 @@ deviner à sa place sur ces points : ils touchent à des montants.
 |---|---|
 | `index.html` | toute l'application (HTML, CSS, JS dans une IIFE) |
 | `data/horaire-AAAA.json` | horaire d'équipe anonymisé d'une année (2026, 2027), pour le pré-remplissage |
-| `data/historique-AAAA.json` | chaque classeur reçu et ses journées changées (avant, après, date du classeur), écrit par `tools/historique.py` ; le robot y ajoute chaque classeur installé |
+| `data/historique-AAAA.json` | les classeurs reçus et leurs journées changées (`tools/historique.py`, complété par le robot) |
 | `data/classeur-AAAA-brut.json` | le classeur ENTIER en JSON — réserve, non chargée par l'application, hors dépôt (copie dans le dépôt privé) |
 | `tools/anonymiser-classeur.py` | recopie le classeur en remplaçant les noms par les trigrammes |
 | `tools/anonymiser-classeur.ps1` | le même, en PowerShell, pour les postes sans Python |
