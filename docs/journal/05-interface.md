@@ -14759,3 +14759,49 @@ Restent, dits au client : les grands formats qui montrent surtout la
 même chose en plus grand (le planning, l'usine et le rythme n'offrent qu'un
 format par écran ; L et XL du cycle) — un vrai contenu par taille est un
 chantier par widget.
+
+## v1451 : « Mes stats » et « Mes repos », deux widgets pour le travailleur (06/11/2026)
+
+Le client : « optimise au maximum mon application en ajoutant des widgets
+avec des stats intéressantes pour les travailleurs. Plus tard, nous
+ajouterons aussi la maintenance […] et le laboratoire, qui ont leur
+propre horaire. »
+
+Avant d'ajouter quoi que ce soit, l'inventaire de ce qui est déjà
+affiché : « Mon année » donne les pauses faites et restantes, « Congés
+restants » les compteurs, « Mon rythme » l'année jour par jour, et le
+bilan du calendrier les heures, le week-end et les rappels du MOIS. Ce
+qui manquait : l'année cumulée, et ce qui vient côté repos.
+
+- **Mes stats** (`stats`, petit, moyen, grand) : depuis le 1er janvier,
+  hier compris, aujourd'hui exclu : les heures prestées et le nombre de
+  jours, les pauses tenues (N, AM, PM, D). En grand, quatre tuiles :
+  jours de week-end travaillés, fériés travaillés, rappels, moyenne par
+  semaine. Lu jour par jour comme « Mon année » (`_pfJour`, qui rend
+  désormais aussi les heures présentes `h`), avec un cache par personne,
+  par jour et par version de l'horaire.
+- **Mes repos** (`repos`, petit, moyen, grand) : sur 180 jours, l'horaire
+  de l'année suivante compris : la reprise si l'on est au repos, sinon
+  le prochain repos et sa durée ; le prochain week-end libre (samedi et
+  dimanche sans poste) ; le prochain congé posé ; puis les périodes de
+  repos suivantes, toutes dans l'ordre du calendrier. Le poste du jour
+  fini compte pour fait. Un cache d'une heure : le widget se refait à
+  chaque calcul de la paie.
+- Les mises en page sont celles, déjà réglées à chaque format, d'« Effectif
+  du jour » et d'« À retenir » (leurs sélecteurs CSS s'écrivent
+  `:is(#presCard,#statsCard)` et `:is(#retCard,#reposCard)`, même
+  spécificité : rien ne bouge pour les deux modèles). Vue par défaut :
+  petits côte à côte au téléphone, après les congés ; moyens au PC, après
+  « Mon année ».
+- Mesuré (`widget-photos.js`, 390, 320, couché, 1280, 1920) : deux
+  défauts trouvés et corrigés. (1) En petit au téléphone, la colonne
+  pastille-chiffre poussait le total hors du cadre : chaque pause et son
+  compte passent sur une ligne, deux par rangée, et « en N jours » cède sa
+  place. (2) « Reprise · 1 jour de repos d'ici là » se lisait mal :
+  « au repos aujourd'hui », ou « encore N jours de repos » ; et le congé
+  posé fin janvier s'intercalait entre deux repos de novembre : la liste
+  se trie par date. Parcours : 188 essais, 0 faute.
+- **Plus tard** (le client) : la maintenance et le laboratoire, deux autres
+  services avec leur propre horaire. Les deux widgets ne lisent que
+  l'horaire de la personne (`_pfJour`) : ils serviront tels quels quand
+  ces horaires arriveront.

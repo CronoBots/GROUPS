@@ -8675,7 +8675,16 @@ html body #v-horaire.acc-perso .card[data-w]>header{flex:none}
 html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none!important; min-height:0!important; max-height:none!important; border:0!important; padding:6px 2px 0!important; grid-template-columns:none!important}
 .acc-cache{display:none!important}
 /* — LES WIDGETS TIRÉS DES AUTRES ONGLETS (04/11/2026) — */
-#paieCard>header{--ic:var(--ip-salaire)} #retCard>header{--ic:var(--ip-planning)} #annCard>header{--ic:var(--ip-aide)} #presCard>header{--ic:var(--ip-effectifs)}
+#paieCard>header{--ic:var(--ip-salaire)} #retCard>header{--ic:var(--ip-planning)} #reposCard>header{--ic:var(--ip-absences)} #statsCard>header{--ic:var(--ip-tdb)}
+#statsCard[data-acc-f="S"] .aw-st-j,#statsCard[data-acc-f="R"] .aw-st-j{display:none}
+/* en petit, chaque pause et son compte sur une ligne, deux par rangée (la
+   règle d'« Effectif » petit et bas, ici à toute hauteur : au téléphone, la
+   colonne pastille-chiffre poussait le total hors du cadre, mesuré à 390 px) */
+html body #v-horaire.acc-perso #statsCard[data-acc-f="S"] .aw-pz{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 6px; margin-top:6px}
+html body #v-horaire.acc-perso #statsCard[data-acc-f="S"] .aw-pzi{flex-direction:row; gap:4px}
+html body #v-horaire.acc-perso #statsCard[data-acc-f="S"] .aw-pzi .pf-pause{width:26px}
+html body #v-horaire.acc-perso #statsCard[data-acc-f="S"] .aw-pzi b{font-size:13px}
+html body #v-horaire.acc-perso #statsCard[data-acc-f="S"] .aw-pzi small{display:none} #annCard>header{--ic:var(--ip-aide)} #presCard>header{--ic:var(--ip-effectifs)}
 .aw{cursor:pointer}
 .aw-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:2px 16px 14px}
 .aw-l{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:0; padding:0; list-style:none}
@@ -8733,7 +8742,7 @@ html body #v-horaire.acc-perso .card.aw{container:awc / inline-size}
 .aw-pzi b{font-size:14px; color:var(--ink)}
 .aw-pzi small{font-size:11px}
 .aw-pres-l{margin-top:10px; border-top:1px solid var(--line2)} .aw-pres-l>li{justify-content:space-between}
-#presCard[data-acc-h="1"] .aw-pres-l{display:none}
+:is(#presCard,#statsCard)[data-acc-h="1"] .aw-pres-l{display:none}
 /* Annonces : à 2 lignes, le début de chaque texte (trois lignes ; une
    annonce seule prend la hauteur), et les rangées se partagent le cadre
    (à 72 px au plus, trois annonces laissaient 183 px vides) */
@@ -8777,9 +8786,9 @@ html body #v-horaire.acc-perso #annCard[data-acc-h="2"] .aw-ann>li:not(.aw-hm)>.
    format ne montrait que trois dates à 320 px. Sous 360 px : « 18 j » ;
    sous 300 : le titre sur une ligne ; partout, le sous-titre en deux
    lignes au plus. */
-html body #v-horaire.acc-perso #retCard .aw-dates .aw-t small{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden}
-@container awc (max-width:359px){ html body #v-horaire.acc-perso #retCard .aw-dans{display:none} }
-@container awc (max-width:299px){ html body #v-horaire.acc-perso #retCard[data-acc-h="2"] .aw-dates .aw-t b{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block} }
+html body #v-horaire.acc-perso :is(#retCard,#reposCard) .aw-dates .aw-t small{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden}
+@container awc (max-width:359px){ html body #v-horaire.acc-perso :is(#retCard,#reposCard) .aw-dans{display:none} }
+@container awc (max-width:299px){ html body #v-horaire.acc-perso :is(#retCard,#reposCard)[data-acc-h="2"] .aw-dates .aw-t b{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block} }
 /* « HORAIRE MODIFIÉ » EN PETIT (le client, le 07/11/2026, capture : « Voir »
    à gauche, le texte coupé à droite) : la ligne est un bouton, qui restait
    en rangée quand les annonces passaient en colonne. Même colonne que
@@ -8788,7 +8797,7 @@ html body #v-horaire.acc-perso #retCard .aw-dates .aw-t small{display:-webkit-bo
 html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-hm-b{flex-direction:column; align-items:flex-start; gap:4px}
 html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-hm .aw-t small{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; white-space:normal}
 @container awc (max-width:149px){ html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-hm .aw-t small{-webkit-line-clamp:1; line-clamp:1} }
-#presCard[data-acc-h="1"] .aw-corps{justify-content:center}
+:is(#presCard,#statsCard)[data-acc-h="1"] .aw-corps{justify-content:center}
 @container awc (max-width:259px){ .aw-pzi small{display:none} .aw-gros{font-size:30px} }
 /* Mon profil : la photo prend ce que le nom lui laisse */
 html body #v-horaire.acc-perso .pf-wprof{display:flex; flex-direction:column}
@@ -9097,15 +9106,15 @@ html body #v-horaire.acc-perso #calCard .calmois .mlabelwrap{padding-top:0}
 /* Effectif du jour, à 2 lignes : malades, en congé, en formation, au
    repos, en quatre tuiles à grand chiffre (en rangées, elles laissaient
    45 px vides sous la dernière) */
-html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:1fr; gap:8px; border-top:0; margin-top:12px}
-html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li{display:flex; flex-direction:column-reverse; align-items:flex-start; justify-content:center; gap:2px; min-height:0; padding:8px 12px; border:0; border-radius:12px; background:var(--fd-blanc-06)}
-html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li b{font:300 26px/1.1 Archivo,system-ui,sans-serif; color:var(--ink)}
-html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li span{font-size:12.5px; color:var(--muted)}
+html body #v-horaire.acc-perso :is(#presCard,#statsCard)[data-acc-h="2"] .aw-pres-l{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:1fr; gap:8px; border-top:0; margin-top:12px}
+html body #v-horaire.acc-perso :is(#presCard,#statsCard)[data-acc-h="2"] .aw-pres-l>li{display:flex; flex-direction:column-reverse; align-items:flex-start; justify-content:center; gap:2px; min-height:0; padding:8px 12px; border:0; border-radius:12px; background:var(--fd-blanc-06)}
+html body #v-horaire.acc-perso :is(#presCard,#statsCard)[data-acc-h="2"] .aw-pres-l>li b{font:300 26px/1.1 Archivo,system-ui,sans-serif; color:var(--ink)}
+html body #v-horaire.acc-perso :is(#presCard,#statsCard)[data-acc-h="2"] .aw-pres-l>li span{font-size:12.5px; color:var(--muted)}
 /* les tuiles du grand format, au PC (relecture du 07/11/2026) : 190 px de
    haut pour un chiffre de 26 px dans le coin ; il suit la tuile */
 @container awc (min-width:380px){
-  html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li b{font-size:40px}
-  html body #v-horaire.acc-perso #presCard[data-acc-h="2"] .aw-pres-l>li span{font-size:13.5px}
+  html body #v-horaire.acc-perso :is(#presCard,#statsCard)[data-acc-h="2"] .aw-pres-l>li b{font-size:40px}
+  html body #v-horaire.acc-perso :is(#presCard,#statsCard)[data-acc-h="2"] .aw-pres-l>li span{font-size:13.5px}
 }
 /* Sur site, à 1 ligne : le poste en cours au milieu (la relève attend les
    2 lignes) */
@@ -9190,7 +9199,7 @@ html body #v-horaire.acc-perso [data-w="poste"][data-acc-h="1"] .pf-proch:has(.p
 /* Ma paie : le mois dans l'onglet, l'œil dans le coin ; Effectif : son
    titre court, la date dans l'onglet, les pauses en trois colonnes */
 @container awc (max-width:169px){
-  html body #v-horaire.acc-perso #paieCard>header .sub,html body #v-horaire.acc-perso #presCard>header .sub,.aw-long{display:none}
+  html body #v-horaire.acc-perso #paieCard>header .sub,html body #v-horaire.acc-perso :is(#presCard,#statsCard)>header .sub,.aw-long{display:none}
   html body #v-horaire.acc-perso #paieCard .aw-oeil{position:absolute; top:12px; right:6px; width:26px; height:26px}
   html body #v-horaire.acc-perso #paieCard .aw-oeil svg{width:16px; height:16px}
   html body #v-horaire.acc-perso .aw-pz{display:grid; grid-template-columns:repeat(auto-fit,minmax(30px,1fr)); gap:6px 4px}
@@ -9514,10 +9523,10 @@ html body #v-horaire.acc-perso [data-w="meteo"][data-acc-f="M"]{gap:8px; padding
    est aussi dans « À retenir ») ; chaque pause et son compte sur une ligne */
 @container awc (max-width:199px) and (max-height:149px){
   html body #v-horaire.acc-perso #paieCard .aw-note{display:none}
-  html body #v-horaire.acc-perso #presCard .aw-pz{grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 6px; margin-top:6px}
-  html body #v-horaire.acc-perso #presCard .aw-pzi{flex-direction:row; gap:4px}
-  html body #v-horaire.acc-perso #presCard .aw-pzi .pf-pause{width:26px}
-  html body #v-horaire.acc-perso #presCard .aw-pzi b{font-size:13px}
+  html body #v-horaire.acc-perso :is(#presCard,#statsCard) .aw-pz{grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 6px; margin-top:6px}
+  html body #v-horaire.acc-perso :is(#presCard,#statsCard) .aw-pzi{flex-direction:row; gap:4px}
+  html body #v-horaire.acc-perso :is(#presCard,#statsCard) .aw-pzi .pf-pause{width:26px}
+  html body #v-horaire.acc-perso :is(#presCard,#statsCard) .aw-pzi b{font-size:13px}
 }
 /* Sur site, deux postes en cours (7 h 40 : le matin et le jour), en
    grand : le bloc des postes garde la hauteur de son contenu. Réduit à la
@@ -10631,6 +10640,21 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
     <div class="card aw" id="presCard" data-w="presents" data-aller="rh" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg><span>Effectif<span class="aw-long"> du jour</span></span></h2><span class="sub" id="presSub"></span></header>
       <div class="aw-corps" id="presCorps"></div>
+    </div>
+    <!-- MES STATISTIQUES ET MES REPOS (le client, le 06/11/2026 : « optimise
+         au maximum mon application en ajoutant des widgets avec des stats
+         intéressantes pour les travailleurs ») : l'année à ce jour (heures,
+         pauses, week-ends, fériés, rappels, séries) et ce qui vient (prochain
+         repos, week-end libre, congé). Tout se lit dans l'horaire, sur
+         l'appareil (awStats, awRepos). Leurs mises en page sont celles,
+         réglées à chaque format, d'« Effectif du jour » et d'« À retenir ». -->
+    <div class="card aw" id="statsCard" data-w="stats" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg><span><span class="aw-long">Mes </span>stats</span></h2><span class="sub" id="statsSub"></span></header>
+      <div class="aw-corps" id="statsCorps"></div>
+    </div>
+    <div class="card aw" id="reposCard" data-w="repos" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg><span><span class="aw-long">Mes </span>repos</span></h2><span class="sub" id="reposSub"></span></header>
+      <div class="aw-corps" id="reposCorps"></div>
     </div>
     <div class="card" id="siteCard" data-w="site" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.3.2 4.2 1.8 4.9 4.8"/></svg>Sur site<span class="site-live" aria-hidden="true"></span><span class="site-quand" id="siteQuand"></span></h2><span class="sub" id="siteSub"></span></header>
@@ -18367,7 +18391,7 @@ function lectureAgenda(db,p,an,m,j){
       });
     }
   }
-  return {pv:pv, presente:(h>0 && !!pv), raw:raw, ab:ab, k:kat, ka:ka, remise:remise, remiseRel:remiseRel, roue:roue, hd:hd, hf:hf,
+  return {pv:pv, presente:(h>0 && !!pv), h:h, raw:raw, ab:ab, k:kat, ka:ka, remise:remise, remiseRel:remiseRel, roue:roue, hd:hd, hf:hf,
     rappel:!!(r.rs || (raw[2] && /rappe[lk]/i.test(String(raw[2]))))};
 }
 /* LE HÉROS DIT À LA PERSONNE QU'ON L'ATTEND AILLEURS (le client, le
@@ -18857,8 +18881,108 @@ function awPresents(){
         return '<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>'; }).join("")+'</ul>';
   c.hidden=false;
 }
-function awMaj(){ [awPaie,awDates,awAnnonces,awPresents].forEach(function(f){ try{ f(); }catch(e){ if(window.console) console.warn("Widget de l’Accueil :",e); } }); }
-function awCacher(){ ["paieCard","retCard","annCard","presCard"].forEach(function(id){ var e=document.getElementById(id); if(e) e.hidden=true; }); }
+/* MES STATS (06/11/2026) : l'année jusqu'à hier (le jour de l'usine
+   exclu : la journée en cours n'est pas faite), lue jour par jour comme
+   « Mon année » (_pfJour) : les heures présentes, les pauses tenues, les
+   week-ends et les fériés travaillés, les rappels, la plus longue série de
+   jours de travail. Une seule lecture par jour et par personne (mémo). */
+var _awStM={cle:"",v:null};
+function awStatsCalc(p){
+  var ju=jourPerso(p), y=ju.getFullYear(), cle=p.id+"|"+(+ju)+"|"+(HORAIRE_DB&&HORAIRE_DB.maj||"");
+  if(_awStM.cle===cle) return _awStM.v;
+  var o={h:0, j:0, P:{AM:0,PM:0,N:0,D:0}, we:0, fer:0, rap:0, serie:0, sem:0}, F=feries(y), k=0, d, x;
+  for(d=new Date(y,0,1); d<ju; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1)){
+    try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
+    if(x && x.presente && PF_HEURES[x.pv]){
+      o.j++; o.h+=Number(x.h)||0; if(o.P.hasOwnProperty(x.pv)) o.P[x.pv]++;
+      if(d.getDay()===0||d.getDay()===6) o.we++;
+      if(F[y+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())]) o.fer++;
+      if(x.rappel) o.rap++;
+      k++; if(k>o.serie) o.serie=k;
+    } else k=0;
+  }
+  o.sem=Math.max(1,(ju-new Date(y,0,1))/(7*864e5));
+  _awStM={cle:cle, v:o};
+  return o;
+}
+function awStats(){
+  var c=document.getElementById("statsCard"), corps=document.getElementById("statsCorps"); if(!c||!corps) return;
+  var id=trigCourant(), db=HORAIRE_DB, p=null;
+  if(db&&id) db.people.forEach(function(q){ if(q.id===id) p=q; });
+  if(!p){ c.hidden=true; return; }
+  var o=awStatsCalc(p); if(!o.j){ c.hidden=true; return; }
+  document.getElementById("statsSub").textContent="depuis le 1er janvier";
+  var PZ=[["N","nuits"],["AM","matins"],["PM","après-midi"],["D","jours"]].filter(function(z){ return o.P[z[0]]; });
+  corps.innerHTML='<div class="aw-pres-tete"><b class="aw-gros">'+num(R(o.h,0))+'</b><span>h prestées<span class="aw-st-j"> en '+o.j+' jour'+(o.j>1?'s':'')+'</span></span></div>'
+    +'<div class="aw-pz">'+PZ.map(function(z){ return '<span class="aw-pzi"><i class="pf-pause" data-p="'+z[0]+'">'+z[0]+'</i><b>'+o.P[z[0]]+'</b><small>'+z[1]+'</small></span>'; }).join("")+'</div>'
+    +'<ul class="aw-l aw-pres-l">'+[["Jours de week-end",o.we],["Fériés travaillés",o.fer],["Rappels",o.rap],["Moyenne par semaine",num(R(o.h/o.sem,1))+" h"],["Plus longue série",o.serie+" j"]].filter(function(r,i){ return i<4||o.serie>=5; }).slice(0,4).map(function(r){
+        return '<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>'; }).join("")+'</ul>';
+  c.hidden=false;
+}
+/* MES REPOS (06/11/2026) : ce qui vient, sur 180 jours (l'horaire de
+   l'année suivante compris, horaireDe) — le prochain repos et sa durée,
+   ou la reprise si l'on est au repos ; le prochain week-end libre (samedi
+   et dimanche sans poste) ; le prochain congé posé ; puis les périodes de
+   repos suivantes. Le jour en cours compte pour fait une fois le poste fini. */
+var _awRpM={cle:"",v:null};
+function awReposCalc(p){
+  var ju=jourPerso(p), now=new Date(), L=[], i, d, x, fini,
+      cle=p.id+"|"+(+ju)+"|"+now.getHours()+"|"+(HORAIRE_DB&&HORAIRE_DB.maj||"");
+  /* une lecture par heure : le widget se refait à chaque calcul de la paie */
+  if(_awRpM.cle===cle) return _awRpM.v;
+  for(i=0;i<=180;i++){
+    d=new Date(ju.getFullYear(),ju.getMonth(),ju.getDate()+i);
+    try{ x=_pfJour(p.id,d); }catch(e){ x=null; }
+    if(!x && i>0 && !(typeof horaireDe==="function"&&horaireDe(d.getFullYear()))) break;
+    fini=i===0 && x && x.presente && PF_HEURES[x.pv] && now.getTime()>=pfInstant(d,pfFin(x));
+    L.push({d:d, t:!!(x && x.presente && PF_HEURES[x.pv]) && !fini, cg:x?congeJour(x.raw):null, mal:!!(x&&x.ab==="MAL")});
+  }
+  _awRpM={cle:cle, v:L};
+  return L;
+}
+function awJourCourt(d){ return JOURS_LONGS[(d.getDay()+6)%7].slice(0,3).toLowerCase()+". "+d.getDate()+" "+AW_MC[d.getMonth()]; }
+function awRepos(){
+  var c=document.getElementById("reposCard"), corps=document.getElementById("reposCorps"); if(!c||!corps) return;
+  var id=trigCourant(), db=HORAIRE_DB, p=null;
+  if(db&&id) db.people.forEach(function(q){ if(q.id===id) p=q; });
+  if(!p){ c.hidden=true; return; }
+  var J=awReposCalc(p); if(J.length<2){ c.hidden=true; return; }
+  /* les périodes de repos (jours sans poste d'affilée) */
+  var per=[], cur=null, i;
+  for(i=0;i<J.length;i++){
+    if(!J[i].t){ if(!cur){ cur={a:i,b:i}; per.push(cur); } else cur.b=i; }
+    else cur=null;
+  }
+  var rows=[], s="";
+  if(per.length && per[0].a===0){
+    /* au repos : la reprise */
+    var r0=per[0], rep=r0.b+1<J.length?J[r0.b+1].d:null;
+    s="au repos";
+    var lg0=r0.b-r0.a+1;
+    if(rep) rows.push({d:rep, t:"Reprise", s:lg0>1?"encore "+lg0+" jours de repos":"au repos aujourd’hui", k:"ecole"});
+    per=per.slice(1);
+  } else {
+    var n=0; for(i=0;i<J.length&&J[i].t;i++) n++;
+    s=n?n+" jour"+(n>1?"s":"")+" de travail avant le repos":"";
+  }
+  if(per.length){ var p1=per[0], lg=p1.b-p1.a+1;
+    rows.push({d:J[p1.a].d, t:"Prochain repos", s:lg+" jour"+(lg>1?"s":"")+(lg>1?" · jusqu’au "+awJourCourt(J[p1.b].d):""), k:"ferie"}); }
+  for(i=0;i<J.length-1;i++) if(J[i].d.getDay()===6 && !J[i].t && !J[i+1].t){ rows.push({d:J[i].d, t:"Week-end libre", s:"samedi et dimanche", k:"paie"}); break; }
+  for(i=0;i<J.length;i++) if(J[i].cg && !J[i].mal){ rows.push({d:J[i].d, t:"Congé "+esc(J[i].cg.k||""), s:J[i].cg.h>=8?"journée entière":num(J[i].cg.h)+" h", k:"ecole"}); break; }
+  per.slice(1).filter(function(q){ return q.b>q.a; }).slice(0,4).forEach(function(q){ var lg=q.b-q.a+1;
+    rows.push({d:J[q.a].d, t:"Repos de "+lg+" jours", s:"jusqu’au "+awJourCourt(J[q.b].d), k:"ferie"}); });
+  if(!rows.length){ c.hidden=true; return; }
+  /* dans l'ordre du calendrier, comme « À retenir » */
+  rows.sort(function(a,b){ return a.d-b.d; });
+  document.getElementById("reposSub").textContent=s;
+  corps.innerHTML='<ul class="aw-l aw-dates" data-acc-fit>'+rows.map(function(x){
+    var q=awJour(x.d);
+    return '<li class="aw-r aw-r-'+x.k+'"><span class="aw-d" aria-hidden="true"><b>'+x.d.getDate()+'</b><small>'+AW_MC[x.d.getMonth()]+'</small></span>'
+      +'<span class="aw-t"><b>'+x.t+'</b><small>'+x.s+'</small></span><em class="aw-q">'+String(q).replace(/^dans /,'<span class="aw-dans">dans </span>')+'</em></li>'; }).join("")+'</ul>';
+  c.hidden=false;
+}
+function awMaj(){ [awPaie,awDates,awAnnonces,awPresents,awStats,awRepos].forEach(function(f){ try{ f(); }catch(e){ if(window.console) console.warn("Widget de l’Accueil :",e); } }); }
+function awCacher(){ ["paieCard","retCard","annCard","presCard","statsCard","reposCard"].forEach(function(id){ var e=document.getElementById(id); if(e) e.hidden=true; }); }
 document.addEventListener("click",function(e){
   var t=e.target; if(!t.closest) return;
   if(t.closest("#paieOeil")){ lsSet("ui/paie/voir",!lsGet("ui/paie/voir")); awPaie(); return; }
@@ -38343,6 +38467,9 @@ var ACC_W=[
      aussi ») : la dernière annonce, son titre et sa date */
   {k:"annonces",     nom:"Annonces",            l:6,  f:["S","M","L"], h:1, si:"compte"},
   {k:"presents",     nom:"Effectif du jour",    l:6,  f:["S","M","L"], h:1, si:"saisie"},
+  /* l'année à ce jour et les repos qui viennent (06/11/2026) */
+  {k:"stats",        nom:"Mes stats",           l:6,  f:["S","M","L"], h:1},
+  {k:"repos",        nom:"Mes repos",           l:6,  f:["S","M","L"], h:1},
   /* des pastilles en grille : moyen, grand, très grand */
   {k:"site",         nom:"Sur site",            l:6,  f:["M","L","XL"], h:2},
   {k:"messages",     nom:"Messages",            l:6,  f:["M","L"], h:1},
@@ -38378,12 +38505,12 @@ var ACC_W=[
    faisaient une rangée presque vide quand rien n'attend : en petit, à côté
    de « Mon cycle » ; la paie, les congés, l'effectif ou les polyvalences
    et « Mon année », quatre petits sur une rangée */
-var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle","paie","soldes","dates","demandes","presents","polyvalences","conges","planning","calendrier","usine","site","messages","rythme"];
-var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","usine","calendrier","site","messages","rythme"];
+var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle","paie","soldes","repos","stats","dates","demandes","presents","polyvalences","conges","planning","calendrier","usine","site","messages","rythme"];
+var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","repos","stats","usine","calendrier","site","messages","rythme"];
 var ACC_DEFAUT={
-  tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S",
+  tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S", repos:"S", stats:"S",
     calendrier:"L", usine:"L", site:"M", messages:"M", rythme:"M"},
-  large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S",
+  large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S", repos:"M", stats:"M",
     usine:"XL", calendrier:"L", site:"M", messages:"L", rythme:"XL"}
 };
 /* LES LARGEURS, DES MULTIPLES D'UNE ICÔNE (04/11/2026) : au PC, une icône
