@@ -14341,3 +14341,22 @@ et leur entrée dans le cache (`sw.js`). Sont gardés : `banniere.jpg` et
 que les v1421 à v1423 ont appris est dans les sections ci-dessus.
 Mesuré : marges de 17 px, statut aligné. Résultat : 177 essais,
 0 faute.
+
+### v1425 — Le fond des widgets dans le bleu du fond (06/11/2026)
+
+Le client : « sans changer la couleur de mon fond principal, de quelle
+couleur mettrais-tu le fond des widgets, pour que ce soit 100 %
+homogène ? », puis « go ». Mesuré en OKLCH :
+- le fond, `--marque` `#141C2F` : clarté 0,229, saturation 0,039,
+  teinte 266,0° ;
+- l'ancien fond des widgets, `--surface` `#212737` : 0,274, 0,031,
+  268,4°. C'est un bleu grisé : 20 % de saturation en moins et 2,4° de
+  teinte à côté.
+
+`--surface` devient `#1E273B` : la teinte et la saturation du fond, à la
+clarté de l'ancien. Les widgets se détachent donc autant qu'avant.
+Sa copie écrite en dur dans la démonstration d'installation (`.d-bloc`)
+suit. La bordure (`--cadre` `#394052`) était déjà alignée : sa version
+exacte, `#384053`, ne se distingue pas. Elle reste. Mesuré au navigateur :
+widget `rgb(30,39,59)` sur un fond `rgb(20,28,47)`. Le contraste de
+chaque texte est contrôlé par le parcours : 177 essais, 0 faute.
