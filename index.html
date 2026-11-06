@@ -8721,6 +8721,23 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 /* — LES WIDGETS TIRÉS DES AUTRES ONGLETS (04/11/2026) — */
 #paieCard>header{--ic:var(--ip-salaire)} #retCard>header{--ic:var(--ip-planning)} #reposCard>header{--ic:var(--ip-absences)} #statsCard>header{--ic:var(--ip-tdb)}
 #statsCard[data-acc-f="S"] .aw-st-j,#statsCard[data-acc-f="R"] .aw-st-j{display:none}
+/* Mon recyclage (06/11/2026) */
+#recycCard>header{--ic:var(--ip-recyclage)}
+.aw-rc-bar{display:block; height:7px; margin:9px 0 2px; border-radius:4px; background:var(--surface3); overflow:hidden}
+.aw-rc-bar>i{display:block; height:100%; border-radius:inherit; background:var(--marque-vif)}
+.aw-rc-l{margin-top:10px; border-top:1px solid var(--line2)}
+.aw-rc-l>li{display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; min-height:34px}
+html body #v-horaire #recycCard .aw-rc-l>li:not(.acc-cache){display:grid!important; grid-template-columns:minmax(0,1fr) auto!important; justify-content:stretch} html body #v-horaire #recycCard .aw-rc-l>li>b{justify-self:end}
+.aw-rc-l>li>span{font-size:13.5px; color:var(--ink2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.aw-rc-l>li>span small{display:block; font-size:11px; color:var(--muted)}
+.aw-rc-l>li>b{font-size:13.5px; font-weight:650; color:var(--ink); font-variant-numeric:tabular-nums; text-align:right; min-width:36px}
+.aw-rc-l>li>b.ok{color:var(--vert-vif,#3ecf8e)} .aw-rc-l>li>b.ex{font-size:11.5px; font-weight:600; color:var(--muted)}
+.aw-rc-pied{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; font-size:12px; color:var(--muted)}
+.aw-rc-pied .btn{flex:0 0 auto}
+#recycCard[data-acc-f="S"] .aw-rc-l,#recycCard[data-acc-f="S"] .aw-rc-pied,#recycCard[data-acc-h="1"] .aw-rc-pied{display:none}
+#recycCard[data-acc-f="S"] .aw-rc-s{display:block}
+#recycCard[data-acc-f="S"] .aw-rc-j{display:none}
+.aw-rc-s{display:none; margin-top:6px; font-size:13px; color:var(--ink2)} .aw-rc-s b{color:var(--ink)}
 /* en petit, chaque pause et son compte sur une ligne, deux par rangée (la
    règle d'« Effectif » petit et bas, ici à toute hauteur : au téléphone, la
    colonne pastille-chiffre poussait le total hors du cadre, mesuré à 390 px) */
@@ -10709,6 +10726,12 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
     <div class="card aw" id="statsCard" data-w="stats" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg><span><span class="aw-long">Mes </span>stats</span></h2><span class="sub" id="statsSub"></span></header>
       <div class="aw-corps" id="statsCorps"></div>
+    </div>
+    <!-- MON RECYCLAGE (le client, le 06/11/2026 : « ajout d'un widget
+         recyclage personnel ») : awRecyc -->
+    <div class="card aw" id="recycCard" data-w="recyclage" hidden>
+      <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.7-4.3L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4.3L21 15"/><path d="M21 20v-5h-5"/></svg><span><span class="aw-long">Mon </span>recyclage</span></h2><span class="sub" id="recycSub"></span></header>
+      <div class="aw-corps" id="recycCorps"></div>
     </div>
     <div class="card aw" id="reposCard" data-w="repos" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg><span><span class="aw-long">Mes </span>repos</span></h2><span class="sub" id="reposSub"></span></header>
@@ -15561,7 +15584,7 @@ function recycRH(p){
 function lireRecyclages(){
   if(RECYC_OFF) return Promise.resolve();
   return fetch(RECYC_URL).then(function(r){ return r.ok?r.json():null; })
-    .then(function(j){ if(j && j.ops){ RECYC_OFF=j.ops; RECYC_MAJ=j.maj||null; } majClasseurs(); })
+    .then(function(j){ if(j && j.ops){ RECYC_OFF=j.ops; RECYC_MAJ=j.maj||null; } majClasseurs(); try{ awRecyc(); }catch(e){} })
     .catch(function(){});
 }
 /* La date de mise à jour des deux classeurs, dans Réglages. Le client, le
@@ -19057,8 +19080,41 @@ function awRepos(){
       +'<span class="aw-t"><b>'+x.t+'</b><small>'+x.s+'</small></span><em class="aw-q">'+String(q).replace(/^dans /,'<span class="aw-dans">dans </span>')+'</em></li>'; }).join("")+'</ul>';
   c.hidden=false;
 }
-function awMaj(){ [awPaie,awDates,awAnnonces,awPresents,awStats,awRepos].forEach(function(f){ try{ f(); }catch(e){ if(window.console) console.warn("Widget de l’Accueil :",e); } }); }
-function awCacher(){ ["paieCard","retCard","annCard","presCard","statsCard","reposCard"].forEach(function(id){ var e=document.getElementById(id); if(e) e.hidden=true; }); }
+/* MON RECYCLAGE (le client, le 06/11/2026 : « ajout d'un widget recyclage
+   personnel ») : la progression de l'année, telle que le classeur RH des
+   recyclages la compte (recycRHEffectif : ses recyclages faits, plus ceux
+   que l'horaire ajoute, et son « restant »), puis chaque poste à recycler
+   (polyvalenceDe, la lecture de l'onglet Recyclage) : fait sur objectif,
+   la date du dernier recyclage lue dans le classeur RH ; pour un adjoint, la
+   ligne Contremaître. En grand, ses fiches en cours et « Remplir une
+   fiche ». Rien pour qui n'a pas de recyclage à suivre. */
+function awRecyc(){
+  var c=document.getElementById("recycCard"), corps=document.getElementById("recycCorps"); if(!c||!corps) return;
+  var id=trigCourant(), db=HORAIRE_DB, p=null;
+  if(db&&id) db.people.forEach(function(q){ if(q.id===id) p=q; });
+  var ro=null, pv=[]; if(p){ try{ ro=recycRHEffectif(db,p); }catch(e){} try{ pv=(polyvalenceDe(db,p)||[]).filter(function(o){ return !o.forme; }); }catch(e){} }
+  if(!p||!ro){ c.hidden=true; return; }
+  var fait=Number(ro.cm)||0; RECYC_POSTES.forEach(function(k){ fait+=Number(ro[k])||0; });
+  var tot=ro.objectif||(fait+(Number(ro.restant)||0)), pct=tot?Math.min(100,Math.round(fait/tot*100)):0;
+  function der(k){ var d=ro.dates&&ro.dates[k]; return d&&d.length?d[d.length-1]:""; }
+  var L=pv.map(function(o){ return {t:o.t, n:o.n, q:o.q, ok:o.ok, ex:o.exempt, d:der(o.k)}; });
+  if(estCadre(p)) L.push({t:"Contremaître", n:Number(ro.cm)||0, q:POLY_QUOTA.adjoint, ok:(Number(ro.cm)||0)>=POLY_QUOTA.adjoint, d:der("cm")});
+  /* ce qui reste à faire d'abord, le moins avancé en tête ; les exemptés à la fin */
+  L.sort(function(a,b){ function r(x){ return x.ex?3:x.ok?2+(x.q?x.n/x.q:0)/100:(x.q?x.n/x.q:0); } return r(a)-r(b); });
+  var enCours=(GR.recyclages||[]).filter(function(x){ return x.a_moi&&rcEnCours(x); }).length;
+  document.getElementById("recycSub").textContent=ro.restant?ro.restant+" à faire":"objectif atteint";
+  corps.innerHTML='<div class="aw-pres-tete"><b class="aw-gros">'+fait+'</b><span>sur '+tot+' recyclage'+(tot>1?'s':'')+'<span class="aw-st-j aw-rc-j"> · '+(ro.restant?'<b>'+ro.restant+'</b> à faire':'objectif atteint')+'</span></span></div>'
+    +'<span class="aw-rc-s">'+(ro.restant?'<b>'+ro.restant+'</b> à faire':'objectif atteint')+'</span>'
+    +'<span class="aw-rc-bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100" aria-label="Recyclages faits : '+fait+' sur '+tot+'"><i style="width:'+pct+'%"></i></span>'
+    +(L.length?'<ul class="aw-l aw-rc-l" data-acc-fit>'+L.map(function(x){
+      return '<li><span>'+esc(x.t)+(x.d?'<small>dernier le '+esc(x.d)+'</small>':'')+'</span>'
+        +(x.ex?'<b class="ex">exempté</b>':'<b class="'+(x.ok?'ok':'')+'">'+x.n+' / '+x.q+'</b>')+'</li>'; }).join("")+'</ul>':'')
+    +'<div class="aw-rc-pied"><span>'+(enCours?enCours+' fiche'+(enCours>1?'s':'')+' en cours':'Classeur RH du '+esc(majCourte(RECYC_MAJ||"")||"—"))+'</span>'
+    +(compteBase()?'<button type="button" class="btn sm" data-ctl="rcNv">Remplir une fiche</button>':'')+'</div>';
+  c.hidden=false;
+}
+function awMaj(){ [awPaie,awDates,awAnnonces,awPresents,awStats,awRepos,awRecyc].forEach(function(f){ try{ f(); }catch(e){ if(window.console) console.warn("Widget de l’Accueil :",e); } }); }
+function awCacher(){ ["paieCard","retCard","annCard","presCard","statsCard","reposCard","recycCard"].forEach(function(id){ var e=document.getElementById(id); if(e) e.hidden=true; }); }
 document.addEventListener("click",function(e){
   var t=e.target; if(!t.closest) return;
   if(t.closest("#paieOeil")){ lsSet("ui/paie/voir",!lsGet("ui/paie/voir")); awPaie(); return; }
@@ -27498,7 +27554,7 @@ window.addEventListener("resize",function(){ clearTimeout(_pfAfT); _pfAfT=setTim
 document.addEventListener("click",function(e){
   var af=e.target.closest?e.target.closest(".pf-af"):null;
   if(af){ var cc=document.getElementById("ctlCard"); if(cc){ cc.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); var i0=cc.querySelector(".ctl-i"); if(i0) try{ i0.focus({preventScroll:true}); }catch(er){} } return; }
-  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl],#pfRac [data-ctl]"):null; if(!b) return;
+  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl],#pfRac [data-ctl],#recycCard [data-ctl]"):null; if(!b) return;
   var k=b.getAttribute("data-ctl"), auj=jourUsine();
   /* la base injoignable : on relance les trois lectures, la carte attend */
   if(k==="reessayer"){ GR.demandesErr=GR.rcErr=GR.hsErr=false; try{ renderMesDemandes(); }catch(er){} renderCentre(); var cc0=document.getElementById("ctlCorps"); if(cc0&&!document.body.contains(b)) focusConteneur(cc0); return; }
@@ -38732,6 +38788,7 @@ var ACC_W=[
   /* l'année à ce jour et les repos qui viennent (06/11/2026) */
   {k:"stats",        nom:"Mes stats",           l:6,  f:["S","M","L"], h:1},
   {k:"repos",        nom:"Mes repos",           l:6,  f:["S","M","L"], h:1},
+  {k:"recyclage",    nom:"Mon recyclage",       l:6,  f:["S","M","L"], h:1},
   /* des pastilles en grille : moyen, grand, très grand */
   {k:"site",         nom:"Sur site",            l:6,  f:["M","L","XL"], h:2},
   /* trop petit (le client, le 06/11/2026) : très grand au PC ; au
@@ -38770,12 +38827,12 @@ var ACC_W=[
    faisaient une rangée presque vide quand rien n'attend : en petit, à côté
    de « Mon cycle » ; la paie, les congés, l'effectif ou les polyvalences
    et « Mon année », quatre petits sur une rangée */
-var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle","paie","soldes","repos","stats","dates","demandes","presents","polyvalences","conges","planning","calendrier","usine","site","messages","rythme"];
-var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","repos","stats","usine","calendrier","site","messages","rythme"];
+var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle","paie","soldes","repos","stats","recyclage","dates","demandes","presents","polyvalences","conges","planning","calendrier","usine","site","messages","rythme"];
+var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","repos","stats","recyclage","usine","calendrier","site","messages","rythme"];
 var ACC_DEFAUT={
-  tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S", repos:"S", stats:"S",
+  tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S", repos:"S", stats:"S", recyclage:"M",
     calendrier:"L", usine:"L", site:"M", messages:"M", rythme:"M"},
-  large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S", repos:"M", stats:"M",
+  large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S", repos:"M", stats:"M", recyclage:"M",
     usine:"XL", calendrier:"L", site:"M", messages:"L", rythme:"XL"}
 };
 /* LES LARGEURS, DES MULTIPLES D'UNE ICÔNE (04/11/2026) : au PC, une icône

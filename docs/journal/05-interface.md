@@ -14994,3 +14994,36 @@ défauts, tous corrigés :
    de l'Accueil reste, et la RH a « Gestion → Historique ».
 
 Parcours : 188 essais, 0 faute.
+
+## v1464 : « Mon recyclage », un widget à part (06/11/2026)
+
+Le client : « ajout d'un widget recyclage personnel ». Les compteurs
+existaient déjà, mais pliés dans le petit widget « Polyvalences »
+(`recyclageHeros`).
+
+- **Le widget `recyclage`** (petit, moyen, grand) :
+  - en tête, ce que le classeur RH des recyclages compte
+    (`recycRHEffectif` : faits, plus ceux que l'horaire ajoute, sur
+    l'objectif), et « N à faire », avec une barre ;
+  - dessous, chaque poste à recycler (`polyvalenceDe`, la lecture de
+    l'onglet Recyclage), fait sur objectif, avec la date du dernier
+    recyclage lue dans le classeur RH ; pour un adjoint, la ligne
+    Contremaître. Ce qui reste à faire vient d'abord, du moins avancé au
+    plus avancé, les postes complets et exemptés ensuite ;
+  - en grand, ses fiches en cours ou la date du classeur RH, et
+    « Remplir une fiche ».
+
+  Il se cache pour qui n'a pas de recyclage à suivre, et en mode RH. Il se
+  refait à l'arrivée du classeur des recyclages.
+- Vue par défaut : moyen, après « Mes stats », au téléphone comme au PC.
+- Mesuré (`widget-photos.js`, ATR, à chaque format) : trois défauts
+  corrigés.
+  1. Les mini-barres par poste ne s'affichaient pas, et le compte se
+     décalait vers le milieu de la ligne. Les mini-barres sont retirées ;
+     le compte, aligné à droite, suffit.
+  2. En petit, « N à faire » manquait.
+  3. Ma règle d'alignement, trop forte, réaffichait les lignes que
+     `accAjuster` cache faute de place : elle exclut maintenant
+     `.acc-cache`.
+
+  Parcours : 188 essais, 0 faute.
