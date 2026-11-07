@@ -15511,3 +15511,19 @@ l'heure (signalé le même jour au client) ; « À faire » grand et vide montre
 « Tout est à jour » au milieu d'un grand cadre (l'état vide d'un widget
 choisi grand). « Demandes de congé » et « Mon recyclage » n'ont pu être
 photographiés : aucune donnée pour les deux comptes d'essai.
+
+**v1493 — « Optimise tout pour la version PC »** (même jour ; le
+téléphone viendra après, avec les captures du client). En une passe :
+chaque widget à chacun de ses formats à 1280 et 1920 px (51 photos de
+plus à 1920), l’Accueil entier aux trois niveaux (min, moyen, max) à 1280 et en Moyen à
+1920, puis chaque onglet de la barre au PC (Planning, Équipes, Salaire,
+Effectifs, Recherche) avec la mesure du défilement horizontal : aucun.
+Un défaut corrigé : la **Météo moyenne** au PC n'avait pas l'icône du ciel
+(retirée au-delà de 260 px pour le téléphone, où la place manque) ; elle
+revient à partir de 420 px de large. Laissés, et pourquoi : le vide
+entre l'en-tête de la Météo moyenne et ses heures (la forme du widget
+moyen de l'iPhone) ; celui sous l'heure d'« Heure et poste » petit (le
+bloc du poste centré dans sa place) ; la case vide après « Messages », le
+dernier widget (l'ordre est celui du client) ; « Mon cycle » et le
+« Calendrier » montrent tous deux le mois, le premier avec l'équipe et
+les semaines du cycle — deux widgets que le client a choisis.
