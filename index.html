@@ -8761,12 +8761,19 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-jt .usp-carre{flex:none}
 button.aw-jl{appearance:none; -webkit-appearance:none; background:none; border:0; padding:0; margin:0; font:inherit; color:inherit; text-align:left; cursor:pointer}
 .usp-jt{display:none}
-html body #v-horaire #usineCard[data-acc-h="3"] .usp-jt{display:block; flex:1 1 auto; min-height:0; margin:4px 12px 6px}
+.usp-tete{display:none}
+html body #v-horaire #usineCard[data-acc-h="3"] .usp-tete{display:block; flex:none; margin:2px 12px 0}
+#usineCard .usp-tete .aw-jt-tete{margin:0; padding-bottom:6px; border-bottom:0}
+html body #v-horaire #usineCard[data-acc-h="3"] .usp-jt{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:4px 12px 6px}
+/* les lignes se partagent la hauteur : ni vide sous le tableau, ni ligne coupée */
+html body #v-horaire #usineCard[data-acc-h="3"] .usp-jt>.aw-l{flex:1 1 auto; min-height:0}
+html body #v-horaire #usineCard[data-acc-h="3"] .usp-jt>.aw-l>li{flex:1 1 0; min-height:0; padding:0}
+html body #v-horaire.acc-perso.acc-tel #usineCard[data-acc-h="3"] .usp{margin-top:2px}
 /* la photo à sa proportion, le tableau prend le reste */
 html body #v-horaire.acc-perso #usineCard[data-acc-h="3"] .usp{flex:0 0 auto; aspect-ratio:1600/840}
 html body #v-horaire #usineCard[data-acc-h="3"] .usp-liste{display:none!important}
-#usineCard .usp-jt .aw-l>li{min-height:34px; padding:2px 0}
-.aw-jn{flex:none; min-width:30px; text-align:right; font-size:13px; font-weight:650; color:var(--ink2); font-variant-numeric:tabular-nums}
+#usineCard .usp-jt .aw-l>li{min-height:28px; padding:0}
+.aw-jn{flex:none; width:34px; text-align:center; font-size:13px; font-weight:650; color:var(--ink2); font-variant-numeric:tabular-nums}
 .aw-jn-m{color:var(--at-jaune)}
 .aw-jt li.us-f-jaune{--us-c:var(--us-f-jaune)} .aw-jt li.us-f-vert{--us-c:var(--us-f-vert)} .aw-jt li.us-f-rouge{--us-c:var(--us-f-rouge)} .aw-jt li.us-f-bleu{--us-c:var(--us-f-bleu)} .aw-jt li.us-f-gris{--us-c:var(--us-f-gris)}
 .aw-jg>i{font-style:normal; font-size:11.5px; font-weight:750; letter-spacing:.02em; line-height:18px; padding:0 6px; border-radius:6px; background:color-mix(in srgb,var(--us-c,var(--muted)) 22%,transparent); color:#fff; box-shadow:inset 0 0 0 1.5px var(--us-c,var(--muted))}
@@ -19216,7 +19223,8 @@ function awRecyc(){
    site ») : la ligne de titre du bloc de la pause en cours de « Sur site »
    (siteSalonsHTML) — la pause, l'équipe, « en cours », le jour, les heures
    et le nombre de présents */
-function awTelTete(){
+function awTelTete(opt){
+  opt=opt||{};
   try{ var h=siteSalonsHTML(surSite(new Date()),{moi:trigCourant()}); if(!h) return "";
     var d=document.createElement("div"), pz=cmDePause().pz, st=null; d.innerHTML=h;
     [].forEach.call(d.querySelectorAll(".site-salon>.site-st"),function(p){ var a=p.querySelector(".pl-pa"); if(!st&&a&&a.textContent===pz) st=p; });
@@ -19231,6 +19239,14 @@ function awTelTete(){
        titre pour l'équipe en live ») : le témoin vivant, « Équipe 3 » en
        titre, la pause et ses heures, puis les présents */
     var eq=t(".site-eq"), n=t("em>b"), pa=st.querySelector(".pl-pa");
+    /* AU-DESSUS DE LA CARTE (le client, le 07/11/2026 : « ajouter la date,
+       la pause, le créneau de pause et le nombre de personnes au-dessus de
+       la carte live ») : « sam. 7 nov. · Nuit · 22 h – 6 h », les présents */
+    if(opt.date){ var m=/^(\S+)\s+(\d+)\s+(\S+)/.exec(t(".site-qd>span")), jr="";
+      if(m){ var mi=-1; MOIS.forEach(function(x,i){ if(x.toLowerCase()===m[3].toLowerCase()) mi=i; }); jr=m[1].slice(0,3)+". "+m[2]+" "+(mi>=0?AW_MC[mi]:m[3]); }
+      return '<p class="aw-jt-tete us-tete"><span class="site-live aw-jt-live" title="En direct" aria-label="En direct"></span>'
+        +'<b>'+esc(jr.charAt(0).toUpperCase()+jr.slice(1))+'</b><span class="aw-jt-h">'+esc(t(".site-sn>b"))+' · '+esc(t(".site-qd>b"))+'</span>'
+        +(n?'<em title="'+esc(n+" "+t("em>small"))+'"><b>'+esc(n)+'</b><span class="aw-jt-pw"> '+esc(t("em>small"))+'</span></em>':'')+'</p>'; }
     return '<p class="aw-jt-tete"><span class="site-live aw-jt-live" title="En direct" aria-label="En direct"></span>'
       +'<b>'+esc(eq||t(".site-sn>b"))+'</b>'
       +'<span class="aw-jt-h"><span class="aw-jt-pz">'+esc(eq?t(".site-sn>b"):(pa?pa.textContent:""))+' · </span>'+esc(t(".site-qd>b"))+'</span>'
@@ -19267,7 +19283,9 @@ function postesListeHTML(E,TL,opt){
   var ordre=USINE_ZONES.filter(function(z){ return z.k==="cm"; }).concat(USINE_ZONES.filter(function(z){ return z.k!=="cm"; }));
   var L=[];
   ordre.forEach(function(z){ var Zk=E.Z[z.k], n=Zk.n||0, att=Zk.attendu||0, f=z.f||"gris";
-    L.push(ligne(z.k,f,nom(z),gensDe(z),'<b class="aw-jn'+(att>n?' aw-jn-m':'')+'">'+n+(att?'/'+att:'')+'</b>',z.t+", "+n+(att?" sur "+att:"")+" au poste"));
+    /* sans place attendue ni personne (la STEP la nuit) : « – » et non 0
+       (le client, le 07/11/2026) */
+    L.push(ligne(z.k,f,nom(z),gensDe(z),'<b class="aw-jn'+(att>n?' aw-jn-m':'')+'">'+(!att&&!n?'–':n+(att?'/'+att:''))+'</b>',z.t+", "+(!att&&!n?"poste non tenu à cette pause":n+(att?" sur "+att:"")+" au poste")));
     if(z.k==="cm"&&libres.length) L.push(ligne("cm","gris",'Adjoint'+(libres.length>1?'s':''),libres,'<b class="aw-jn">'+libres.length+'</b>',libres.length+" adjoint"+(libres.length>1?"s":"")+" en roue libre"));
   });
   return '<ul class="aw-l aw-jt"'+(opt.fiche?'':' data-acc-fit')+'>'+L.join("")+'</ul>';
@@ -25508,6 +25526,10 @@ function usinePhotoRendre(corps,E,cw){
   var jt=document.getElementById("uspJt");
   if(!jt){ jt=document.createElement("div"); jt.id="uspJt"; jt.className="usp-jt"; ul.parentNode.insertBefore(jt,ul.nextSibling); }
   ul.innerHTML=usinePhotoListe(E); jt.innerHTML=uspTel()?postesListeHTML(E,{},{fiche:true}):"";
+  /* la tête, au-dessus de la photo (téléphone, « très grand ») */
+  var ut=document.getElementById("uspTete"), us=document.getElementById("usp");
+  if(!ut&&us){ ut=document.createElement("div"); ut.id="uspTete"; ut.className="usp-tete"; us.parentNode.insertBefore(ut,us); }
+  if(ut) ut.innerHTML=uspTel()?awTelTete({date:true}):"";
   uspPlacer();
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
 }

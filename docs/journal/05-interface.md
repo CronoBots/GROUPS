@@ -15228,3 +15228,16 @@ mais le contremaître premier) : QCM, réponse « juste sous CM ».
   « très grand » : l'essai se sautait sans le dire (184 essais au lieu de
   188). Il touche maintenant le tableau ; 188, 0 faute. `widget-photos.js`
   connaît le format `T`.
+
+**v1476** (même jour, le client : « au lieu de mettre 0 pour la STEP, il
+faut mettre “–” centré sous les 1/1 ; il ne doit pas y avoir de zone
+morte au-dessus ou en dessous de la carte live ; ajouter la date, la
+pause, le créneau de pause et le nombre de personnes au-dessus de la carte
+live »). Un poste sans place attendue ni personne écrit « – » ; la colonne
+des comptes a une largeur fixe, centrée. Au-dessus de la photo (téléphone,
+très grand), `awTelTete({date:true})` : témoin vivant, « Ven. 6 nov. »
+(le jour où la pause a commencé : la nuit de 4 h est celle de la veille),
+« Nuit · 22 h – 6 h », les présents. Mesuré : sous le tableau restaient
+60 px vides à 390 px et la dernière ligne était coupée à 320 px ; les
+lignes se partagent désormais la hauteur (`flex:1 1 0`, 28 px au moins).
+Parcours 188, 0 faute.
