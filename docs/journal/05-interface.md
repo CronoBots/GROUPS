@@ -15682,3 +15682,13 @@ puis corrigée : les lignes gardaient leur part fixe de hauteur
 chaque ligne prend sa hauteur (`flex:0 0 auto`) et ce qui ne tient plus
 passe dans « + N autres ». Mesuré : à 390 px, deux ou trois dates ; au
 PC, quatre ou cinq ; à 320 px, une ou deux ; aucun titre coupé.
+
+**v1504 — Ma paie : masqué ou non, rien ne bouge** (même jour ; le
+client, deux captures : « pour le salaire masqué ou non, il faudrait que
+les éléments restent à la même place, car ça décale le contenu »). La
+ligne de l'écart au mois d'avant (« +313,57 € vs oct. ») n'était écrite
+qu'en clair (`P=voir?precDe(C):null`) : en l'ouvrant, elle s'ajoutait et
+déplaçait tout. Elle est là dans les deux états ; masquée, le montant en
+points (« ••• € par rapport à octobre »), sans le sens (ni vert ni
+rouge). Mesuré au navigateur, en haut du cadre, masqué puis visible :
+étiquette 17 px, montant 36, écart 68, note 94 — identiques.
