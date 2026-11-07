@@ -15382,3 +15382,25 @@ ligne ouvre ce jour au calendrier. En petit, la tête seule ; en moyen,
 les quatre pauses en colonnes (« 74/93 ») ; en grand, les lignes
 entières. Mesuré : plus rien de coupé à 390 et 1280 px ; à 320 px, la
 petite barre s'efface pour laisser la date entière. Parcours 188, 0 faute.
+
+### v1486 — « Mes stats » sans doublon, et optimisées (07/11/2026)
+
+Le client : « Mon année et Mes stats, redondants ? » — en partie : les
+journées par pause depuis le 1er janvier (« 74 nuits · 32 matins… ») et le
+nombre de jours se lisaient dans les deux. Proposition : retirer la rangée
+des pauses de « Mes stats » ; le client : « go », puis « et optimise-les au
+max ». Photographié après le retrait : en petit et en moyen, le seul
+chiffre des heures et un grand vide ; en grand, quatre tuiles géantes, la
+« plus longue série » écartée.
+
+`awStats` refait sur le modèle de « Mon année » : la même tête (`.ma-tete`)
+— les heures prestées en grand, « en 136 jours · 24,3 h par semaine » —,
+puis les quatre faits de l'année, chacun une ligne à icône : jours de
+week-end travaillés, fériés travaillés, rappels par la hiérarchie, plus
+longue série d'affilée. En petit, la tête seule (« en 136 jours ») ; en
+moyen, les quatre en colonnes (icône, nombre, nom court) ; en grand, les
+lignes. Mesuré à 320, 390 et 1280 px, les deux widgets : rien de coupé ni
+débordant (à 320 px, la moyenne par semaine quitte la tête). Chaque widget
+a désormais son rôle : « Mon année » regarde devant (ce qui reste, la
+prochaine date de chaque pause), « Mes stats » derrière (heures et faits
+marquants). Parcours 188, 0 faute.

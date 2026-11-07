@@ -8822,6 +8822,29 @@ html body #v-horaire #anCard[data-acc-f="S"] .ma-pct{margin-left:auto}
 html body #v-horaire #anCard[data-acc-f="M"] div.ma-l{flex-direction:row; justify-content:space-between; gap:6px}
 html body #v-horaire #anCard[data-acc-f="M"] .ma-r{display:flex; flex-direction:column; align-items:center; gap:3px; width:auto; flex:1 1 0; min-height:0; box-shadow:none; padding:0}
 html body #v-horaire #anCard[data-acc-f="M"] .ma-t,html body #v-horaire #anCard[data-acc-f="M"] .ma-mb{display:none}
+/* Mes stats optimisées (07/11/2026) : la tête de « Mon année » (.ma-tete) */
+html body #v-horaire #statsCard .aw-corps{display:flex; flex-direction:column; flex:1 1 auto; min-height:0}
+.ms{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:8px}
+.ms-l{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; justify-content:space-around}
+.ms-r{display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; column-gap:10px; min-height:40px; box-shadow:inset 0 1px 0 var(--line2)}
+.ms-r:first-child{box-shadow:none}
+.ms-i{flex:none; display:grid; place-items:center; width:28px; height:28px; border-radius:8px; color:#fff; background:var(--ip-gris)}
+.ms-we .ms-i{background:var(--ip-planning)} .ms-fer .ms-i{background:var(--ip-absences)} .ms-rap .ms-i{background:var(--ip-cm)} .ms-ser .ms-i{background:var(--ip-recherche)}
+.ms-t{font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ms-r>b{font-size:16px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums}
+.ms-r>small{display:none}
+html body #v-horaire #statsCard[data-acc-f="S"] .ms-l,html body #v-horaire #statsCard[data-acc-f="S"] .ms-moy{display:none}
+@media (max-width:359px){ html body #v-horaire #statsCard .ms-moy{display:none} html body #v-horaire #statsCard[data-acc-f="S"] .ma-n{font-size:28px} }
+html body #v-horaire #statsCard[data-acc-f="S"] .ms{justify-content:center}
+html body #v-horaire #statsCard[data-acc-f="S"] .ma-tete{flex-wrap:wrap; row-gap:4px}
+html body #v-horaire #statsCard[data-acc-f="S"] .ma-n{font-size:32px}
+html body #v-horaire #statsCard[data-acc-f="S"] .ma-tete .ma-l{flex-basis:100%}
+/* moyen : les quatre faits en colonnes, la valeur sur son nom court */
+html body #v-horaire #statsCard[data-acc-f="M"] .ms-l{flex-direction:row; gap:6px; align-items:center}
+html body #v-horaire #statsCard[data-acc-f="M"] .ms-r{display:flex; flex-direction:column; align-items:center; gap:2px; flex:1 1 0; min-height:0; box-shadow:none}
+html body #v-horaire #statsCard[data-acc-f="M"] .ms-t{display:none}
+html body #v-horaire #statsCard[data-acc-f="M"] .ms-i{width:24px; height:24px; border-radius:7px}
+html body #v-horaire #statsCard[data-acc-f="M"] .ms-r>small{display:block; font-size:11.5px; color:var(--muted)}
 /* Mes données (07/11/2026) */
 .md-corps{padding:4px 16px 14px}
 .md-info{margin:0 0 4px; font-size:13px; line-height:1.45; color:var(--muted)}
@@ -19289,11 +19312,21 @@ function awStats(){
   if(!p){ c.hidden=true; return; }
   var o=awStatsCalc(p); if(!o.j){ c.hidden=true; return; }
   document.getElementById("statsSub").textContent="depuis le 1er janvier";
-  var PZ=[["N","nuits"],["AM","matins"],["PM","après-midi"],["D","jours"]].filter(function(z){ return o.P[z[0]]; });
-  corps.innerHTML='<div class="aw-pres-tete"><b class="aw-gros">'+num(R(o.h,0))+'</b><span>h prestées<span class="aw-st-j"> en '+o.j+' jour'+(o.j>1?'s':'')+'</span></span></div>'
-    +'<div class="aw-pz">'+PZ.map(function(z){ return '<span class="aw-pzi"><i class="pf-pause" data-p="'+z[0]+'">'+z[0]+'</i><b>'+o.P[z[0]]+'</b><small>'+z[1]+'</small></span>'; }).join("")+'</div>'
-    +'<ul class="aw-l aw-pres-l">'+[["Jours de week-end",o.we],["Fériés travaillés",o.fer],["Rappels",o.rap],["Moyenne par semaine",num(R(o.h/o.sem,1))+" h"],["Plus longue série",o.serie+" j"]].filter(function(r,i){ return i<4||o.serie>=5; }).slice(0,4).map(function(r){
-        return '<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>'; }).join("")+'</ul>';
+  /* MES STATS OPTIMISÉES (le client, le 07/11/2026 : « optimise-les au
+     max », après le retrait de la rangée des pauses) : la tête comme « Mon
+     année » — les heures en grand, « h prestées », les jours et la moyenne
+     par semaine dessous —, puis les quatre faits de l'année, chacun sur une
+     ligne à icône (week-ends, fériés, rappels, plus longue série). En petit,
+     la tête seule ; en moyen, les quatre en colonnes ; en grand, en lignes. */
+  var moy=num(R(o.h/o.sem,1));
+  var F=[["we",'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M15 13h3v3h-3z"/></svg>',o.we,"week-ends","Jours de week-end travaillés"],
+         ["fer",'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1"/><circle cx="12" cy="13" r="4"/><path d="M5 21h14"/></svg>',o.fer,"fériés","Jours fériés travaillés"],
+         ["rap",'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',o.rap,"rappels","Rappels par la hiérarchie"],
+         ["ser",'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V14M9 20V10M14 20V6M19 20V3"/></svg>',o.serie+" j","série","Plus longue série d’affilée"]];
+  corps.innerHTML='<div class="ms">'
+    +'<div class="ma-tete"><b class="ma-n">'+num(R(o.h,0))+'</b><span class="ma-l"><span>heures prestées</span><small>en '+o.j+' jour'+(o.j>1?'s':'')+'<span class="ms-moy"> · '+moy+' h par semaine</span></small></span></div>'
+    +'<div class="ms-l">'+F.map(function(f){ return '<div class="ms-r ms-'+f[0]+'" role="group" aria-label="'+esc(f[4]+" : "+f[2])+'"><i class="ms-i" aria-hidden="true">'+f[1]+'</i><span class="ms-t">'+esc(f[4])+'</span><b>'+f[2]+'</b><small>'+esc(f[3])+'</small></div>'; }).join("")+'</div>'
+    +'</div>';
   c.hidden=false;
 }
 /* MES REPOS (06/11/2026) : ce qui vient, sur 180 jours (l'horaire de
