@@ -11,7 +11,7 @@
 */
 const {chromium}=require('playwright');
 const k=process.argv[2], out=process.argv[3], qui=process.argv[4]||"VBN";
-const F={tel:{R:[1,0.5],B:[2,0.5],S:[1,1],M:[2,1],L:[2,2]}, large:{R:[3,0.5],B:[6,0.5],S:[3,1],M:[6,1],L:[6,2],XL:[12,2]}};
+const F={tel:{R:[1,0.5],B:[2,0.5],S:[1,1],M:[2,1],L:[2,2],T:[2,3]}, large:{R:[3,0.5],B:[6,0.5],S:[3,1],M:[6,1],L:[6,2],XL:[12,2]}};
 const E=[{n:'tel390',w:390,h:844,m:'tel',z:{top:59,bottom:34,left:0,right:0}},{n:'tel320',w:320,h:568,m:'tel',z:{top:20,bottom:0,left:0,right:0}},{n:'couche852',w:852,h:393,m:'tel',z:{top:0,bottom:21,left:59,right:59}},{n:'ordi-1280',w:1280,h:800,m:'large',pc:true},{n:'ordi-1920',w:1920,h:1080,m:'large',pc:true}];
 (async()=>{
  const b=await chromium.launch(); const res=[];

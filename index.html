@@ -8759,6 +8759,13 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-jt-live{flex:none; margin:0 2px 0 3px; width:8px; height:8px}
 /* le carré et le compte de « L'usine en direct » */
 .aw-jt .usp-carre{flex:none}
+button.aw-jl{appearance:none; -webkit-appearance:none; background:none; border:0; padding:0; margin:0; font:inherit; color:inherit; text-align:left; cursor:pointer}
+.usp-jt{display:none}
+html body #v-horaire #usineCard[data-acc-h="3"] .usp-jt{display:block; flex:1 1 auto; min-height:0; margin:4px 12px 6px}
+/* la photo à sa proportion, le tableau prend le reste */
+html body #v-horaire.acc-perso #usineCard[data-acc-h="3"] .usp{flex:0 0 auto; aspect-ratio:1600/840}
+html body #v-horaire #usineCard[data-acc-h="3"] .usp-liste{display:none!important}
+#usineCard .usp-jt .aw-l>li{min-height:34px; padding:2px 0}
 .aw-jn{flex:none; min-width:30px; text-align:right; font-size:13px; font-weight:650; color:var(--ink2); font-variant-numeric:tabular-nums}
 .aw-jn-m{color:var(--at-jaune)}
 .aw-jt li.us-f-jaune{--us-c:var(--us-f-jaune)} .aw-jt li.us-f-vert{--us-c:var(--us-f-vert)} .aw-jt li.us-f-rouge{--us-c:var(--us-f-rouge)} .aw-jt li.us-f-bleu{--us-c:var(--us-f-bleu)} .aw-jt li.us-f-gris{--us-c:var(--us-f-gris)}
@@ -19229,6 +19236,42 @@ function awTelTete(){
       +'<span class="aw-jt-h"><span class="aw-jt-pz">'+esc(eq?t(".site-sn>b"):(pa?pa.textContent:""))+' · </span>'+esc(t(".site-qd>b"))+'</span>'
       +(n?'<em title="'+esc(n+" "+t("em>small"))+'"><b>'+esc(n)+'</b><span class="aw-jt-pw"> '+esc(t("em>small"))+'</span></em>':'')+'</p>'; }catch(e){ return ""; }
 }
+/* LE TABLEAU DES POSTES EN DIRECT, commun au widget « Postes en direct »
+   et, au téléphone, à « L'usine en direct » sous la photo (le client, le
+   07/11/2026 : « sur mobile ce nouveau tableau peut remplacer la liste qui
+   est sous la carte en live »).
+   LE COMPTE À LA PLACE DU BOUTON (le client, le 06/11/2026 : « supprime
+   les badges téléphone, mets les mêmes points de couleur que le cadre
+   au-dessus et indique l'effectif 1/1 comme au-dessus ») : chaque poste,
+   son carré, ses trigrammes, et tenus/attendus en ambre s'il manque
+   quelqu'un (usinePhotoListe).
+   LE CONTREMAÎTRE EN TÊTE, LES ADJOINTS EN ROUE LIBRE JUSTE DESSOUS (le
+   client, le 07/11/2026 ; en QCM : « juste sous CM ») : les adjoints sans
+   poste ni remise de pause (adj, et non cmp) quittent la ligne du
+   contremaître pour une ligne à eux, montrée seulement s'il y en a.
+   opt.fiche : chaque ligne ouvre la fiche du poste (data-k, usineBrancher) ;
+   sinon, la ligne d'une salle qui a une ligne fixe appelle. */
+function postesListeHTML(E,TL,opt){
+  opt=opt||{}; TL=TL||{};
+  function nom(z){ return z.k==="step"?'<span class="aw-jn-l">'+esc(z.t)+'</span><span class="aw-jn-c">STEP</span>':esc(z.t); }
+  function vous(k){ return k===opt.moi?' <i class="aw-jv">vous</i>':''; }
+  function puces(g){ return '<span class="aw-jg">'+g.map(function(o){ return '<i class="'+(o.moi?'moi':'')+(o.form?' form':'')+'">'+esc(o.tri)+'</i>'; }).join("")+'</span>'; }
+  var cm=E.Z.cm, libres=cm.gens.filter(function(o){ return o.adj&&!o.cmp; });
+  function gensDe(z){ return z.k==="cm"?cm.gens.filter(function(o){ return libres.indexOf(o)<0; }):E.Z[z.k].gens; }
+  function ligne(k,f,titre,g,cpt,dit){
+    var dedans='<span class="usp-carre usp-f-'+f+'" aria-hidden="true"></span><span class="aw-t"><b>'+titre+vous(k)+'</b></span>'+puces(g)+cpt, o=TL[k]||{};
+    if(opt.fiche) return '<li class="us-f-'+f+'"><button type="button" class="aw-jl" data-k="'+k+'" aria-label="'+esc(dit)+'">'+dedans+'</button></li>';
+    if(o.tel) return '<li class="us-f-'+f+'"><a href="tel:'+esc(o.tel)+'" aria-label="'+esc(dit+". Appeler la salle, "+o.vu)+'">'+dedans+'</a></li>';
+    return '<li class="us-f-'+f+'"><span class="aw-jl">'+dedans+'</span></li>';
+  }
+  var ordre=USINE_ZONES.filter(function(z){ return z.k==="cm"; }).concat(USINE_ZONES.filter(function(z){ return z.k!=="cm"; }));
+  var L=[];
+  ordre.forEach(function(z){ var Zk=E.Z[z.k], n=Zk.n||0, att=Zk.attendu||0, f=z.f||"gris";
+    L.push(ligne(z.k,f,nom(z),gensDe(z),'<b class="aw-jn'+(att>n?' aw-jn-m':'')+'">'+n+(att?'/'+att:'')+'</b>',z.t+", "+n+(att?" sur "+att:"")+" au poste"));
+    if(z.k==="cm"&&libres.length) L.push(ligne("cm","gris",'Adjoint'+(libres.length>1?'s':''),libres,'<b class="aw-jn">'+libres.length+'</b>',libres.length+" adjoint"+(libres.length>1?"s":"")+" en roue libre"));
+  });
+  return '<ul class="aw-l aw-jt"'+(opt.fiche?'':' data-acc-fit')+'>'+L.join("")+'</ul>';
+}
 function awJoindre(){
   var E=null; try{ E=usineEtat(); }catch(e){}
   var moi=null; if(E) USINE_ZONES.forEach(function(z){ if(!moi&&E.Z[z.k].gens.concat(E.Z[z.k].arrivent).some(function(o){ return o.moi; })) moi=z.k; });
@@ -19236,26 +19279,7 @@ function awJoindre(){
   var tc=document.getElementById("telCard"), tb=document.getElementById("telCorps");
   if(!tc||!tb) return;
   if(!E){ tc.hidden=true; return; }
-  /* LE COMPTE À LA PLACE DU BOUTON (le client, le 06/11/2026 : « supprime
-     les badges téléphone, mets les mêmes points de couleur que le cadre
-     au-dessus et indique l'effectif 1/1 comme au-dessus ») : chaque poste,
-     son carré, ses trigrammes, et tenus/attendus en ambre s'il manque
-     quelqu'un (usinePhotoListe). La rangée reste un lien d'appel quand la
-     salle a une ligne : la toucher appelle. */
-  var Z=USINE_ZONES.slice();
-  if(moi) Z.sort(function(a,b){ return (b.k===moi)-(a.k===moi); });
-  /* au plus étroit (320 px), « Station d'épuration » s'abrège comme à l'usine */
-  function nom(z){ return z.k==="step"?'<span class="aw-jn-l">'+esc(z.t)+'</span><span class="aw-jn-c">STEP</span>':esc(z.t); }
-  function vous(z){ return z.k===moi?' <i class="aw-jv">vous</i>':''; }
-  function gens(z){ var g=E.Z[z.k].gens; if(!g.length) return '<span class="aw-jg"></span>';
-    return '<span class="aw-jg">'+g.map(function(o){ return '<i class="'+(o.moi?'moi':'')+(o.form?' form':'')+'">'+esc(o.tri)+'</i>'; }).join("")+'</span>'; }
-  function compte(z){ var Zk=E.Z[z.k], n=Zk.n||0, att=Zk.attendu||0;
-    return '<b class="aw-jn'+(att>n?' aw-jn-m':'')+'">'+n+(att?'/'+att:'')+'</b>'; }
-  var h=awTelTete()+'<ul class="aw-l aw-jt" data-acc-fit>'+Z.map(function(z){ var o=TL[z.k]||{}, Zk=E.Z[z.k];
-    var dedans='<span class="usp-carre usp-f-'+(z.f||"gris")+'" aria-hidden="true"></span><span class="aw-t"><b>'+nom(z)+vous(z)+'</b></span>'+gens(z)+compte(z);
-    if(o.tel) return '<li class="us-f-'+z.f+'"><a href="tel:'+esc(o.tel)+'" aria-label="'+esc(z.t+", "+(Zk.n||0)+(Zk.attendu?" sur "+Zk.attendu:"")+" au poste. Appeler la salle, "+o.vu)+'">'+dedans+'</a></li>';
-    return '<li class="us-f-'+z.f+'"><span class="aw-jl">'+dedans+'</span></li>';
-  }).join("")+'</ul>';
+  var h=awTelTete()+postesListeHTML(E,TL,{moi:moi});
   /* chaque minute (accueilTic) : ne réécrire que ce qui a changé */
   if(tb._h!==h){ tb._h=h; tb.innerHTML=h; try{ accAjusterBientot(); }catch(e){} }
   tc.hidden=false;
@@ -25476,7 +25500,15 @@ function usinePhotoRendre(corps,E,cw){
      cadre, et la pause en cours */
   var lv=document.getElementById("uspLive"); if(lv) lv.innerHTML='<i></i><span>En direct</span><b>'+esc(siteH(E.h))+'</b>';
   document.getElementById("uspEt").innerHTML=usinePhotoCartes(E);
-  var ue=document.getElementById("uspEtat"); if(ue) ue.innerHTML=usinePhotoEtat(E); document.getElementById("uspListe").innerHTML=usinePhotoListe(E); uspPlacer();
+  var ue=document.getElementById("uspEtat"); if(ue) ue.innerHTML=usinePhotoEtat(E); var ul=document.getElementById("uspListe");
+  /* au téléphone, le tableau des postes en direct à la place de la liste
+     (07/11/2026) : la ligne ouvre la fiche du poste, comme la liste */
+  /* (en « très grand », trois lignes : en « grand », la liste d'avant, qui
+     seule y tient — l'une ou l'autre se montre selon la hauteur, CSS) */
+  var jt=document.getElementById("uspJt");
+  if(!jt){ jt=document.createElement("div"); jt.id="uspJt"; jt.className="usp-jt"; ul.parentNode.insertBefore(jt,ul.nextSibling); }
+  ul.innerHTML=usinePhotoListe(E); jt.innerHTML=uspTel()?postesListeHTML(E,{},{fiche:true}):"";
+  uspPlacer();
   document.getElementById("usFiche").innerHTML=usineFiche(E,US_SEL);
 }
 function renderUsine(){
@@ -38963,7 +38995,7 @@ var ACC_W=[
   {k:"planning",     nom:"Planning",            l:12, f:["XL"], pc:true, h:2},
   /* la photo et ses trigrammes : très grand au PC ; au téléphone, grand,
      la photo seule et sa légende, la fiche par-dessus */
-  {k:"usine",        nom:"L’usine en direct",   l:12, f:{tel:["L"], large:["XL"]}, h:2},
+  {k:"usine",        nom:"L’usine en direct",   l:12, f:{tel:["T","L"], large:["XL"]}, h:2},
   /* le mois en grand ; au PC, très grand l'élargit */
   {k:"calendrier",   nom:"Calendrier",          l:6,  f:["M","L","XL"], h:2},
   /* une ligne montre tous les compteurs, leurs jours et le total ; deux
@@ -39034,7 +39066,7 @@ var ACC_ORDRE_TEL=["profil","meteo","poste","afaire","annonces","acces","cycle",
 var ACC_ORDRE_LARGE=["profil","poste","meteo","afaire","annonces","cycle","acces","planning","dates","demandes","paie","soldes","presents","polyvalences","conges","cherche","repos","stats","recyclage","usine","numeros","calendrier","messages"];
 var ACC_DEFAUT={
   tel:{profil:"R", meteo:"R", poste:"M", afaire:"S", annonces:"S", cycle:"M", paie:"S", soldes:"S", dates:"M", demandes:"M", presents:"S", polyvalences:"S", conges:"S", repos:"S", stats:"S", recyclage:"M", numeros:"L", cherche:"M",
-    calendrier:"L", usine:"L", messages:"M"},
+    calendrier:"L", usine:"T", messages:"M"},
   large:{profil:"S", poste:"M", meteo:"S", afaire:"S", annonces:"S", cycle:"M", planning:"XL", dates:"M", demandes:"M", paie:"S", soldes:"S", presents:"S", polyvalences:"S", conges:"S", repos:"M", stats:"M", recyclage:"M", numeros:"M", cherche:"M",
     usine:"XL", calendrier:"L", messages:"L"}
 };
@@ -39080,8 +39112,10 @@ function accDef(k){ for(var i=0;i<ACC_W.length;i++) if(ACC_W[i].k===k) return AC
 /* et le mini, 2 × 1 icônes : la largeur du petit, une seule rangée (le
    client, le 05/11/2026), pour un coup d'œil : le trigramme et la
    fonction, la température et le ciel */
-var ACC_FORMATS={tel:{R:[1,0.5], B:[2,0.5], S:[1,1], M:[2,1], L:[2,2]}, large:{R:[3,0.5], B:[6,0.5], S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
-var ACC_FORMAT_NOM={R:"Mini", B:"Bandeau", S:"Petit", M:"Moyen", L:"Grand", XL:"Très grand"};
+/* T, « très grand » du téléphone (07/11/2026) : trois lignes de haut, pour
+   « L'usine en direct » et son tableau des postes sous la photo */
+var ACC_FORMATS={tel:{R:[1,0.5], B:[2,0.5], S:[1,1], M:[2,1], L:[2,2], T:[2,3]}, large:{R:[3,0.5], B:[6,0.5], S:[3,1], M:[6,1], L:[6,2], XL:[12,2]}};
+var ACC_FORMAT_NOM={R:"Mini", B:"Bandeau", S:"Petit", M:"Moyen", L:"Grand", XL:"Très grand", T:"Très grand"};
 function accFormats(k){ var d=accDef(k), m=ACC.mode||"tel", F=ACC_FORMATS[m], f=d&&!d.app&&d.f; if(!f) return null; if(!(f instanceof Array)) f=f[m]||[];
   return f.filter(function(x){ return F[x]; }).map(function(x){ return {n:x, t:F[x][0], h:F[x][1]}; }); }
 function accPermises(k){ var d=accDef(k), m=ACC.mode||"tel"; if(!d||d.app) return [];
@@ -39155,6 +39189,10 @@ function accCharger(mode,defaut){
      elle, où qu'elle ait été placée */
   if(neufs.indexOf("soldes")>=0&&o.indexOf("conges")>=0){ o.splice(o.indexOf("soldes"),1); o.splice(o.indexOf("conges"),0,"soldes"); }
   ACC.o=o; ACC.t=sv.t&&typeof sv.t==="object"?sv.t:{}; ACC.m=sv.m&&typeof sv.m==="object"?sv.m:{}; ACC.hh=sv.h&&typeof sv.h==="object"?sv.h:{};
+  /* « L'usine en direct » passe une fois en « très grand » au téléphone
+     (07/11/2026) : son tableau des postes ne tient qu'en trois lignes ; une
+     disposition déjà réglée le gardait en « grand » */
+  if(mode==="tel"&&sv.o&&!lsGet("ui/accueil/usineT")){ lsSet("ui/accueil/usineT",1); if(ACC.hh.usine===2||ACC.hh.usine===undefined){ ACC.t.usine=2; ACC.hh.usine=3; } }
   ACC.pg=sv.p&&typeof sv.p==="object"?sv.p:{};
   /* LE CHAT À GAUCHE DE LA PAGE PRINCIPALE (le client, le 06/11/2026 :
      « sur mobile, le chat devrait être automatiquement dans le menu à

@@ -282,8 +282,9 @@ function constater(){
       await aller(page,"tab-horaire");
       const cible=await page.evaluate(()=>{ const vis=e=>!!e&&getComputedStyle(e).display!=="none"&&e.getClientRects().length>0;
         const u=document.getElementById("usineCard"); if(!vis(u)) return null;
-        const l=[...document.querySelectorAll("#uspListe .usp-li,#uspEtat .usp-st")].find(vis);
-        return l?(l.closest("#uspListe")?"#uspListe .usp-li":"#uspEtat .usp-st"):null; });
+        /* au téléphone, en « très grand », le tableau des postes (07/11/2026) */
+        const l=[...document.querySelectorAll("#uspJt [data-k],#uspListe .usp-li,#uspEtat .usp-st")].find(vis);
+        return l?(l.closest("#uspJt")?"#uspJt [data-k]":l.closest("#uspListe")?"#uspListe .usp-li":"#uspEtat .usp-st"):null; });
       if(cible){ n++;
         const b=page.locator(cible).first(); await b.scrollIntoViewIfNeeded().catch(()=>{});
         if(ecran.mobile) await b.tap({force:true}).catch(()=>{}); else await b.click({force:true}).catch(()=>{});

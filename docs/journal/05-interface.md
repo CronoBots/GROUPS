@@ -15198,3 +15198,33 @@ et ses heures, les présents. Le widget s'appelle « Postes en direct » (il
 ne montre plus de numéro) et n'attend plus de compte : les huit postes y
 sont toujours. La rangée d'une salle qui a une ligne reste un lien
 d'appel : la toucher appelle. Parcours 188, 0 faute.
+
+### v1475 — le contremaître en tête, et le tableau dans « L'usine en direct » au téléphone (07/11/2026)
+
+Le client : « si des adjoints sont présents en roue libre, ils doivent
+être en dessus de contremaître, et contremaître doit être placé en premier
+de la liste. Sur mobile, ce nouveau tableau peut remplacer la liste qui est
+sous la carte en live ». La place des adjoints était ambiguë (au-dessus,
+mais le contremaître premier) : QCM, réponse « juste sous CM ».
+
+- `postesListeHTML` (commun aux deux widgets) : Contremaître d'abord,
+  puis, s'il y en a, une ligne « Adjoint(s) » — les adjoints sans poste ni
+  remise de pause (`adj` et non `cmp`), retirés de la ligne du
+  contremaître —, puis les postes dans l'ordre du plan. « Mon poste en
+  tête » ne s'applique plus : l'ordre est fixe.
+- Au téléphone, « L'usine en direct » gagne un format « très grand »
+  (`T`, 2 × 3, le seul du téléphone à trois lignes) : la photo à sa
+  proportion, le tableau dessous, chaque ligne ouvrant la fiche du poste
+  (`data-k`, comme la liste d'avant). En « grand », la liste d'avant reste
+  (le tableau n'y tient pas : mesuré, il écrasait la photo). Les deux sont
+  écrits, la hauteur choisit (`[data-acc-h="3"]`). Une disposition déjà
+  réglée passe une fois en « très grand » (`ui/accueil/usineT`).
+- Mesures : première photo, le tableau ne prenait que la moitié de la
+  largeur (la grille à deux colonnes de la liste, plus forte, gagnait) ;
+  puis la photo prenait toute la hauteur et le contrôle `data-acc-fit`
+  rognait le tableau à une ligne. Photo à sa proportion, tableau sans
+  `data-acc-fit` : à 390 et 320 px, les huit postes tiennent.
+- `parcours.js` touchait le premier poste de la liste d'avant, cachée en
+  « très grand » : l'essai se sautait sans le dire (184 essais au lieu de
+  188). Il touche maintenant le tableau ; 188, 0 faute. `widget-photos.js`
+  connaît le format `T`.
