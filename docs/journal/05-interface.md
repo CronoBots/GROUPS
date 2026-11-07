@@ -15711,3 +15711,17 @@ possible de l'intégrer aux autres widgets ou contenus ») :
   de congé ; le jour en gras, le mois un peu plus pâle. Les calendriers
   (Mon cycle, Calendrier) gardent leurs chiffres : leur couleur dit déjà
   le poste et le jour même.
+
+**v1506 — « Prochains repos » et « Dates clés », le mois en entier**
+(même jour ; le client : « est-il possible d'inscrire le mois complet
+pour les repos et dates à retenir ? N'y a-t-il pas de nom mieux adapté à
+ces deux cadres ? »). Les noms, tranchés selon la recommandation (une
+question de goût, le client corrigera s'il le veut) : « Mes repos »
+devient « Prochains repos » (il ne montre que ce qui vient) ; « À
+retenir » devient « Dates clés » (fériés, avances et soldes de paie,
+congés scolaires : « à retenir » ne disait pas quoi). Le mois s'écrit en
+entier (`MOIS`, en minuscules, au lieu de `AW_MC`). En moyen et en grand,
+la date (« 24 novembre ») avait une largeur propre à chaque ligne et les
+titres ne partaient plus du même aplomb (photographié) : une colonne de
+6,9 em pour toutes. Sous 360 px de cadre (le téléphone), le détail gris
+cède sa place au titre : il n'en gardait parfois qu'une lettre (« V »).
