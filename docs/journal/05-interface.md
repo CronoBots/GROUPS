@@ -15555,3 +15555,16 @@ ligne (icône, ciel, max et min), inchangée, mesurée. Corrects tels quels
 dans les captures : Mon profil, Heure et poste, Annonces, À faire, Mon
 cycle, Ma paie (le net, l'écart au mois d'avant, la prochaine avance),
 Congés restants, Mes repos, Mes stats.
+
+**v1496 — Téléphone en « Moyen », deuxième partie** (même jour, trois
+captures). Un défaut : le **Calendrier moyen** au téléphone, une semaine
+collée sous les jours, un vide dessous. Deuxième essai des deux semaines,
+les jours à la hauteur de leur semaine comme dans « Mon cycle » : à 390 px
+la pastille du poste touchait la date du dessous, à 320 elles se
+chevauchaient (mesuré, photographié) — abandonné pour de bon. La semaine
+reste seule, centrée dans sa place ; un premier centrage, jour par jour,
+faisait descendre le jour sans poste (le 5) sous les autres : c'est la
+semaine entière qui se centre (`.mc-sem` à sa hauteur, `.mc-grille`
+centrée). Le PC, inchangé (photographié). Corrects tels quels : L'usine
+en direct, Postes en direct, « Congé possible ? » (v1494), À retenir,
+Demandes de congé, Mon année.
