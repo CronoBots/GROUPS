@@ -15592,3 +15592,27 @@ disposition déjà enregistrée en « grand » repasse une fois en T (marque
 `ui/accueil/usineT3`, la v1477 ayant déjà posé `usineT2`). Mesuré : Min
 et Max donnent T (342 × 553) ; une disposition « grand » enregistrée
 revient en T, tableau visible, et l'enregistrement porte h = 3.
+
+**v1499 — Téléphone : quatre demandes du client** (même jour) :
+
+- **Calendrier en 4 × 4 fixe** (« sur mobile, calendrier doit être taille
+  fixe à 4x4 ») : au téléphone, son seul format est « grand » (le mois
+  entier) ; une disposition enregistrée en « moyen » y revient seule
+  (`accTaille`, `accHaut`), mesuré : 342 × 357 en Min comme en Moyen.
+- **Congés restants** (« le total en dessous au lieu du dessus et centré
+  sous une fine ligne de séparation avec le tableau ») : au téléphone, la
+  ligne « 17 h à placer · ≈ 2,1 j » passe sous les compteurs (`order:2`),
+  centrée, sous un filet de 1 px (`--line2`).
+- **Météo 2 × 2 au moins** : le bandeau (R, une demi-rangée) n'est plus
+  offert au téléphone ; une disposition qui l'avait retombe en petit (la
+  hauteur validée par `accHaut`).
+- **Les raccourcis dans le menu, plus sur l'écran** (« il faut mettre les
+  icônes congé, historique, etc. dans le menu et non pas dans l'écran ») :
+  plus aucune icône à l'Accueil du téléphone (`accHorsMode`, toute icône) ;
+  la feuille « Plus » s'ouvre sur une section « Raccourcis » : appeler le
+  contremaître de pause (quand son numéro est connu), Congé (une demande),
+  Certificat (l'e-mail à la RH), Mon historique (« Changements » pour la
+  RH). Un appel et un e-mail n'étant pas des boutons, la feuille les suit
+  par `data-href` ; Congé et l'historique passent par l'écouteur commun des
+  `data-ctl`, ouvert à `#plusFeuille`. Éprouvé : toucher « Congé » ouvre la
+  demande et referme la feuille.

@@ -9239,6 +9239,12 @@ html body #v-horaire.acc-perso.acc-tel #calCard[data-acc-h="1"] .mc-sem{flex:0 0
 /* Congés restants : 1 ligne, les tuiles ; 2 lignes, une ligne par congé */
 html body #v-horaire.acc-perso #cgCard>.an-corps{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
 html body #v-horaire.acc-perso #cgCard #ryCg{flex:1 1 auto; display:flex; flex-direction:column}
+/* au téléphone, le total des heures à placer SOUS le tableau, centré, sous
+   un filet fin (le client, le 07/11/2026 : « il faut que le total soit en
+   dessous au lieu du dessus et centré sous une fine ligne de séparation
+   avec le tableau ») */
+html body #v-horaire.acc-perso.acc-tel #cgCard #ryCg .pf-cg-t{order:2; justify-content:center; margin:8px 0 0; padding-top:7px; border-top:1px solid var(--line2)}
+html body #v-horaire.acc-perso.acc-tel #cgCard #ryCg .pf-cg-t .pf-pr-l{margin:0; text-align:center}
 html body #v-horaire.acc-perso #cgCard .pf-cgs{flex:1 1 auto; margin-bottom:0; grid-auto-rows:1fr}
 html body #v-horaire.acc-perso #cgCard[data-acc-h="1"] .pf-cgc{justify-content:space-between}
 html body #v-horaire.acc-perso #cgCard[data-acc-h="2"] .pf-cgs{grid-template-columns:1fr; grid-auto-rows:1fr; gap:6px}
@@ -28171,7 +28177,7 @@ window.addEventListener("resize",function(){ clearTimeout(_pfAfT); _pfAfT=setTim
 document.addEventListener("click",function(e){
   var af=e.target.closest?e.target.closest(".pf-af"):null;
   if(af){ var cc=document.getElementById("ctlCard"); if(cc){ cc.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); var i0=cc.querySelector(".ctl-i"); if(i0) try{ i0.focus({preventScroll:true}); }catch(er){} } return; }
-  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl],#pfRac [data-ctl],#recycCard [data-ctl]"):null; if(!b) return;
+  var b=e.target.closest?e.target.closest("#ctlCard [data-ctl],#racCard [data-ctl],#pfRac [data-ctl],#recycCard [data-ctl],#plusFeuille [data-ctl]"):null; if(!b) return;
   var k=b.getAttribute("data-ctl"), auj=jourUsine();
   /* la base injoignable : on relance les trois lectures, la carte attend */
   if(k==="reessayer"){ GR.demandesErr=GR.rcErr=GR.hsErr=false; try{ renderMesDemandes(); }catch(er){} renderCentre(); var cc0=document.getElementById("ctlCorps"); if(cc0&&!document.body.contains(b)) focusConteneur(cc0); return; }
@@ -39262,8 +39268,24 @@ document.addEventListener("click",function(e){
     var gest=l.filter(function(x){ return x.s!=="demandes"&&x.s!=="planning"&&(saisie||x.s!=="valider"); })
       .sort(function(a,b){ return (a.s==="valider"?0:1)-(b.s==="valider"?0:1); }).map(ws).join("")+dirL;
     if(tuile) return moi+usine+gest+aideReg(tel,L);
-    var h=(moi?'<p class="plus-titre">Mon espace</p>'+moi:"")+(usine?'<p class="plus-titre">L’usine</p>'+usine:"")+(gest?'<p class="plus-titre">Gestion</p>'+gest:"");
+    var rac=tel?raccourcis(L):"";
+    var h=(rac?'<p class="plus-titre">Raccourcis</p>'+rac:"")+(moi?'<p class="plus-titre">Mon espace</p>'+moi:"")+(usine?'<p class="plus-titre">L’usine</p>'+usine:"")+(gest?'<p class="plus-titre">Gestion</p>'+gest:"");
     return h+'<p class="plus-sep" aria-hidden="true"></p>'+aideReg(tel,L);
+  }
+  /* LES RACCOURCIS DE L'ACCUEIL PASSENT DANS LA FEUILLE (le client, le 07/11/2026 :
+     « il faut mettre les icônes congé, historique, etc. dans le menu et non
+     pas dans l'écran ») : appeler le contremaître de pause, une demande de
+     congé, le certificat médical, l'historique ; un appel ou un e-mail par
+     data-href (la feuille n'a que des boutons) */
+  function raccourcis(L){
+    var c=null, t=null; try{ c=cmDePause(); t=cmTel(); }catch(e){}
+    var h="";
+    var qui=c&&c.tri?idLisible(c.tri):"", lib="Contremaître de pause : l’appeler"+(qui?" ("+qui+")":"");
+    if(t) h+=L('data-href="tel:'+esc(t.tel)+'" aria-label="'+esc(lib)+'"',ctlIco("tel"),qui?"CM "+qui:"Contremaître","");
+    if(compteBase()) h+=L('data-ctl="dmNv" aria-label="Demande de congé"',ctlIco("conge"),"Congé","");
+    h+=L('data-href="'+esc(certifLien())+'" aria-label="Envoyer le certificat médical à la RH"',ctlIco("certif"),"Certificat","");
+    h+=L('data-ctl="histo" aria-label="'+esc(histoRH()?"Historique des changements : tous les trigrammes":"Historique de mon horaire")+'"',ctlIco("histo"),histoRH()?"Changements":"Mon historique","");
+    return h;
   }
   function aideReg(tel,L){
     /* les Réglages, en dernier : au téléphone, seule la roue du héros de
@@ -39297,6 +39319,7 @@ document.addEventListener("click",function(e){
   f.addEventListener("click",function(e){
     var b=e.target.closest("button"); if(!b) return;
     var ws=b.getAttribute("data-side-ws");
+    if(b.hasAttribute("data-href")){ fermer(); location.href=b.getAttribute("data-href"); return; }
     if(ws&&document.getElementById("grille").hidden) navCeder("plus","g");
     fermer();
     if(ws){ wsOuvrir(ws); }
@@ -39414,7 +39437,9 @@ var ACC_W=[
   /* et le mini, 2 × 1 icônes (le client, le 05/11/2026 : « le profil et la
      météo pourraient être affichés aussi sur 2 × 1 icônes ») */
   {k:"profil",       nom:"Mon profil",          l:6,  f:["R","B","S","M"], h:1},
-  {k:"meteo",        nom:"Météo",               l:6,  f:["R","S","M","L"], h:1},
+  /* au téléphone, 2 × 2 au moins (le client, le 07/11/2026 : « sur mobile,
+     minimum 2x2 pour météo ») : le bandeau d'une demi-rangée n'y est plus */
+  {k:"meteo",        nom:"Météo",               l:6,  f:{tel:["S","M","L"], large:["R","S","M","L"]}, h:1},
   {k:"acces",        nom:"Accès rapides",       l:6,  lmin:3, tmin:1},
   /* une grille de sept jours : moyen (la semaine), grand et très grand
      (six semaines) */
@@ -39431,7 +39456,9 @@ var ACC_W=[
      la photo seule et sa légende, la fiche par-dessus */
   {k:"usine",        nom:"L’usine en direct",   l:12, f:{tel:["T","L"], large:["XL"]}, h:2},
   /* le mois en grand ; au PC, très grand l'élargit */
-  {k:"calendrier",   nom:"Calendrier",          l:6,  f:["M","L","XL"], h:2},
+  /* au téléphone, une seule taille, 4 × 4 (le client, le 07/11/2026 : « sur
+     mobile, calendrier doit être taille fixe à 4x4 ») : le mois entier */
+  {k:"calendrier",   nom:"Calendrier",          l:6,  f:{tel:["L"], large:["M","L","XL"]}, h:2},
   /* une ligne montre tous les compteurs, leurs jours et le total ; deux
      lignes n'étiraient que leurs barres : petit et moyen ; moyen au PC
      (en petit, il laissait un trou de 2 × 2 sous le calendrier) */
@@ -39728,7 +39755,11 @@ function accPagesOn(){ return ACC.mode==="tel"; }
    demande de congé (dmNv), le certificat (certif), l'historique de mon
    horaire (histo) — une rangée de quatre. */
 function accAppDoublon(k){ return k==="app:paie"||k.indexOf("app:ws-")===0||k.indexOf("app:go-")===0; }
-function accHorsMode(k){ var d=accDef(k); return !!(d&&d.app&&(ACC.mode==="large"||accAppDoublon(k))); }
+/* puis (le même jour : « il faut mettre les icônes congé, historique, etc.
+   dans le menu et non pas dans l'écran ») : plus aucune icône à l'Accueil
+   du téléphone ; les quatre raccourcis passent dans la feuille « Plus »,
+   section « Raccourcis » */
+function accHorsMode(k){ var d=accDef(k); return !!(d&&d.app); }
 function accPageDe(k){ if(!accPagesOn()) return 0; var p=ACC.pg&&ACC.pg[k]; return p===-1||p===1?p:0; }
 function accPagePoser(k,p){ if(accPagesOn()&&(p===-1||p===1)) ACC.pg[k]=p; else delete ACC.pg[k]; }
 /* ce qui se montrerait sur une page (sans compter le masquage des pages) */
