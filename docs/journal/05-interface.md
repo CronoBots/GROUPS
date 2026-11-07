@@ -15661,3 +15661,14 @@ la ligne serrée débordait.
   défilement horizontal (zone 356 px, tableau 356), 61 commentaires
   coupés s'ouvrent, la bulle montre le texte entier ; à deux, aucun
   défilement, 267 coins rouges.
+
+**v1502 — Mes repos et À retenir en petit : plusieurs dates, la même
+ligne** (même jour ; le client : « essaye d'avoir plusieurs événements
+même sur le petit cadre, et que la présentation soit la même »). La ligne
+serrée du moyen (v1500), sans le détail ni l'échéance qui n'y tiennent
+pas : le jour en gras et le mois en gris, puis le titre, un filet
+dessous. Mesuré : à 390 px, quatre dates au lieu d'une (À retenir : trois
+et « + 5 autres ») ; au PC (217 px), cinq. À 320 px (132 px de cadre), le
+titre se coupait à quatre lettres (« Arm… ») : la date passe au-dessus
+du titre, deux dates. La v1494 (la date au-dessus du titre à toutes les
+largeurs, une seule date) est remplacée ; son commentaire, retiré.
