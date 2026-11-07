@@ -15269,3 +15269,19 @@ de l'année du jour). Les dix sous-titres des Réglages commencent par une
 majuscule. Erreur vue au navigateur : appelé deux fois avant la réponse
 du cache, « Application · Version » s'écrivait deux fois ; il ne s'écrit
 plus qu'une. Parcours 188, 0 faute.
+
+### v1479 — « Horaire de production », et « Mes données » remis en ordre (07/11/2026)
+
+Le client : « Horaire de production au lieu d'équipe. Et optimise cette
+partie (Mes données) ». Dans « Classeurs » : « Horaire de production
+2026/2027 » ; le sous-titre, « Production 2026 du 06/11 · … ».
+
+« Mes données » avait un texte gris et quatre boutons alignés au hasard
+(deux rouges de fait, rien ne le disait). Il devient : une phrase qui dit
+où vivent les saisies et pourquoi en garder une copie (changer de
+téléphone ou effacer l'application les perd) ; un groupe « Sauvegarde »
+(Exporter une copie : saisies et réglages ; Importer une copie) et un
+groupe « Remise à zéro » en rouge, chaque bouton disant ce qu'il
+effacerait (« Les journées de novembre 2026 », « Les douze mois de
+2026 », relu à chaque ouverture du pli). Les mêmes identifiants : les
+actions et leurs confirmations sont celles d'avant. Parcours 188, 0 faute.

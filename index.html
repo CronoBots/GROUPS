@@ -8737,6 +8737,20 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-ch input[type=date]{-webkit-appearance:none; appearance:none; display:block; line-height:34px; text-align:left}
 .aw-ch input[type=date]::-webkit-date-and-time-value{text-align:left; margin:0}
 .aw-ch .btn{height:36px; align-self:end; border-radius:10px; font-weight:650}
+/* Mes données (07/11/2026) */
+.md-corps{padding:4px 16px 14px}
+.md-info{margin:0 0 4px; font-size:13px; line-height:1.45; color:var(--muted)}
+.md-grp{margin:14px 0 6px 2px; font-size:12px; font-weight:650; letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+.md-l{border-radius:14px; background:var(--surface2); overflow:hidden}
+.md-r{appearance:none; -webkit-appearance:none; display:flex; align-items:center; gap:12px; width:100%; min-height:56px; padding:9px 12px; margin:0; border:0; background:none; color:var(--ink); font:inherit; text-align:left; cursor:pointer}
+.md-r+.md-r{box-shadow:inset 0 1px 0 var(--line2)}
+.md-r:active{background:var(--surface3)}
+.md-i{flex:none; display:grid; place-items:center; width:30px; height:30px; border-radius:8px; color:#fff; background:var(--ip-gris)}
+.md-vert .md-i{background:var(--ip-salaire)} .md-bleu .md-i{background:var(--ip-recherche)} .md-rouge .md-i{background:var(--ip-planning)}
+.md-t{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px}
+.md-t b{font-size:15px; font-weight:600} .md-t small{font-size:12.5px; color:var(--muted)}
+.md-rouge .md-t b{color:var(--bad,#FF6B5E)}
+.md-ch{flex:none; color:var(--muted)}
 /* Numéros des postes (06/11/2026) */
 .aw-jn-c{display:none}
 #siteCard{display:none!important}
@@ -11330,16 +11344,24 @@ html body #jourCard .eqp2 tbody td .eqvide{color:var(--faint)}
       </details>
       <details class="fold">
         <summary data-g="donnees">Mes données <span class="sub">Sauvegarde, export, import, remise à zéro</span></summary>
-        <div class="foot">
-          <span id="storeinfo">&nbsp;</span>
-          <span class="sp"></span>
-          <button type="button" class="btnlike" id="btnVider">Vider le mois affiché</button>
-          <button type="button" class="btnlike" id="btnViderAn">Vider l'année</button>
-          <button type="button" class="btnlike" id="btnExport">Exporter</button>
-          <!-- un vrai bouton, qui ouvre le sélecteur de fichier : l'étiquette
-               d'un champ caché ne s'atteignait pas au clavier, et son texte
-               montait de 6 px (audit du 23/10/2026) -->
-          <button type="button" class="btnlike" id="btnImport">Importer</button><input type="file" id="fileImport" accept="application/json,.json" hidden>
+        <!-- MES DONNÉES REMISES EN ORDRE (le client, le 07/11/2026 : « optimise
+             cette partie ») : ce que deviennent les saisies, puis deux groupes à
+             la manière des Réglages de l'iPhone — la sauvegarde (exporter,
+             importer), la remise à zéro, en rouge ; chaque bouton dit ce qu'il
+             fait. Les identifiants et leurs actions sont ceux d'avant. -->
+        <div class="md-corps">
+          <p class="md-info" id="storeinfo">&nbsp;</p>
+          <p class="md-grp">Sauvegarde</p>
+          <div class="md-l">
+            <button type="button" class="md-r md-vert" id="btnExport"><i class="md-i" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></i><span class="md-t"><b>Exporter une copie</b><small>Un fichier avec vos saisies et vos réglages</small></span><svg class="md-ch" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+            <!-- un vrai bouton, qui ouvre le sélecteur de fichier (audit du 23/10/2026) -->
+            <button type="button" class="md-r md-bleu" id="btnImport"><i class="md-i" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 21h14"/></svg></i><span class="md-t"><b>Importer une copie</b><small>Reprend les saisies d’un fichier exporté</small></span><svg class="md-ch" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button><input type="file" id="fileImport" accept="application/json,.json" hidden>
+          </div>
+          <p class="md-grp">Remise à zéro</p>
+          <div class="md-l">
+            <button type="button" class="md-r md-rouge" id="btnVider"><i class="md-i" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></i><span class="md-t"><b>Vider le mois affiché</b><small id="mdMois">Les journées saisies de ce mois</small></span></button>
+            <button type="button" class="md-r md-rouge" id="btnViderAn"><i class="md-i" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/></svg></i><span class="md-t"><b>Vider l’année</b><small id="mdAn">Les douze mois</small></span></button>
+          </div>
         </div>
       </details>
     </div>
@@ -15705,10 +15727,10 @@ function majClasseurs(){
   var H=[]; Object.keys(typeof HORAIRES==="object"&&HORAIRES||{}).sort().forEach(function(a){ var d=HORAIRES[a]; if(d) H.push({an:a, maj:d.maj}); });
   if(!H.length&&HORAIRE_DB) H.push({an:String(HORAIRE_DB.year||""), maj:HORAIRE_DB.maj});
   function ligne(titre,txt){ return '<p class="lede" style="padding:0"><b>'+titre+'</b><br>'+txt+'</p>'; }
-  hote.innerHTML=H.map(function(h){ return ligne("Horaire d'équipe "+esc(h.an), h.maj?"Classeur du "+esc(dateHeureFr(h.maj)):"Date inconnue"); }).join("")
+  hote.innerHTML=H.map(function(h){ return ligne("Horaire de production "+esc(h.an), h.maj?"Classeur du "+esc(dateHeureFr(h.maj)):"Date inconnue"); }).join("")
     +ligne("Suivi des recyclages"+(rAn?" "+esc(rAn):""), rm?"Classeur du "+esc(dateHeureFr(rm)):"Date inconnue");
   function court(iso){ var m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?m[2]+"/"+m[1]:"?"; }
-  if(sub) sub.textContent=H.map(function(h){ return "Horaire "+h.an+" du "+court(h.maj); }).join(" · ")+" · Recyclages du "+court(rm);
+  if(sub) sub.textContent=H.map(function(h){ return "Production "+h.an+" du "+court(h.maj); }).join(" · ")+" · Recyclages du "+court(rm);
   /* LA VERSION DE L'APPLICATION (le client, le 24/10/2026 : l'application
      installée « pas encore à jour ») : le nom du cache du service worker
      (nfdm-vNNNN) dit quelle version tourne sur l'appareil ; avec la date du
@@ -40590,7 +40612,11 @@ function boot(){
        05/11/2026 : l'Accueil rempli 0,15 s plus tôt, ralenti ×4) */
     auRepos(function(){ auRepos(tranche); });
   },function(){});
-  document.getElementById("storeinfo").textContent = "Enregistré dans ce navigateur, sur cet appareil. Exportez de temps en temps pour garder une copie.";
+  document.getElementById("storeinfo").textContent = "Vos saisies restent sur cet appareil, dans l’application. Exportez-en une copie de temps en temps : changer de téléphone ou effacer l’application les ferait perdre.";
+  /* le mois et l'année que les deux boutons rouges effaceraient */
+  (function(){ var f=document.querySelector('summary[data-g="donnees"]'); f=f&&f.parentNode; if(!f) return;
+    function dire(){ var m=document.getElementById("mdMois"), a=document.getElementById("mdAn"); if(m) m.textContent="Les journées de "+MOIS[st.m].toLowerCase()+" "+st.y; if(a) a.textContent="Les douze mois de "+st.y; }
+    f.addEventListener("toggle",function(){ if(f.open) dire(); }); dire(); })();
   var now=new Date();
   Promise.all([readDoc("config/params"),readDoc("config/bareme"),readDoc("config/state")])
   .then(function(r){
