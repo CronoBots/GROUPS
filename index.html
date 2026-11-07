@@ -39214,7 +39214,11 @@ function accCharger(mode,defaut){
   /* « L'usine en direct » passe une fois en « très grand » au téléphone
      (07/11/2026) : son tableau des postes ne tient qu'en trois lignes ; une
      disposition déjà réglée le gardait en « grand » */
-  if(mode==="tel"&&sv.o&&!lsGet("ui/accueil/usineT")){ lsSet("ui/accueil/usineT",1); if(ACC.hh.usine===2||ACC.hh.usine===undefined){ ACC.t.usine=2; ACC.hh.usine=3; } }
+  /* (v1475 ne l'écrivait qu'en mémoire : la disposition enregistrée
+     gardait « grand », et la marque empêchait d'y revenir — constaté sur
+     le téléphone du client, 07/11/2026 ; v1477 l'enregistre) */
+  if(mode==="tel"&&sv.o&&!lsGet("ui/accueil/usineT2")){ lsSet("ui/accueil/usineT2",1);
+    if(ACC.hh.usine!==3){ ACC.t.usine=2; ACC.hh.usine=3; sv.t=ACC.t; sv.h=ACC.hh; lsSet("ui/accueil/tel",sv); } }
   ACC.pg=sv.p&&typeof sv.p==="object"?sv.p:{};
   /* LE CHAT À GAUCHE DE LA PAGE PRINCIPALE (le client, le 06/11/2026 :
      « sur mobile, le chat devrait être automatiquement dans le menu à

@@ -15241,3 +15241,16 @@ très grand), `awTelTete({date:true})` : témoin vivant, « Ven. 6 nov. »
 60 px vides à 390 px et la dernière ligne était coupée à 320 px ; les
 lignes se partagent désormais la hauteur (`flex:1 1 0`, 28 px au moins).
 Parcours 188, 0 faute.
+
+**v1477 — l'erreur de v1475, corrigée** (le client, capture de 5 h 23 :
+« toujours pas fait ? »). Son téléphone avait bien v1476 (le « – » de
+« Postes en direct » le montre), mais « L'usine en direct » était resté en
+« grand », avec la liste d'avant et ses bandes sombres. Cause : le passage
+unique en « très grand » ne changeait que la mémoire (`ACC.hh`), sans
+enregistrer la disposition ; à l'ouverture suivante, « grand » revenait,
+et la marque `ui/accueil/usineT`, déjà posée, empêchait de recommencer.
+Je ne l'avais éprouvé que sur une disposition neuve. Correctif : une
+marque neuve (`usineT2`) et la disposition ENREGISTRÉE. Éprouvé sur son cas
+exact (disposition « grand » enregistrée, ancienne marque posée), deux
+ouvertures de suite : « très grand », tableau et tête, enregistré à 3.
+Parcours 188, 0 faute.
