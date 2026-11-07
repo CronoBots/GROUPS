@@ -8737,6 +8737,10 @@ html body #v-horaire [data-acc-fit]>.acc-plus{display:block!important; flex:none
 .aw-ch input[type=date]{-webkit-appearance:none; appearance:none; display:block; line-height:34px; text-align:left}
 .aw-ch input[type=date]::-webkit-date-and-time-value{text-align:left; margin:0}
 .aw-ch .btn{height:36px; align-self:end; border-radius:10px; font-weight:650}
+/* la mention des intérimaires (07/11/2026) */
+.interim-note{margin:4px 16px 10px; padding:10px 12px; border-radius:12px; background:color-mix(in srgb,var(--at-jaune,#F5C542) 12%,transparent); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--at-jaune,#F5C542) 35%,transparent); font-size:13px; line-height:1.45; color:var(--ink2)}
+.interim-note b{color:var(--ink)}
+.interim-sal .interim-note{margin:12px}
 /* Mes données (07/11/2026) */
 .md-corps{padding:4px 16px 14px}
 .md-info{margin:0 0 4px; font-size:13px; line-height:1.45; color:var(--muted)}
@@ -11080,6 +11084,7 @@ html body #v-reglages #btnDeconnexion{width:100%; min-height:46px; border:0; bor
          22/09/2026. Trois écrans d'hier s'y retrouvent, dans l'ordre où on
          les emploie : ce qu'on va toucher, d'où cela vient, et la
          confrontation à la vraie fiche. -->
+    <div class="card interim-sal" id="interimSal" hidden><p class="interim-note"><b>Intérimaire :</b> la simulation de la fiche de paie ne vous concerne pas. Votre salaire est calculé et versé par votre agence d’intérim, selon ses propres règles : les montants de cet onglet ne valent que pour les employés et les ouvriers BioWanze.</p></div>
     <div class="card salvide" id="salVide">
       <p><b>Aucun opérateur choisi.</b> Choisissez qui vous êtes dans
       <b>Réglages</b> : le salaire du mois se calcule sur votre horaire.</p>
@@ -11343,7 +11348,11 @@ html body #v-reglages #btnDeconnexion{width:100%; min-height:46px; border:0; bor
       </details>
       <details class="fold">
         <summary data-g="contrat">Mon contrat <span class="sub">Rémunération, primes d'équipe, cycle</span></summary>
-        <p class="lede haut">Vos informations personnelles — rémunération, situation familiale, cycle, déplacements — se corrigent ici à tout moment.</p>
+        <p class="lede haut">Vos informations personnelles — rémunération, situation familiale, cycle, déplacements — se corrigent ici à tout moment. Les champs suivent votre statut : un employé règle sa rémunération mensuelle fixe, un ouvrier ses salaires horaires.</p>
+        <!-- PAS POUR LES INTÉRIMAIRES (le client, le 07/11/2026 : « il faut
+             préciser que cette fonction n'est pas prise en compte pour les
+             intérimaires ») : leur salaire est fait par leur agence -->
+        <p class="interim-note" id="interimNoteContrat"><b>Intérimaires :</b> cette fonction ne vous concerne pas. Votre salaire est calculé et versé par votre agence d’intérim, selon ses propres règles ; l’application ne simule que la fiche de paie BioWanze des employés et des ouvriers.</p>
         <div class="pad" id="paramFields"></div>
         <p class="note-fige"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Les valeurs marquées d'un cadenas sont communes à toute l'équipe. Elles arrivent avec l'application et se mettent à jour avec elle — les corriger ici fausserait votre fiche sans prévenir.</p>
         <p class="lede" id="paramNote"></p>
@@ -14909,7 +14918,12 @@ function remplirGroupes(hote,groupes,liste,src){
       /* champ propre à un statut : ne pas afficher pour l'autre */
       if(f.pour && f.pour!==st.params.statut) return;
       if(f.fige){ communs.push(fieldHTML(f,src[k])); return; }
-      c+=fieldHTML(f,src[k]); });
+      /* CHAQUE RÉGLAGE DIT À QUOI IL SERT (le client, le 07/11/2026 : « tous
+         les réglages à faire par l'opérateur sont-ils bien expliqués ? ») :
+         l'explication écrite pour la première configuration (onb) ne se
+         lisait que là ; dans Mon contrat, elle est l'aide du champ quand il
+         n'en a pas d'autre (5 champs sur 22 en avaient une) */
+      c+=fieldHTML(f,src[k],hote==="paramFields"&&!f.hint&&f.onb?{hint:f.onb}:undefined); });
     if(c) h+='<section class="grp"><h3>'+esc(g.t)+'</h3>'+(g.n?'<p class="grp-n">'+esc(insecables(g.n))+'</p>':'')+'<div class="grid">'+c+"</div></section>";
   });
   /* un champ ajouté plus tard et oublié d'un groupe doit rester joignable */
@@ -14961,6 +14975,8 @@ function renderFields(){
   }
   fill("rappelFields",RAPPEL_FIELDS,st.params);
   fill("baremeFields",BAREME_FIELDS.filter(function(f){ return f.k!=="calage"; }),st.bareme);
+  try{ var pI=null, idI=trigCourant(); if(HORAIRE_DB&&idI) HORAIRE_DB.people.forEach(function(q){ if(q.id===idI) pI=q; });
+    var bI=document.getElementById("interimSal"); if(bI) bI.hidden=!(pI&&estInterim(pI)); }catch(e){}
   document.getElementById("paramNote").textContent=
     (st.params.statut==="Ouvrier"
       ? "Salaire horaire garanti : "+nf4.format(Number(st.params.salHorGaranti)||0)+" € — base de toutes vos heures (prestées et jours payés) ; la maladie (SHG) est au salaire horaire moyen."

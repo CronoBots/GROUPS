@@ -15309,3 +15309,24 @@ Réglages ». Photographié pli par pli (390, 320, 1280 px), puis corrigé :
 CSS seul, borné à `#v-reglages` : les champs, leurs identifiants, leur
 enregistrement ne changent pas (le formulaire du mois de l'onglet Salaire,
 fait par la même fonction, n'est pas touché). Parcours 188, 0 faute.
+
+### v1481 — chaque réglage expliqué, et la mention des intérimaires (07/11/2026)
+
+Le client : « tous les réglages à faire par l'opérateur sont-ils bien
+expliqués et différents selon ouvrier/employé ? Il faut préciser que cette
+fonction n'est pas prise en compte pour les intérimaires ».
+
+Constat avant correction : les champs suivent bien le statut (employé :
+rémunération fixe et ses évolutions ; ouvrier : salaires horaires garanti
+et moyen ; la note du pied et l'aide de l'avance s'y adaptent ; changer le
+statut refait la liste). Mais seuls 5 réglages personnels sur 22 avaient
+une aide dans les Réglages : l'explication écrite pour chacun (`onb`) ne
+se lisait qu'à la première configuration. Elle devient l'aide du champ
+dans Mon contrat quand il n'en a pas d'autre ; éprouvé, toutes les lignes
+en ont une, en employé comme en ouvrier.
+
+Intérimaires : une mention en tête de Mon contrat (« cette fonction ne vous
+concerne pas : votre salaire est calculé et versé par votre agence
+d'intérim… ») ; dans l'onglet Salaire, un avertissement quand la personne
+liée est intérimaire (`estInterim`, la même règle que l'affichage du
+statut) : éprouvé avec CDT (affiché) et VBN (caché). Parcours 188, 0 faute.
