@@ -15808,3 +15808,20 @@ calendrier ». Relevé sur la photo, à 390, 320 et 1280 px :
 Mêmes classes pour le Calendrier : il suit. Photographié à 390 et 320
 (Mon cycle et Calendrier en grand) et à 1280 (très grand), sans
 débordement ; parcours 188, 0 faute.
+
+### Demandes de congé : l'avancement aussi en moyen (v1512, 07/11/2026)
+
+Le client, capture du widget moyen au téléphone : « j'aimerais voir
+l'avancement sur le widget de cette taille-là aussi ». Mesuré à 390 px
+(342 × 161) : les étapes tenaient presque, il manquait 3 px (14 px de
+marge haute et basse sur la ligne de la demande) ; `accAjuster` les
+effaçait donc. À 320 px (280 × 132), un seuil fixe de CSS
+(`max-height:154px`) les effaçait d'office, sans mesure.
+
+Retenu : la pastille d'état (« Chez le remplaçant ») cède sa place aux
+étapes, puisque l'étape en cours, en couleur, dit la même chose ; la
+ligne passe à 6 px de marge ; au petit téléphone, rond de 16 px, nom en
+11 px, cadre moins rembourré ; le seuil fixe est retiré, la mesure
+d'`accAjuster` suffit (si les étapes ne tiennent pas, la pastille
+revient). Photographié à 390, 320 et 1280, une demande puis trois ;
+parcours 188, 0 faute.
