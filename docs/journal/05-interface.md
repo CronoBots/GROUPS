@@ -15475,3 +15475,39 @@ ne s'affichent plus, n'ont plus de case en mode Personnaliser et
 n'apparaissent plus dans la galerie « + » (`accHorsMode`) ; leur place
 reste enregistrée, et le téléphone les garde. Photographié à 1280 et
 390 px en Min : grille régulière au PC, icônes intactes au téléphone.
+
+**v1492 — Tour de tous les widgets** (même jour). Le client : « refais un
+tour de tous les widgets et vérifie avec les skills et les données
+disponibles s'il n'est pas possible de mieux les arranger ». Chaque widget
+photographié à chacun de ses formats (390, 320 et 1280 px : 141 photos),
+relu d'après impeccable (layout : regroupement, rythme, densité, vides) et
+ui-ux-pro-max (échelle de texte cohérente, cibles, contraste). Sept défauts
+corrigés :
+
+- **Ma paie, moyen au PC** : le net seul et sa note, toute la largeur vide
+  ; le net à gauche, brut, primes d'équipe et week-end à droite (déjà
+  calculés). À partir de 400 px de large seulement : à 342 px, mesuré, les
+  noms étaient coupés (« Primes d'é… »).
+- **Effectif du jour, moyen** : la tête et les pauses, un grand vide
+  dessous ; les quatre comptes (malades, congé, formation, repos) en
+  colonnes sous un filet. Retirés à 280 px de large (ils débordaient). La
+  première version alignait les nombres en haut et leurs noms en bas de la
+  place : `justify-content:flex-end` les rapproche.
+- **Effectif du jour, petit au PC** : la pause de nuit passait seule à la
+  ligne ; trois colonnes, comme au téléphone.
+- **Mes stats, moyen** : les valeurs à 16 px sous un total à 30 ; 20 px.
+- **Mon année, moyen** : les pauses en haut de leur place, un vide
+  dessous ; au milieu.
+- **Mon année, grand** : quatre lignes espacées de grands vides ; tuiles
+  2 × 2, comme Mes stats et Effectif du jour. À 320 px elles débordaient
+  (mesuré) : la date de la prochaine pause s'y retire. Erreur commise : la
+  règle était d'abord dans le conteneur `awc`, que « Mon année » n'a pas
+  (`#anCard` n'est pas un `.aw`) — elle ne mordait pas ; passée dans `anc`.
+- **Annonces, grand** : une seule annonce flottait au milieu ; en haut.
+
+Laissés tels quels, et pourquoi : la Météo moyenne n'a pas l'icône du ciel
+(le texte le dit déjà) ; « Heure et poste » petit au PC garde un vide sous
+l'heure (signalé le même jour au client) ; « À faire » grand et vide montre
+« Tout est à jour » au milieu d'un grand cadre (l'état vide d'un widget
+choisi grand). « Demandes de congé » et « Mon recyclage » n'ont pu être
+photographiés : aucune donnée pour les deux comptes d'essai.
