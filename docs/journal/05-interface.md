@@ -15545,3 +15545,13 @@ Essayé puis retiré : la deuxième semaine du **Calendrier** moyen au
 téléphone (comme au PC, pour combler le vide sous la semaine) — à 390 et
 320 px, mesuré, elle chevauchait la première (`mc-t` débordait). Le vide
 reste.
+
+**v1495 — Téléphone en « Moyen », première partie** (même jour, quatre
+captures du client). Un défaut : la **Météo moyenne** au téléphone n'avait
+pas non plus l'icône du ciel (« Bruine » seul en haut à droite). La règle
+de la v1493 (à partir de 420 px de large, le PC seul) descend à 300 px :
+le téléphone de 390 px l'a ; celui de 320 px garde sa mise en page sur une
+ligne (icône, ciel, max et min), inchangée, mesurée. Corrects tels quels
+dans les captures : Mon profil, Heure et poste, Annonces, À faire, Mon
+cycle, Ma paie (le net, l'écart au mois d'avant, la prochaine avance),
+Congés restants, Mes repos, Mes stats.
