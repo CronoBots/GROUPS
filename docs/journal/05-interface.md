@@ -15455,3 +15455,23 @@ l'instant ») écrivait son nom en bas d'un grand cadre — centré. Corrects
 tels quels : profil, météo, heure et poste, mon cycle, l'usine en direct,
 planning, calendrier, à faire, paie, à retenir, annonces, effectif du
 jour, congé possible, postes en direct, mes repos, mon année, messages.
+
+**v1491 — Tailles uniformes, et plus d'icônes au PC** (même jour). Le
+client : « sur PC, ne faut-il pas que tous les widgets soient de même
+taille en min, moyen et max ? », puis « j'aimerais uniformiser ça ».
+Jusque-là, chaque bouton donnait à chaque widget SA plus petite, SA
+moyenne ou SA plus grande taille permise : en Min : Mon profil et la
+Météo tombaient en demi-hauteur ; en Max : Mon cycle, le Calendrier et
+les Messages en très grand. Désormais `accToutesTailles` vise un format
+nommé : Min = petit (S), Moyen = moyen (M), Max = grand (L) ; un widget
+qui ne l'a pas prend le plus proche par la surface (Planning et L'usine
+restent très grands, « Congé possible ? » moyen, Mon cycle et le
+Calendrier moyens en Min). Même règle au téléphone.
+
+Puis : « faut-il laisser les boutons sur la version PC ? Paie, téléphone,
+historique : ça n'a pas de sens si c'est affiché dans le menu à gauche, et
+ça allège la page ». Au PC (`ACC.mode` « large »), les icônes de l'Accueil
+ne s'affichent plus, n'ont plus de case en mode Personnaliser et
+n'apparaissent plus dans la galerie « + » (`accHorsMode`) ; leur place
+reste enregistrée, et le téléphone les garde. Photographié à 1280 et
+390 px en Min : grille régulière au PC, icônes intactes au téléphone.

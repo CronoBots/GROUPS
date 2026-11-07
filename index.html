@@ -39626,10 +39626,16 @@ var ACC_PAGE_NOM={"-1":"Page de gauche", "0":"Page principale", "1":"Page de dro
    comme avant la v1397. Ce qu'une disposition large aurait gardé d'une
    page est ignoré */
 function accPagesOn(){ return ACC.mode==="tel"; }
+/* PAS D'ICÔNES AU PC (le client, le 07/11/2026 : « faut-il laisser les
+   boutons sur la version PC ? Paie, téléphone, historique : ça n'a pas de
+   sens si c'est affiché dans le menu à gauche, et ça allège la page ») :
+   au PC, le menu de gauche montre déjà chaque accès ; les icônes de
+   l'Accueil n'y sont plus, ni dans la galerie « + ». Le téléphone les garde. */
+function accHorsMode(k){ var d=accDef(k); return !!(d&&d.app&&ACC.mode==="large"); }
 function accPageDe(k){ if(!accPagesOn()) return 0; var p=ACC.pg&&ACC.pg[k]; return p===-1||p===1?p:0; }
 function accPagePoser(k,p){ if(accPagesOn()&&(p===-1||p===1)) ACC.pg[k]=p; else delete ACC.pg[k]; }
 /* ce qui se montrerait sur une page (sans compter le masquage des pages) */
-function accVisible(k){ var d=accDef(k); if(!d||ACC.m[k]||!accDispo(d)) return false;
+function accVisible(k){ var d=accDef(k); if(!d||ACC.m[k]||accHorsMode(k)||!accDispo(d)) return false;
   if(d.pc&&!(window.matchMedia&&matchMedia("(min-width:1100px)").matches)) return false;
   if(k==="acces"&&document.querySelector('#v-horaire [data-w^="app:"]')) return false;
   var el=document.querySelector('#v-horaire [data-w="'+k+'"]'); return !!el&&!el.hidden; }
@@ -39759,7 +39765,7 @@ function accStyle(){
     var sel='#v-horaire.acc-perso [data-w="'+k+'"]';
     var hk=accHaut(k);
     c.push(sel+"{order:"+((i+1)*10)+"!important; grid-column:span "+accSpan(k)+"!important"+(hk?"; grid-row:span "+(2*hk)+"!important":"")+"}");
-    if(ACC.m[k]) c.push(sel+"{display:none!important}");
+    if(ACC.m[k]||accHorsMode(k)) c.push(sel+"{display:none!important}");
     /* une autre page que celle qu'on regarde (plus fort que le cadre
        fantôme du mode Modifier) */
     else if(accPageDe(k)!==ACC.page) c.push('html body #v-horaire.acc-perso[class] [data-w="'+k+'"][data-w]:not(.acc-vol){display:none!important}');
@@ -40063,8 +40069,15 @@ function accToutesTailles(niv){
   var n=0;
   accFlip(function(){
     ACC.o.forEach(function(k){ var d=accDef(k); if(!d||d.app) return; var fo=accFormats(k); if(!fo||fo.length<2) return;
-      fo=fo.slice().sort(function(a,b){ return (a.t*a.h-b.t*b.h)||(a.t-b.t); });
-      var f=niv==="min"?fo[0]:niv==="max"?fo[fo.length-1]:(fo.filter(function(x){ return x.n==="M"; })[0]||fo[Math.floor((fo.length-1)/2)]);
+      /* UNIFORMES (le client, le 07/11/2026 : « j'aimerais uniformiser
+         ça ») : Min met chaque widget en petit (S), Moyen en moyen (M), Max
+         en grand (L) — tous à la même taille. Un widget qui n'a pas ce
+         format prend le plus proche par la surface (à égalité, le plus
+         petit en Min, le plus grand sinon) : Planning et L'usine restent
+         très grands, « Congé possible ? » moyen. */
+      var cible=niv==="min"?"S":niv==="max"?"L":"M", tz=ACC_FORMATS[ACC.mode||"tel"][cible], z=tz[0]*tz[1];
+      var f=fo.filter(function(x){ return x.n===cible; })[0];
+      if(!f) f=fo.slice().sort(function(a,b){ var da=Math.abs(a.t*a.h-z), db=Math.abs(b.t*b.h-z); return (da-db)||(niv==="min"?a.t*a.h-b.t*b.h:b.t*b.h-a.t*a.h); })[0];
       if(ACC.t[k]!==f.t||ACC.hh[k]!==f.h){ ACC.t[k]=f.t; ACC.hh[k]=f.h; n++; } });
     accStyle();
   });
@@ -40117,7 +40130,7 @@ function accOutils(tout){
   /* une case par élément visible, dans l'ordre de l'Accueil (celui du clavier) */
   var actif=document.activeElement, garde={}, i=0;
   ACC.o.forEach(function(k){
-    var d=accDef(k); if(!d||ACC.m[k]) return;
+    var d=accDef(k); if(!d||ACC.m[k]||accHorsMode(k)) return;
     var el=accItem(k); if(!el) return;
     garde[k]=1;
     var b=null, j;
@@ -40410,7 +40423,7 @@ function accGalClavier(e){
 function accGalerie(){
   accGalerieFermer();
   var pcR=!!(window.matchMedia&&matchMedia("(min-width:1100px)").matches), apps=!!document.querySelector('#v-horaire [data-w^="app:"]');
-  var mq=ACC.o.filter(function(k){ var d=accDef(k); return ACC.m[k]&&d&&(!d.pc||pcR)&&!(k==="acces"&&apps)&&accDispo(d)&&document.querySelector('#v-horaire [data-w="'+k+'"]'); });
+  var mq=ACC.o.filter(function(k){ var d=accDef(k); return ACC.m[k]&&d&&!accHorsMode(k)&&(!d.pc||pcR)&&!(k==="acces"&&apps)&&accDispo(d)&&document.querySelector('#v-horaire [data-w="'+k+'"]'); });
   var wid=mq.filter(function(k){ return !accDef(k).app; }), ics=mq.filter(function(k){ return accDef(k).app; });
   function ligne(k){ var d=accDef(k), ic=accIcone(k);
     return '<button type="button" class="acc-gal-i" data-acc-montrer="'+k+'"><i class="acc-gal-ico" aria-hidden="true"'+(ic.c?' style="--ic:'+esc(ic.c)+'"':'')+'>'+ic.svg+'</i>'
