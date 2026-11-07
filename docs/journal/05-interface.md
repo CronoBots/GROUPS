@@ -15616,3 +15616,16 @@ revient en T, tableau visible, et l'enregistrement porte h = 3.
   par `data-href` ; Congé et l'historique passent par l'écouteur commun des
   `data-ctl`, ouvert à `#plusFeuille`. Éprouvé : toucher « Congé » ouvre la
   demande et referme la feuille.
+
+**v1500 — Mes repos et À retenir, serrés comme « Ensuite »** (même jour,
+capture d'« Heure et poste » du client). À partir du moyen, une ligne par
+date : le jour en gras et le mois en gris à gauche, le titre et son
+détail en gris au milieu, l'échéance à droite ; 36 à 56 px de haut et un
+filet dessous, comme `.pf-av-l>li`. Il en tient davantage : à 390 px, en
+grand, À retenir montre ses huit dates au lieu de six. Deux erreurs mesurées puis corrigées :
+`.aw-t` restait en colonne (la règle de base dit `flex-direction:column`,
+`display:flex` seul ne la défaisait pas), et un titre long passait sous
+l'échéance (« Vacances de détente (Carnaval) ») : le détail se coupe
+d'abord, le titre ensuite. Le petit garde sa date au-dessus du titre,
+désormais par son format (S) et non plus par sa largeur : au PC (217 px),
+la ligne serrée débordait.
