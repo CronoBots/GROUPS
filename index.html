@@ -8943,13 +8943,32 @@ html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-corps{justify-conten
 /* « Effectif du jour » (PC en Moyen) : au milieu de son cadre, et non collé en bas */
 html body #v-horaire.acc-perso #presCard .aw-corps{justify-content:center}
 html body #v-horaire.acc-perso #annCard[data-acc-f="S"] .aw-ann{flex:0 0 auto; margin:auto 0}
-html body #v-horaire.acc-perso:not(.acc-tel) #chCard .aw-ch{grid-template-columns:repeat(3,minmax(0,1fr)) auto}
-html body #v-horaire.acc-perso:not(.acc-tel) #chCard .aw-ch .btn{padding:0 18px}
-/* au téléphone, « Congé possible ? » : deux colonnes (Du | Au, ou Qui | Du
-   puis Au | Vérifier) ; sans « Qui », « Vérifier » sur toute la largeur —
-   il tombait seul sous « Du », la case sous « Au » vide (« Mobile mini ») */
-html body #v-horaire.acc-perso.acc-tel #chCard .aw-ch{grid-template-columns:repeat(2,minmax(0,1fr))}
-html body #v-horaire.acc-perso.acc-tel #chCard .aw-ch:has(#chQuiL[hidden]) .btn{grid-column:1/-1}
+/* deux rangées partout : la durée (Un jour | Période) et « Qui » en haut,
+   la ou les dates et « Vérifier » dessous (07/11/2026) */
+html body #v-horaire #chCard .aw-ch{grid-template-areas:"seg qui" "du bt"; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:10px}
+html body #v-horaire #chCard .aw-ch[data-mode="periode"]{grid-template-areas:"seg qui qui" "du au bt"; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
+html body #v-horaire #chCard .aw-ch-seg{grid-area:seg} html body #v-horaire #chCard #chQuiL{grid-area:qui; min-width:84px}
+html body #v-horaire #chCard #chDuL{grid-area:du} html body #v-horaire #chCard #chAuL{grid-area:au} html body #v-horaire #chCard .aw-ch .btn{grid-area:bt; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:0 16px}
+html body #v-horaire #chCard .aw-ch-qt{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+.aw-ch-seg{justify-self:start; display:inline-grid; grid-auto-flow:column; grid-auto-columns:1fr; height:32px; padding:2px; box-sizing:border-box; border-radius:9px; background:var(--seg-piste)}
+.aw-ch-seg button{min-width:0; padding:0 12px; border:0; border-radius:7px; background:none; color:var(--muted); font:inherit; font-size:12.5px; font-weight:650; white-space:nowrap; cursor:pointer}
+.aw-ch-seg button[aria-checked="true"]{background:var(--seg-pouce); color:var(--ink); box-shadow:var(--seg-ombre)}
+/* une période au téléphone : Du et Au se partagent la ligne, « Vérifier »
+   devient la loupe seule (44 px, son nom à l'écoute) */
+@container awc (max-width:399px){
+  html body #v-horaire #chCard .aw-ch[data-mode="periode"] .btn{width:44px; padding:0}
+  html body #v-horaire #chCard .aw-ch[data-mode="periode"] .aw-ch-bt{display:none}
+}
+/* au plus étroit (320 px : 280 de cadre), « Un jour » devient « jour » et
+   les boutons se serrent : le sélecteur débordait sur « Qui » */
+@container awc (max-width:299px){
+  html body #v-horaire #chCard .ch-un{display:none}
+  html body #v-horaire #chCard .aw-ch-seg button{padding:0 8px}
+  html body #v-horaire #chCard .aw-ch-seg button:first-child::first-letter{text-transform:uppercase}
+  html body #v-horaire #chCard .aw-ch[data-mode="periode"] #chQuiL{justify-self:end; width:112px; min-width:0}
+}
+html body #v-horaire #chCard .aw-ch[data-mode="jour"] .btn svg{display:none}
+
 /* Mes données (07/11/2026) */
 .md-corps{padding:4px 16px 14px}
 .md-info{margin:0 0 4px; font-size:13px; line-height:1.45; color:var(--muted)}
@@ -11178,11 +11197,12 @@ html body #v-reglages #btnDeconnexion{width:100%; min-height:46px; border:0; bor
          remplit le module « Congé » de l'onglet Recherche et le lance (awCherche) -->
     <div class="card aw" id="chCard" data-w="cherche" hidden>
       <header><h2><svg class="cc-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Congé<span class="aw-long"> possible ?</span></span></h2><span class="sub" id="chSub"></span></header>
-      <div class="aw-corps"><form class="aw-ch" id="chForm" novalidate>
-        <label class="aw-ch-qui" id="chQuiL">Qui<select id="chQui"></select></label>
-        <label>Du<input type="date" id="chDu" required></label>
-        <label>Au<input type="date" id="chAu"></label>
-        <button type="submit" class="btn primary sm">Vérifier</button>
+      <div class="aw-corps"><form class="aw-ch" id="chForm" data-mode="jour" novalidate>
+        <div class="aw-ch-seg" role="radiogroup" aria-label="Durée du congé"><button type="button" role="radio" data-chm="jour" aria-checked="true" aria-label="Un jour"><span class="ch-un">Un </span>jour</button><button type="button" role="radio" data-chm="periode" aria-checked="false">Période</button></div>
+        <label class="aw-ch-qui" id="chQuiL"><span class="aw-ch-qt">Qui</span><select id="chQui" aria-label="Qui"></select></label>
+        <label id="chDuL"><span id="chDuT">Le</span><input type="date" id="chDu" required></label>
+        <label id="chAuL" hidden>Au<input type="date" id="chAu"></label>
+        <button type="submit" class="btn primary sm" aria-label="Vérifier"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="aw-ch-bt">Vérifier</span></button>
       </form></div>
     </div>
     <div class="card aw" id="telCard" data-w="numeros" hidden>
@@ -19741,10 +19761,28 @@ function awCherche(){
   document.getElementById("chSub").textContent=tous?"":idLisible(id);
   var du=document.getElementById("chDu"), au=document.getElementById("chAu");
   if(!du.value){ var t=new Date(); t.setDate(t.getDate()+1); du.value=caIso(t); }
+  chMode(lsGet("ui/chMode")||"jour");
   c.hidden=false;
 }
+/* UN JOUR OU UNE PÉRIODE (le client, le 07/11/2026 : « il faut aussi
+   pouvoir choisir un jour simple, car il n'y a que période ») : « Un
+   jour » ne montre qu'une date (« Le ») ; « Période », Du et Au. Le choix
+   reste sur l'appareil (ui/chMode) ; un jour est le choix d'origine */
+function chMode(m){
+  var f=document.getElementById("chForm"); if(!f) return;
+  m=m==="periode"?"periode":"jour"; f.setAttribute("data-mode",m);
+  [].forEach.call(f.querySelectorAll("[data-chm]"),function(b){ b.setAttribute("aria-checked",String(b.getAttribute("data-chm")===m)); });
+  document.getElementById("chAuL").hidden=m!=="periode";
+  document.getElementById("chDuT").textContent=m==="periode"?"Du":"Le";
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest("#chForm [data-chm]"):null; if(!b) return;
+  var m=b.getAttribute("data-chm"); lsSet("ui/chMode",m); chMode(m);
+  if(m==="periode"){ var au=document.getElementById("chAu"), du=document.getElementById("chDu"); if(!au.value&&du.value) au.value=du.value; }
+});
 function chLancer(){
-  var du=document.getElementById("chDu").value, au=document.getElementById("chAu").value||du;
+  var per=(document.getElementById("chForm").getAttribute("data-mode")==="periode");
+  var du=document.getElementById("chDu").value, au=(per&&document.getElementById("chAu").value)||du;
   if(!du){ try{ document.getElementById("chDu").focus(); }catch(e){} return; }
   if(au<du){ var x=du; du=au; au=x; }
   var qui=chPourTous()?document.getElementById("chQui").value:trigCourant();

@@ -15725,3 +15725,18 @@ la date (« 24 novembre ») avait une largeur propre à chaque ligne et les
 titres ne partaient plus du même aplomb (photographié) : une colonne de
 6,9 em pour toutes. Sous 360 px de cadre (le téléphone), le détail gris
 cède sa place au titre : il n'en gardait parfois qu'une lettre (« V »).
+
+**v1507 — « Congé possible ? » : un jour ou une période** (même jour ; le
+client : « il faut aussi pouvoir choisir un jour simple, car il n'y a que
+période »). Un sélecteur à segments (`--seg-*`), « Un jour | Période » :
+un jour montre une seule date (« Le ») et « Vérifier » ; une période, Du,
+Au et la loupe. Le choix reste sur l'appareil (`ui/chMode`), un jour par
+défaut ; « Vérifier » ouvre la Recherche sur la même durée (éprouvé : la
+vue, la durée « jour », Du et Au). Deux rangées à toutes les tailles (la
+durée et « Qui » en haut, les dates dessous) : `grid-template-areas`.
+Mesuré, puis corrigé : en période, la colonne de la loupe prenait la
+largeur de « Qui » et serrait les dates (« Qui » s'étend désormais
+au-dessus de « Au » et de la loupe) ; à 320 px, le sélecteur débordait sur
+« Qui » (« Un jour » y devient « Jour », boutons serrés, « Qui » à
+droite). Aucun débordement à 320, 390 et 1280 px, en opérateur comme en
+contremaître.
