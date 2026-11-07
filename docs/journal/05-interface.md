@@ -15285,3 +15285,27 @@ groupe « Remise à zéro » en rouge, chaque bouton disant ce qu'il
 effacerait (« Les journées de novembre 2026 », « Les douze mois de
 2026 », relu à chaque ouverture du pli). Les mêmes identifiants : les
 actions et leurs confirmations sont celles d'avant. Parcours 188, 0 faute.
+
+### v1480 — toutes les options des Réglages en listes (07/11/2026)
+
+Le client : « fais l'optimisation pour toutes les options de l'onglet
+Réglages ». Photographié pli par pli (390, 320, 1280 px), puis corrigé :
+
+- **Mon contrat, Primes de rappel, Barèmes** : chaque libellé au-dessus
+  d'un champ pleine largeur, les valeurs sous cadenas dans des cases vides
+  de 64 px. Devenus des listes arrondies, une ligne par réglage, libellé à
+  gauche, valeur à droite (au plus 200 px au PC), l'aide dessous ; une
+  valeur commune se lit comme un texte avec son cadenas ; les listes
+  déroulantes prennent la largeur de leur choix (« Célibataire » était
+  coupé). Hauteurs à 390 px : contrat 2 233 → 1 849, barèmes 1 500 →
+  1 205, primes 1 056 → 854.
+- **Mon compte** : le compte dans un bloc, puis notifications,
+  historique, installation dans une même liste aux boutons de même
+  largeur ; « Se déconnecter » en rouge, sur toute la largeur.
+- **Les codes** : une même colonne de 76 px pour tous les groupes (« SANS
+  SOLDE » élargissait la sienne), chaque groupe en liste.
+- **Les plis « Classeurs » et « Mes données »** : faits en v1478-v1479.
+
+CSS seul, borné à `#v-reglages` : les champs, leurs identifiants, leur
+enregistrement ne changent pas (le formulaire du mois de l'onglet Salaire,
+fait par la même fonction, n'est pas touché). Parcours 188, 0 faute.
