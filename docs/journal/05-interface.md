@@ -15692,3 +15692,22 @@ déplaçait tout. Elle est là dans les deux états ; masquée, le montant en
 points (« ••• € par rapport à octobre »), sans le sens (ni vert ni
 rouge). Mesuré au navigateur, en haut du cadre, masqué puis visible :
 étiquette 17 px, montant 36, écart 68, note 94 — identiques.
+
+**v1505 — Le même aplomb, et la date en bleu partout** (même jour ; le
+client : « les alignements et écarts ne sont pas les mêmes ? J'aime
+beaucoup ce jeu de couleurs ; vérifie avec les skills s'il ne serait pas
+possible de l'intégrer aux autres widgets ou contenus ») :
+
+- **Aplomb** : en petit, Mes repos gardait 2 px en haut, À retenir 14
+  (mesuré au navigateur : la première ligne à 3 px et à 15 px) ; 12 px aux
+  deux, la première ligne à 13 px dans les deux cadres. La ligne masquée
+  de Ma paie (« ••• € vs oct. ») prenait l'espacement des points du
+  montant (`.aw-masque`, 0,1 em) : rendue au texte.
+- **La date en bleu** : relu d'après ui-ux-pro-max (contraste : le bleu
+  `--marque-vif` sur le fond des cadres, 6,3:1, au-delà des 4,5:1 du petit
+  texte) et impeccable (une couleur, un sens) : le bleu ne porte que la
+  date, partout où une liste en commence une — Mes repos et À retenir à
+  toutes les tailles, « Ensuite » d'Heure et poste, la date d'une demande
+  de congé ; le jour en gras, le mois un peu plus pâle. Les calendriers
+  (Mon cycle, Calendrier) gardent leurs chiffres : leur couleur dit déjà
+  le poste et le jour même.
