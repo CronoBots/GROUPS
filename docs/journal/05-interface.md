@@ -15672,3 +15672,13 @@ et « + 5 autres ») ; au PC (217 px), cinq. À 320 px (132 px de cadre), le
 titre se coupait à quatre lettres (« Arm… ») : la date passe au-dessus
 du titre, deux dates. La v1494 (la date au-dessus du titre à toutes les
 largeurs, une seule date) est remplacée ; son commentaire, retiré.
+
+**v1503 — En petit, les titres entiers** (même jour ; QCM au client sur
+« pour repos et à retenir » : « titres entiers »). La date au-dessus du
+titre à toutes les largeurs, et non plus seulement à 320 px ; le titre
+passe sur deux lignes au besoin plutôt que de se couper. Erreur mesurée
+puis corrigée : les lignes gardaient leur part fixe de hauteur
+(`flex:1 1 0`), un titre sur deux lignes chevauchait la date suivante ;
+chaque ligne prend sa hauteur (`flex:0 0 auto`) et ce qui ne tient plus
+passe dans « + N autres ». Mesuré : à 390 px, deux ou trois dates ; au
+PC, quatre ou cinq ; à 320 px, une ou deux ; aucun titre coupé.
