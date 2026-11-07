@@ -39629,7 +39629,9 @@ function accCharger(mode,defaut){
   /* (v1475 ne l'écrivait qu'en mémoire : la disposition enregistrée
      gardait « grand », et la marque empêchait d'y revenir — constaté sur
      le téléphone du client, 07/11/2026 ; v1477 l'enregistre) */
-  if(mode==="tel"&&sv.o&&!lsGet("ui/accueil/usineT2")){ lsSet("ui/accueil/usineT2",1);
+  /* (v1498 : une seconde fois, les boutons Min/Moyen/Max de la v1491
+     l'ayant remis en « grand » sur le téléphone du client) */
+  if(mode==="tel"&&sv.o&&!lsGet("ui/accueil/usineT3")){ lsSet("ui/accueil/usineT3",1);
     if(ACC.hh.usine!==3){ ACC.t.usine=2; ACC.hh.usine=3; sv.t=ACC.t; sv.h=ACC.hh; lsSet("ui/accueil/tel",sv); } }
   ACC.pg=sv.p&&typeof sv.p==="object"?sv.p:{};
   /* LE CHAT À GAUCHE DE LA PAGE PRINCIPALE (le client, le 06/11/2026 :
@@ -40171,6 +40173,13 @@ function accToutesTailles(niv){
          petit en Min, le plus grand sinon) : Planning et L'usine restent
          très grands, « Congé possible ? » moyen. */
       var cible=niv==="min"?"S":niv==="max"?"L":"M", tz=ACC_FORMATS[ACC.mode||"tel"][cible], z=tz[0]*tz[1];
+      /* L'usine au téléphone garde son format haut (T), quel que soit le
+         niveau : c'est lui qui combine la photo et le tableau des postes
+         (le client, le 06/11/2026). Visé « grand » comme les autres, il
+         retombait sur la liste sous la photo (le client, le 07/11/2026 :
+         « pourquoi usine et postes en direct ne sont plus combinés sur
+         mobile ? ») */
+      if(k==="usine"&&(ACC.mode||"tel")==="tel") cible="T";
       var f=fo.filter(function(x){ return x.n===cible; })[0];
       if(!f) f=fo.slice().sort(function(a,b){ var da=Math.abs(a.t*a.h-z), db=Math.abs(b.t*b.h-z); return (da-db)||(niv==="min"?a.t*a.h-b.t*b.h:b.t*b.h-a.t*a.h); })[0];
       if(ACC.t[k]!==f.t||ACC.hh[k]!==f.h){ ACC.t[k]=f.t; ACC.hh[k]=f.h; n++; } });

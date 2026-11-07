@@ -15580,3 +15580,15 @@ doublaient la feuille et la quittent (`accAppDoublon` : `app:paie`,
 raccourcis qu'on ne trouve nulle part ailleurs : appeler le contremaître,
 une demande de congé, le certificat, l'historique de mon horaire — une
 seule rangée. Leur place reste enregistrée. Parcours 188, 0 faute.
+
+**v1498 — L'usine combinée au téléphone, rendue** (même jour). Le client :
+« pourquoi usine et postes en direct ne sont plus combinés sur mobile ? ».
+Erreur commise en v1491 : les boutons Min/Moyen/Max visent petit, moyen ou
+grand pour tous ; « L'usine en direct » au téléphone n'a que « grand » et
+le format haut (T), celui qui combine la photo et le tableau des postes
+(v1475) ; visée « grand », elle retombait sur la liste sous la photo.
+Désormais, au téléphone, l'usine vise T à chaque niveau ; et une
+disposition déjà enregistrée en « grand » repasse une fois en T (marque
+`ui/accueil/usineT3`, la v1477 ayant déjà posé `usineT2`). Mesuré : Min
+et Max donnent T (342 × 553) ; une disposition « grand » enregistrée
+revient en T, tableau visible, et l'enregistrement porte h = 3.
