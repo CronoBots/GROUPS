@@ -15527,3 +15527,21 @@ bloc du poste centré dans sa place) ; la case vide après « Messages », le
 dernier widget (l'ordre est celui du client) ; « Mon cycle » et le
 « Calendrier » montrent tous deux le mois, le premier avec l'équipe et
 les semaines du cycle — deux widgets que le client a choisis.
+
+**v1494 — Téléphone en « Min »** (même jour, cinq captures « Mobile
+mini » du client). Deux défauts corrigés :
+
+- **« Congé possible ? »** : la grille en `auto-fit` posait « Vérifier »
+  seul sous « Du », la case sous « Au » vide. Au téléphone, deux colonnes ;
+  sans « Qui », « Vérifier » prend toute la largeur.
+- **Mes repos et À retenir, en petit** : la date dans sa case de 40 px
+  laissait au titre la moitié de la largeur (« Prochain / repos »,
+  « jusqu'au dim.… ») ; la date passe en une ligne colorée au-dessus du
+  titre, qui prend toute la largeur. Une date de moins tient dans
+  « À retenir » petit (une au lieu de deux, serrées) : choisi pour la
+  lisibilité.
+
+Essayé puis retiré : la deuxième semaine du **Calendrier** moyen au
+téléphone (comme au PC, pour combler le vide sous la semaine) — à 390 et
+320 px, mesuré, elle chevauchait la première (`mc-t` débordait). Le vide
+reste.
