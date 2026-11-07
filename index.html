@@ -9933,6 +9933,10 @@ html body #v-horaire.acc-perso.acc-tel #usineCard .usp-pin.usp-pin-moi{--pw:17px
 /* (sur la bannière blanche du profil, l'ancien verre clair rendait le
    « ✓ » blanc invisible : capture du client, 04/11/2026) */
 .acc-barre button svg{width:20px; height:20px; filter:drop-shadow(0 1px 1px var(--om-noir-60))}
+.acc-tailles{pointer-events:auto; display:inline-flex; gap:2px; padding:3px; border-radius:999px; border:1px solid var(--bd-blanc-25); background:var(--om-noir-50); -webkit-backdrop-filter:blur(18px) saturate(1.6); backdrop-filter:blur(18px) saturate(1.6); box-shadow:0 6px 18px var(--om-noir-40)}
+html body .acc-barre .acc-tailles button{min-width:0; height:34px; padding:0 12px; border:0; background:none; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; font-size:14px; font-weight:600}
+@media (hover:hover){ html body .acc-barre .acc-tailles button:hover{background:var(--bd-blanc-14)} }
+@media (max-width:359px){ html body .acc-barre .acc-tailles button{padding:0 8px; font-size:13px} html body .acc-barre>button{min-width:48px; padding:0 12px} }
 .acc-barre button:focus-visible{outline:2px solid var(--marque-vif); outline-offset:2px}
 @media (hover:hover){ .acc-barre button:hover{background:var(--om-noir-60)} }
 /* les éléments : inertes, leur contenu ne réagit pas */
@@ -11120,6 +11124,10 @@ html body #v-reglages #btnDeconnexion{width:100%; min-height:46px; border:0; bor
     <div class="acc-pied" id="accPied" data-acc-plein hidden></div>
     <div class="acc-barre" id="accBarre" role="toolbar" aria-label="Modifier l'Accueil" hidden>
       <button type="button" class="acc-ajout" id="accAjout" aria-haspopup="dialog" aria-label="Ajouter un widget ou une icône" title="Ajouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <!-- TOUTES LES TAILLES D'UN COUP (le client, le 07/11/2026 : « un bouton
+           pour les rétrécir tous au minimum, un autre pour la taille moyenne
+           et un autre pour la taille maxi ») : accToutesTailles -->
+      <span class="acc-tailles" role="group" aria-label="Taille de tous les widgets"><button type="button" data-acc-toutes="min" title="Tous les widgets au plus petit">Min</button><button type="button" data-acc-toutes="moy" title="Tous les widgets en taille moyenne">Moyen</button><button type="button" data-acc-toutes="max" title="Tous les widgets au plus grand">Max</button></span>
       <button type="button" class="acc-ok" id="accOk" aria-label="Enregistrer" title="Enregistrer les modifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
     </div>
     <p class="sr-only" id="accAnnonce" aria-live="polite"></p>
@@ -40028,6 +40036,20 @@ function accFlipReste(el){
   var a=t.split(" "); return {x:parseFloat(a[0])||0, y:parseFloat(a[1])||0};
 }
 function accCentre(el){ var r=el.getBoundingClientRect(); return {x:(r.left+r.right)/2, y:(r.top+r.bottom)/2}; }
+/* chaque widget à son plus petit format, au moyen (le format « M » s'il
+   l'a, sinon celui du milieu) ou au plus grand ; un widget d'une seule
+   taille, ou une icône, ne bouge pas. Enregistré au « ✓ », comme un geste. */
+function accToutesTailles(niv){
+  var n=0;
+  accFlip(function(){
+    ACC.o.forEach(function(k){ var d=accDef(k); if(!d||d.app) return; var fo=accFormats(k); if(!fo||fo.length<2) return;
+      fo=fo.slice().sort(function(a,b){ return (a.t*a.h-b.t*b.h)||(a.t-b.t); });
+      var f=niv==="min"?fo[0]:niv==="max"?fo[fo.length-1]:(fo.filter(function(x){ return x.n==="M"; })[0]||fo[Math.floor((fo.length-1)/2)]);
+      if(ACC.t[k]!==f.t||ACC.hh[k]!==f.h){ ACC.t[k]=f.t; ACC.hh[k]=f.h; n++; } });
+    accStyle();
+  });
+  var a=document.getElementById("accAnnonce"); if(a) a.textContent=n?"Tous les widgets "+(niv==="min"?"au plus petit":niv==="max"?"au plus grand":"en taille moyenne")+".":"Rien à changer.";
+}
 function accFlip(fn){
   var v=document.getElementById("v-horaire");
   if(!v||!accAnime()||!Element.prototype.animate){ fn(); return; }
@@ -40655,6 +40677,7 @@ function accInit(){
     if((x=t.closest("[data-acc-masquer]"))){ accRetirer(x.getAttribute("data-acc-masquer")); return; }
     if(t.closest("#accAjout")){ accGalerie(); return; }
     if(t.closest("#accOk")){ accTerminer(true); return; }
+    if((x=t.closest("[data-acc-toutes]"))){ accToutesTailles(x.getAttribute("data-acc-toutes")); return; }
     if(t.closest(".acc-calque button")) return;
     e.preventDefault(); e.stopPropagation();
   },true);

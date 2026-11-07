@@ -15404,3 +15404,18 @@ débordant (à 320 px, la moyenne par semaine quitte la tête). Chaque widget
 a désormais son rôle : « Mon année » regarde devant (ce qui reste, la
 prochaine date de chaque pause), « Mes stats » derrière (heures et faits
 marquants). Parcours 188, 0 faute.
+
+### v1487 — trois boutons de taille : tous les widgets d’un coup (07/11/2026)
+
+Le client : « peux-tu me faire un bouton pour les tailles de widget : un
+pour les rétrécir tous au minimum, un pour la taille moyenne et un pour la
+taille maxi ; je t'enverrai un screen de tous les widgets à chaque taille
+et tu optimiseras », puis « on fera ça pour mobile et pour PC ». Dans la
+barre du mode Personnaliser, entre « + » et « ✓ » : « Min · Moyen · Max »
+(`accToutesTailles`). Chaque widget prend son plus petit format, son
+format moyen (« M » s'il l'a, sinon celui du milieu) ou son plus grand,
+parmi ceux qu'il offre à cet écran ; une icône ou un widget d'une seule
+taille ne bouge pas ; enregistré au « ✓ ». Téléphone et PC ont chacun leur
+disposition (`ui/accueil/tel`, `ui/accueil/large`). Éprouvé aux deux :
+les trois boutons l’un après l’autre, puis ✓ et rechargement, les tailles gardées. À 320 px,
+les boutons de la barre se resserrent. Parcours 188, 0 faute.
