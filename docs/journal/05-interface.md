@@ -15740,3 +15740,13 @@ au-dessus de « Au » et de la loupe) ; à 320 px, le sélecteur débordait sur
 « Qui » (« Un jour » y devient « Jour », boutons serrés, « Qui » à
 droite). Aucun débordement à 320, 390 et 1280 px, en opérateur comme en
 contremaître.
+
+**v1508 — Erreur commise en v1507, réparée** : la v1507 a été poussée
+avec `parcours.js` à 18 fautes (le texte du segment actif « Un jour »,
+`--ink` sur `--seg-pouce`, à 4,24:1 sous les 4,5:1) — la commande lançait
+le parcours puis committait sans lire son résultat, ce que CLAUDE.md
+interdit (« le code de retour ne porte que ce qui est une faute » : il
+faut l'attendre avant de committer). Le segment actif passe en blanc
+(5:1), l'inactif en `--ink2` ; parcours 188, 0 faute. Désormais : lire la
+dernière ligne du parcours AVANT `git commit`, jamais dans la même
+commande que lui.
