@@ -15362,3 +15362,23 @@ les absences sans certificat ») : l'e-mail tout prêt de « Signaler une
 absence sans certificat » (`absenceLien`) n'a plus la ligne « Nature de
 l'absence : » à remplir ; il confirme l'absence du jour, sans certificat,
 et que la ligne hiérarchique est prévenue. Parcours 188, 0 faute.
+
+### v1485 — « Mon année » refaite (07/11/2026)
+
+Le client : « le widget Mon année n'est pas du tout optimisé, retravaille-le
+complètement ». Photographié avant (390, 320, 1280 px) : une barre faite de
+quatre segments de couleur sans légende ; en petit, « AM Sam. 7 nov. 5 »
+sans dire ce qu'est 5 ; en moyen, deux nombres (32, 5) sans en-tête ; en
+grand, trois lignes par date (« Samedi / 7 novembre / aujourd'hui ») et la
+quatrième pause en « + 1 autre » ; « Avancement » coupé partout.
+
+`monAnneeHTML` le remplace (`ryAnneeHTML` et `ryProchainesHTML` ne
+servent plus à ce widget) : en tête, le nombre de journées prestées en
+grand, « sur 168 · 32 à venir », le pourcentage et une seule barre ; puis
+une ligne par pause, dans l'ordre où elles reviennent — son nom en clair
+(« Matin », « Nuit », « Jour », « Après-midi »), sa prochaine date sur une ligne
+(« lun. 9 nov. · dans 2 j »), « faites/total » et une petite barre ; la
+ligne ouvre ce jour au calendrier. En petit, la tête seule ; en moyen,
+les quatre pauses en colonnes (« 74/93 ») ; en grand, les lignes
+entières. Mesuré : plus rien de coupé à 390 et 1280 px ; à 320 px, la
+petite barre s'efface pour laisser la date entière. Parcours 188, 0 faute.
