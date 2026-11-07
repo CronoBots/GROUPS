@@ -15444,3 +15444,14 @@ centré (aussi en petit). Corrects tels quels : profil, météo, heure et
 poste, à faire, congés restants, paie, à retenir, annonces, mes repos,
 mes stats, mon année, mon cycle, calendrier, congé possible, postes en
 direct, messages. Parcours 188, 0 faute.
+
+**v1490 — PC en « Max »** (même jour, captures « PC max ») : refaites à
+1280 px, chaque widget photographié. Deux défauts : « Mes stats » en
+grand gardait ses quatre faits en lignes, séparés par de grands vides —
+ils passent en tuiles 2 × 2 (icône, valeur en grand, nom), comme
+« Effectif du jour », mesurées aussi à 390 px ; le cadre fantôme d'un
+widget vide en mode Personnaliser (« Mon recyclage · rien à montrer pour
+l'instant ») écrivait son nom en bas d'un grand cadre — centré. Corrects
+tels quels : profil, météo, heure et poste, mon cycle, l'usine en direct,
+planning, calendrier, à faire, paie, à retenir, annonces, effectif du
+jour, congé possible, postes en direct, mes repos, mon année, messages.
