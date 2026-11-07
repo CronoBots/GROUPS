@@ -15750,3 +15750,15 @@ faut l'attendre avant de committer). Le segment actif passe en blanc
 (5:1), l'inactif en `--ink2` ; parcours 188, 0 faute. Désormais : lire la
 dernière ligne du parcours AVANT `git commit`, jamais dans la même
 commande que lui.
+
+**v1509 — Plus de « Reprise » dans Prochains repos ; Mon année et Mes
+stats centrés** (même jour ; le client : « il ne faut pas les reprises
+dans les prochains repos ; et pour les cadres en dessous, pas moyen de
+centrer les contenus et encore optimiser ? »). La ligne « Reprise » (au
+repos aujourd'hui, la date du retour) n'est plus écrite : le widget ne
+dit que des repos, la reprise est le prochain poste d'« Heure et poste ».
+En moyen, Mon année et Mes stats laissaient un grand vide sous leurs
+colonnes : la tête et les colonnes se répartissent la hauteur
+(`space-evenly`) ; chaque pause de Mon année reprend sa petite barre
+(faites sur prévues), comme en grand. Photographié à 390, 320 et
+1280 px ; parcours 188, 0 faute, lu avant le commit.
