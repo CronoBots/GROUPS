@@ -9422,7 +9422,38 @@ html body #v-horaire.acc-perso #demCard[data-acc-h="1"] :is(.dm-circ,.md-lien){d
 html body #v-horaire.acc-perso #demCard[data-acc-h="1"]>#demCorps>.md-l{margin-block:auto}
 html body #v-horaire.acc-perso #demCard[data-acc-h="2"] .md-rec{display:flex; flex-direction:column; flex:1 0 auto; margin-top:14px}
 /* sans dernières traitées, la demande en cours se pose au milieu */
-html body #v-horaire.acc-perso #demCard[data-acc-h="2"]>#demCorps:not(:has(.md-rec:not(.acc-cache)))>.md-l{margin-top:auto}
+html body #v-horaire.acc-perso #demCard[data-acc-h="2"]>#demCorps:not(:has(.md-rec:not(.acc-cache)))>.md-l{margin-top:0}
+/* DEMANDES DE CONGÉ AMÉLIORÉ (le client, le 07/11/2026 : « améliorer le
+   widget demande de congé »), relu d'après impeccable (un cadre dans le
+   cadre est toujours une faute ; l'information qui décide en premier) et
+   ui-ux-pro-max (contraste, cibles de 44 px) :
+   1. plus de panneau sombre arrondi dans le widget : la liste est posée à
+      même le cadre, la barre de couleur à gauche dit l'état ;
+   2. l'état (« Chez le remplaçant », « Chez la RH »…) n'était plus écrit
+      au téléphone (caché sous 520 px de fenêtre) : en moyen, la seule
+      information qui compte ; il passe sous le titre, à gauche, en
+      pastille de sa couleur ;
+   3. au PC en grand, la liste tombait au milieu (un vide au-dessus) : elle
+      part du haut, le pied (historique, « + Nouvelle ») reste en bas ;
+   4. à 320 px, le pied débordait : il passe à la ligne. */
+html body #v-horaire.acc-perso #demCard .md-l{background:none; border-radius:0; overflow:visible}
+html body #v-horaire.acc-perso #demCard .md-l>li{padding-left:14px; padding-right:0}
+@container demc (max-width:439px){
+  html body #v-horaire.acc-perso #demCard .md-h{display:grid; grid-template-columns:auto minmax(0,1fr); grid-template-areas:"tu ti" "tu st"; column-gap:12px; row-gap:5px; align-items:start; justify-content:stretch}
+  html body #v-horaire.acc-perso #demCard .md-h>:first-child{grid-area:tu}
+  html body #v-horaire.acc-perso #demCard .md-h>.dm-tit{grid-area:ti; min-width:0}
+  html body #v-horaire.acc-perso #demCard .md-h>.dm-st{grid-area:st; display:inline-block!important; justify-self:start; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+}
+html body #v-horaire.acc-perso #demCard .md-pied{row-gap:6px}
+@container demc (max-width:299px){
+  html body #v-horaire.acc-perso #demCard .md-pied .md-lien{font-size:13px}
+  /* au plus étroit, l'état passe avant le détail (pause, remplaçant) et
+     l'étape « Demandeur », toujours faite, laisse sa place au pied */
+  html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-quoi{display:none}
+  html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-l>li{padding-top:6px; padding-bottom:6px}
+  html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-l>li::before{top:6px; bottom:6px}
+  html body #v-horaire.acc-perso #demCard[data-acc-h="2"] .dm-circ>li:first-child{display:none}
+}
 .md-rec-t{margin:0 0 2px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
 .md-rec-l{display:flex; flex-direction:column; flex:1 1 auto; min-height:0; margin:0; padding:0; list-style:none}
 .md-rec-l>li{display:flex; align-items:center; gap:10px; flex:1 0 auto; min-height:42px; padding:4px 0; box-sizing:border-box; border-bottom:1px solid var(--line2); cursor:pointer}

@@ -15762,3 +15762,25 @@ colonnes : la tête et les colonnes se répartissent la hauteur
 (`space-evenly`) ; chaque pause de Mon année reprend sa petite barre
 (faites sur prévues), comme en grand. Photographié à 390, 320 et
 1280 px ; parcours 188, 0 faute, lu avant le commit.
+
+**v1510 — Demandes de congé, amélioré** (même jour ; le client :
+« améliorer le widget demande de congé »). Photographié d'abord avec deux
+demandes simulées (une chez le remplaçant, une chez la RH) et une
+acceptée, à 390, 320 et 1280 px, puis relu d'après impeccable et
+ui-ux-pro-max. Quatre défauts :
+
+- **un cadre dans le cadre** : la liste était un panneau sombre arrondi
+  (`.md-l`, `--surface2`) posé dans le widget ; elle est posée à même le
+  cadre, la barre de couleur à gauche dit l'état ;
+- **l'état caché au téléphone** : « Chez le remplaçant », « Chez la RH »…
+  (`.dm-st`) disparaissait sous 520 px de fenêtre — en moyen, il ne
+  restait que le titre et le détail. Sous 440 px de cadre, il passe sous
+  le titre, en pastille de sa couleur ;
+- **au PC en grand**, la liste tombait au milieu (`margin-top:auto`) : elle
+  part du haut, le pied reste en bas ;
+- **à 320 px**, le pied débordait en grand (l'étape « Demandeur »,
+  toujours faite, y cède sa place) et « + 1 autre » en moyen (le détail,
+  pause et remplaçant, y cède la sienne à l'état ; lignes resserrées).
+
+Remesuré à 390, 320 et 1280 px, plus aucun débordement ; parcours 188,
+0 faute.
