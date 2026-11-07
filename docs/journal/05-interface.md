@@ -15784,3 +15784,27 @@ ui-ux-pro-max. Quatre défauts :
 
 Remesuré à 390, 320 et 1280 px, plus aucun débordement ; parcours 188,
 0 faute.
+
+### Mon cycle et Calendrier, le visuel repris (v1511, 07/11/2026)
+
+Le client, capture de « Mon cycle » au téléphone : « optimise le visuel du
+calendrier ». Relevé sur la photo, à 390, 320 et 1280 px :
+
+- le point rouge du commentaire était placé à distance fixe du milieu de
+  la case (`right:calc(50% - 19px)`) : il mordait le cercle du férié et
+  l'ovale « 1 nov », et le point gris des heures modifiées, à gauche,
+  restait loin du numéro. **Erreur commise d'abord** : passer les points
+  SOUS la pastille, comme les points d'événement de l'iPhone — il n'y a
+  pas la place, les six semaines remplissent le cadre et les points
+  tombaient sur les lettres de la pastille (photo). Retenu : la case
+  devient une grille de trois colonnes, numéro au milieu, commentaire à
+  sa droite, heures modifiées à sa gauche ; le point suit la largeur du
+  numéro et ne le touche plus ;
+- les pastilles avaient la largeur de leur texte (« N » étroit, « RJF »
+  large) : toutes font au moins 30 px, les colonnes se lisent d'un coup ;
+- la semaine en cours n'était marquée que par le rond d'aujourd'hui :
+  elle est posée sur un léger fond arrondi.
+
+Mêmes classes pour le Calendrier : il suit. Photographié à 390 et 320
+(Mon cycle et Calendrier en grand) et à 1280 (très grand), sans
+débordement ; parcours 188, 0 faute.
