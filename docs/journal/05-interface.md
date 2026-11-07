@@ -15356,3 +15356,9 @@ Le contenu des textes, les liens d'e-mail et l'édition par la RH ne
 changent pas. Première photo : des espaces restaient entre les sections
 (l'écart du conteneur, 8 et 16 px) — repris par une marge négative.
 Parcours 188, 0 faute.
+
+**v1483** (même jour, le client : « il ne faut pas préciser la raison pour
+les absences sans certificat ») : l'e-mail tout prêt de « Signaler une
+absence sans certificat » (`absenceLien`) n'a plus la ligne « Nature de
+l'absence : » à remplir ; il confirme l'absence du jour, sans certificat,
+et que la ligne hiérarchique est prévenue. Parcours 188, 0 faute.
