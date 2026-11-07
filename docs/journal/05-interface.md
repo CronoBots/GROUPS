@@ -15254,3 +15254,18 @@ marque neuve (`usineT2`) et la disposition ENREGISTRÉE. Éprouvé sur son cas
 exact (disposition « grand » enregistrée, ancienne marque posée), deux
 ouvertures de suite : « très grand », tableau et tête, enregistré à 3.
 Parcours 188, 0 faute.
+
+### v1478 — Réglages, « Classeurs » : l'année de chaque classeur (07/11/2026)
+
+Le client, capture des Réglages : « dans les classeurs, indique l'année du
+classeur, car les mises à jour sont différentes selon l'année ; pour le
+recyclage, “Classeur du …” au lieu de “enregistré le” ; et bien mettre des
+majuscules là où il en faut ». `majClasseurs` écrit une ligne par horaire
+reçu (`HORAIRES`, 2026 puis 2027), chacune sa date ; « Suivi des
+recyclages 2026 · Classeur du … » ; le sous-titre « Horaire 2026 du 06/11
+· Horaire 2027 du 06/11 · Recyclages du 06/11 ». Il se refait quand les
+horaires de toutes les années sont lus (avant, il ne connaissait que celui
+de l'année du jour). Les dix sous-titres des Réglages commencent par une
+majuscule. Erreur vue au navigateur : appelé deux fois avant la réponse
+du cache, « Application · Version » s'écrivait deux fois ; il ne s'écrit
+plus qu'une. Parcours 188, 0 faute.
