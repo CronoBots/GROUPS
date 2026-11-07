@@ -3072,6 +3072,27 @@ html .dm-pt{width:22px; height:22px; margin-bottom:3px; border-radius:50%; displ
 html .dm-circ .fait .dm-pt{border-color:var(--good); background:var(--good); color:var(--sur-in)}
 html .dm-circ .tour .dm-pt{border-color:var(--at-jaune); color:var(--at-jaune); box-shadow:0 0 0 4px color-mix(in srgb,var(--at-jaune) 20%,transparent)}
 html .dm-circ .refus .dm-pt{border-color:var(--at-rouge); background:var(--at-rouge); color:var(--sur-in)}
+/* LE CIRCUIT ANIMÉ (le client, le 07/11/2026 : « il faut que l'état des
+   cercles d'avancement de la demande de congé soit animé ») : à
+   l'affichage, chaque étape signée se coche (la pastille éclot) et le
+   trait qui la suit se remplit de gauche à droite, une étape après
+   l'autre ; l'étape en cours bat doucement (un halo qui s'étend), et le
+   trait qui y mène file vers elle. Rien ne bouge si le téléphone demande
+   moins d'animations. */
+@keyframes dmEclot{0%{transform:scale(.4); opacity:0}60%{transform:scale(1.15); opacity:1}100%{transform:scale(1)}}
+@keyframes dmTrait{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes dmHalo{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 45%,transparent)}70%{box-shadow:0 0 0 9px color-mix(in srgb,currentColor 0%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes dmFile{from{background-position:0 0}to{background-position:24px 0}}
+@media (prefers-reduced-motion:no-preference){
+  html .dm-circ .fait .dm-pt{animation:dmEclot .5s cubic-bezier(.22,1,.36,1) both}
+  html .dm-circ li.fait+li::before{transform-origin:left center; animation:dmTrait .45s cubic-bezier(.22,1,.36,1) both}
+  html .dm-circ li:nth-child(2).fait .dm-pt,html .dm-circ li:nth-child(2)::before{animation-delay:.35s}
+  html .dm-circ li:nth-child(3).fait .dm-pt,html .dm-circ li:nth-child(3)::before{animation-delay:.7s}
+  html .dm-circ li:nth-child(4).fait .dm-pt,html .dm-circ li:nth-child(4)::before{animation-delay:1.05s}
+  html .dm-circ .tour .dm-pt{animation:dmHalo 1.8s cubic-bezier(.22,1,.36,1) .6s infinite}
+  html .dm-circ li.fait+li.tour::before{background:linear-gradient(90deg,var(--good) 0 50%,color-mix(in srgb,var(--good) 35%,transparent) 50% 100%) 0 0/12px 100% repeat-x;
+    animation:dmTrait .45s cubic-bezier(.22,1,.36,1) both,dmFile .9s linear .5s infinite}
+}
 /* Coches et pastille « À faire » : --sur-in, sombre en thème sombre ; le blanc y tombait à 2,07:1 (audit du 23/10/2026). */
 html .dm-circ b{font-size:11.5px; font-weight:700; line-height:1.2; color:var(--ink); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 html .dm-circ small{font-size:11px; line-height:1.25; color:var(--muted); max-width:100%}
@@ -7400,6 +7421,14 @@ html .hp-t col.hp-cs{width:54px} html .hp-t col.hp-cl{width:var(--hp-cl,76px)}
    largeur qui le déborde. */
 html .hp-t.hp-tmoi{min-width:100%}
 html .hp-t tbody td.hp-c{text-align:left; text-overflow:clip; padding:2px 10px; color:#111827}
+/* sans glissement (07/11/2026) : le tableau à la largeur de l'écran, le
+   commentaire sur une ligne, coupé « … », ouvert au toucher (data-com) */
+html .hp-t.hp-tmoi{width:100%; max-width:100%}
+html .hp-t.hp-tmoi tbody td.hp-c{max-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+/* la pilule « Comparer » : le menu natif, transparent, par-dessus */
+.hp-comp{position:relative; display:inline-flex; align-items:center; gap:6px}
+.hp-comp select{position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; font-size:16px}
+.hp-comp.on{background:var(--in-soft); color:var(--in); border-color:var(--in)}
 /* LE POSTE ET LE TRIGRAMME RESTENT AU GLISSEMENT (le client, le 29/10/2026 :
    « pour Mon horaire, les deux premières lignes avec le poste et le
    trigramme doivent rester fixes, même au scroll horizontal », puis, la
@@ -23293,7 +23322,7 @@ function grTeinte(po){ po=String(po||"").toLowerCase();
    horaire par défaut à l'ouverture ») : la grille s'ouvre sur la colonne
    de la personne de l'appareil ; la pilule choisie ensuite reste celle de
    la séance. Sans personne choisie, la dernière feuille vue. */
-var GR={feuille:"moi", vue:lsGet("ui/grVue")||"", debut:null, noms:null, modifie:false, cherche:"", adj:lsGet("ui/grAdj")!==false};
+var GR={feuille:"moi", vue:lsGet("ui/grVue")||"", debut:null, noms:null, modifie:false, cherche:"", adj:lsGet("ui/grAdj")!==false, comp:lsGet("ui/grComp")||""};
 var GR_PIED=[
   {t:"VA",c:{"VA":8,"1/2VA":4},s:"VA"},
   {t:"RTT",c:{"RTT":8,"1h RTT":1,"2h RTT":2,"3h RTT":3,"4h RTT":4,"5h RTT":5,"6h RTT":6,"7h RTT":7},s:"RTT"},
@@ -23502,7 +23531,17 @@ function grColonnes(db){
         /* les contremaîtres ont leur équipe (« 5 ») à la place du poste :
            alors le nom de la feuille */
         titre=c.po&&!/^\d+$/.test(c.po)?c.po:x[1]; }); });
-    m=["moi",titre,null,cols.length?grTeinteCol(cols[0]):"pt-cm"]; }
+    /* COMPARER AVEC UN COLLÈGUE (le client, le 07/11/2026 : « ajouter la
+       possibilité d'ajouter un autre trigramme à droite de soi-même afin
+       de pouvoir comparer son horaire avec cette personne ; dans ce cas,
+       le commentaire doit être avec le coin rouge, affiché si l'on
+       appuie ») : sa colonne, trouvée comme la sienne, à droite ; à deux,
+       plus de colonne du commentaire (avecCom), le coin rouge revient */
+    if(cols.length&&GR.comp&&GR.comp!==moi){ var vu2=false;
+      GR_MODES.forEach(function(x){ if(x[2]||/^p:/.test(x[0])||vu2) return;
+        de(x[0]).forEach(function(c){ if(c.p.id!==GR.comp||vu2) return; cols.push(c); vu2=true; }); });
+      if(vu2) titre="Comparaison"; }
+    m=["moi",titre,null,cols.length===1?grTeinteCol(cols[0]):"pt-cm"]; }
   else if(m[2]) ["Shift1","Shift2","Shift3","Shift4","Shift5"].forEach(function(f){ de(f).forEach(function(c){ if(c.k===m[2]) cols.push(c); }); });
   else cols=de(m[0]);
   /* LES ADJOINTS EN TÊTE, ET UN BOUTON POUR LES MASQUER (le client, le
@@ -23549,6 +23588,26 @@ function grColonnes(db){
       cols=[seul]; m=["moi",seul.po&&!/^\d+$/.test(seul.po)?seul.po:(fx?fx[1]:"Recherche"),null,grTeinteCol(seul)]; } }
   return {mode:m, cols:cols};
 }
+function grComTronques(zone){
+  [].forEach.call(zone.querySelectorAll("td.hp-c[data-com]"),function(td){ if(td.scrollWidth<=td.clientWidth+1) td.removeAttribute("data-com"); });
+}
+/* la pilule « Comparer » : un menu natif (la roue de l'iPhone) sous une
+   étiquette ; « Personne » retire la comparaison. Le choix reste sur
+   l'appareil (ui/grComp). */
+function grCompHTML(db,moiId){
+  var ids=db.people.map(function(p){ return p.id; }).filter(function(id){ return id!==moiId; })
+    .sort(function(a,b){ var x=idLisible(a), y=idLisible(b); return x<y?-1:x>y?1:0; });
+  var c=GR.comp&&ids.indexOf(GR.comp)>=0?GR.comp:"";
+  return '<label class="hp-pill hp-comp'+(c?' on':'')+'" title="Comparer mon horaire avec celui d\'un collègue">'
+    +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16M3 8l4-4 4 4M13 16l4 4 4-4"/></svg>'
+    +'<span>'+(c?esc(idLisible(c)):'Comparer')+'</span>'
+    +'<select id="grComp" aria-label="Comparer mon horaire avec"><option value="">Personne</option>'
+    +ids.map(function(id){ return '<option value="'+esc(id)+'"'+(id===c?' selected':'')+'>'+esc(idLisible(id))+'</option>'; }).join("")+'</select></label>';
+}
+document.addEventListener("change",function(e){
+  if(!e.target||e.target.id!=="grComp") return;
+  GR.comp=e.target.value; lsSet("ui/grComp",GR.comp); GR.sig=null; renderGrille();
+});
 /* LA CASE CHOISIE ET LES FLÈCHES D'EXCEL (le client, le 31/10/2026 : « avec les
    flèches comme sur Excel quand une cellule est sélectionnée »). Un clic ou
    un toucher sur une case marque sa ligne et les deux colonnes de sa
@@ -23613,6 +23672,7 @@ function renderGrille(){
      trigramme). Le lecteur d'écran entend toujours « Mon horaire, VBN ». */
   document.getElementById("grPilules").innerHTML=(moiId?'<button type="button" class="hp-pill hp-moi" data-f="moi" aria-pressed="'+(GR.feuille==="moi"&&!(GR.cherche.length>=2))+'" aria-label="Mon horaire, '+esc(idLisible(moiId))+'" title="Seulement l\'horaire de '+esc(idLisible(moiId))+'">'
       +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>':'')
+    +(moiId&&GR.feuille==="moi"&&!(GR.cherche.length>=2)&&db?grCompHTML(db,moiId):'')
     +GR_MODES.map(function(x){ var poste=!!x[3];
       return '<button type="button" class="'+(poste?'hp-poste '+x[3]:'hp-pill')+'" data-f="'+esc(x[0])+'" aria-pressed="'+(x[0]===GR.feuille&&!(GR.cherche.length>=2))+'">'+esc(x[1])+'</button>'
         /* le bouton des adjoints, après la dernière équipe : il n'agit que
@@ -23651,7 +23711,13 @@ function renderGrille(){
     cx.font='400 12px Roboto,system-ui,"Segoe UI",Arial,sans-serif';
     jours.forEach(function(dt){ var e2=(cols[0].p.d||{})[pad2(dt.getMonth()+1)+pad2(dt.getDate())];
       if(e2&&e2[2]) wMax=Math.max(wMax,cx.measureText(grComLigne(e2[2])).width); });
-    larg=' style="width:'+Math.ceil(218+wMax*1.02+24)+'px"';
+    /* PLUS DE GLISSEMENT VERS LA DROITE (le client, le 07/11/2026 : « il ne
+       faut plus pouvoir aller vers la droite, mais si le commentaire n'est
+       pas totalement visible, il faut appuyer dessus pour le voir ») : le
+       tableau tient l'écran ; le commentaire coupé « … » s'ouvre au
+       toucher, dans la bulle du Planning (data-com, retiré après le rendu
+       à celui qui tient en entier : grComTronques) */
+    void wMax;
   }
   /* le bandeau du poste et du trigramme, hors de la zone (voir .hp-moib) */
   var mt=document.getElementById("grMoiTete");
@@ -23713,7 +23779,7 @@ function renderGrille(){
       var cs=!avecCom&&GR.colP===p.id?' hp-csel':'', bulle=com&&!avecCom;
       h.push('<td class="hp-s'+cs+(sai?' hp-sai':'')+'"'+att+(pv.length>7?' title="'+esc(pv)+'"':'')+'>'+esc(grCasse(pv))+'</td><td class="hp-l'+cs+(bulle?' hp-com':'')+'"'+att+(an2?' title="'+esc(an2)+'"':'')+(bulle?' data-com="'+esc(e[2])+'"':'')+'>'+esc(grCasse(an2))+'</td>');
     });
-    if(avecCom){ var e1=(cols[0].p.d&&cols[0].p.d[md])||[]; h.push('<td class="hp-c" data-ci="0">'+(e1[2]?esc(grComLigne(e1[2])):'')+'</td>'); }
+    if(avecCom){ var e1=(cols[0].p.d&&cols[0].p.d[md])||[]; h.push('<td class="hp-c" data-ci="0"'+(e1[2]?' data-com="'+esc(e1[2])+'"':'')+'>'+(e1[2]?esc(grComLigne(e1[2])):'')+'</td>'); }
     h.push('</tr>');
   });
   h.push('</tbody>');
@@ -23775,6 +23841,7 @@ function renderGrille(){
   zone.style.removeProperty("--hp-cl");
   zone.innerHTML=h.join("");
   grCaleTete();
+  if(avecCom) grComTronques(zone);
   GR.colCache={}; GR.sig=grSignature(db);
   /* au clavier, une seule case dans l'ordre de Tab : celle du jour, sinon
      la première ; les flèches se déplacent ensuite (audit du 23/10/2026) */
@@ -39498,7 +39565,11 @@ var ACC_W=[
      sert à rien » ; le canal reste dans la fiche de « L'usine en direct ») */
   /* une date ou deux et « Vérifier » : moyen ; le résultat, dans l'onglet */
   {k:"cherche",      nom:"Congé possible ?",    l:6,  f:["M"], h:1},
-  {k:"numeros",      nom:"Postes en direct",    l:6,  f:["M","L"], h:2},
+  /* au PC seulement (le client, le 07/11/2026 : « sur mobile, Postes en
+     direct n'est plus utile si c'est affiché sur le plan ») : au
+     téléphone, le tableau des postes est sous la photo de « L'usine en
+     direct » (format haut, v1475) */
+  {k:"numeros",      nom:"Postes en direct",    l:6,  f:["M","L"], h:2, pc:true},
   /* des pastilles en grille : moyen, grand, très grand */
   /* (« Sur site » retiré le 06/11/2026, sa tête passée dans « Numéros des
      postes » : sa carte reste, cachée — renderSiteAccueil fait aussi
@@ -39777,7 +39848,7 @@ function accAppDoublon(k){ return k==="app:paie"||k.indexOf("app:ws-")===0||k.in
    dans le menu et non pas dans l'écran ») : plus aucune icône à l'Accueil
    du téléphone ; les quatre raccourcis passent dans la feuille « Plus »,
    section « Raccourcis » */
-function accHorsMode(k){ var d=accDef(k); return !!(d&&d.app); }
+function accHorsMode(k){ var d=accDef(k); return !!(d&&(d.app||(d.pc&&ACC.mode!=="large"))); }
 function accPageDe(k){ if(!accPagesOn()) return 0; var p=ACC.pg&&ACC.pg[k]; return p===-1||p===1?p:0; }
 function accPagePoser(k,p){ if(accPagesOn()&&(p===-1||p===1)) ACC.pg[k]=p; else delete ACC.pg[k]; }
 /* ce qui se montrerait sur une page (sans compter le masquage des pages) */

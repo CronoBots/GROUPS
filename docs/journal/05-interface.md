@@ -15629,3 +15629,35 @@ l'échéance (« Vacances de détente (Carnaval) ») : le détail se coupe
 d'abord, le titre ensuite. Le petit garde sa date au-dessus du titre,
 désormais par son format (S) et non plus par sa largeur : au PC (217 px),
 la ligne serrée débordait.
+
+**v1501 — Trois demandes du client** (même jour) :
+
+- **Le circuit d'une demande de congé, animé** (« il faut que l'état des
+  cercles d'avancement soit animé ») : chaque étape signée se coche en
+  éclosant (0,5 s), le trait qui la suit se remplit de gauche à droite,
+  une étape après l'autre (0,35 s d'écart) ; l'étape en cours bat (un
+  halo de sa couleur, `currentColor`, toutes les 1,8 s) et le trait qui y
+  mène file vers elle. Rien sous `prefers-reduced-motion` : mesuré par
+  les styles calculés, les quatre animations présentes, puis « none »
+  partout en mouvement réduit.
+- **« Postes en direct » au PC seulement** (« sur mobile, il n'est plus
+  utile si c'est affiché sur le plan ») : `pc:true`, et `accHorsMode` le
+  retire au téléphone ; le tableau des postes reste sous la photo de
+  « L'usine en direct » (format haut). Mesuré : absent à 390 px, présent
+  à 1280.
+- **« Mon horaire » sans glissement, et la comparaison** (« il ne faut
+  plus pouvoir aller vers la droite, mais si le commentaire n'est pas
+  totalement visible, il faut appuyer dessus pour le voir ; ajouter un
+  autre trigramme à droite de soi afin de comparer son horaire ; dans ce
+  cas, le commentaire avec le coin rouge, affiché si l'on appuie ») : le
+  tableau tient l'écran (sa largeur n'est plus celle du plus long
+  commentaire de l'année) ; le commentaire coupé « … » porte `data-com`
+  et s'ouvre dans la bulle du Planning ; celui qui tient en entier ne
+  l'a pas (`grComTronques`, après le rendu). Une pilule « Comparer »
+  (menu natif, la roue de l'iPhone) ajoute la colonne d'un collègue à
+  droite ; à deux, plus de colonne du commentaire : le coin rouge
+  revient, comme dans les équipes. Le choix reste sur l'appareil
+  (`ui/grComp`) ; « Personne » le retire. Mesuré à 390 px : seul, aucun
+  défilement horizontal (zone 356 px, tableau 356), 61 commentaires
+  coupés s'ouvrent, la bulle montre le texte entier ; à deux, aucun
+  défilement, 267 coins rouges.
