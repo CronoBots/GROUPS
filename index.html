@@ -9595,6 +9595,33 @@ html body #v-horaire.acc-perso #demCard.dem-sans-etapes[data-acc-h="1"] .md-l>li
    suffit. */
 html body #v-horaire.acc-perso #demCard[data-acc-h="1"]:not(.dem-sans-etapes) .md-l>li:only-child .dm-st{display:none!important}
 html body #v-horaire.acc-perso #demCard[data-acc-h="1"] .md-l>li:only-child .dm-circ{margin-top:8px}
+/* LA DATE COMME DANS LES AUTRES WIDGETS (le client, le 07/11/2026 :
+   « uniformise la présentation des jours du widget demande de congé, ce
+   n'est pas présenté comme les autres ») : plus de vignette sombre
+   « LUN 23 NOV » ni de barre de couleur à gauche ; le jour et le mois en
+   entier, en bleu, dans une colonne de 6,9 em, comme « Prochains repos »
+   et « Dates clés ». L'état reste dit par les étapes ou la pastille. Le
+   mois entier (dm-ml) n'est écrit que dans ce widget ; l'onglet Demandes
+   garde sa vignette. */
+.dm-dt .dm-ml{display:none}
+html body #v-horaire.acc-perso #demCard .md-l>li::before{display:none}
+html body #v-horaire.acc-perso #demCard .md-l>li{padding-left:0}
+html body #v-horaire.acc-perso #demCard .dm-dt{font-size:14px; display:flex; flex-direction:row; justify-content:flex-start; flex-wrap:wrap; align-content:flex-start; align-items:baseline; gap:1px 4px; width:7.4em; min-width:7.4em; height:auto; padding:2px 0 0; border:0; border-radius:0; background:none; box-shadow:none; line-height:1.15; text-transform:none}
+html body #v-horaire.acc-perso #demCard .dm-dt>small:not(.dm-ml){display:none}
+html body #v-horaire.acc-perso #demCard .dm-dt>b{font-size:15px; font-weight:700}
+html body #v-horaire.acc-perso #demCard .dm-dt>.dm-ml{display:inline; font-size:13px; font-weight:500; letter-spacing:0; text-transform:none; white-space:nowrap}
+html body #v-horaire.acc-perso #demCard .dm-dt>i{flex-basis:100%; font-style:normal; font-size:12px; color:var(--muted); background:none; padding:0; margin:0}
+/* en grand, chaque demande montre ses étapes : la pastille d'état y
+   redisait l'étape en cours (même règle qu'en moyen) */
+html body #v-horaire.acc-perso #demCard[data-acc-h="2"] .md-l>li .dm-st{display:none!important}
+/* au petit téléphone, la date passe au-dessus du titre, comme dans les
+   petits « Prochains repos » et « Dates clés » : la colonne de 7,4 em
+   y prenait la moitié de la largeur */
+@container demc (max-width:299px){
+  html body #v-horaire.acc-perso #demCard .md-h{grid-template-columns:minmax(0,1fr); grid-template-areas:"tu" "ti" "st"; row-gap:2px}
+  html body #v-horaire.acc-perso #demCard .dm-dt{width:auto; min-width:0; flex-wrap:nowrap; padding:0}
+  html body #v-horaire.acc-perso #demCard .dm-dt>i{flex-basis:auto; margin-left:4px}
+}
 html body #v-horaire.acc-perso #demCard[data-acc-h="1"]:not(.dem-sans-etapes) .md-l>li:only-child{padding-top:6px; padding-bottom:6px}
 /* au petit téléphone (280 × 132) : rond de 16 px, nom serré, cadre moins
    rembourré — la ligne de la demande n'y garde que son titre */
@@ -26772,7 +26799,7 @@ function dmTuile(iso,iso2,nb){
   /* la tuile est muette (aria-hidden) : le jour s'écrit en entier pour le
      lecteur d'écran, qui ne le lisait nulle part (audit du 23/10/2026) */
   var lu=JOURS_LONGS[(d.getDay()+6)%7].toLowerCase()+' '+numJour(d.getDate())+' '+MOIS[d.getMonth()].toLowerCase()+(d.getFullYear()!==jourUsine().getFullYear()?' '+d.getFullYear():'')+(n?', '+n+' jours':'');
-  return '<span class="sr-only">'+esc(lu)+'</span><span class="dm-dt" aria-hidden="true"><small>'+JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+'</small><b>'+d.getDate()+'</b><small>'+m+'</small>'+(n?'<i>'+n+' j</i>':'')+'</span>';
+  return '<span class="sr-only">'+esc(lu)+'</span><span class="dm-dt" aria-hidden="true"><small>'+JOURS_LONGS[(d.getDay()+6)%7].slice(0,3)+'</small><b>'+d.getDate()+'</b><small>'+m+'</small><small class="dm-ml">'+MOIS[d.getMonth()].toLowerCase()+'</small>'+(n?'<i>'+n+' j</i>':'')+'</span>';
 }
 function dmGenre(x){ return dmATraiter(x)?"faire":x.statut==="acceptee"?"ok":x.statut==="refusee"?"non":x.statut==="annulee"?"off":"att"; }
 function rcGenre(x){ return rcATraiter(x)?"faire":x.statut==="validee"?"ok":x.statut==="refusee"?"non":x.statut==="annulee"?"off":"att"; }

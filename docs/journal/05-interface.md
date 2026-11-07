@@ -15825,3 +15825,23 @@ ligne passe à 6 px de marge ; au petit téléphone, rond de 16 px, nom en
 d'`accAjuster` suffit (si les étapes ne tiennent pas, la pastille
 revient). Photographié à 390, 320 et 1280, une demande puis trois ;
 parcours 188, 0 faute.
+
+### Demandes de congé : la date comme dans les autres widgets (v1513, 07/11/2026)
+
+Le client : « uniformise la présentation des jours du widget demande de
+congé, ce n'est pas présenté comme les autres ». Le widget gardait la
+vignette de l'onglet Demandes (« LUN / 23 / NOV » dans un carré sombre)
+et une barre de couleur à gauche ; « Prochains repos » et « Dates clés »
+écrivent « 23 novembre » en bleu, dans une colonne fixe.
+
+Retenu : même écriture (jour en gras, mois entier, colonne de 7,4 em —
+6,9 em faisait passer « novembre » à la ligne à la taille du widget),
+plus de vignette ni de barre ; au petit téléphone, la date passe
+au-dessus du titre, comme les petits « Prochains repos » et « Dates
+clés ». Le mois entier (`dm-ml`) n'est écrit que dans le widget :
+l'onglet Demandes garde sa vignette. En grand, chaque demande montre ses
+étapes : la pastille d'état, qui redisait l'étape en cours, y est
+retirée comme en moyen — c'est elle qui faisait déborder le pied de 8 px
+à 320 px (mesuré), la date gagnant une ligne. Photographié à 390, 320 et
+1280, en moyen et en grand, une et trois demandes, sans débordement ;
+parcours 188, 0 faute.
