@@ -15568,3 +15568,15 @@ semaine entière qui se centre (`.mc-sem` à sa hauteur, `.mc-grille`
 centrée). Le PC, inchangé (photographié). Corrects tels quels : L'usine
 en direct, Postes en direct, « Congé possible ? » (v1494), À retenir,
 Demandes de congé, Mon année.
+
+**v1497 — Au téléphone, les icônes qui doublent la feuille « Plus »**
+(même jour). Le client : « pareil que sur PC, les boutons sont-ils
+nécessaires si cela apparaît dans le menu ? ». Mesuré d'abord, au
+navigateur : la feuille « Plus » du dock porte salaire · demandes ·
+effectifs · recherche · à valider · tableau · personnel · absences ·
+historique · infos · réglages ; l'Accueil en avait quinze icônes. Onze
+doublaient la feuille et la quittent (`accAppDoublon` : `app:paie`,
+`app:ws-…`, `app:go-…`, par `accHorsMode`, comme au PC). Restent les quatre
+raccourcis qu'on ne trouve nulle part ailleurs : appeler le contremaître,
+une demande de congé, le certificat, l'historique de mon horaire — une
+seule rangée. Leur place reste enregistrée. Parcours 188, 0 faute.

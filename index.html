@@ -39717,7 +39717,16 @@ function accPagesOn(){ return ACC.mode==="tel"; }
    sens si c'est affiché dans le menu à gauche, et ça allège la page ») :
    au PC, le menu de gauche montre déjà chaque accès ; les icônes de
    l'Accueil n'y sont plus, ni dans la galerie « + ». Le téléphone les garde. */
-function accHorsMode(k){ var d=accDef(k); return !!(d&&d.app&&ACC.mode==="large"); }
+/* AU TÉLÉPHONE AUSSI (le client, le 07/11/2026 : « pareil que sur PC, les
+   boutons sont-ils nécessaires si cela apparaît dans le menu ? ») : la
+   feuille « Plus » du dock porte déjà salaire · demandes · effectifs ·
+   recherche · à valider · tableau · personnel · absences · historique ·
+   infos · réglages ; leurs icônes quittent l'Accueil. Restent les quatre raccourcis
+   qui ne sont nulle part ailleurs : appeler le contremaître (app:cm), une
+   demande de congé (dmNv), le certificat (certif), l'historique de mon
+   horaire (histo) — une rangée de quatre. */
+function accAppDoublon(k){ return k==="app:paie"||k.indexOf("app:ws-")===0||k.indexOf("app:go-")===0; }
+function accHorsMode(k){ var d=accDef(k); return !!(d&&d.app&&(ACC.mode==="large"||accAppDoublon(k))); }
 function accPageDe(k){ if(!accPagesOn()) return 0; var p=ACC.pg&&ACC.pg[k]; return p===-1||p===1?p:0; }
 function accPagePoser(k,p){ if(accPagesOn()&&(p===-1||p===1)) ACC.pg[k]=p; else delete ACC.pg[k]; }
 /* ce qui se montrerait sur une page (sans compter le masquage des pages) */
