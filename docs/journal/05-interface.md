@@ -15436,3 +15436,11 @@ photographié et mesuré après « Min ». Corrigés :
 Corrects tels quels : profil, météo, à faire, congés restants, paie, à
 retenir, effectif du jour, mes stats, mes repos, mon année, mon cycle,
 postes en direct, messages, planning, l'usine. Parcours 188, 0 faute.
+
+**v1489 — PC en « Moyen »** (même jour, captures « PC moyen ») : refaites
+en grand à 1280 px, chaque widget photographié et mesuré. Un seul défaut :
+« Effectif du jour » collait son contenu en bas, un grand vide au-dessus ;
+centré (aussi en petit). Corrects tels quels : profil, météo, heure et
+poste, à faire, congés restants, paie, à retenir, annonces, mes repos,
+mes stats, mon année, mon cycle, calendrier, congé possible, postes en
+direct, messages. Parcours 188, 0 faute.
