@@ -15330,3 +15330,29 @@ concerne pas : votre salaire est calculé et versé par votre agence
 d'intérim… ») ; dans l'onglet Salaire, un avertissement quand la personne
 liée est intérimaire (`estInterim`, la même règle que l'affichage du
 statut) : éprouvé avec CDT (affiché) et VBN (caché). Parcours 188, 0 faute.
+
+### v1482 — « Infos et aide » refaite (07/11/2026)
+
+Le client : « refaire toute la partie Infos et aide ». Photographiée pli
+par pli (390, 1280 px) avec des annonces et des infos fabriquées.
+Constats, puis correctifs :
+
+- Sous-titres en minuscule (« versements, jours fériés… », « les règles,
+  en clair », « ce qui est enregistré… ») : majuscule.
+- Infos pratiques : versements et jours fériés en listes arrondies, sous
+  des titres de groupe ; le long paragraphe gris sur le calcul des dates,
+  collé sous les versements, se replie (« Comment ces dates sont
+  calculées ») ; « Prévenir la RH » : deux boutons soulignés de largeurs
+  différentes deviennent deux lignes à icône (e-mail bleu, alerte orange)
+  qui disent ce qu'elles font ; les rubriques de la RH (paie, procédures,
+  contacts) forment une liste sous « Infos de la RH », leur flèche à
+  droite (elle collait au mot).
+- « Comprendre mon horaire et ma paie » et « Vos données » : chaque
+  section était une boîte à part ; elles forment une liste d'un seul
+  tenant, une icône de couleur par section (13), le titre de la section
+  ouverte en bleu, son texte aligné sous le titre.
+
+Le contenu des textes, les liens d'e-mail et l'édition par la RH ne
+changent pas. Première photo : des espaces restaient entre les sections
+(l'écart du conteneur, 8 et 16 px) — repris par une marge négative.
+Parcours 188, 0 faute.
