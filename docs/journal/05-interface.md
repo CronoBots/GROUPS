@@ -15419,3 +15419,20 @@ taille ne bouge pas ; enregistré au « ✓ ». Téléphone et PC ont chacun leu
 disposition (`ui/accueil/tel`, `ui/accueil/large`). Éprouvé aux deux :
 les trois boutons l’un après l’autre, puis ✓ et rechargement, les tailles gardées. À 320 px,
 les boutons de la barre se resserrent. Parcours 188, 0 faute.
+
+### v1488 — PC en « Min » : les widgets repris (07/11/2026)
+
+Le client envoie ses captures « PC, minimum » (l'écran entier, trop petit
+pour les lire de près) : refaites ici en grand à 1280 px, chaque widget
+photographié et mesuré après « Min ». Corrigés :
+- Calendrier (moyen, une ligne de haut) : la semaine du jour seule, la
+  moitié du cadre vide ; au PC, elle et la suivante. Première tentative en
+  `display:revert` : la semaine perdait sa grille de sept colonnes ; c'est
+  `display:grid`.
+- Annonces (petit) : l'annonce tombait en bas, un vide au-dessus ; au
+  milieu du cadre.
+- Congé possible ? : « Vérifier » seul sur une deuxième ligne ; au PC, sur
+  la ligne de « Qui », « Du » et « Au ».
+Corrects tels quels : profil, météo, à faire, congés restants, paie, à
+retenir, effectif du jour, mes stats, mes repos, mon année, mon cycle,
+postes en direct, messages, planning, l'usine. Parcours 188, 0 faute.
