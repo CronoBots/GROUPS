@@ -8780,6 +8780,16 @@ html body #v-aide .aide-sec-c{padding:2px 14px 14px 54px; font-size:14px}
 /* les rubriques des infos : sans icône, le compte en pastille */
 html body #v-aide .aide-rub>summary small{margin-left:8px; padding:1px 7px; border-radius:999px; background:var(--surface3); font-size:11.5px; color:var(--muted)}
 html body #v-aide .aide-rub .aide-sec-c{padding-left:14px}
+/* les profils d'essai (07/11/2026) */
+.pe-bloc{padding:10px 12px 12px}
+.pe-t{margin:0 0 6px 2px; font-size:12px; font-weight:650; letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+.pe-seg{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:2px; padding:2px; border-radius:10px; background:var(--surface3)}
+.pe-seg>button{appearance:none; border:0; border-radius:8px; padding:7px 4px; background:none; color:var(--ink2); font:inherit; font-size:13px; font-weight:600; cursor:pointer; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pe-seg>button[aria-checked="true"]{background:var(--in); color:#06141c}
+.pe-n{margin:6px 2px 0; font-size:11.5px; color:var(--muted)}
+.side-profil{display:none}
+@media (min-width:1100px){ .side-profil:not(:empty){display:block; margin:auto 10px 6px; border-radius:14px; background:var(--surface2)} }
+.plusfeuille .pe-bloc{grid-column:1 / -1}
 /* Mes données (07/11/2026) */
 .md-corps{padding:4px 16px 14px}
 .md-info{margin:0 0 4px; font-size:13px; line-height:1.45; color:var(--muted)}
@@ -10739,6 +10749,7 @@ html body #v-reglages #btnDeconnexion{width:100%; min-height:46px; border:0; bor
        sections, puis la Gestion (l'espace RH, ouvert à droite du menu) et,
        en bas, les Réglages. Cachés en dessous. -->
   <nav class="side-gestion" id="sideGestion" aria-label="Gestion" hidden></nav>
+  <div class="side-profil" id="sideProfil"></div>
   <div class="side-pied" id="sidePied">
     <!-- LE PIED DU MENU, UNE LIGNE (04/11/2026) : la carte « moi » (le
          trigramme, le poste du jour, la date) ouvre les Réglages — la roue
@@ -19445,7 +19456,7 @@ function awJoindre(){
    l'Accueil : la même lecture, le même résultat. Un opérateur ne cherche
    que pour lui ; le contremaître et l'adjoint (cadre ou poste adjoint)
    pour qui il veut. */
-function chPourTous(){ var id=trigCourant(), p=null; if(HORAIRE_DB&&id) HORAIRE_DB.people.forEach(function(q){ if(q.id===id) p=q; });
+function chPourTous(){ if(profilEssai()==="operateur") return false; var id=trigCourant(), p=null; if(HORAIRE_DB&&id) HORAIRE_DB.people.forEach(function(q){ if(q.id===id) p=q; });
   return !!(p&&(estCadre(p)||wsAdjoint(p))); }
 function awCherche(){
   var c=document.getElementById("chCard"); if(!c) return;
@@ -38473,7 +38484,35 @@ function gateFinaliser(partial){
   if(typeof flash==="function") flash(acc.role==="rh"?"Connecté — RH":"Connecté — bienvenue !");
   if(_gateOnOk){ var f=_gateOnOk; _gateOnOk=null; f(); }
 }
+/* LES TROIS PROFILS D'ESSAI (le client, le 07/11/2026 : « le temps que
+   l'on construise l'app, pourrais-tu me mettre dans le menu trois boutons
+   qui me permettraient de passer d'un profil à un autre : travailleur
+   normal, contremaître ou adjoint (le mien), RH »). Pour les seuls
+   trigrammes de PROFIL_ESSAI : le rôle du compte est remplacé à l'écran
+   (st.account), jamais dans la base — ce que la base refuse à un compte
+   (valider un compte, publier une annonce) lui reste refusé. Le choix vit
+   sur l'appareil (ui/profilEssai) ; le changer recharge la page. */
+var PROFIL_ESSAI=["VBN"];
+var PROFILS=[["operateur","Travailleur"],["hierarchie","Contremaître"],["rh","RH"]];
+function profilEssaiOk(){ var r=lsGet("account/current")||{}; return !!r.email&&PROFIL_ESSAI.indexOf(String(r.tri||"").toUpperCase())>=0; }
+function profilEssai(){ if(!profilEssaiOk()) return ""; var p=lsGet("ui/profilEssai")||""; return /^(operateur|hierarchie|rh)$/.test(p)?p:""; }
+function profilEssaiHTML(){
+  if(!profilEssaiOk()) return "";
+  var r=lsGet("account/current")||{}, cur=profilEssai()||r.base||"hierarchie";
+  return '<div class="pe-bloc"><p class="pe-t">Voir l’application en tant que</p><div class="pe-seg" role="radiogroup" aria-label="Profil d’essai">'
+    +PROFILS.map(function(x){ return '<button type="button" role="radio" data-profil="'+x[0]+'" aria-checked="'+(x[0]===cur?'true':'false')+'">'+x[1]+'</button>'; }).join("")
+    +'</div><p class="pe-n">Affichage d’essai : les droits de votre compte ne changent pas.</p></div>';
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest("[data-profil]"):null; if(!b||!profilEssaiOk()) return;
+  var p=b.getAttribute("data-profil"), r=lsGet("account/current")||{};
+  if(b.getAttribute("aria-checked")==="true") return;
+  lsSet("ui/profilEssai",p===r.base?"":p);
+  flash("Profil « "+b.textContent+" »…"); setTimeout(function(){ location.reload(); },250);
+});
 function appliquerCompte(acc){
+  var pe=profilEssai();
+  if(acc&&pe&&PROFIL_ESSAI.indexOf(String(acc.tri||"").toUpperCase())>=0){ var c={}; for(var k in acc) c[k]=acc[k]; c.base=pe; c.role=pe==="rh"?"rh":"employe"; c.essai=true; acc=c; }
   st.account=acc;
   document.documentElement.setAttribute("data-rh", acc&&acc.role==="rh"?"1":"");
   /* ET L'INVERSE (le client, le 06/11/2026 : « un opérateur ne doit pas voir
@@ -38494,6 +38533,7 @@ function appliquerCompte(acc){
   }
   majCompteUI();
   majQuiJeSuis();
+  var sp=document.getElementById("sideProfil"); if(sp) sp.innerHTML=profilEssaiHTML();
   /* La ligne du jour (date + poste) se recalcule une fois les sélecteurs garnis. */
   if(typeof majBrandsub==="function") setTimeout(majBrandsub,150);
 }
@@ -38946,7 +38986,7 @@ document.addEventListener("click",function(e){
   function ouvrir(){
     var tel=mqNav.matches, h=entrees(tel,false);
     if(f.hidden) navPousser("plus"); /* « retour » la referme (audit du 23/10/2026) */
-    f.innerHTML=h; f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
+    f.innerHTML=h+profilEssaiHTML(); f.hidden=false; fond.hidden=false; bt.setAttribute("aria-expanded","true");
     f.scrollTop=0; fondu();
     /* à la tablette, un menu déroulant sous son bouton, tenu dans l'écran */
     if(!tel){ var r=bt.getBoundingClientRect(); f.style.top=Math.round(r.bottom+6)+"px"; f.style.right=Math.max(16,Math.round(innerWidth-r.right))+"px"; f.style.left="auto"; f.style.bottom="auto"; }

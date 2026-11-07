@@ -1006,3 +1006,20 @@ migration : une donnée, pas la structure) ; au prochain lancement en
 ligne, `baseVerifierCompte` applique le rôle seul. Il ne reste alors
 AUCUN compte RH : valider un compte ou changer un rôle se fait par la
 base, jusqu'à ce que le client désigne l'adresse réservée à la RH.
+
+### Les trois profils d'essai (07/11/2026)
+
+Le client : « le temps que l'on construise l'app, pourrais-tu me mettre
+dans le menu trois boutons qui me permettraient de passer d'un profil à un
+autre : un profil de travailleur normal, un profil contremaître ou adjoint
+(le mien) et un profil RH ». En bas de la feuille « Plus » (téléphone,
+tablette) et dans le menu du PC : « Voir l'application en tant que :
+Travailleur · Contremaître · RH ». Réservé aux trigrammes de
+`PROFIL_ESSAI` (VBN). Le choix (`ui/profilEssai`, sur l'appareil) remplace
+le rôle du compte À L'ÉCRAN dans `appliquerCompte` (`st.account`) ;
+`account/current` et la base gardent le vrai (hiérarchie) : ce que la base
+refuse au compte (valider un compte, publier une annonce) reste refusé, et
+le dit. « Travailleur » : sans Effectifs, la recherche pour soi seul
+(`chPourTous`) ; « RH » : le mode RH et son espace. Éprouvé au navigateur :
+les trois bascules, le compte réel inchangé. À retirer quand l'application
+sera finie (avec `PROFIL_ESSAI`).
