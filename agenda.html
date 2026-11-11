@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111727">
+<meta name="robots" content="noindex">
+<title>Abonnement agenda · BIOWANZE</title>
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- LA PAGE D'ABONNEMENT À PARTAGER (le client, le 14/10/2026 : un lien
+     webcal:// envoyé à un collègue ouvrait une RECHERCHE dans son agenda).
+     Beaucoup de messageries ne reconnaissent pas webcal:// comme un lien et le
+     passent comme du texte. On partage donc un lien https ordinaire,
+     agenda.html?id=TRI, que toutes rendent cliquable ; la page lance la
+     bonne méthode selon le téléphone : webcal:// sur Apple, la page d'ajout
+     de Google ailleurs (l'application Android ne sait pas s'abonner). Rien
+     d'autre que le trigramme n'y passe. -->
+<style>
+@font-face{font-family:'Archivo';font-weight:400 700;font-display:swap;src:url(fonts/archivo-latin.woff2) format('woff2')}
+:root{color-scheme:dark;--fond:#111727;--carte:#212737;--ink:#EEF1F7;--muted:#AEB6C6;--in:#69B2CB;--sur-in:#0B1220;--trait:#343B4D;--rouge:#F08A80}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(circle at 50% 35%,#1b2640,#111727 70%) fixed,var(--fond);color:var(--ink);font:15px/1.5 Archivo,system-ui,sans-serif;padding:max(24px,env(safe-area-inset-top)) 16px 32px;display:flex;justify-content:center}
+main{width:100%;max-width:440px}
+.logo{display:block;height:44px;margin:8px auto 22px}
+.carte{background:var(--carte);border:1px solid var(--trait);border-radius:16px;padding:22px 20px}
+h1{font-size:20px;margin:0 0 4px;text-align:center}
+.tri{display:inline-block;font:700 15px ui-monospace,"IBM Plex Mono",monospace;background:#2B3244;border:1px solid var(--trait);border-radius:7px;padding:1px 8px;letter-spacing:.04em}
+p{margin:10px 0;color:var(--muted)}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;font-weight:700;font-size:16px;border-radius:12px;padding:14px 16px;margin:16px 0 8px;background:var(--in);color:var(--sur-in);border:0;cursor:pointer}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--trait);font-weight:600;font-size:14px;padding:11px 14px;margin-top:8px}
+ol{color:var(--muted);padding-left:20px;margin:8px 0}
+li{margin:4px 0}
+code{font:12.5px ui-monospace,"IBM Plex Mono",monospace;color:var(--ink);word-break:break-all}
+.err{color:var(--rouge);text-align:center}
+.pied{font-size:12.5px;text-align:center;margin-top:16px}
+details{margin-top:14px;border-top:1px solid var(--trait);padding-top:10px}
+summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:14px}
+[hidden]{display:none!important}
+.etape{background:rgba(105,178,203,.10);border:1px solid rgba(105,178,203,.35);border-radius:12px;padding:14px 14px 4px;margin:14px 0 6px}
+.etape b{color:var(--ink)}
+.etape p{margin:6px 0}
+.etape .btn{margin:12px 0 8px}
+.num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--in);color:var(--sur-in);font-size:13px;font-weight:700;margin-right:6px}
+.geste{background:#2B3244;border:1px solid var(--trait);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:15px}
+.geste b{font-size:18px;letter-spacing:.06em}
+.alerte{background:rgba(240,138,128,.10);border:1px solid rgba(240,138,128,.4);border-radius:12px;padding:10px 12px;color:var(--ink);font-size:13.5px}
+</style>
+</head>
+<body>
+<main>
+  <img class="logo" src="logo.svg" alt="BIOWANZE">
+  <div class="carte" id="ok" hidden>
+    <h1>Horaire de <span class="tri" id="tri"></span></h1>
+    <p style="text-align:center">Abonnez votre agenda : les postes s'y ajoutent et se mettent à jour tout seuls à chaque nouvel horaire.</p>
+    <p style="text-align:center;font-size:13.5px" id="auto" hidden>Votre agenda s'ouvre… Sinon, touchez le bouton ci-dessous.</p>
+    <!-- SORTIR DE LA MESSAGERIE D'ABORD (le client, le 19/10/2026 : « chez elle,
+         rien ne se passe avec le lien partagé dans Messenger »). Le navigateur
+         intégré de Messenger, WhatsApp, Instagram… bloque webcal:// sur
+         iPhone, et ne connaît pas le compte Google sur Android : le bouton
+         « S'abonner » n'y fait rien. On propose donc d'abord d'ouvrir la page
+         dans le vrai navigateur. -->
+    <div class="etape" id="sortir" hidden>
+      <p><span class="num">1</span><b id="sortirT">Ouvrir cette page dans le navigateur</b></p>
+      <p id="sortirP"></p>
+      <p class="geste" id="sortirGeste"></p>
+      <a class="btn" id="ouvrir" href="#">Ouvrir dans le navigateur</a>
+      <p class="alerte" id="bloque" hidden></p>
+      <p style="font-size:13px" id="sortirAide"></p>
+    </div>
+    <p id="etape2" hidden><span class="num">2</span><b>Puis, dans le navigateur :</b></p>
+    <a class="btn" id="go" href="#">S'abonner dans mon agenda</a>
+    <p class="alerte" id="rien" hidden>Rien ne s'est ouvert ? Le navigateur de cette application bloque sans doute l'ajout d'agenda : ouvrez la page dans le navigateur (étape 1), ou suivez « Ajouter à la main » ci-dessous.</p>
+    <p id="aide" style="font-size:13.5px"></p>
+    <button class="btn sec" id="copier" type="button">Copier l'adresse de l'agenda</button>
+    <details id="main">
+      <summary>Ajouter à la main</summary>
+      <p><b>iPhone</b> : copier l'adresse ci-dessous, puis app Calendrier → Calendriers (en bas) → Ajouter un calendrier → Ajouter un calendrier avec abonnement, et coller l'adresse. Cela marche même depuis Messenger.</p>
+      <p><b>Android</b> : sur <b>calendar.google.com</b> (dans un navigateur, version ordinateur) → Autres agendas → + → À partir de l'URL, puis coller l'adresse. L'agenda apparaît ensuite dans l'application.</p>
+      <p><code id="url"></code></p>
+    </details>
+  </div>
+  <div class="carte" id="ko" hidden>
+    <h1>Lien incomplet</h1>
+    <p class="err" id="koTxt">Ce lien ne précise pas de qui il faut afficher l'horaire.</p>
+  </div>
+  <p class="pied">BIOWANZE · Mon équipe</p>
+</main>
+<script>
+(function(){
+  /* le lien porte le jeton secret de la personne (11/11/2026 : plus rien
+     n'est public) ; le trigramme ne sert qu'au titre */
+  var m=/[?&]id=([A-Za-z]{3}(?:-\d)?)(?:&|$)/.exec(location.search), mt=/[?&]t=([a-z0-9]{64})(?:&|$)/.exec(location.search);
+  if(!mt) m=null;
+  var $=function(i){return document.getElementById(i);};
+  if(!m){ $("ko").hidden=false; return; }
+  var id=m[1].toUpperCase();
+  var dir=location.href.split("#")[0].split("?")[0].replace(/[^\/]*$/,"");
+  var https="https://pnizdddritizjbsksoir.supabase.co/functions/v1/biowanze-agenda?t="+mt[1], webcal=https.replace(/^https?:/,"webcal:");
+  var ua=navigator.userAgent||"";
+  var apple=/iPhone|iPad|iPod|Macintosh/.test(ua);
+  /* Les navigateurs intégrés (WhatsApp, Messenger, Instagram…) bloquent
+     souvent webcal:// : on le dit plutôt que d'échouer en silence. */
+  /* Messenger sur Android s'annonce « Orca » ou « FB_IAB » : l'ancien motif
+     ne le voyait pas (le client, le 19/10/2026). */
+  var integre=/FBAN|FBAV|FB_IAB|FB4A|Orca|Messenger|Instagram|WhatsApp|Snapchat|Line\/|GSA\/|musical_ly|Twitter/.test(ua);
+  /* Messenger sur iPhone s'annonce souvent comme Facebook (FBAN/FBIOS) : la
+     capture du client, le 19/10/2026, disait « Facebook » dans Messenger. */
+  var appli=/Orca|Messenger/.test(ua)?"Messenger":(/Instagram/.test(ua)?"Instagram":(/WhatsApp/.test(ua)?"WhatsApp":(/FBAN|FBAV|FB_IAB|FB4A/.test(ua)?"Messenger ou Facebook":"cette application")));
+  var android=/Android/.test(ua);
+  $("tri").textContent=id.replace(/-\d$/,"");
+  $("url").textContent=https;
+  var go=$("go");
+  if(apple){
+    go.href=webcal;
+    /* dans une messagerie, l'étape 1 dit déjà comment en sortir */
+    $("aide").textContent="L'iPhone demande ensuite «\u00a0S'abonner\u00a0» : confirmez.";
+  } else {
+    go.href="https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal);
+    go.target="_blank"; go.rel="noopener";
+    $("aide").textContent="Google Agenda s'ouvre et propose d'ajouter l'agenda : confirmez. Si l'application l'ouvre sans rien proposer, utilisez « Ajouter à la main » ci-dessous.";
+  }
+  $("copier").onclick=function(){
+    var b=this, fini=function(){ b.textContent="Adresse copiée ✓"; setTimeout(function(){ b.textContent="Copier l'adresse de l'agenda"; },2000); };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(https).then(fini,function(){ $("main").open=true; });
+    else $("main").open=true;
+  };
+  if(integre){
+    var sans=location.href.replace(/^https?:\/\//,"");
+    $("sortir").hidden=false; $("etape2").hidden=false;
+    $("sortirP").textContent=appli.charAt(0).toUpperCase()+appli.slice(1)+" ouvre les liens dans sa propre fenêtre, qui ne sait pas ajouter un agenda.";
+    var ou=$("ouvrir");
+    /* LE GESTE QUI MARCHE TOUJOURS D'ABORD (le client, le 19/10/2026,
+       capture de Messenger sur iPhone : le bouton « Ouvrir dans Safari »
+       n'y fait rien, x-safari-https:// est bloqué). Le menu de la fenêtre
+       intégrée, lui, sait ouvrir le vrai navigateur. Le bouton reste en
+       second, et copie d'abord le lien de la page : s'il est bloqué, il
+       suffit de le coller dans le navigateur. */
+    var menu=apple?"⋯":"⋮", nav=apple?"Safari":"le navigateur";
+    $("sortirGeste").innerHTML="Touchez <b>"+menu+"</b> en haut à droite de l'écran, puis «\u00a0Ouvrir dans "+(apple?"le navigateur":"Chrome")+"\u00a0» (ou «\u00a0Ouvrir dans "+(apple?"Safari":"le navigateur")+"\u00a0»).";
+    ou.className="btn sec";
+    if(apple){ ou.href="x-safari-https://"+sans; ou.textContent="Ou : copier le lien et ouvrir Safari"; }
+    else if(android){ ou.href="intent://"+sans+"#Intent;scheme=https;action=android.intent.action.VIEW;end"; ou.textContent="Ou : copier le lien et ouvrir le navigateur"; }
+    else { ou.href="#"; ou.textContent="Copier le lien de cette page"; }
+    ou.addEventListener("click",function(){
+      var copie=false;
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(location.href); copie=true; } }catch(e){}
+      var depart=false, f=function(){ depart=true; };
+      window.addEventListener("blur",f); document.addEventListener("visibilitychange",function(){ if(document.hidden) depart=true; });
+      setTimeout(function(){ if(depart) return;
+        $("bloque").textContent=(copie?"Le lien de cette page est copié. ":"")+appli.charAt(0).toUpperCase()+appli.slice(1)+" a bloqué l'ouverture. "
+          +(copie?"Ouvrez "+nav+", touchez la barre d'adresse et collez le lien ; ou touchez "+menu+" en haut à droite.":"Touchez "+menu+" en haut à droite, puis « Ouvrir dans le navigateur ».");
+        $("bloque").hidden=false; },1500);
+    });
+    $("sortirAide").textContent="Ensuite, dans "+nav+", touchez «\u00a0S'abonner dans mon agenda\u00a0».";
+    go.className="btn sec";
+  }
+  /* Le bouton n'a rien ouvert : on le dit, au lieu d'un silence. Un vrai
+     départ vers l'agenda fait perdre le focus ou cache la page. */
+  var parti=false, marque=function(){ parti=true; };
+  window.addEventListener("blur",marque); window.addEventListener("pagehide",marque);
+  document.addEventListener("visibilitychange",function(){ if(document.hidden) parti=true; });
+  go.addEventListener("click",function(){
+    parti=false;
+    setTimeout(function(){ if(!parti){ $("rien").hidden=false; $("main").open=true; } },2500);
+  });
+  $("ok").hidden=false;
+  if(!integre) $("auto").hidden=false;
+  /* LE LIEN PARTAGÉ AGIT COMME LE BOUTON « S'ABONNER » (le client, le
+     19/10/2026, capture de la fenêtre « Calendrier avec abonnement »
+     d'iPhone : « j'aimerais que le lien partagé réagisse exactement comme
+     le bouton »). Hors d'une messagerie, la page lance l'abonnement d'elle-
+     même, une fois l'horaire trouvé : l'iPhone ouvre directement cette
+     fenêtre, Android la page d'ajout de Google. Le contenu reste dessous,
+     pour qui annule ou revient. Dans une messagerie, l'ouverture serait
+     bloquée en silence : on s'en tient aux étapes. */
+  var lance=false;
+  function lancer(){
+    if(lance || integre) return; lance=true;
+    if(apple) location.href=webcal;
+    else location.href=go.href;
+  }
+  /* Un trigramme inconnu se dit tout de suite ; sinon, l'abonnement part. */
+  try{ fetch(https,{method:"HEAD",cache:"no-store"}).then(function(r){
+    if(!r.ok){ lance=true; $("ok").hidden=true; $("koTxt").textContent="Aucun horaire n'est publié pour « "+id+" »."; $("ko").hidden=false; }
+    else lancer();
+  },function(){ lancer(); }); }catch(e){ lancer(); }
+  setTimeout(lancer,1500);
+})();
+</script>
+</body>
+</html>

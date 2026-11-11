@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#141C2F">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BioWanze">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>BioWanze</title>
+<!-- LA SEULE PAGE PUBLIQUE (le client, le 11/11/2026 : « rien ne doit être
+     accessible sans connexion, aucune info, aucun code »). Elle ne contient
+     ni l'application ni l'horaire : elle connecte, puis demande l'une et
+     l'autre à la base, qui vérifie le compte. -->
+<style>
+:root{color-scheme:dark;--fond:#141C2F;--carte:#1C2740;--ligne:#2E3B5A;--texte:#F2F5FB;--doux:#B8C2D6;--bleu:#5AA9FF;--rouge:#FF8A8A}
+html,body{margin:0;min-height:100%;background:var(--fond);color:var(--texte);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{box-sizing:border-box;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+.carte{width:100%;max-width:380px;background:var(--carte);border:1px solid var(--ligne);border-radius:22px;padding:28px 22px;box-sizing:border-box;text-align:center}
+img{display:block;margin:0 auto 12px;border-radius:18px}
+h1{margin:0 0 4px;font-size:24px;letter-spacing:.01em}
+#msg{margin:0 0 18px;color:var(--doux);font-size:15px;min-height:1.45em}
+#msg.err{color:var(--rouge)}
+form{display:flex;flex-direction:column;gap:12px;text-align:left}
+label{font-size:14px;color:var(--doux);display:flex;flex-direction:column;gap:6px}
+input{font:inherit;font-size:17px;color:var(--texte);background:#0E1526;border:1px solid var(--ligne);border-radius:12px;padding:12px 14px;min-height:48px;box-sizing:border-box;width:100%}
+input:focus-visible,button:focus-visible{outline:2px solid var(--bleu);outline-offset:2px}
+button{font:inherit;font-weight:600;min-height:48px;border-radius:12px;border:0;background:var(--bleu);color:#0B1220;cursor:pointer}
+button.second{background:transparent;color:var(--bleu);font-weight:500}
+button:disabled{opacity:.6}
+[hidden]{display:none!important}
+.roue{width:28px;height:28px;margin:6px auto 0;border:3px solid var(--ligne);border-top-color:var(--bleu);border-radius:50%;animation:t 1s linear infinite}
+@keyframes t{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.roue{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <div class="carte">
+    <img src="icon-192.png" alt="" width="72" height="72">
+    <h1>BioWanze</h1>
+    <p id="msg" role="status" aria-live="polite">Ouverture…</p>
+    <div class="roue" id="roue"></div>
+    <form id="f1" hidden>
+      <label for="em">Votre adresse e-mail de l’entreprise
+        <input id="em" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" required></label>
+      <button type="submit" id="b1">Recevoir un code</button>
+    </form>
+    <form id="f2" hidden>
+      <label for="co">Le code reçu par e-mail
+        <input id="co" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required></label>
+      <button type="submit" id="b2">Se connecter</button>
+      <button type="button" class="second" id="autre">Changer d’adresse</button>
+    </form>
+  </div>
+</main>
+<script>
+(function(){
+"use strict";
+var BASE="https://pnizdddritizjbsksoir.supabase.co", CLE="sb_publishable_FzetjMxWmdjSaTHWl1uZSg_HhMyErQI",
+    CACHE="biowanze-prive", ADRESSE=location.origin+location.pathname;
+var $=function(id){ return document.getElementById(id); };
+function ls(k,v){ try{ if(v===undefined){ var x=localStorage.getItem(k); return x?JSON.parse(x):null; }
+  if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,JSON.stringify(v)); }catch(e){} return null; }
+function dire(t,err){ var m=$("msg"); m.textContent=t; m.className=err?"err":""; }
+function roue(on){ $("roue").hidden=!on; }
+function post(chemin,corps,jeton){
+  var h={apikey:CLE,"Content-Type":"application/json"}; if(jeton) h.Authorization="Bearer "+jeton;
+  return fetch(BASE+chemin,{method:"POST",headers:h,body:JSON.stringify(corps||{})}).then(function(r){
+    return r.text().then(function(t){ var j=null; try{ j=t?JSON.parse(t):null; }catch(e){}
+      if(!r.ok){ var er=new Error((j&&(j.msg||j.message||j.error_description||j.error))||("erreur "+r.status)); er.status=r.status; throw er; }
+      return j; }); });
+}
+function garder(j){
+  var s={access:j.access_token,refresh:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-60)*1000,
+         email:(j.user&&j.user.email)||(ls("base/session")||{}).email||""};
+  ls("base/session",s); return s;
+}
+/* le jeton du compte, renouvelé au besoin ; null : plus de session */
+var renouv=null;
+function jeton(){
+  var s=ls("base/session"); if(!s) return Promise.resolve(null);
+  if(Date.now()<s.exp) return Promise.resolve(s.access);
+  if(renouv) return renouv;
+  renouv=post("/auth/v1/token?grant_type=refresh_token",{refresh_token:s.refresh}).then(function(j){ renouv=null; return garder(j).access; },
+    function(e){ renouv=null; var s2=ls("base/session"); if(e&&e.status&&e.status<500&&s2&&s2.refresh===s.refresh){ ls("base/session",null); return null; } throw e; });
+  return renouv;
+}
+/* la copie privée sur l'appareil, pour le hors-ligne : effacée dès qu'il
+   n'y a plus de session */
+function cLire(nom){ if(!window.caches) return Promise.resolve(null);
+  return caches.open(CACHE).then(function(c){ return c.match("./__prive/"+nom); }).then(function(r){ return r?r.text():null; },function(){ return null; }); }
+function cEcrire(nom,txt){ if(!window.caches) return Promise.resolve();
+  return caches.open(CACHE).then(function(c){ return c.put("./__prive/"+nom,new Response(txt,{headers:{"Content-Type":"text/plain; charset=utf-8"}})); }).catch(function(){}); }
+function oublier(){ try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf("prive/")===0) localStorage.removeItem(k); }); }catch(e){}
+  if(window.caches) return caches.delete(CACHE).catch(function(){}); return Promise.resolve(); }
+var EMP={};
+function etat(){ return jeton().then(function(t){ if(!t) return null;
+  return post("/rest/v1/rpc/biowanze_fichiers_etat",{},t).then(function(l){ EMP={}; (l||[]).forEach(function(x){ EMP[x.nom]=x.empreinte; }); return EMP; }); }); }
+function telecharger(nom){ return jeton().then(function(t){ if(!t) throw new Error("connexion");
+  return post("/rest/v1/rpc/biowanze_fichier",{p_nom:nom},t); }).then(function(txt){
+    if(typeof txt!=="string") throw new Error("fichier absent : "+nom);
+    return cEcrire(nom,txt).then(function(){ if(EMP[nom]) ls("prive/"+nom,EMP[nom]); return txt; }); }); }
+/* un fichier : la copie si elle est à jour (ou hors ligne), sinon la base */
+function obtenir(nom,frais){
+  var hors=navigator.onLine===false;
+  var p=hors||!frais?Promise.resolve(null):etat().catch(function(){ return null; });
+  return p.then(function(){
+    var deja=ls("prive/"+nom);
+    if(hors||(deja&&deja===EMP[nom])) return cLire(nom).then(function(t){ return t!==null?t:(hors?null:telecharger(nom)); });
+    return telecharger(nom).catch(function(e){ return cLire(nom).then(function(t){ if(t!==null) return t; throw e; }); });
+  });
+}
+/* les lectures « data/….json » de l'application passent par la base */
+var fetchOrig=window.fetch.bind(window);
+window.fetch=function(u,o){
+  var s=typeof u==="string"?u:(u&&u.url)||"";
+  var m=/(?:^|\/)(data\/[a-z0-9-]+\.json)(?:[?#]|$)/.exec(s.split(location.origin).join(""));
+  if(!m) return fetchOrig(u,o);
+  return obtenir(m[1],true).then(function(t){
+    return t===null?new Response("",{status:404}):new Response(t,{status:200,headers:{"Content-Type":"application/json"}}); },
+    function(){ return new Response("",{status:503}); });
+};
+var EMP_APP="";
+function demarrer(html){
+  EMP_APP=ls("prive/index.html")||"";
+  document.open(); document.write(html); document.close();
+  /* la version neuve de l'application : vérifiée au retour au premier plan
+     et toutes les trente minutes ; la page se recharge une fois */
+  setTimeout(function(){
+    function verifier(){ if(navigator.onLine===false||document.visibilityState==="hidden") return;
+      etat().then(function(e){ if(e&&e["index.html"]&&EMP_APP&&e["index.html"]!==EMP_APP)
+        telecharger("index.html").then(function(){ location.reload(); }); }).catch(function(){}); }
+    document.addEventListener("visibilitychange",verifier);
+    setInterval(verifier,30*60*1000);
+  },5000);
+}
+function lancer(){
+  dire("Chargement de l’application…"); roue(true); $("f1").hidden=true; $("f2").hidden=true;
+  obtenir("index.html",true).then(function(html){
+    if(html===null){ roue(false); dire("Pas de réseau, et l’application n’est pas encore sur cet appareil. Réessayez avec une connexion.",true); return; }
+    demarrer(html);
+  },function(e){
+    if(e&&e.message==="connexion"){ connexion(); return; }
+    roue(false); dire("L’application n’a pas pu être chargée ("+(e&&e.message||"erreur")+"). Réessayez dans un instant.",true);
+  });
+}
+function connexion(msg){
+  oublier(); roue(false); dire(msg||"Connectez-vous pour ouvrir l’application.");
+  $("f2").hidden=true; $("f1").hidden=false; var em=$("em"); em.value=ls("base/email")||""; em.focus();
+}
+$("f1").onsubmit=function(e){ e.preventDefault();
+  var v=String($("em").value||"").trim().toLowerCase(); if(!v) return;
+  $("b1").disabled=true; dire("Envoi du code…");
+  post("/auth/v1/otp?redirect_to="+encodeURIComponent(ADRESSE),{email:v,create_user:true}).then(function(){
+    ls("base/email",v); $("b1").disabled=false; $("f1").hidden=true; $("f2").hidden=false;
+    dire("Un code a été envoyé à "+v+"."); $("co").value=""; $("co").focus();
+  },function(e){ $("b1").disabled=false; dire("Envoi impossible : "+(e&&e.message||"erreur")+". Seules les adresses de l’entreprise sont admises.",true); });
+};
+$("f2").onsubmit=function(e){ e.preventDefault();
+  var email=ls("base/email")||"", v=String($("co").value||"").replace(/\s/g,""); if(!v) return;
+  $("b2").disabled=true; dire("Vérification…");
+  post("/auth/v1/verify",{type:"email",email:email,token:v}).catch(function(er){
+    return post("/auth/v1/token?grant_type=password",{email:email,password:v}).catch(function(){ throw er; });
+  }).then(function(j){ var s=garder(j); s.email=email; ls("base/session",s); $("b2").disabled=false; lancer(); },
+    function(er){ $("b2").disabled=false; dire("Code refusé : "+(er&&er.message||"erreur")+".",true); });
+};
+$("autre").onclick=function(){ connexion(); };
+if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(function(){});
+if(ls("base/session")) lancer(); else connexion();
+})();
+</script>
+</body>
+</html>
