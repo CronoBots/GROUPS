@@ -5,8 +5,8 @@
    le cache « biowanze-prive », que la page de connexion remplit après la
    connexion et efface à la déconnexion. Les anciens caches, qui
    contenaient l'application et l'horaire en clair, sont effacés. */
-var V = "bw-public-1";
-var CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png",
+var V = "bw-public-2";
+var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo-app.png", "./icon-192.png", "./icon-512.png",
             "./icon-maskable-512.png", "./apple-touch-icon.png", "./favicon.png"];
 
 self.addEventListener("install", function (e) {

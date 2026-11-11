@@ -35,12 +35,27 @@ button{font:inherit;font-weight:600;min-height:48px;border-radius:12px;border:0;
 button.second{background:transparent;color:var(--bleu);font-weight:500}
 button:disabled{opacity:.6}
 [hidden]{display:none!important}
+/* L'ÉCRAN DE CHARGEMENT EST CELUI DE L'APPLICATION (le client, le
+   11/11/2026 : « pourquoi cette page de chargement alors que j'aimais bien
+   celle que l'on avait de base ») : le même logo sur le même fond, le même
+   trait de lumière ; le cadre n'apparaît que pour se connecter ou dire une
+   erreur */
+.intro{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:#141C2F}
+.intro-in{display:flex;flex-direction:column;align-items:center;gap:26px}
+.intro img{width:176px;height:auto;display:block;margin:0;border-radius:0;animation:introLogo .8s cubic-bezier(.2,.8,.2,1) both}
+.intro-barre{width:110px;height:2px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;animation:introNom .6s .3s both}
+.intro-barre i{display:block;width:40%;height:100%;border-radius:2px;background:#69B2CB;animation:introBarre 1.1s .35s ease-in-out infinite}
+@keyframes introLogo{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes introNom{from{opacity:0}to{opacity:1}}
+@keyframes introBarre{from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+@media (prefers-reduced-motion:reduce){.intro img,.intro-barre,.intro-barre i{animation:none}}
 .roue{width:28px;height:28px;margin:6px auto 0;border:3px solid var(--ligne);border-top-color:var(--bleu);border-radius:50%;animation:t 1s linear infinite}
 @keyframes t{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.roue{animation:none}}
 </style>
 </head>
 <body>
+<div class="intro" id="intro" aria-hidden="true"><div class="intro-in"><img src="logo-app.png" alt="" width="176" height="176" decoding="async"><div class="intro-barre"><i></i></div></div></div>
 <main>
   <div class="carte">
     <img src="icon-192.png" alt="" width="72" height="72">
@@ -69,7 +84,7 @@ var $=function(id){ return document.getElementById(id); };
 function ls(k,v){ try{ if(v===undefined){ var x=localStorage.getItem(k); return x?JSON.parse(x):null; }
   if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,JSON.stringify(v)); }catch(e){} return null; }
 function dire(t,err){ var m=$("msg"); m.textContent=t; m.className=err?"err":""; }
-function roue(on){ $("roue").hidden=!on; }
+function roue(on){ $("roue").hidden=true; $("intro").hidden=!on; }
 function post(chemin,corps,jeton){
   var h={apikey:CLE,"Content-Type":"application/json"}; if(jeton) h.Authorization="Bearer "+jeton;
   return fetch(BASE+chemin,{method:"POST",headers:h,body:JSON.stringify(corps||{})}).then(function(r){
