@@ -5,7 +5,7 @@
    le cache « biowanze-prive », que la page de connexion remplit après la
    connexion et efface à la déconnexion. Les anciens caches, qui
    contenaient l'application et l'horaire en clair, sont effacés. */
-var V = "bw-public-2";
+var V = "bw-public-3";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./logo-app.png", "./icon-192.png", "./icon-512.png",
             "./icon-maskable-512.png", "./apple-touch-icon.png", "./favicon.png"];
 
@@ -43,10 +43,14 @@ self.addEventListener("fetch", function (e) {
 self.addEventListener("push", function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (err) { d = { body: e.data ? e.data.text() : "" }; }
-  e.waitUntil(self.registration.showNotification(d.title || "Horaire mis à jour", {
+  e.waitUntil(Promise.all([self.registration.showNotification(d.title || "Horaire mis à jour", {
     body: d.body || "", icon: "icon-192.png", badge: "favicon.png",
     tag: d.tag || "classeur", renotify: true, data: { url: d.url || "./" }
-  }));
+  }),
+  /* l'application ouverte la dit à voix haute (le client, le 12/11/2026) */
+  self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (l) {
+    for (var i = 0; i < l.length; i++) l[i].postMessage({ type: "push", title: d.title || "Horaire mis à jour", body: d.body || "" });
+  })]));
 });
 
 self.addEventListener("notificationclick", function (e) {
